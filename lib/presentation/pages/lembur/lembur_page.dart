@@ -10,8 +10,10 @@ import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/presentation/pages/lembur/lembur_form/lembur_form.dart';
 import 'package:hr/presentation/pages/lembur/widgets/lembur_card.dart';
+import 'package:hr/presentation/pages/lembur/widgets/lembur_user_card.dart';
 import 'package:hr/provider/features/features_guard.dart';
 import 'package:hr/provider/function/lembur_provider.dart';
+import 'package:hr/provider/function/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class LemburPage extends StatefulWidget {
@@ -127,6 +129,7 @@ class _LemburPageState extends State<LemburPage> {
   @override
   Widget build(BuildContext context) {
     final lemburProvider = context.watch<LemburProvider>();
+    final userProvider = context.watch<UserProvider>();
     final displayedList = searchController.text.isEmpty
         ? lemburProvider.lemburList
         : lemburProvider.filteredLemburList;
@@ -188,20 +191,28 @@ class _LemburPageState extends State<LemburPage> {
                     ),
                   ),
                 )
-              else
+              else if (userProvider.hasFeature("approval_lembur"))
                 ListView.builder(
                   itemCount: displayedList.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final lembur = displayedList[index];
-                    return LemburCard(
-                      lembur: lembur,
-                      onApprove: () => _approveLembur(lembur),
-                      onDecline: () => _declineLembur(lembur),
-                      onDelete: () => _deleteLembur(lembur),
+                    return FeatureGuard(
+                      featureId: "approval_lembur",
+                      child: LemburCard(
+                        lembur: lembur,
+                        onApprove: () => _approveLembur(lembur),
+                        onDecline: () => _declineLembur(lembur),
+                        onDelete: () => _deleteLembur(lembur),
+                      ),
                     );
                   },
+                )
+              else
+                UserLemburTabel(
+                  lemburList: displayedList,
+                  onDelete: (lembur) => _deleteLembur(lembur),
                 ),
             ],
           ),

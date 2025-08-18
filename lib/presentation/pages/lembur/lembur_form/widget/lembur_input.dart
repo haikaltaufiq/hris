@@ -275,6 +275,19 @@ class _LemburInputState extends State<LemburInput> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                if (_namaController.text.isEmpty ||
+                    _tanggalController.text.isEmpty ||
+                    _jamMulaiController.text.isEmpty ||
+                    _jamSelesaiController.text.isEmpty ||
+                    _deskripsiController.text.isEmpty) {
+                  NotificationHelper.showSnackBar(
+                    context,
+                    'Semua field wajib diisi!',
+                    isSuccess: false,
+                  );
+                  return; // stop submit
+                }
+
                 try {
                   final success = await lemburProvider.createLembur(
                     tanggal: _tanggalController.text,

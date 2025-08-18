@@ -189,7 +189,7 @@ class _CutiPageState extends State<CutiPage> {
                     ),
                   ),
                 )
-              else if (userProvider.hasFeature("manage_card"))
+              else if (userProvider.hasFeature("approval_card"))
                 ListView.builder(
                   itemCount: displayedList.length,
                   shrinkWrap: true,
@@ -197,7 +197,7 @@ class _CutiPageState extends State<CutiPage> {
                   itemBuilder: (context, index) {
                     final cuti = displayedList[index];
                     return FeatureGuard(
-                      featureId: "manage_card",
+                      featureId: "approval_card",
                       child: CutiCard(
                         cuti: cuti,
                         onApprove: () => _approveCuti(cuti),

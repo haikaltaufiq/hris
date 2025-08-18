@@ -7,7 +7,7 @@ class FeatureIds {
   static const userDeleteCuti = "user_delete_cuti";
   static const userEditCuti = "user_edit_cuti";
   static const addCuti = "add_cuti";
-  static const manageCutiCard = "manage_card";
+  static const approvalCutiCard = "approval_card";
 
   // ====================== Modul fitur cuti ======================
   // Super Admin
@@ -15,7 +15,7 @@ class FeatureIds {
     approveCuti,
     declineCuti,
     deleteCuti,
-    manageCutiCard,
+    approvalCutiCard,
     editCuti,
   ];
   //User
@@ -33,6 +33,7 @@ class FeatureIds {
   static const userDeleteLembur = "user_delete_lembur";
   static const userEditLembur = "user_edit_lembur";
   static const addLembur = "add_lembur";
+  static const approvalLemburCard = "approval_lembur";
 
   // ====================== Modul fitur cuti ======================
   // Super Admin
@@ -40,6 +41,7 @@ class FeatureIds {
     approveLembur,
     declineLembur,
     deleteLembur,
+    approvalLemburCard,
     editLembur,
   ];
   //User
