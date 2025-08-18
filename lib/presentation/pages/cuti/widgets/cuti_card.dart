@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/provider/features/features_guard.dart';
+import 'package:hr/presentation/pages/cuti/cuti_form/cuti_edit_form.dart';
 
 class CutiCard extends StatelessWidget {
   final CutiModel cuti;
@@ -29,7 +30,8 @@ class CutiCard extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => CutiProvider(),
       builder: (context, _) {
-        final provider = Provider.of<CutiProvider>(context);
+        context.watch<CutiProvider>();
+
         return Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.02,
@@ -161,14 +163,14 @@ class CutiCard extends StatelessWidget {
                         child: ActionButton(
                             label: 'Decline',
                             color: AppColors.red,
-                            onTap: () => provider.decline(onDecline)),
+                            onTap: () => onDecline()),
                       ),
                       FeatureGuard(
                         featureId: 'approve_cuti',
                         child: ActionButton(
                             label: 'Approve',
                             color: AppColors.green,
-                            onTap: () => provider.approve(onApprove)),
+                            onTap: () => onApprove()),
                       ),
                     ] else ...[
                       FeatureGuard(
@@ -176,7 +178,7 @@ class CutiCard extends StatelessWidget {
                         child: ActionButton(
                             label: 'Delete',
                             color: AppColors.red,
-                            onTap: () => provider.delete(onDelete)),
+                            onTap: () => onDelete()),
                       ),
                       FeatureGuard(
                         featureId: 'edit_cuti',
@@ -194,6 +196,27 @@ class CutiCard extends StatelessWidget {
                             }),
                       ),
                     ],
+                    FeatureGuard(
+                      featureId: 'user_delete_cuti',
+                      child: ActionButton(
+                        label: 'Delete',
+                        color: AppColors.red,
+                        onTap: () => onDelete(),
+                      ),
+                    ),
+                    FeatureGuard(
+                      featureId: 'user_edit_cuti',
+                      child: ActionButton(
+                          label: 'Edit',
+                          color: AppColors.yellow,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => CutiEditForm(cuti: cuti)),
+                            );
+                          }),
+                    ),
                   ],
                 ),
               ],

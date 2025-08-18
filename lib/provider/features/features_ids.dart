@@ -7,6 +7,7 @@ class FeatureIds {
   static const userDeleteCuti = "user_delete_cuti";
   static const userEditCuti = "user_edit_cuti";
   static const addCuti = "add_cuti";
+  static const manageCutiCard = "manage_card";
 
   // ====================== Modul fitur cuti ======================
   // Super Admin
@@ -14,6 +15,7 @@ class FeatureIds {
     approveCuti,
     declineCuti,
     deleteCuti,
+    manageCutiCard,
     editCuti,
   ];
   //User

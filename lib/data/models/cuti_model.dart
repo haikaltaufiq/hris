@@ -58,13 +58,8 @@ class CutiModel {
   bool get isPending => status.toLowerCase() == 'pending';
 
 //Motong alasan kepanjangan
-  String get shortAlasan {
-    const max = 15; // samain dengan kebutuhan UI kamu
-    if (alasan.length <= max) return alasan;
-    final head = alasan.substring(0, max);
-    final cutAt = head.lastIndexOf(' ');
-    return (cutAt > 0 ? head.substring(0, cutAt) : head) + '...';
-  }
+  String get shortAlasan =>
+      alasan.length > 20 ? '${alasan.substring(0, 20)}...' : alasan;
 
 //kondisi warna status
   Color get statusColor {

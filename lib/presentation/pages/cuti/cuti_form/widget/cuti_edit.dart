@@ -211,6 +211,20 @@ class _CutiEditState extends State<CutiEdit> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                // Cek apakah ada field yang kosong
+                if (_namaController.text.isEmpty ||
+                    _tipeCutiController.text.isEmpty ||
+                    _tanggalMulaiController.text.isEmpty ||
+                    _tanggalSelesaiController.text.isEmpty ||
+                    _alasanController.text.isEmpty) {
+                  NotificationHelper.showSnackBar(
+                    context,
+                    'Semua field wajib diisi!',
+                    isSuccess: false,
+                  );
+                  return; // stop submit
+                }
+
                 final result = await cutiProvider.editCuti(
                   id: widget.cuti.id,
                   nama: _namaController.text,

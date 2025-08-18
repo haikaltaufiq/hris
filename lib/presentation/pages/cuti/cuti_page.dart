@@ -5,14 +5,15 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/components/custom/header.dart';
-import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/presentation/pages/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/presentation/pages/cuti/widgets/cuti_card.dart';
+import 'package:hr/presentation/pages/cuti/widgets/user_cuti_tabel.dart';
 import 'package:hr/provider/function/cuti_provider.dart';
 import 'package:hr/provider/features/features_guard.dart';
+import 'package:hr/provider/function/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class CutiPage extends StatefulWidget {
@@ -128,6 +129,7 @@ class _CutiPageState extends State<CutiPage> {
   @override
   Widget build(BuildContext context) {
     final cutiProvider = context.watch<CutiProvider>();
+    final userProvider = context.watch<UserProvider>();
     final displayedList = searchController.text.isEmpty
         ? cutiProvider.cutiList
         : cutiProvider.filteredCutiList;
@@ -187,59 +189,28 @@ class _CutiPageState extends State<CutiPage> {
                     ),
                   ),
                 )
-              else if (cutiProvider == 'Super Admin')
+              else if (userProvider.hasFeature("manage_card"))
                 ListView.builder(
                   itemCount: displayedList.length,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final cuti = displayedList[index];
-                    return CutiCard(
-                      cuti: cuti,
-                      onApprove: () => _approveCuti(cuti),
-                      onDecline: () => _declineCuti(cuti),
-                      onDelete: () => _deleteCuti(cuti),
+                    return FeatureGuard(
+                      featureId: "manage_card",
+                      child: CutiCard(
+                        cuti: cuti,
+                        onApprove: () => _approveCuti(cuti),
+                        onDecline: () => _declineCuti(cuti),
+                        onDelete: () => _deleteCuti(cuti),
+                      ),
                     );
                   },
                 )
               else
-                CustomDataTableWidget(
-                  headers: [
-                    'Nama',
-                    'Tipe Cuti',
-                    'Mulai Cuti',
-                    'Selesai Cuti',
-                    'Alasan',
-                    'Approval 1',
-                    'Approval 2'
-                  ],
-                  rows: [
-                    [
-                      'Haikal',
-                      'Tahunan',
-                      '12/06/2025',
-                      '12/06/2025',
-                      'Liburan...',
-                      'Approved',
-                      'Pending'
-                    ],
-                  ],
-                  statusColumnIndexes: [5, 6], // kolom status
-                  onCellTap: (row, col) {
-                    print('Klik cell row: $row, col: $col');
-                  },
-                  onView: (row) {
-                    print('View row: $row');
-                    // Add your view logic here
-                  },
-                  onEdit: (row) {
-                    print('Edit row: $row');
-                    // Add your edit logic here
-                  },
-                  onDelete: (row) {
-                    print('Delete row: $row');
-                    // Add your delete logic here
-                  },
+                UserCutiTabel(
+                  cutiList: displayedList,
+                  onDelete: (cuti) => _deleteCuti(cuti),
                 ),
             ],
           ),

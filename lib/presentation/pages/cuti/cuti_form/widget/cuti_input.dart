@@ -202,6 +202,19 @@ class _CutiInputState extends State<CutiInput> {
             width: double.infinity,
             child: ElevatedButton(
               onPressed: () async {
+                // Cek apakah ada field yang kosong
+                if (_namaController.text.isEmpty ||
+                    _tipeCutiController.text.isEmpty ||
+                    _tanggalMulaiController.text.isEmpty ||
+                    _tanggalSelesaiController.text.isEmpty ||
+                    _alasanController.text.isEmpty) {
+                  NotificationHelper.showSnackBar(
+                    context,
+                    'Semua field wajib diisi!',
+                    isSuccess: false,
+                  );
+                  return; // stop submit
+                }
                 final success = await cutiProvider.createCuti(
                   nama: _namaController.text,
                   tipeCuti: _tipeCutiController.text,
