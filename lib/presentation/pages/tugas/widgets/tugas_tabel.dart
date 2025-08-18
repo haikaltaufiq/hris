@@ -199,7 +199,7 @@ class TugasTabel extends StatelessWidget {
             final tugas = provider.tugasList[tugasIndex];
             final values = [
               tugas.namaTugas,
-              tugas.users.map((u) => u.nama).join(', '),
+              tugas.user?.nama ?? '-',
               parseTime(tugas.jamMulai),
               parseDate(tugas.tanggalMulai),
               parseDate(tugas.tanggalSelesai),
@@ -240,7 +240,7 @@ class TugasTabel extends StatelessWidget {
                                 checkColor: Colors.black,
                                 activeColor: AppColors.putih),
                             const SizedBox(width: 8),
-                            Text(tugas.users.map((u) => u.nama).join(', '),
+                            Text(tugas.user?.nama ?? '-',
                                 style: TextStyle(
                                     color: AppColors.putih,
                                     fontFamily:

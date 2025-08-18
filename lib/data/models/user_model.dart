@@ -31,20 +31,27 @@ class UserModel {
     this.bpjsKetenagakerjaan,
   });
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'] ?? 0,
-      nama: json['nama'] ?? '',
-      email: json['email'] ?? '',
-      gajiPokok: json['gaji_pokok'],
-      npwp: json['npwp'],
-      bpjsKesehatan: json['bpjs_kesehatan'],
-      bpjsKetenagakerjaan: json['bpjs_ketenagakerjaan'],
-      jenisKelamin: json['jenis_kelamin'] ?? '',
-      statusPernikahan: json['status_pernikahan'] ?? '',
-      jabatan: json['jabatan'] != null ? JabatanModel.fromJson(json['jabatan']) : null,
-      peran: PeranModel.fromJson(json['peran']),
-      departemen: DepartemenModel.fromJson(json['departemen']),
-    );
-  }
+factory UserModel.fromJson(Map<String, dynamic> json) {
+  return UserModel(
+    id: json['id'] ?? 0,
+    nama: json['nama'] ?? '',
+    email: json['email'] ?? '',
+    gajiPokok: json['gaji_pokok'],
+    npwp: json['npwp'],
+    bpjsKesehatan: json['bpjs_kesehatan'],
+    bpjsKetenagakerjaan: json['bpjs_ketenagakerjaan'],
+    jenisKelamin: json['jenis_kelamin'] ?? '',
+    statusPernikahan: json['status_pernikahan'] ?? '',
+    jabatan: (json['jabatan'] != null && json['jabatan'] is Map<String, dynamic>)
+        ? JabatanModel.fromJson(json['jabatan'])
+        : null,
+    peran: (json['peran'] != null && json['peran'] is Map<String, dynamic>)
+        ? PeranModel.fromJson(json['peran'])
+        : PeranModel(id: json['peran_id'] ?? 0, namaPeran: ''), // fallback pakai id
+    departemen: (json['departemen'] != null && json['departemen'] is Map<String, dynamic>)
+        ? DepartemenModel.fromJson(json['departemen'])
+        : DepartemenModel(id: json['departemen_id'] ?? 0, namaDepartemen: ''), // fallback pakai id
+  );
+}
+
 }

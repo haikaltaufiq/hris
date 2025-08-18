@@ -1,7 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:hr/data/models/user_model.dart';
-
 class TugasModel {
   final int id;
   final String namaTugas;
@@ -11,7 +8,7 @@ class TugasModel {
   final String lokasi;
   final String note;
   final String status;
-  final List<UserModel> users;
+  final UserModel? user;
 
   TugasModel({
     required this.id,
@@ -22,12 +19,12 @@ class TugasModel {
     required this.lokasi,
     required this.note,
     required this.status,
-    required this.users,
+    this.user,
   });
 
   factory TugasModel.fromJson(Map<String, dynamic> json) {
     return TugasModel(
-      id: json['id'],
+      id: json['id'] ?? 0,
       namaTugas: json['nama_tugas'] ?? '',
       jamMulai: json['jam_mulai'] ?? '',
       tanggalMulai: json['tanggal_mulai'] ?? '',
@@ -35,10 +32,9 @@ class TugasModel {
       lokasi: json['lokasi'] ?? '',
       note: json['instruksi_tugas'] ?? '',
       status: json['status'] ?? '',
-      users: (json['users'] as List<dynamic>?)
-              ?.map((userJson) => UserModel.fromJson(userJson))
-              .toList() 
-              ?? [],
+      user: (json['user'] is Map<String, dynamic>)
+          ? UserModel.fromJson(json['user'])
+          : null,
     );
   }
 }

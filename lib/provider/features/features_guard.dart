@@ -20,6 +20,6 @@ class FeatureGuard extends StatelessWidget {
     if (userProvider.hasFeature(featureId)) {
       return child;
     }
-    return const SizedBox.shrink(); // hidden
+    return const SizedBox.shrink(); 
   }
 }
