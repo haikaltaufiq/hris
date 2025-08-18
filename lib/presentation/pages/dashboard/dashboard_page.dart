@@ -104,9 +104,9 @@ class _DashboardPageState extends State<DashboardPage> {
               },
             ),
             DashboardMenuItem(
-              label: "Tentang",
+              label: "Potongan",
               featureId: "tentang",
-              icon: FontAwesomeIcons.infoCircle,
+              icon: FontAwesomeIcons.calculator,
               onTap: () {
                 Navigator.push(
                   context,

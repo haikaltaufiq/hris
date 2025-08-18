@@ -8,7 +8,7 @@ import 'package:hr/presentation/pages/karyawan/karyawan_page.dart';
 import 'package:hr/presentation/pages/log_aktivitas/log_page.dart';
 import 'package:hr/presentation/pages/pengaturan/pengaturan_page.dart';
 import 'package:hr/presentation/pages/peran_akses/peran_akses_page.dart';
-import 'package:hr/presentation/pages/tentang/tentang_page.dart';
+import 'package:hr/presentation/pages/potongan/potongan_page.dart';
 import 'package:hr/presentation/pages/absen/absen_page.dart';
 import 'package:hr/presentation/pages/cuti/cuti_page.dart';
 import 'package:hr/presentation/pages/dashboard/dashboard_page.dart';
@@ -56,7 +56,7 @@ class _MainLayoutState extends State<MainLayout> {
       const DepartemenPage(),
       const JabatanPage(),
       const PeranAksesPage(),
-      const TentangPage(),
+      const PotonganPage(),
       const LogPage(),
       PengaturanPage(
         isDarkMode: isDarkMode,
