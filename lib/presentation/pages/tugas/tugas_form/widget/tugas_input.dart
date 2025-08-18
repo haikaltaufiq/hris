@@ -7,9 +7,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/data/models/departemen_model.dart';
 import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/departemen_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/provider/function/tugas_provider.dart';
 import 'package:provider/provider.dart';
@@ -31,57 +29,35 @@ class _TugasInputState extends State<TugasInput> {
   final TextEditingController _judulTugasController = TextEditingController();
   int _selectedMinute = 0;
   int _selectedHour = 0;
-  String? _assignmentMode;
+
   UserModel? _selectedUser;
-  DepartemenModel? _selectedDepartment;
   List<UserModel> _userList = [];
-  List<DepartemenModel> _departemenList = [];
   bool _isLoadingUser = true;
-  bool _isLoadingDepartemen = true;
 
   @override
   void initState() {
     super.initState();
-    _loadDepartemen();
     _loadUsers();
   }
 
   Future<void> _loadUsers() async {
-  try {
-    final userData = await UserService.fetchUsers();
-    if (mounted) {
-      setState(() {
-        _userList = userData;
-        _isLoadingUser = false;
-      });
-    }
-  } catch (e) {
-    print("Error fetch users: $e");
-    if (mounted) {
-      setState(() {
-        _isLoadingUser = false;
-        // Show error to user
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat data user: $e")),
-      );
-    }
-  }
-}
-
-  Future<void> _loadDepartemen() async {
     try {
-      final departemenData = await DepartemenService.fetchDepartemen();
+      final userData = await UserService.fetchUsers();
       if (mounted) {
         setState(() {
-          _departemenList = departemenData;
-          _isLoadingDepartemen = false;
+          _userList = userData;
+          _isLoadingUser = false;
         });
       }
     } catch (e) {
-      print("Error fetch departemen: $e");
+      print("Error fetch users: $e");
       if (mounted) {
-        setState(() => _isLoadingDepartemen = false);
+        setState(() {
+          _isLoadingUser = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal memuat data user: $e")),
+        );
       }
     }
   }
@@ -92,7 +68,7 @@ class _TugasInputState extends State<TugasInput> {
       useRootNavigator: true,
       context: context,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
+      shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
           top: Radius.circular(24),
         ),
@@ -114,7 +90,7 @@ class _TugasInputState extends State<TugasInput> {
                             decoration: BoxDecoration(
                               color: AppColors.secondary,
                               borderRadius:
-                                  BorderRadius.all(Radius.circular(30)),
+                                  const BorderRadius.all(Radius.circular(30)),
                             ),
                           ),
                           const SizedBox(height: 10),
@@ -157,14 +133,12 @@ class _TugasInputState extends State<TugasInput> {
                   FloatingActionButton.extended(
                     backgroundColor: AppColors.secondary,
                     onPressed: () {
-                      // Format waktu menjadi HH:mm
                       final formattedHour =
                           _selectedHour.toString().padLeft(2, '0');
                       final formattedMinute =
                           _selectedMinute.toString().padLeft(2, '0');
                       final formattedTime = "$formattedHour:$formattedMinute";
 
-                      // Simpan ke text field controller
                       controller.text = formattedTime;
 
                       Navigator.pop(context);
@@ -200,14 +174,14 @@ class _TugasInputState extends State<TugasInput> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Color(0xFF1F1F1F), // Header & selected date
-              onPrimary: Colors.white, // Teks tanggal terpilih
-              onSurface: AppColors.hitam, // Teks hari/bulan
-              secondary: AppColors.yellow, // Hari yang di-hover / highlight
+              primary: const Color(0xFF1F1F1F),
+              onPrimary: Colors.white,
+              onSurface: AppColors.hitam,
+              secondary: AppColors.yellow,
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: AppColors.hitam, // Tombol CANCEL/OK
+                foregroundColor: AppColors.hitam,
               ),
             ),
             textTheme: GoogleFonts.poppinsTextTheme(
@@ -296,7 +270,8 @@ class _TugasInputState extends State<TugasInput> {
             label: "Tanggal Mulai",
             hint: "dd / mm / yyyy",
             controller: _tanggalMulaiController,
-            suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
+            suffixIcon:
+                Icon(Icons.calendar_today, color: AppColors.putih),
             onTapIcon: () => _onTapIconDate(_tanggalMulaiController),
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -306,80 +281,39 @@ class _TugasInputState extends State<TugasInput> {
             label: "Batas Tanggal Penyelesaian",
             hint: "dd / mm / yyyy",
             controller: _tanggalSelesaiController,
-            suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
+            suffixIcon:
+                Icon(Icons.calendar_today, color: AppColors.putih),
             onTapIcon: () => _onTapIconDate(_tanggalSelesaiController),
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
-          CustomDropDownField(
-            label: 'Tipe Penugasan',
-            hint: 'Pilih tipe penugasan',
-            items: ['Per Orang', 'Per Departemen'],
-            value: _assignmentMode,
-            onChanged: (val) {
-              setState(() {
-                _assignmentMode = val!;
-                _selectedUser = null;
-                _selectedDepartment = null;
-              });
-            },
-            labelStyle: labelStyle,
-            textStyle: textStyle,
-            dropdownColor: AppColors.secondary,
-            dropdownTextColor: AppColors.putih,
-            dropdownIconColor: AppColors.putih,
-            inputStyle: inputStyle,
-          ),
-          const SizedBox(height: 10),
-          if (_assignmentMode == 'Per Orang')
-            _isLoadingUser
-                ? const Center(child: CircularProgressIndicator())
-                : CustomDropDownField(
-                    label: 'Karyawan',
-                    hint: 'Pilih user',
-                    items: _userList
-                        .map((u) => u.nama)
-                        .where((n) => n.isNotEmpty)
-                        .toList(),
-                    value: _selectedUser?.nama,
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedUser =
-                            _userList.firstWhere((u) => u.nama == val);
-                      });
-                    },
-                    labelStyle: labelStyle,
-                    textStyle: textStyle,
-                    dropdownColor: AppColors.secondary,
-                    dropdownTextColor: AppColors.putih,
-                    dropdownIconColor: AppColors.putih,
-                    inputStyle: inputStyle,
-                  )
-          else if (_assignmentMode == 'Per Departemen')
-            _isLoadingDepartemen
-                ? const Center(child: CircularProgressIndicator())
-                : CustomDropDownField(
-                    label: 'Departemen',
-                    hint: 'Pilih departemen',
-                    items: _departemenList
-                        .map((d) => d.namaDepartemen)
-                        .where((n) => n.isNotEmpty)
-                        .toList(),
-                    value: _selectedDepartment?.namaDepartemen,
-                    onChanged: (val) {
-                      setState(() {
-                        _selectedDepartment = _departemenList
-                            .firstWhere((d) => d.namaDepartemen == val);
-                      });
-                    },
-                    labelStyle: labelStyle,
-                    textStyle: textStyle,
-                    dropdownColor: AppColors.secondary,
-                    dropdownTextColor: AppColors.putih,
-                    dropdownIconColor: AppColors.putih,
-                    inputStyle: inputStyle,
-                  ),
+
+          // Pilih User
+          _isLoadingUser
+              ? const Center(child: CircularProgressIndicator())
+              : CustomDropDownField(
+                  label: 'Karyawan',
+                  hint: 'Pilih user',
+                  items: _userList
+                      .map((u) => u.nama)
+                      .where((n) => n.isNotEmpty)
+                      .toList(),
+                  value: _selectedUser?.nama,
+                  onChanged: (val) {
+                    setState(() {
+                      _selectedUser =
+                          _userList.firstWhere((u) => u.nama == val);
+                    });
+                  },
+                  labelStyle: labelStyle,
+                  textStyle: textStyle,
+                  dropdownColor: AppColors.secondary,
+                  dropdownTextColor: AppColors.putih,
+                  dropdownIconColor: AppColors.putih,
+                  inputStyle: inputStyle,
+                ),
+
           CustomInputField(
             label: "Lokasi",
             hint: 'Masukkan lokasi tugas',
@@ -403,21 +337,16 @@ class _TugasInputState extends State<TugasInput> {
               onPressed: isLoading
                   ? null
                   : () async {
-                      // Enhanced validation
                       if (_judulTugasController.text.isEmpty ||
                           _jamMulaiController.text.isEmpty ||
                           _tanggalMulaiController.text.isEmpty ||
                           _tanggalSelesaiController.text.isEmpty ||
-                          _assignmentMode == null ||
                           _lokasiController.text.isEmpty ||
-                          (_assignmentMode == "Per Orang" &&
-                              _selectedUser == null) ||
-                          (_assignmentMode == "Per Departemen" &&
-                              _selectedDepartment == null)) {
+                          _selectedUser == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
                               content: Text(
-                                  "Harap isi semua data wajib dan pilih user/departemen")),
+                                  "Harap isi semua data wajib dan pilih user")),
                         );
                         return;
                       }
@@ -427,13 +356,8 @@ class _TugasInputState extends State<TugasInput> {
                         jamMulai: _jamMulaiController.text,
                         tanggalMulai: _tanggalMulaiController.text,
                         tanggalSelesai: _tanggalSelesaiController.text,
-                        assignmentMode: _assignmentMode!,
-                        person: _assignmentMode == "Per Orang"
-                            ? _selectedUser?.id
-                            : null,
-                        departmentId: _assignmentMode == "Per Departemen"
-                            ? _selectedDepartment?.id
-                            : null,
+                        assignmentMode: "Per Orang",
+                        person: _selectedUser?.id,
                         lokasi: _lokasiController.text,
                         note: _noteController.text,
                       );

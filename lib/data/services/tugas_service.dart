@@ -28,15 +28,28 @@ class TugasService {
       },
     );
 
+    print("STATUS FETCH: ${response.statusCode}");
+    print("BODY FETCH: ${response.body}");
+
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      final List tugasList = jsonData['data'];
-      return tugasList.map((json) => TugasModel.fromJson(json)).toList();
+
+      // pastikan key 'data' ada
+      if (jsonData != null && jsonData['data'] != null) {
+        final List tugasList = jsonData['data'];
+        return tugasList
+            .map((item) => TugasModel.fromJson(item))
+            .toList();
+      } else {
+        print("API tidak mengembalikan key 'data'");
+        return [];
+      }
     } else {
       print('Gagal fetch tugas: ${response.statusCode} ${response.body}');
       throw Exception('Gagal memuat data tugas');
     }
   }
+
 
   // Tambah tugas
   static Future<Map<String, dynamic>> createTugas({
@@ -44,9 +57,7 @@ class TugasService {
     required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
-    required String assignmentMode,
     int? person,
-    int? departmentId,
     required String lokasi,
     required String note,
   }) async {
@@ -85,9 +96,7 @@ class TugasService {
       'jam_mulai': _formatTime(jamMulai),
       'tanggal_mulai': _formatDateForApi(tanggalMulai),
       'tanggal_selesai': _formatDateForApi(tanggalSelesai),
-      'assignment_mode': assignmentMode,
-      'user_id': person != null ? [person] : [],
-      'departemen_id': departmentId?.toString() ?? '',
+      'user_id': person ?? '',
       'lokasi': lokasi,
       'instruksi_tugas': note,
     };
@@ -133,9 +142,7 @@ class TugasService {
     required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
-    required String assignmentMode,
     int? person,
-    int? departmentId,
     required String lokasi,
     required String note,
   }) async {
@@ -184,11 +191,10 @@ class TugasService {
       'jam_mulai': _formatTime(jamMulai),
       'tanggal_mulai': _formatDateForApi(tanggalMulai),
       'tanggal_selesai': _formatDateForApi(tanggalSelesai),
-      'assignment_mode': assignmentMode,
-      'user_id': assignmentMode == 'Per User' ? [person] : null,
-      'departemen_id': assignmentMode == 'Per Departemen' ? departmentId : null,
       'lokasi': lokasi,
       'instruksi_tugas': note,
+      'user_id': person
+      
     };
 
     // Debug: lihat data yang dikirim

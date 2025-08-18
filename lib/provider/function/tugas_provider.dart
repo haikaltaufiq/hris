@@ -20,11 +20,13 @@ class TugasProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       _tugasList = await TugasService.fetchTugas();
+      notifyListeners(); 
     } catch (e) {
       debugPrint("Error fetch tugas: $e");
     }
     _setLoading(false);
   }
+
 
   Future<Map<String, dynamic>> createTugas({
     required String judul,
@@ -44,9 +46,7 @@ class TugasProvider extends ChangeNotifier {
         jamMulai: jamMulai,
         tanggalMulai: tanggalMulai,
         tanggalSelesai: tanggalSelesai,
-        assignmentMode: assignmentMode,
         person: person,
-        departmentId: departmentId,
         lokasi: lokasi,
         note: note,
       );
@@ -64,14 +64,12 @@ class TugasProvider extends ChangeNotifier {
   }
 
   // Update tugas
-  // Update tugas
   Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
     required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
-    required String assignmentMode,
     int? person,
     int? departmentId,
     required String lokasi,
@@ -85,16 +83,14 @@ class TugasProvider extends ChangeNotifier {
         jamMulai: jamMulai,
         tanggalMulai: tanggalMulai,
         tanggalSelesai: tanggalSelesai,
-        assignmentMode: assignmentMode,
         person: person,
-        departmentId: departmentId,
         lokasi: lokasi,
         note: note,
       );
       if (result['success'] == true) {
         await fetchTugas();
       }
-      return result; // ⬅ return full map
+      return result; 
     } catch (e) {
       debugPrint("Error update tugas: $e");
       return {'success': false, 'message': 'Terjadi kesalahan'};

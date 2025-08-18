@@ -7,10 +7,8 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/data/models/departemen_model.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/departemen_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/provider/function/tugas_provider.dart';
 import 'package:provider/provider.dart';
@@ -25,21 +23,17 @@ class TugasInputEdit extends StatefulWidget {
 
 class _TugasInputEditState extends State<TugasInputEdit> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController =
-      TextEditingController();
+  final TextEditingController _tanggalSelesaiController = TextEditingController();
   final TextEditingController _jamMulaiController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
+
   int _selectedMinute = 0;
   int _selectedHour = 0;
-  String? _assignmentMode;
   UserModel? _selectedUser;
-  DepartemenModel? _selectedDepartment;
   List<UserModel> _userList = [];
-  List<DepartemenModel> _departemenList = [];
   bool _isLoadingUser = true;
-  bool _isLoadingDepartemen = true;
 
   @override
   void initState() {
@@ -52,21 +46,9 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     _lokasiController.text = widget.tugas.lokasi;
     _noteController.text = widget.tugas.note;
 
-    // Assignment mode
-    if (widget.tugas.users.isNotEmpty) {
-      if (widget.tugas.users.length == 1) {
-        // Mode per orang
-        _assignmentMode = 'Per Orang';
-        _selectedUser = widget.tugas.users.first;
-      } else {
-        // Mode per departemen (atau multi-user)
-        _assignmentMode = 'Per Departemen';
-        // Ambil departemen dari user pertama (asumsi semua user dari departemen yang sama)
-        _selectedDepartment = widget.tugas.users.first.departemen;
-      }
-    }
+    // user yang sudah ada
+    _selectedUser = widget.tugas.user;
 
-    _loadDepartemen();
     _loadUsers();
   }
 
@@ -87,120 +69,92 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     }
   }
 
-  Future<void> _loadDepartemen() async {
-    try {
-      final departemenData = await DepartemenService.fetchDepartemen();
-      if (mounted) {
-        setState(() {
-          _departemenList = departemenData;
-          _isLoadingDepartemen = false;
-        });
-      }
-    } catch (e) {
-      print("Error fetch departemen: $e");
-      if (mounted) {
-        setState(() => _isLoadingDepartemen = false);
-      }
-    }
-  }
-
   void _onTapIconTime(TextEditingController controller) async {
     showModalBottomSheet(
       backgroundColor: AppColors.primary,
       useRootNavigator: true,
       context: context,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Container(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  ListTile(
-                    title: Center(
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 3,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(30)),
-                            ),
+            return Column(
+              children: [
+                const SizedBox(height: 10),
+                ListTile(
+                  title: Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 3,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius: const BorderRadius.all(Radius.circular(30)),
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Pilih Waktu',
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            'Pengajuan Lembur',
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  NumberPickerWidget(
-                    hour: _selectedHour,
-                    minute: _selectedMinute,
-                    onHourChanged: (value) {
-                      setModalState(() {
-                        _selectedHour = value;
-                      });
-                    },
-                    onMinuteChanged: (value) {
-                      setModalState(() {
-                        _selectedMinute = value;
-                      });
-                    },
-                  ),
-                  FloatingActionButton.extended(
-                    backgroundColor: AppColors.secondary,
-                    onPressed: () {
-                      // Format waktu menjadi HH:mm
-                      final formattedHour =
-                          _selectedHour.toString().padLeft(2, '0');
-                      final formattedMinute =
-                          _selectedMinute.toString().padLeft(2, '0');
-                      final formattedTime = "$formattedHour:$formattedMinute";
-
-                      // Simpan ke text field controller
-                      controller.text = formattedTime;
-
-                      Navigator.pop(context);
-                    },
-                    label: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Text(
-                        'Save',
-                        style: TextStyle(
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          color: AppColors.putih,
-                          fontSize: 18,
                         ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Pilih Waktu',
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          'Pengajuan Lembur',
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                NumberPickerWidget(
+                  hour: _selectedHour,
+                  minute: _selectedMinute,
+                  onHourChanged: (value) {
+                    setModalState(() {
+                      _selectedHour = value;
+                    });
+                  },
+                  onMinuteChanged: (value) {
+                    setModalState(() {
+                      _selectedMinute = value;
+                    });
+                  },
+                ),
+                FloatingActionButton.extended(
+                  backgroundColor: AppColors.secondary,
+                  onPressed: () {
+                    final formattedHour = _selectedHour.toString().padLeft(2, '0');
+                    final formattedMinute = _selectedMinute.toString().padLeft(2, '0');
+                    final formattedTime = "$formattedHour:$formattedMinute";
+                    controller.text = formattedTime;
+                    Navigator.pop(context);
+                  },
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Text(
+                      'Save',
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.poppins().fontFamily,
+                        color: AppColors.putih,
+                        fontSize: 18,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );
@@ -218,15 +172,13 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Color(0xFF1F1F1F), // Header & selected date
-              onPrimary: Colors.white, // Teks tanggal terpilih
-              onSurface: AppColors.hitam, // Teks hari/bulan
-              secondary: AppColors.yellow, // Hari yang di-hover / highlight
+              primary: const Color(0xFF1F1F1F),
+              onPrimary: Colors.white,
+              onSurface: AppColors.hitam,
+              secondary: AppColors.yellow,
             ),
             textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.hitam, // Tombol CANCEL/OK
-              ),
+              style: TextButton.styleFrom(foregroundColor: AppColors.hitam),
             ),
             textTheme: GoogleFonts.poppinsTextTheme(
               Theme.of(context).textTheme.apply(
@@ -247,35 +199,15 @@ class _TugasInputEditState extends State<TugasInputEdit> {
   }
 
   Future<void> _handleSubmit() async {
-    // Validate required fields
     if (_judulTugasController.text.isEmpty ||
         _jamMulaiController.text.isEmpty ||
         _tanggalMulaiController.text.isEmpty ||
         _tanggalSelesaiController.text.isEmpty ||
-        _assignmentMode == null ||
-        _lokasiController.text.isEmpty) {
+        _lokasiController.text.isEmpty ||
+        _selectedUser == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Harap isi semua data wajib")),
-        );
-      }
-      return;
-    }
-
-    // Validate assignment selection
-    if (_assignmentMode == "Per Orang" && _selectedUser == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Pilih karyawan terlebih dahulu")),
-        );
-      }
-      return;
-    }
-
-    if (_assignmentMode == "Per Departemen" && _selectedDepartment == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Pilih departemen terlebih dahulu")),
         );
       }
       return;
@@ -290,11 +222,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         jamMulai: _jamMulaiController.text,
         tanggalMulai: _tanggalMulaiController.text,
         tanggalSelesai: _tanggalSelesaiController.text,
-        assignmentMode: _assignmentMode!,
-        person: _assignmentMode == "Per Orang" ? _selectedUser?.id : null,
-        departmentId: _assignmentMode == "Per Departemen"
-            ? _selectedDepartment?.id
-            : null,
+        person: _selectedUser?.id,
         lokasi: _lokasiController.text,
         note: _noteController.text,
       );
@@ -337,7 +265,6 @@ class _TugasInputEditState extends State<TugasInputEdit> {
 
   @override
   Widget build(BuildContext context) {
-    // Use Consumer to properly watch the provider
     return Consumer<TugasProvider>(
       builder: (context, tugasProvider, child) {
         final isLoading = tugasProvider.isLoading;
@@ -373,11 +300,11 @@ class _TugasInputEditState extends State<TugasInputEdit> {
             children: [
               CustomInputField(
                 label: "Judul Tugas",
-                hint: "",
                 controller: _judulTugasController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
+                hint: '',
               ),
               CustomInputField(
                 label: "Jam Mulai",
@@ -409,96 +336,44 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 textStyle: textStyle,
                 inputStyle: inputStyle,
               ),
-              CustomDropDownField(
-                label: 'Tipe Penugasan',
-                hint: 'Pilih tipe penugasan',
-                items: ['Per Orang', 'Per Departemen'],
-                value: _assignmentMode,
-                onChanged: (val) {
-                  setState(() {
-                    _assignmentMode = val!;
-                    _selectedUser = null;
-                    _selectedDepartment = null;
-                  });
-                },
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                dropdownColor: AppColors.secondary,
-                dropdownTextColor: AppColors.putih,
-                dropdownIconColor: AppColors.putih,
-                inputStyle: inputStyle,
-              ),
               const SizedBox(height: 10),
-              if (_assignmentMode == 'Per Orang')
-                _isLoadingUser
-                    ? const Center(
-                        child: CircularProgressIndicator(
-                        color: Color(0x00FFFFFF),
-                      ))
-                    : CustomDropDownField(
-                        label: 'Karyawan',
-                        hint: 'Pilih user',
-                        items: _userList
-                            .map((user) => user.nama)
-                            .where((name) => name.isNotEmpty)
-                            .toList(),
-                        value: _selectedUser?.nama,
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedUser = _userList.firstWhere(
-                              (user) => user.nama == val,
-                              orElse: () => _userList.first,
-                            );
-                          });
-                        },
-                        labelStyle: labelStyle,
-                        textStyle: textStyle,
-                        dropdownColor: AppColors.secondary,
-                        dropdownTextColor: AppColors.putih,
-                        dropdownIconColor: AppColors.putih,
-                        inputStyle: inputStyle,
-                      )
-              else if (_assignmentMode == 'Per Departemen')
-                _isLoadingDepartemen
-                    ? const Center(child: CircularProgressIndicator())
-                    : CustomDropDownField(
-                        label: 'Departemen',
-                        hint: 'Pilih departemen',
-                        items: _departemenList
-                            .map((d) => d.namaDepartemen)
-                            .where((name) => name.isNotEmpty)
-                            .toList(),
-                        value: _selectedDepartment?.namaDepartemen,
-                        onChanged: (val) {
-                          setState(() {
-                            _selectedDepartment = _departemenList.firstWhere(
-                              (d) => d.namaDepartemen == val,
-                              orElse: () => _departemenList.first,
-                            );
-                          });
-                        },
-                        labelStyle: labelStyle,
-                        textStyle: textStyle,
-                        dropdownColor: AppColors.secondary,
-                        dropdownTextColor: AppColors.putih,
-                        dropdownIconColor: AppColors.putih,
-                        inputStyle: inputStyle,
-                      ),
+              _isLoadingUser
+                  ? Center(child: CircularProgressIndicator(color: AppColors.putih))
+                  : CustomDropDownField(
+                      label: 'Karyawan',
+                      hint: 'Pilih user',
+                      items: _userList.map((user) => user.nama).where((name) => name.isNotEmpty).toList(),
+                      value: _selectedUser?.nama,
+                      onChanged: (val) {
+                        setState(() {
+                          _selectedUser = _userList.firstWhere(
+                            (user) => user.nama == val,
+                            orElse: () => _userList.first,
+                          );
+                        });
+                      },
+                      labelStyle: labelStyle,
+                      textStyle: textStyle,
+                      dropdownColor: AppColors.secondary,
+                      dropdownTextColor: AppColors.putih,
+                      dropdownIconColor: AppColors.putih,
+                      inputStyle: inputStyle,
+                    ),
               CustomInputField(
                 label: "Lokasi",
-                hint: '',
                 controller: _lokasiController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
-                inputStyle: inputStyle,
+                inputStyle: inputStyle, 
+                hint: '',
               ),
               CustomInputField(
                 label: "Note",
-                hint: "",
                 controller: _noteController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
-                inputStyle: inputStyle,
+                inputStyle: inputStyle, 
+                hint: '',
               ),
               const SizedBox(height: 5),
               SizedBox(
@@ -511,13 +386,10 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    disabledBackgroundColor:
-                        const Color(0xFF1F1F1F).withOpacity(0.6),
+                    disabledBackgroundColor: const Color(0xFF1F1F1F).withOpacity(0.6),
                   ),
                   child: isLoading
-                      ? const SizedBox(
-                          child: CircularProgressIndicator(),
-                        )
+                      ? const SizedBox(child: CircularProgressIndicator())
                       : Text(
                           'Submit',
                           style: GoogleFonts.poppins(
