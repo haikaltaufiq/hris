@@ -11,7 +11,8 @@ class GetStartedButton extends StatefulWidget {
   State<GetStartedButton> createState() => _GetStartedButtonState();
 }
 
-class _GetStartedButtonState extends State<GetStartedButton> {
+class _GetStartedButtonState extends State<GetStartedButton>
+    with TickerProviderStateMixin {
   bool _isHovering = false;
 
   void _showLoginSheet(BuildContext context) {
@@ -19,6 +20,12 @@ class _GetStartedButtonState extends State<GetStartedButton> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
+      barrierColor: Colors.black.withOpacity(0.5), // Darker background
+      transitionAnimationController: AnimationController(
+        duration:
+            const Duration(milliseconds: 600), // Slower, smoother animation
+        vsync: this,
+      ),
       builder: (context) => const LoginPageSheet(),
     );
   }
@@ -38,7 +45,7 @@ class _GetStartedButtonState extends State<GetStartedButton> {
           child: GestureDetector(
             onTap: () => _showLoginSheet(context),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
+              duration: const Duration(milliseconds: 800),
               width: width * 0.85,
               height: width * 0.14,
               decoration: BoxDecoration(

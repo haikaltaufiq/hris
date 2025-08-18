@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/presentation/dashboard_menu/peran_akses/peran_form/widget/peran_input.dart';
+import 'package:hr/presentation/pages/peran_akses/peran_form/widget/peran_input.dart';
 
 class PeranForm extends StatelessWidget {
   const PeranForm({super.key});

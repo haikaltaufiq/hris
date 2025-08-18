@@ -9,7 +9,7 @@ import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/jabatan_model.dart';
 import 'package:hr/data/services/jabatan_service.dart';
-import 'package:hr/presentation/dashboard_menu/jabatan/widgets/jabatan_tabel.dart';
+import 'package:hr/presentation/pages/jabatan/widgets/jabatan_tabel.dart';
 
 class JabatanPage extends StatefulWidget {
   const JabatanPage({super.key});

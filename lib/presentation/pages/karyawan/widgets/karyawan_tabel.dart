@@ -7,7 +7,7 @@ import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/user_service.dart';
-import 'package:hr/presentation/dashboard_menu/karyawan/karyawan_form/karyawan_form_edit.dart';
+import 'package:hr/presentation/pages/karyawan/karyawan_form/karyawan_form_edit.dart';
 
 class KaryawanTabel extends StatelessWidget {
   final List<UserModel> users;

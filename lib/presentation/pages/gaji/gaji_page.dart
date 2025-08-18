@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/header.dart';
-import 'package:hr/presentation/dashboard_menu/gaji/widgets/gaji_count.dart';
-import 'package:hr/presentation/dashboard_menu/gaji/widgets/gaji_tabel.dart';
+import 'package:hr/presentation/pages/gaji/widgets/gaji_count.dart';
+import 'package:hr/presentation/pages/gaji/widgets/gaji_tabel.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 
 class GajiPage extends StatefulWidget {

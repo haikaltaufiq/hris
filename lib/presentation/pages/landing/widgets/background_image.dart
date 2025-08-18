@@ -22,3 +22,11 @@ class BackgroundImage extends StatelessWidget {
     );
   }
 }
+
+class ImagePreloader {
+  static Future<void> preloadImages(BuildContext context) async {
+    await precacheImage(const AssetImage('assets/images/dahua.jpg'), context);
+    // You can add more images here:
+    // await precacheImage(const AssetImage('assets/images/other_image.jpg'), context);
+  }
+}

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
-import 'package:hr/components/custom/show_confirmation.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/helpers/notification_helper.dart';

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/data/services/cuti_service.dart';
-import 'package:intl/intl.dart';
 
 class CutiProvider with ChangeNotifier {
   List<CutiModel> _cutiList = [];
@@ -121,11 +120,6 @@ class CutiProvider with ChangeNotifier {
     filterCuti(_currentSearch);
 
     return message;
-  }
-
-  String formatDate(String date) {
-    if (date.isEmpty) return '-';
-    return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
   }
 
   /// Approve cuti (tetap bisa pakai onApprove callback)

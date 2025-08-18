@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/button/action_button.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
+import 'package:hr/core/helpers/format_time.dart';
+import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/presentation/pages/lembur/lembur_form/lembur_form_edit.dart';
@@ -29,7 +31,7 @@ class LemburCard extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (_) => LemburProvider(),
       builder: (context, _) {
-        final provider = context.watch<LemburProvider>();
+        context.watch<LemburProvider>();
         return Padding(
           padding: EdgeInsets.symmetric(
             horizontal: MediaQuery.of(context).size.width * 0.02,
@@ -75,13 +77,15 @@ class LemburCard extends StatelessWidget {
                                 color: lembur.statusColor),
                             DetailItem(
                                 label: 'Tanggal Mulai',
-                                value: provider.formatDate(lembur.tanggal)),
+                                value: DateHelper.format(lembur.tanggal)),
                             DetailItem(
                                 label: 'Jam Mulai',
-                                value: provider.formatTime(lembur.jamMulai)),
+                                value:
+                                    FormatTime().formatTime(lembur.jamMulai)),
                             DetailItem(
                                 label: 'Jam Selesai',
-                                value: provider.formatTime(lembur.jamSelesai)),
+                                value:
+                                    FormatTime().formatTime(lembur.jamSelesai)),
                             DetailItem(
                                 label: 'Alasan', value: lembur.deskripsi),
                           ],
@@ -141,7 +145,7 @@ class LemburCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Tanggal + Jam
                       Text(
-                        '${provider.formatDate(lembur.tanggal)} ',
+                        '${DateHelper.format(lembur.tanggal)} ',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -152,7 +156,7 @@ class LemburCard extends StatelessWidget {
                       const SizedBox(height: 8),
 
                       Text(
-                        '(${provider.formatTime(lembur.jamMulai)} - ${provider.formatTime(lembur.jamSelesai)})',
+                        '(${FormatTime().formatTime(lembur.jamMulai)} - ${FormatTime().formatTime(lembur.jamSelesai)})',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,

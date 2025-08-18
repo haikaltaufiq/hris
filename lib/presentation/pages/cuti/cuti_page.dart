@@ -1,12 +1,11 @@
-// ignore_for_file: use_build_context_synchronously, avoid_print
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
-import 'package:hr/components/custom/show_confirmation.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/core/theme.dart';
@@ -188,7 +187,7 @@ class _CutiPageState extends State<CutiPage> {
                     ),
                   ),
                 )
-              else
+              else if (cutiProvider == 'Super Admin')
                 ListView.builder(
                   itemCount: displayedList.length,
                   shrinkWrap: true,
@@ -201,6 +200,45 @@ class _CutiPageState extends State<CutiPage> {
                       onDecline: () => _declineCuti(cuti),
                       onDelete: () => _deleteCuti(cuti),
                     );
+                  },
+                )
+              else
+                CustomDataTableWidget(
+                  headers: [
+                    'Nama',
+                    'Tipe Cuti',
+                    'Mulai Cuti',
+                    'Selesai Cuti',
+                    'Alasan',
+                    'Approval 1',
+                    'Approval 2'
+                  ],
+                  rows: [
+                    [
+                      'Haikal',
+                      'Tahunan',
+                      '12/06/2025',
+                      '12/06/2025',
+                      'Liburan...',
+                      'Approved',
+                      'Pending'
+                    ],
+                  ],
+                  statusColumnIndexes: [5, 6], // kolom status
+                  onCellTap: (row, col) {
+                    print('Klik cell row: $row, col: $col');
+                  },
+                  onView: (row) {
+                    print('View row: $row');
+                    // Add your view logic here
+                  },
+                  onEdit: (row) {
+                    print('Edit row: $row');
+                    // Add your edit logic here
+                  },
+                  onDelete: (row) {
+                    print('Delete row: $row');
+                    // Add your delete logic here
                   },
                 ),
             ],

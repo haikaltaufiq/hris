@@ -3,12 +3,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/components/button/action_button.dart';
 import 'package:hr/components/dialog/detail_item.dart';
+import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/provider/function/cuti_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/provider/features/features_guard.dart';
-import 'package:hr/presentation/pages/cuti/cuti_form/cuti_edit_form.dart';
 
 class CutiCard extends StatelessWidget {
   final CutiModel cuti;
@@ -72,11 +72,10 @@ class CutiCard extends StatelessWidget {
                                 label: 'Tipe Cuti', value: cuti.tipe_cuti),
                             DetailItem(
                                 label: 'Tanggal Mulai',
-                                value: provider.formatDate(cuti.tanggal_mulai)),
+                                value: DateHelper.format(cuti.tanggal_mulai)),
                             DetailItem(
                                 label: 'Tanggal Selesai',
-                                value:
-                                    provider.formatDate(cuti.tanggal_selesai)),
+                                value: DateHelper.format(cuti.tanggal_selesai)),
                             DetailItem(label: 'Alasan', value: cuti.alasan),
                           ],
                         ),
@@ -128,7 +127,7 @@ class CutiCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${provider.formatDate(cuti.tanggal_mulai)} - ${provider.formatDate(cuti.tanggal_selesai)}',
+                        '${DateHelper.format(cuti.tanggal_mulai)} - ${DateHelper.format(cuti.tanggal_selesai)}',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -195,27 +194,6 @@ class CutiCard extends StatelessWidget {
                             }),
                       ),
                     ],
-                    FeatureGuard(
-                      featureId: 'user_delete_cuti',
-                      child: ActionButton(
-                        label: 'Delete',
-                        color: AppColors.red,
-                        onTap: () => provider.delete(onDelete),
-                      ),
-                    ),
-                    FeatureGuard(
-                      featureId: 'user_edit_cuti',
-                      child: ActionButton(
-                          label: 'Edit',
-                          color: AppColors.yellow,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => CutiEditForm(cuti: cuti)),
-                            );
-                          }),
-                    ),
                   ],
                 ),
               ],

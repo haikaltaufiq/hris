@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/presentation/dashboard_menu/peran_akses/peran_form/widget/check_box.dart';
+import 'package:hr/presentation/pages/peran_akses/peran_form/widget/check_box.dart';
 
 class PeranInput extends StatefulWidget {
   const PeranInput({super.key});

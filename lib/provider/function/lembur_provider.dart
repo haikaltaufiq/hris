@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/data/services/lembur_service.dart';
-import 'package:intl/intl.dart';
 
 class LemburProvider extends ChangeNotifier {
   List<LemburModel> _lemburList = [];
@@ -155,20 +154,6 @@ class LemburProvider extends ChangeNotifier {
         await fetchLembur();
         if (filteredLemburList.isNotEmpty) filterLembur('');
       });
-    }
-  }
-
-  String formatDate(String date) {
-    if (date.isEmpty) return '-';
-    return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
-  }
-
-  String formatTime(String time) {
-    if (time.isEmpty) return '-';
-    try {
-      return DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(time));
-    } catch (_) {
-      return time;
     }
   }
 }

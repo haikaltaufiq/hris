@@ -9,7 +9,7 @@ import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/departemen_model.dart';
 import 'package:hr/data/services/departemen_service.dart';
-import 'package:hr/presentation/dashboard_menu/departemen/widgets/department_tabel.dart';
+import 'package:hr/presentation/pages/departemen/widgets/department_tabel.dart';
 
 class DepartemenPage extends StatefulWidget {
   const DepartemenPage({super.key});

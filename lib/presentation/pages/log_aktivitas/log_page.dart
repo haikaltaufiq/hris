@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/components/custom/header.dart';
-import 'package:hr/presentation/dashboard_menu/log_aktivitas/widgets/log_tabel.dart';
+import 'package:hr/presentation/pages/log_aktivitas/widgets/log_tabel.dart';
 
 class LogPage extends StatefulWidget {
   const LogPage({super.key});

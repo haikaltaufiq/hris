@@ -7,8 +7,8 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/user_service.dart';
-import 'package:hr/presentation/dashboard_menu/karyawan/karyawan_form/karyawan_form.dart';
-import 'package:hr/presentation/dashboard_menu/karyawan/widgets/karyawan_tabel.dart';
+import 'package:hr/presentation/pages/karyawan/karyawan_form/karyawan_form.dart';
+import 'package:hr/presentation/pages/karyawan/widgets/karyawan_tabel.dart';
 
 class KaryawanPage extends StatefulWidget {
   const KaryawanPage({super.key});

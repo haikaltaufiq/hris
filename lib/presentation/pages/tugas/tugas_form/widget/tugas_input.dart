@@ -47,21 +47,27 @@ class _TugasInputState extends State<TugasInput> {
   }
 
   Future<void> _loadUsers() async {
-    try {
-      final userData = await UserService.fetchUsers();
-      if (mounted) {
-        setState(() {
-          _userList = userData;
-          _isLoadingUser = false;
-        });
-      }
-    } catch (e) {
-      print("Error fetch users: $e");
-      if (mounted) {
-        setState(() => _isLoadingUser = false);
-      }
+  try {
+    final userData = await UserService.fetchUsers();
+    if (mounted) {
+      setState(() {
+        _userList = userData;
+        _isLoadingUser = false;
+      });
+    }
+  } catch (e) {
+    print("Error fetch users: $e");
+    if (mounted) {
+      setState(() {
+        _isLoadingUser = false;
+        // Show error to user
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Gagal memuat data user: $e")),
+      );
     }
   }
+}
 
   Future<void> _loadDepartemen() async {
     try {
@@ -397,15 +403,21 @@ class _TugasInputState extends State<TugasInput> {
               onPressed: isLoading
                   ? null
                   : () async {
+                      // Enhanced validation
                       if (_judulTugasController.text.isEmpty ||
                           _jamMulaiController.text.isEmpty ||
                           _tanggalMulaiController.text.isEmpty ||
                           _tanggalSelesaiController.text.isEmpty ||
                           _assignmentMode == null ||
-                          _lokasiController.text.isEmpty) {
+                          _lokasiController.text.isEmpty ||
+                          (_assignmentMode == "Per Orang" &&
+                              _selectedUser == null) ||
+                          (_assignmentMode == "Per Departemen" &&
+                              _selectedDepartment == null)) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text("Harap isi semua data wajib")),
+                              content: Text(
+                                  "Harap isi semua data wajib dan pilih user/departemen")),
                         );
                         return;
                       }

@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/data/models/user_model.dart';
-import 'package:hr/presentation/dashboard_menu/karyawan/karyawan_form/widget/karyawan_input_edit.dart';
+import 'package:hr/presentation/pages/karyawan/karyawan_form/widget/karyawan_input.dart';
 
-class KaryawanFormEdit extends StatelessWidget {
-  final UserModel user;
-
-  const KaryawanFormEdit({super.key, required this.user});
+class KaryawanForm extends StatelessWidget {
+  const KaryawanForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +12,7 @@ class KaryawanFormEdit extends StatelessWidget {
       backgroundColor: AppColors.bg,
       appBar: AppBar(
         title: Text(
-          'Edit Karyawan',
+          'Daftarkan Karyawan',
           style: TextStyle(
             color: AppColors.putih,
             fontSize: 22,
@@ -32,9 +29,7 @@ class KaryawanFormEdit extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          KaryawanInputEdit(
-            user: user,
-          ),
+          KaryawanInput(),
         ],
       ),
     );

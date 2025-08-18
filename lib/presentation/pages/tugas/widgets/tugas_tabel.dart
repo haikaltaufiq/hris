@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hr/components/custom/show_confirmation.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:provider/provider.dart';
 import 'package:hr/core/theme.dart';

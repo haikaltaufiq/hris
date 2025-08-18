@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/presentation/dashboard_menu/pengaturan/widgets/pengaturan_theme.dart';
+import 'package:hr/presentation/pages/pengaturan/widgets/pengaturan_theme.dart';
 import 'package:hr/presentation/layouts/main_layout.dart';
 
 class PengaturanPage extends StatefulWidget {
