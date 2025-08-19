@@ -1,12 +1,18 @@
-// ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
+// ignore_for_file: avoid_print, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
+import 'package:hr/data/models/potongan_gaji.dart';
+import 'package:hr/provider/function/potongan_gaji_provider.dart';
+import 'package:provider/provider.dart';
 
 class PotonganInput extends StatefulWidget {
-  const PotonganInput({super.key});
+  const PotonganInput({
+    super.key,
+  });
 
   @override
   State<PotonganInput> createState() => _PotonganInputState();
@@ -14,6 +20,8 @@ class PotonganInput extends StatefulWidget {
 
 class _PotonganInputState extends State<PotonganInput> {
   final TextEditingController controller = TextEditingController();
+  final TextEditingController jumlahController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +66,7 @@ class _PotonganInputState extends State<PotonganInput> {
           CustomInputField(
             hint: "",
             label: "Jumlah Potongan",
-            controller: controller,
+            controller: jumlahController,
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -67,7 +75,63 @@ class _PotonganInputState extends State<PotonganInput> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: _isSubmitting
+                  ? null
+                  : () async {
+                      final name = controller.text.trim();
+                      final jumlahText = jumlahController.text.trim();
+                      final jumlah = double.tryParse(jumlahText);
+
+                      if (name.isEmpty) {
+                        NotificationHelper.showSnackBar(
+                          context,
+                          'Nama Potongan harus di isi',
+                          isSuccess: false,
+                        );
+                        return;
+                      }
+
+                      if (jumlah == null) {
+                        NotificationHelper.showSnackBar(
+                          context,
+                          'Jumlah potongan harus berupa angka',
+                          isSuccess: false,
+                        );
+                        return;
+                      }
+
+                      setState(() => _isSubmitting = true);
+
+                      try {
+                        final provider = context.read<PotonganGajiProvider>();
+                        await provider.createPotonganGaji(
+                          PotonganGajiModel(
+                            id: 0, // id akan di-generate di backend
+                            namaPotongan: name,
+                            nominal: jumlah,
+                          ),
+                        );
+
+                        NotificationHelper.showSnackBar(
+                          context,
+                          'Potongan Berhasil dibuat',
+                          isSuccess: true,
+                        );
+                        Navigator.pop(context);
+
+                        // reset input
+                        controller.clear();
+                        jumlahController.clear();
+                      } catch (e) {
+                        NotificationHelper.showSnackBar(
+                          context,
+                          'Gagal membuat potongan $e',
+                          isSuccess: false,
+                        );
+                      } finally {
+                        setState(() => _isSubmitting = false);
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F1F1F),
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -75,14 +139,16 @@ class _PotonganInputState extends State<PotonganInput> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: _isSubmitting
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                      'Submit',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
         ],

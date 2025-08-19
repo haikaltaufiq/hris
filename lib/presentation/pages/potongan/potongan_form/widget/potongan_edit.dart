@@ -3,21 +3,102 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
+import 'package:hr/data/models/potongan_gaji.dart';
+import 'package:hr/data/services/potongan_gaji_service.dart';
 
-class PotonganEdit extends StatefulWidget {
-  const PotonganEdit({super.key});
+class PotonganEditInput extends StatefulWidget {
+  final PotonganGajiModel potongan;
+
+  const PotonganEditInput({super.key, required this.potongan});
 
   @override
-  State<PotonganEdit> createState() => _PotonganEditState();
+  State<PotonganEditInput> createState() => _PotonganEditInputState();
 }
 
-class _PotonganEditState extends State<PotonganEdit> {
-  final TextEditingController controller = TextEditingController();
+class _PotonganEditInputState extends State<PotonganEditInput> {
+  TextEditingController controller = TextEditingController();
+  TextEditingController jumlahController = TextEditingController();
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
-    controller;
+    controller = TextEditingController(text: widget.potongan.namaPotongan);
+    jumlahController =
+        TextEditingController(text: widget.potongan.nominal.toString());
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    jumlahController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final nama = controller.text.trim();
+    final nominalText = jumlahController.text.trim();
+    final nominal = double.tryParse(nominalText);
+
+    if (nama.isEmpty) {
+      NotificationHelper.showSnackBar(
+        context,
+        'Nama potongan harus diisi',
+        isSuccess: false,
+      );
+      return;
+    }
+
+    if (nominal == null) {
+      NotificationHelper.showSnackBar(
+        context,
+        'Jumlah potongan harus berupa angka',
+        isSuccess: false,
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final updatedPotongan = PotonganGajiModel(
+      id: widget.potongan.id,
+      namaPotongan: nama,
+      nominal: nominal,
+    );
+
+    try {
+      final result =
+          await PotonganGajiService.updatePotonganGaji(updatedPotongan);
+
+      if (result['success'] == true) {
+        NotificationHelper.showSnackBar(
+          context,
+          result['message'] ?? 'Potongan berhasil diupdate',
+          isSuccess: true,
+        );
+        Navigator.of(context).pop(true);
+      } else {
+        NotificationHelper.showSnackBar(
+          context,
+          result['message'] ?? 'Gagal update potongan',
+          isSuccess: false,
+        );
+      }
+    } catch (e) {
+      NotificationHelper.showSnackBar(
+        context,
+        'Terjadi kesalahan: $e',
+        isSuccess: false,
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
@@ -63,7 +144,7 @@ class _PotonganEditState extends State<PotonganEdit> {
           CustomInputField(
             hint: "",
             label: "Jumlah Potongan",
-            controller: controller,
+            controller: jumlahController,
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -72,7 +153,7 @@ class _PotonganEditState extends State<PotonganEdit> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: _isLoading ? null : _save,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F1F1F),
                 padding: const EdgeInsets.symmetric(vertical: 18),
