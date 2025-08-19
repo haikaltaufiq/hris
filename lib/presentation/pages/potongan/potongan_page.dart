@@ -27,15 +27,13 @@ class _PotonganPageState extends State<PotonganPage> {
             SearchingBar(
               controller: searchController,
               onChanged: (value) {
-                // You can implement search functionality here
-                // context.read<TugasProvider>().searchTugas(value);
-                print("Search Halaman A: $value");
+                // Implementasi fitur search nanti
+                print("Search Potongan: $value");
               },
-              onFilter1Tap: () => print("Filter1 Halaman A"),
+              onFilter1Tap: () => print("Filter Potongan"),
             ),
-            PotonganTabel(),
-            PotonganTabel(),
-            PotonganTabel(),
+            const SizedBox(height: 16),
+            const PotonganTabel(),
           ],
         ),
         Positioned(
