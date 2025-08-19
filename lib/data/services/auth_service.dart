@@ -21,13 +21,28 @@ class AuthService {
       final user = UserModel.fromJson(data['data']);
 
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('token', data['token']); 
-      await prefs.setString('nama', user.nama); 
+
+      // Simpan token dan data user
+      await prefs.setString('token', data['token']);
+      await prefs.setInt('id', user.id);
+      await prefs.setString('nama', user.nama);
       await prefs.setString('email', user.email);
+      await prefs.setString('npwp', user.npwp ?? '');
+      await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
+      await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
       await prefs.setString('jenis_kelamin', user.jenisKelamin);
       await prefs.setString('status_pernikahan', user.statusPernikahan);
+
+      // Konversi gajiPokok ke double jika ada, fallback 0
+      await prefs.setDouble(
+        'gaji_pokok',
+        double.tryParse(user.gajiPokok ?? '0') ?? 0,
+      );
+
+      // Cek null untuk jabatan
+      await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
+      await prefs.setString('departemen', user.departemen.namaDepartemen);
       await prefs.setString('peran', user.peran.namaPeran);
-      await prefs.setString('departemen',user.departemen.namaDepartemen);
 
       return {
         'success': true,
@@ -43,12 +58,10 @@ class AuthService {
     }
   }
 
-  // ✅ Logout
+  // ✅ Logout: hapus semua data user
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('token');
-    await prefs.remove('nama');
-    await prefs.remove('peran');
+    await prefs.clear(); // lebih aman, hapus semua
   }
 
   // ✅ Ambil token
@@ -57,15 +70,35 @@ class AuthService {
     return prefs.getString('token');
   }
 
-  // ✅ Ambil nama
+  // ✅ Ambil nama user
   Future<String?> getNama() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('nama');
   }
 
-  // ✅ Ambil peran
+  // ✅ Ambil peran user
   Future<String?> getPeran() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('peran');
+  }
+
+  // ✅ Ambil semua data user
+  Future<Map<String, dynamic>> getUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    return {
+      'id': prefs.getInt('id'),
+      'nama': prefs.getString('nama'),
+      'email': prefs.getString('email'),
+      'npwp': prefs.getString('npwp'),
+      'bpjs_kesehatan': prefs.getString('bpjs_kesehatan'),
+      'bpjs_ketenagakerjaan': prefs.getString('bpjs_ketenagakerjaan'),
+      'jenis_kelamin': prefs.getString('jenis_kelamin'),
+      'status_pernikahan': prefs.getString('status_pernikahan'),
+      'gaji_pokok': prefs.getDouble('gaji_pokok'),
+      'jabatan': prefs.getString('jabatan'),
+      'departemen': prefs.getString('departemen'),
+      'peran': prefs.getString('peran'),
+      'token': prefs.getString('token'),
+    };
   }
 }
