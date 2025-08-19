@@ -1,4 +1,5 @@
 import 'package:hr/data/models/user_model.dart';
+
 class TugasModel {
   final int id;
   final String namaTugas;
@@ -37,4 +38,7 @@ class TugasModel {
           : null,
     );
   }
+
+  String get shortTugas =>
+      namaTugas.length > 20 ? '${namaTugas.substring(0, 20)}...' : namaTugas;
 }

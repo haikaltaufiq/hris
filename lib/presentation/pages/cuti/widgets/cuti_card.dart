@@ -86,7 +86,9 @@ class CutiCard extends StatelessWidget {
                             onPressed: () => Navigator.pop(context),
                             child: Text('Tutup',
                                 style: GoogleFonts.poppins(
-                                    color: AppColors.putih)),
+                                  color: AppColors.putih,
+                                  fontSize: 16,
+                                )),
                           ),
                         ],
                       ),

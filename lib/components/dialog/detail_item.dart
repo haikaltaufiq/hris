@@ -18,25 +18,29 @@ class DetailItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6.0),
-      child: RichText(
-        text: TextSpan(
-          text: '$label: ',
-          style: GoogleFonts.poppins(
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: AppColors.putih,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "$label:",
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: AppColors.putih,
+            ),
           ),
-          children: [
-            TextSpan(
-              text: value,
+          const SizedBox(width: 8), // jarak antar label dan value
+          Expanded(
+            child: Text(
+              value,
               style: GoogleFonts.poppins(
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: FontWeight.w400,
                 color: color ?? AppColors.putih,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

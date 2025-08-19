@@ -95,8 +95,10 @@ class LemburCard extends StatelessWidget {
                             onPressed: () => Navigator.pop(context),
                             child: Text(
                               'Tutup',
-                              style:
-                                  GoogleFonts.poppins(color: AppColors.putih),
+                              style: GoogleFonts.poppins(
+                                color: AppColors.putih,
+                                fontSize: 16,
+                              ),
                             ),
                           ),
                         ],

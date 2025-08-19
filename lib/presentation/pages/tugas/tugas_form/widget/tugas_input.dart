@@ -65,7 +65,6 @@ class _TugasInputState extends State<TugasInput> {
   void _onTapIconTime(TextEditingController controller) async {
     showModalBottomSheet(
       backgroundColor: AppColors.primary,
-      useRootNavigator: true,
       context: context,
       clipBehavior: Clip.antiAlias,
       shape: const RoundedRectangleBorder(
@@ -270,8 +269,7 @@ class _TugasInputState extends State<TugasInput> {
             label: "Tanggal Mulai",
             hint: "dd / mm / yyyy",
             controller: _tanggalMulaiController,
-            suffixIcon:
-                Icon(Icons.calendar_today, color: AppColors.putih),
+            suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
             onTapIcon: () => _onTapIconDate(_tanggalMulaiController),
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -281,8 +279,7 @@ class _TugasInputState extends State<TugasInput> {
             label: "Batas Tanggal Penyelesaian",
             hint: "dd / mm / yyyy",
             controller: _tanggalSelesaiController,
-            suffixIcon:
-                Icon(Icons.calendar_today, color: AppColors.putih),
+            suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
             onTapIcon: () => _onTapIconDate(_tanggalSelesaiController),
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -356,7 +353,6 @@ class _TugasInputState extends State<TugasInput> {
                         jamMulai: _jamMulaiController.text,
                         tanggalMulai: _tanggalMulaiController.text,
                         tanggalSelesai: _tanggalSelesaiController.text,
-                        assignmentMode: "Per Orang",
                         person: _selectedUser?.id,
                         lokasi: _lokasiController.text,
                         note: _noteController.text,

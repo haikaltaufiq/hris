@@ -12,7 +12,7 @@ class CutiProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   List<CutiModel> filteredCutiList = [];
-  String _currentSearch = '';
+  final String _currentSearch = '';
 
   /// Ambil semua data cuti dari API
   Future<void> fetchCuti() async {

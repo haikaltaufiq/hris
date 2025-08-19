@@ -41,6 +41,8 @@ class _TugasPageState extends State<TugasPage> {
 
   @override
   Widget build(BuildContext context) {
+    final tugasProvider = context.watch<TugasProvider>();
+
     return Stack(
       children: [
         RefreshIndicator(
@@ -52,15 +54,16 @@ class _TugasPageState extends State<TugasPage> {
               SearchingBar(
                 controller: searchController,
                 onChanged: (value) {
-                  // You can implement search functionality here
-                  // context.read<TugasProvider>().searchTugas(value);
-                  print("Search Halaman A: $value");
+                  tugasProvider.filterTugas(value);
                 },
                 onFilter1Tap: () => print("Filter1 Halaman A"),
               ),
               // Use Consumer to watch TugasProvider state
               Consumer<TugasProvider>(
                 builder: (context, tugasProvider, child) {
+                  final displayedList = searchController.text.isEmpty
+                      ? tugasProvider.tugasList
+                      : tugasProvider.filteredTugasList;
                   if (tugasProvider.isLoading) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
@@ -105,7 +108,7 @@ class _TugasPageState extends State<TugasPage> {
                     );
                   }
 
-                  if (tugasProvider.tugasList.isEmpty) {
+                  if (displayedList.isEmpty) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: Center(
@@ -144,7 +147,12 @@ class _TugasPageState extends State<TugasPage> {
                   }
 
                   // Show the table with data
-                  return TugasTabel(tugasList: tugasProvider.tugasList);
+                  return TugasTabel(
+                    tugasList: displayedList,
+                    onActionDone: () {
+                      searchController.clear();
+                    },
+                  );
                 },
               ),
             ],
@@ -158,7 +166,7 @@ class _TugasPageState extends State<TugasPage> {
               final result = await Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => const TugasForm()),
               );
-
+              searchController.clear();
               if (result == true) {
                 // Refresh data after successful creation
                 _refreshData();

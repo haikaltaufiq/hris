@@ -5,11 +5,15 @@ import 'package:hr/data/services/tugas_service.dart';
 class TugasProvider extends ChangeNotifier {
   List<TugasModel> _tugasList = [];
   bool _isLoading = false;
+  String? _errorMessage;
 
   List<TugasModel> get tugasList => _tugasList;
   bool get isLoading => _isLoading;
-  String? _errorMessage;
   String? get errorMessage => _errorMessage;
+
+  List<TugasModel> filteredTugasList = [];
+  String _currentSearch = '';
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -20,22 +24,40 @@ class TugasProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       _tugasList = await TugasService.fetchTugas();
-      notifyListeners(); 
+      notifyListeners();
     } catch (e) {
       debugPrint("Error fetch tugas: $e");
     }
     _setLoading(false);
   }
 
+  /// Searching fitur untuk Tugas
+  void filterTugas(String query) {
+    if (query.isEmpty) {
+      filteredTugasList.clear();
+    } else {
+      final lowerQuery = query.toLowerCase();
+      filteredTugasList = _tugasList.where((tugas) {
+        final namaKaryawan = (tugas.user?.nama ?? '').toLowerCase();
+        return (tugas.namaTugas.toLowerCase().contains(lowerQuery)) ||
+            namaKaryawan.contains(lowerQuery) ||
+            (tugas.lokasi.toLowerCase().contains(lowerQuery)) ||
+            (tugas.note.toLowerCase().contains(lowerQuery)) ||
+            (tugas.status.toLowerCase().contains(lowerQuery)) ||
+            (tugas.tanggalMulai.toLowerCase().contains(lowerQuery)) ||
+            (tugas.tanggalSelesai.toLowerCase().contains(lowerQuery)) ||
+            (tugas.jamMulai.toLowerCase().contains(lowerQuery));
+      }).toList();
+    }
+    notifyListeners();
+  }
 
   Future<Map<String, dynamic>> createTugas({
     required String judul,
     required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
-    required String assignmentMode,
     int? person,
-    int? departmentId,
     required String lokasi,
     required String note,
   }) async {
@@ -50,7 +72,7 @@ class TugasProvider extends ChangeNotifier {
         lokasi: lokasi,
         note: note,
       );
-
+      _isLoading = false;
       if (result['success'] == true) {
         await fetchTugas();
       }
@@ -90,7 +112,7 @@ class TugasProvider extends ChangeNotifier {
       if (result['success'] == true) {
         await fetchTugas();
       }
-      return result; 
+      return result;
     } catch (e) {
       debugPrint("Error update tugas: $e");
       return {'success': false, 'message': 'Terjadi kesalahan'};
@@ -100,11 +122,12 @@ class TugasProvider extends ChangeNotifier {
   }
 
   // Hapus tugas
-  Future<String?> deleteTugas(int id) async {
+  Future<String?> deleteTugas(int id, String currentSearch) async {
     _setLoading(true);
     try {
       final result = await TugasService.deleteTugas(id);
       await fetchTugas();
+      filterTugas(_currentSearch);
       return result['message'];
     } catch (e) {
       debugPrint("Error delete tugas: $e");

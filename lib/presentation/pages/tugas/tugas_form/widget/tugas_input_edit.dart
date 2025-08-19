@@ -23,7 +23,8 @@ class TugasInputEdit extends StatefulWidget {
 
 class _TugasInputEditState extends State<TugasInputEdit> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController = TextEditingController();
+  final TextEditingController _tanggalSelesaiController =
+      TextEditingController();
   final TextEditingController _jamMulaiController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
@@ -40,9 +41,29 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     super.initState();
     // Isi controller dari data awal
     _judulTugasController.text = widget.tugas.namaTugas;
-    _jamMulaiController.text = widget.tugas.jamMulai;
-    _tanggalMulaiController.text = widget.tugas.tanggalMulai;
-    _tanggalSelesaiController.text = widget.tugas.tanggalSelesai;
+    // Jam dari API (HH:mm:ss) → Form (HH:mm)
+    if (widget.tugas.jamMulai.isNotEmpty) {
+      final parts = widget.tugas.jamMulai.split(':');
+      if (parts.length >= 2) {
+        _jamMulaiController.text =
+            "${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}";
+      }
+    }
+    // Tanggal dari API (yyyy-MM-dd) → Form (dd / MM / yyyy)
+    if (widget.tugas.tanggalMulai.isNotEmpty) {
+      final parts = widget.tugas.tanggalMulai.split('-');
+      if (parts.length == 3) {
+        _tanggalMulaiController.text =
+            "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
+      }
+    }
+    if (widget.tugas.tanggalSelesai.isNotEmpty) {
+      final parts = widget.tugas.tanggalSelesai.split('-');
+      if (parts.length == 3) {
+        _tanggalSelesaiController.text =
+            "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
+      }
+    }
     _lokasiController.text = widget.tugas.lokasi;
     _noteController.text = widget.tugas.note;
 
@@ -93,7 +114,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                           width: 40,
                           decoration: BoxDecoration(
                             color: AppColors.secondary,
-                            borderRadius: const BorderRadius.all(Radius.circular(30)),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(30)),
                           ),
                         ),
                         const SizedBox(height: 10),
@@ -136,8 +158,10 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 FloatingActionButton.extended(
                   backgroundColor: AppColors.secondary,
                   onPressed: () {
-                    final formattedHour = _selectedHour.toString().padLeft(2, '0');
-                    final formattedMinute = _selectedMinute.toString().padLeft(2, '0');
+                    final formattedHour =
+                        _selectedHour.toString().padLeft(2, '0');
+                    final formattedMinute =
+                        _selectedMinute.toString().padLeft(2, '0');
                     final formattedTime = "$formattedHour:$formattedMinute";
                     controller.text = formattedTime;
                     Navigator.pop(context);
@@ -338,11 +362,15 @@ class _TugasInputEditState extends State<TugasInputEdit> {
               ),
               const SizedBox(height: 10),
               _isLoadingUser
-                  ? Center(child: CircularProgressIndicator(color: AppColors.putih))
+                  ? Center(
+                      child: CircularProgressIndicator(color: AppColors.putih))
                   : CustomDropDownField(
                       label: 'Karyawan',
                       hint: 'Pilih user',
-                      items: _userList.map((user) => user.nama).where((name) => name.isNotEmpty).toList(),
+                      items: _userList
+                          .map((user) => user.nama)
+                          .where((name) => name.isNotEmpty)
+                          .toList(),
                       value: _selectedUser?.nama,
                       onChanged: (val) {
                         setState(() {
@@ -364,7 +392,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 controller: _lokasiController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
-                inputStyle: inputStyle, 
+                inputStyle: inputStyle,
                 hint: '',
               ),
               CustomInputField(
@@ -372,7 +400,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 controller: _noteController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
-                inputStyle: inputStyle, 
+                inputStyle: inputStyle,
                 hint: '',
               ),
               const SizedBox(height: 5),
@@ -386,7 +414,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    disabledBackgroundColor: const Color(0xFF1F1F1F).withOpacity(0.6),
+                    disabledBackgroundColor:
+                        const Color(0xFF1F1F1F).withOpacity(0.6),
                   ),
                   child: isLoading
                       ? const SizedBox(child: CircularProgressIndicator())
