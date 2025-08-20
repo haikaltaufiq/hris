@@ -1,9 +1,10 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/services/auth_service.dart';
 
@@ -327,9 +328,37 @@ class _ProfilePageState extends State<ProfilePage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    // TODO: Implement update email logic dengan konfirmasi password
-                    Navigator.pop(context);
+                  onPressed: () async {
+                    final newEmail = emailController.text.trim();
+                    final oldPassword = passwordController.text.trim();
+
+                    if (newEmail.isEmpty || oldPassword.isEmpty) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Email dan password wajib diisi')),
+                      );
+                      return;
+                    }
+
+                    final result = await _authService.updateEmail(newEmail, oldPassword);
+
+                    if (result['success'] == true) {
+                      setState(() {
+                        email = result['data']['email'];
+                      });
+                      Navigator.pop(context);
+
+                      NotificationHelper.showTopNotification(
+                        context,
+                        result['message'],
+                        isSuccess: true,
+                      );
+                    } else {
+                      NotificationHelper.showTopNotification(
+                        context,
+                        result['message'],
+                        isSuccess: false,
+                      );
+                    }
                   },
                   child: Text('Simpan',
                       style: GoogleFonts.poppins(
