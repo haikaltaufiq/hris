@@ -58,6 +58,45 @@ class AuthService {
     }
   }
 
+  // Update email
+  Future<Map<String, dynamic>> updateEmail(String newEmail, String oldPassword) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.put(
+      Uri.parse('$baseUrl/api/email'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'email': newEmail,
+        'old_password': oldPassword,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      await prefs.setString('email', data['data']['email']);
+
+      return {
+        'success': true,
+        'message': data['message'], 
+        'data': data['data']
+      };
+    } else {
+      return {
+        'success': false,
+        'message': data['message'], 
+        'errors': data['errors'] ?? {}
+      };
+    }
+  }
+
+
+
+
   // ✅ Logout: hapus semua data user
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
