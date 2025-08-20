@@ -37,7 +37,7 @@ class UserCutiTabel extends StatelessWidget {
           DateHelper.format(c.tanggal_selesai).toString(),
           c.shortAlasan.toString(),
           c.status.toString(),
-          "sabar"
+          c.keterangan_status,
         ];
       }).toList(),
       statusColumnIndexes: [5],

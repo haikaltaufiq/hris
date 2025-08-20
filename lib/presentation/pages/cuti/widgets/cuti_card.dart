@@ -159,7 +159,7 @@ class CutiCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (cuti.isPending) ...[
+                    if (cuti.isPending || cuti.isProses) ...[
                       FeatureGuard(
                         featureId: 'decline_cuti',
                         child: ActionButton(

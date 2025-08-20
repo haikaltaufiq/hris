@@ -11,6 +11,7 @@ class CutiModel {
   final String tanggal_mulai;
   final String tanggal_selesai;
   final String alasan;
+  final String keterangan_status;
   late final String status;
   final int approve_step;
   final Map<String, dynamic> user;
@@ -25,6 +26,7 @@ class CutiModel {
     required this.status,
     required this.approve_step,
     required this.user,
+    required this.keterangan_status,
   });
 
   factory CutiModel.fromJson(Map<String, dynamic> json) {
@@ -40,6 +42,7 @@ class CutiModel {
           ? int.tryParse(json['approve_step']) ?? 0
           : json['approve_step'] ?? 0,
       user: json['user'] ?? {},
+      keterangan_status: json['keterangan_status'] ?? {},
     );
   }
 
@@ -62,6 +65,7 @@ class CutiModel {
       (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
 
   bool get isPending => status.toLowerCase() == 'pending';
+  bool get isProses => status.toLowerCase() == 'proses';
 
 //Motong alasan kepanjangan
   String get shortAlasan =>
