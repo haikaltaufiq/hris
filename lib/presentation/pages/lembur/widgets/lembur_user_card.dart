@@ -28,6 +28,7 @@ class UserLemburTabel extends StatelessWidget {
         'Jam Selesai',
         'Alasan',
         'Status',
+        'Keterangan',
       ],
       rows: lemburList.map((c) {
         return [
@@ -37,6 +38,7 @@ class UserLemburTabel extends StatelessWidget {
           FormatTime().formatTime(c.jamSelesai).toString(),
           c.shortDeskripsi.toString(),
           c.status.toString(),
+          c.keterangan_status,
         ];
       }).toList(),
       statusColumnIndexes: [5],

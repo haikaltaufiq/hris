@@ -7,9 +7,9 @@ import 'package:hr/core/helpers/format_time.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/lembur_model.dart';
-import 'package:hr/presentation/pages/lembur/lembur_form/lembur_form_edit.dart';
 import 'package:hr/provider/features/features_guard.dart';
 import 'package:hr/provider/function/lembur_provider.dart';
+import 'package:hr/provider/function/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class LemburCard extends StatelessWidget {
@@ -28,6 +28,8 @@ class LemburCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.watch<UserProvider>().roleName;
+
     return ChangeNotifierProvider(
       create: (_) => LemburProvider(),
       builder: (context, _) {
@@ -185,12 +187,13 @@ class LemburCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     if (lembur.isPending) ...[
+                      // Semua role boleh Approve & Decline
                       FeatureGuard(
                         featureId: 'decline_lembur',
                         child: ActionButton(
                           label: 'Decline',
                           color: AppColors.red,
-                          onTap: onDecline,
+                          onTap: () => onDecline(),
                         ),
                       ),
                       FeatureGuard(
@@ -198,16 +201,35 @@ class LemburCard extends StatelessWidget {
                         child: ActionButton(
                           label: 'Approve',
                           color: AppColors.green,
-                          onTap: onApprove,
+                          onTap: () => onApprove(),
+                        ),
+                      ),
+                    ] else if (lembur.isProses && role != "Admin Office") ...[
+                      // Selain Admin Office → tetep Approve & Decline
+                      FeatureGuard(
+                        featureId: 'decline_lembur',
+                        child: ActionButton(
+                          label: 'Decline',
+                          color: AppColors.red,
+                          onTap: () => onDecline(),
+                        ),
+                      ),
+                      FeatureGuard(
+                        featureId: 'approve_lembur',
+                        child: ActionButton(
+                          label: 'Approve',
+                          color: AppColors.green,
+                          onTap: () => onApprove(),
                         ),
                       ),
                     ] else ...[
+                      // Admin Office pas Proses, atau status lain → Edit & Delete
                       FeatureGuard(
                         featureId: 'delete_lembur',
                         child: ActionButton(
                           label: 'Delete',
                           color: AppColors.red,
-                          onTap: onDelete,
+                          onTap: () => onDelete(),
                         ),
                       ),
                       FeatureGuard(
@@ -227,28 +249,6 @@ class LemburCard extends StatelessWidget {
                         ),
                       ),
                     ],
-                    FeatureGuard(
-                      featureId: 'user_delete_lembur',
-                      child: ActionButton(
-                        label: 'Delete',
-                        color: AppColors.red,
-                        onTap: onDelete,
-                      ),
-                    ),
-                    FeatureGuard(
-                      featureId: 'user_edit_lembur',
-                      child: ActionButton(
-                        label: 'Edit',
-                        color: AppColors.yellow,
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => LemburFormEdit(lembur: lembur)),
-                          );
-                        },
-                      ),
-                    ),
                   ],
                 ),
               ],

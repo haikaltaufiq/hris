@@ -73,14 +73,26 @@ class _LemburPageState extends State<LemburPage> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<LemburProvider>().approveLembur(lembur.id, "");
-      searchController.clear();
-      NotificationHelper.showTopNotification(
-        context,
-        message ?? 'Gagal menyetujui lembur',
-        isSuccess: message != null,
-      );
+      try {
+        final message =
+            await context.read<LemburProvider>().approveLembur(lembur.id, "");
+
+        searchController.clear();
+
+        NotificationHelper.showTopNotification(
+          context,
+          message!,
+          isSuccess: true,
+        );
+      } catch (e) {
+        // kalau gagal (error dari API)
+
+        NotificationHelper.showTopNotification(
+          context,
+          e.toString(),
+          isSuccess: false,
+        );
+      }
     }
   }
 

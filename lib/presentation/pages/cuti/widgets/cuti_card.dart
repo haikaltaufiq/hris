@@ -5,11 +5,11 @@ import 'package:hr/components/button/action_button.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/provider/function/cuti_provider.dart';
+import 'package:hr/provider/function/user_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/provider/features/features_guard.dart';
-import 'package:hr/presentation/pages/cuti/cuti_form/cuti_edit_form.dart';
 
 class CutiCard extends StatelessWidget {
   final CutiModel cuti;
@@ -27,6 +27,7 @@ class CutiCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final role = context.watch<UserProvider>().roleName;
     return ChangeNotifierProvider(
       create: (_) => CutiProvider(),
       builder: (context, _) {
@@ -159,66 +160,69 @@ class CutiCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    if (cuti.isPending || cuti.isProses) ...[
+                    if (cuti.isPending) ...[
+                      // Semua role boleh Approve & Decline
                       FeatureGuard(
                         featureId: 'decline_cuti',
                         child: ActionButton(
-                            label: 'Decline',
-                            color: AppColors.red,
-                            onTap: () => onDecline()),
+                          label: 'Decline',
+                          color: AppColors.red,
+                          onTap: () => onDecline(),
+                        ),
                       ),
                       FeatureGuard(
                         featureId: 'approve_cuti',
                         child: ActionButton(
-                            label: 'Approve',
-                            color: AppColors.green,
-                            onTap: () => onApprove()),
+                          label: 'Approve',
+                          color: AppColors.green,
+                          onTap: () => onApprove(),
+                        ),
+                      ),
+                    ] else if (cuti.isProses && role != "Admin Office") ...[
+                      // Selain Admin Office → tetep Approve & Decline
+                      FeatureGuard(
+                        featureId: 'decline_cuti',
+                        child: ActionButton(
+                          label: 'Decline',
+                          color: AppColors.red,
+                          onTap: () => onDecline(),
+                        ),
+                      ),
+                      FeatureGuard(
+                        featureId: 'approve_cuti',
+                        child: ActionButton(
+                          label: 'Approve',
+                          color: AppColors.green,
+                          onTap: () => onApprove(),
+                        ),
                       ),
                     ] else ...[
+                      // Admin Office pas Proses, atau status lain → Edit & Delete
                       FeatureGuard(
                         featureId: 'delete_cuti',
                         child: ActionButton(
-                            label: 'Delete',
-                            color: AppColors.red,
-                            onTap: () => onDelete()),
+                          label: 'Delete',
+                          color: AppColors.red,
+                          onTap: () => onDelete(),
+                        ),
                       ),
                       FeatureGuard(
                         featureId: 'edit_cuti',
                         child: ActionButton(
-                            label: 'Edit',
-                            color: AppColors.yellow,
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (_) => UpdateStatusDialog(
-                                  onApprove: onApprove,
-                                  onDecline: onDecline,
-                                ),
-                              );
-                            }),
-                      ),
-                    ],
-                    FeatureGuard(
-                      featureId: 'user_delete_cuti',
-                      child: ActionButton(
-                        label: 'Delete',
-                        color: AppColors.red,
-                        onTap: () => onDelete(),
-                      ),
-                    ),
-                    FeatureGuard(
-                      featureId: 'user_edit_cuti',
-                      child: ActionButton(
                           label: 'Edit',
                           color: AppColors.yellow,
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (_) => CutiEditForm(cuti: cuti)),
+                            showDialog(
+                              context: context,
+                              builder: (_) => UpdateStatusDialog(
+                                onApprove: onApprove,
+                                onDecline: onDecline,
+                              ),
                             );
-                          }),
-                    ),
+                          },
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],
