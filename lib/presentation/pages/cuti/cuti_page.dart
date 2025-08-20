@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -73,14 +75,26 @@ class _CutiPageState extends State<CutiPage> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<CutiProvider>().approveCuti(cuti.id, "");
-      searchController.clear();
-      NotificationHelper.showTopNotification(
-        context,
-        message ?? 'Gagal menyetujui Cuti',
-        isSuccess: message != null,
-      );
+      try {
+        final message =
+            await context.read<CutiProvider>().approveCuti(cuti.id, "");
+
+        searchController.clear();
+
+        NotificationHelper.showTopNotification(
+          context,
+          message!,
+          isSuccess: true,
+        );
+      } catch (e) {
+        // kalau gagal (error dari API)
+
+        NotificationHelper.showTopNotification(
+          context,
+          e.toString(),
+          isSuccess: false,
+        );
+      }
     }
   }
 

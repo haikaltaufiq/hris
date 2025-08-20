@@ -173,8 +173,9 @@ class CutiService {
   // Approve cuti
   static Future<String?> approveCuti(int id) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.put(
       Uri.parse('$baseUrl/api/cuti/$id/approve'),
@@ -184,13 +185,16 @@ class CutiService {
       },
     );
 
+    final responseData = json.decode(response.body);
+
     if (response.statusCode == 200) {
-      return json.decode(response.body)['message'];
+      return responseData['message']; 
     } else {
-      print('Gagal menyetujui cuti: ${response.statusCode} ${response.body}');
-      return null;
+      final errorMessage = responseData['message'] ?? 'Terjadi kesalahan';
+      return Future.error(errorMessage);
     }
   }
+
 
   // Decline cuti
   static Future<String?> declineCuti(int id) async {
