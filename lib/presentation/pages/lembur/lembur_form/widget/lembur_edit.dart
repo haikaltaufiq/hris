@@ -287,7 +287,7 @@ class _LemburEditState extends State<LemburEdit> {
                     _jamMulaiController.text.isEmpty ||
                     _jamSelesaiController.text.isEmpty ||
                     _deskripsiController.text.isEmpty) {
-                  NotificationHelper.showSnackBar(
+                  NotificationHelper.showTopNotification(
                     context,
                     'Semua field wajib diisi!',
                     isSuccess: false,
@@ -302,7 +302,7 @@ class _LemburEditState extends State<LemburEdit> {
                   deskripsi: _deskripsiController.text,
                 );
 
-                NotificationHelper.showSnackBar(
+                NotificationHelper.showTopNotification(
                   context,
                   result['message'],
                   isSuccess: result['success'],

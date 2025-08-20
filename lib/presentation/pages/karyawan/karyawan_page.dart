@@ -2,11 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hr/components/custom/loading.dart';
+import 'package:hr/provider/function/user_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/user_service.dart';
 import 'package:hr/presentation/pages/karyawan/karyawan_form/karyawan_form.dart';
 import 'package:hr/presentation/pages/karyawan/widgets/karyawan_tabel.dart';
 
@@ -19,74 +20,80 @@ class KaryawanPage extends StatefulWidget {
 
 class _KaryawanPageState extends State<KaryawanPage> {
   final searchController = TextEditingController();
-  List<UserModel> users = [];
-  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    fetchUsers();
+    // Auto load data saat halaman pertama kali dibuka
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UserProvider>(context, listen: false).fetchUsers();
+    });
   }
 
-  void fetchUsers() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    try {
-      final fetchedUsers = await UserService.fetchUsers();
-      setState(() {
-        users = fetchedUsers;
-      });
-    } catch (e) {
-      print('Gagal fetch users: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
+  Future<void> _refreshData() async {
+    await context.read<UserProvider>().fetchUsers();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ListView(
-          padding: const EdgeInsets.all(16),
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, _) {
+        final isLoading = userProvider.isLoading;
+        final errorMessage = userProvider.errorMessage;
+        final users = searchController.text.isEmpty
+            ? userProvider.users
+            : userProvider.filteredUsers;
+        return Stack(
           children: [
-            const Header(title: 'Manajemen Karyawan'),
-            SearchingBar(
-              controller: searchController,
-              onChanged: (value) {
-                print("Search Halaman A: $value");
-              },
-              onFilter1Tap: () => print("Filter1 Halaman A"),
+            RefreshIndicator(
+              onRefresh: _refreshData,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  const Header(title: 'Manajemen Karyawan'),
+                  SearchingBar(
+                    controller: searchController,
+                    onChanged: (value) {
+                      userProvider.searchUsers(value);
+                      // Bisa nanti filter users list di provider kalau mau
+                    },
+                    onFilter1Tap: () => print("Filter1 Halaman A"),
+                  ),
+                  if (isLoading)
+                    Center(
+                      child: LoadingWidget(),
+                    )
+                  else if (errorMessage != null)
+                    Center(child: Text(errorMessage))
+                  else
+                    KaryawanTabel(users: users),
+                ],
+              ),
             ),
-            if (isLoading)
-              Center(
-                child: CircularProgressIndicator(color: AppColors.secondary),
-              )
-            else
-              KaryawanTabel(users: users),
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const KaryawanForm(),
+                    ),
+                  );
+
+                  // Kalau ada update, refresh otomatis
+                  if (result == true) {
+                    userProvider.fetchUsers();
+                  }
+                },
+                backgroundColor: AppColors.secondary,
+                shape: const CircleBorder(),
+                child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+              ),
+            ),
           ],
-        ),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => const KaryawanForm(),
-                ),
-              );
-            },
-            backgroundColor: AppColors.secondary,
-            shape: const CircleBorder(),
-            child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 }

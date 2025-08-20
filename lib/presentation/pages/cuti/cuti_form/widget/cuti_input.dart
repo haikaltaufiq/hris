@@ -208,7 +208,7 @@ class _CutiInputState extends State<CutiInput> {
                     _tanggalMulaiController.text.isEmpty ||
                     _tanggalSelesaiController.text.isEmpty ||
                     _alasanController.text.isEmpty) {
-                  NotificationHelper.showSnackBar(
+                  NotificationHelper.showTopNotification(
                     context,
                     'Semua field wajib diisi!',
                     isSuccess: false,
@@ -224,13 +224,13 @@ class _CutiInputState extends State<CutiInput> {
                 );
                 if (success) {
                   if (context.mounted) {
-                    NotificationHelper.showSnackBar(
+                    NotificationHelper.showTopNotification(
                         context, 'Cuti berhasil diajukan');
                     Navigator.of(context).pop(true);
                   }
                 } else {
                   if (context.mounted) {
-                    NotificationHelper.showSnackBar(
+                    NotificationHelper.showTopNotification(
                         context, 'Gagal mengajukan Cuti',
                         isSuccess: false);
                   }

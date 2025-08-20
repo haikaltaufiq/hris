@@ -54,7 +54,7 @@ class _CutiPageState extends State<CutiPage> {
           await context.read<CutiProvider>().deleteCuti(cuti.id, "");
       searchController.clear();
 
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message,
         isSuccess: message != null,
@@ -76,7 +76,7 @@ class _CutiPageState extends State<CutiPage> {
       final message =
           await context.read<CutiProvider>().approveCuti(cuti.id, "");
       searchController.clear();
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menyetujui Cuti',
         isSuccess: message != null,
@@ -99,7 +99,7 @@ class _CutiPageState extends State<CutiPage> {
           await context.read<CutiProvider>().declineCuti(cuti.id, "");
       searchController.clear();
 
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menolak Cuti',
         isSuccess: message != null,

@@ -54,7 +54,7 @@ class _LemburPageState extends State<LemburPage> {
           await context.read<LemburProvider>().deleteLembur(lembur.id, "");
       searchController.clear();
 
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message!,
         isSuccess: message != null,
@@ -76,7 +76,7 @@ class _LemburPageState extends State<LemburPage> {
       final message =
           await context.read<LemburProvider>().approveLembur(lembur.id, "");
       searchController.clear();
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menyetujui lembur',
         isSuccess: message != null,
@@ -99,7 +99,7 @@ class _LemburPageState extends State<LemburPage> {
           await context.read<LemburProvider>().declineLembur(lembur.id, "");
       searchController.clear();
 
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menolak lembur',
         isSuccess: message != null,

@@ -230,8 +230,10 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         _lokasiController.text.isEmpty ||
         _selectedUser == null) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Harap isi semua data wajib")),
+        NotificationHelper.showTopNotification(
+          context,
+          "Harap isi semua data",
+          isSuccess: false,
         );
       }
       return;
@@ -256,7 +258,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       final bool isSuccess = result['success'] == true;
       final String message = result['message'] ?? '';
 
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message,
         isSuccess: isSuccess,
@@ -267,7 +269,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       }
     } catch (e) {
       if (mounted) {
-        NotificationHelper.showSnackBar(
+        NotificationHelper.showTopNotification(
           context,
           'Terjadi kesalahan: $e',
           isSuccess: false,

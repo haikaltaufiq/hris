@@ -43,7 +43,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
     final nominal = double.tryParse(nominalText);
 
     if (nama.isEmpty) {
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         'Nama potongan harus diisi',
         isSuccess: false,
@@ -52,7 +52,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
     }
 
     if (nominal == null) {
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         'Jumlah potongan harus berupa angka',
         isSuccess: false,
@@ -75,21 +75,21 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
           await PotonganGajiService.updatePotonganGaji(updatedPotongan);
 
       if (result['success'] == true) {
-        NotificationHelper.showSnackBar(
+        NotificationHelper.showTopNotification(
           context,
           result['message'] ?? 'Potongan berhasil diupdate',
           isSuccess: true,
         );
         Navigator.of(context).pop(true);
       } else {
-        NotificationHelper.showSnackBar(
+        NotificationHelper.showTopNotification(
           context,
           result['message'] ?? 'Gagal update potongan',
           isSuccess: false,
         );
       }
     } catch (e) {
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         'Terjadi kesalahan: $e',
         isSuccess: false,

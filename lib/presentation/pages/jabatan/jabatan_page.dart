@@ -38,7 +38,7 @@ class _JabatanPageState extends State<JabatanPage> {
   void createJabatan() async {
     final namaJabatan = jabatanNameController.text.trim();
     if (namaJabatan.isEmpty) {
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
           context, 'Nama jabatan tidak boleh kosong');
       return;
     }
@@ -48,24 +48,24 @@ class _JabatanPageState extends State<JabatanPage> {
           await JabatanService.createJabatan(namaJabatan: namaJabatan);
 
       if (result['success']) {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: true);
         refreshJabatanList();
         jabatanNameController.clear();
         Navigator.pop(context);
       } else {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: false);
       }
     } catch (e) {
-      NotificationHelper.showSnackBar(context, 'Terjadi kesalahan: $e');
+      NotificationHelper.showTopNotification(context, 'Terjadi kesalahan: $e');
     }
   }
 
   void updateJabatan(int id) async {
     final namaJabatan = jabatanNameController.text.trim();
     if (namaJabatan.isEmpty) {
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
           context, 'Nama jabatan tidak boleh kosong');
       return;
     }
@@ -75,17 +75,17 @@ class _JabatanPageState extends State<JabatanPage> {
           await JabatanService.updateJabatan(id: id, namaJabatan: namaJabatan);
 
       if (result['success']) {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: true);
         refreshJabatanList();
         jabatanNameController.clear();
         Navigator.pop(context);
       } else {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: false);
       }
     } catch (e) {
-      NotificationHelper.showSnackBar(context, 'Terjadi kesalahan: $e');
+      NotificationHelper.showTopNotification(context, 'Terjadi kesalahan: $e');
     }
   }
 
@@ -109,13 +109,13 @@ class _JabatanPageState extends State<JabatanPage> {
     if (confirm == true) {
       final result = await JabatanService.deleteJabatan(id);
       if (result['success']) {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: true);
         setState(() {
           _jabatanList = JabatanService.fetchJabatan();
         });
       } else {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: false);
       }
     }

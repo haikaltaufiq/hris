@@ -1,9 +1,9 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/presentation/layouts/main_layout.dart';
 import 'package:hr/provider/function/user_provider.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +11,13 @@ import 'package:provider/provider.dart';
 class LoginButton extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final void Function(String) onError; // callback error
 
   const LoginButton({
     super.key,
     required this.emailController,
     required this.passwordController,
+    required this.onError,
   });
 
   @override
@@ -33,7 +35,7 @@ class LoginButton extends StatelessWidget {
         if (result['success']) {
           final userProvider = context.read<UserProvider>();
           userProvider.setUser(result['user']);
-          NotificationHelper.showSnackBar(context, result['message'],
+          NotificationHelper.showTopNotification(context, result['message'],
               isSuccess: true);
           Navigator.pushReplacement(
             context,
@@ -42,8 +44,8 @@ class LoginButton extends StatelessWidget {
             ),
           );
         } else {
-          NotificationHelper.showSnackBar(context, result['message'],
-              isSuccess: false);
+          // kirim error ke parent (LoginPageSheet)
+          onError(result['message']);
         }
       },
       child: Container(

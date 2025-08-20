@@ -133,9 +133,9 @@ class _DepartemenPageState extends State<DepartemenPage> {
     final namaDepartemen = departmentNameController.text.trim();
 
     if (namaDepartemen.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama departemen tidak boleh kosong')),
-      );
+      NotificationHelper.showTopNotification(
+          context, 'Nama departemen tidak boleh kosong',
+          isSuccess: false);
       return;
     }
 
@@ -145,7 +145,7 @@ class _DepartemenPageState extends State<DepartemenPage> {
       );
 
       if (result['success']) {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: true);
         setState(() {
           _departemenList = DepartemenService.fetchDepartemen();
@@ -153,13 +153,12 @@ class _DepartemenPageState extends State<DepartemenPage> {
         departmentNameController.clear();
         Navigator.pop(context);
       } else {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Terjadi kesalahan: $e')),
-      );
+      NotificationHelper.showTopNotification(context, 'Terjadi kesalahan: $e',
+          isSuccess: false);
     }
   }
 
@@ -167,9 +166,9 @@ class _DepartemenPageState extends State<DepartemenPage> {
     final namaDepartemen = departmentNameController.text.trim();
 
     if (namaDepartemen.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama departemen tidak boleh kosong')),
-      );
+      NotificationHelper.showTopNotification(
+          context, 'Nama departemen tidak boleh kosong',
+          isSuccess: false);
       return;
     }
 
@@ -180,7 +179,7 @@ class _DepartemenPageState extends State<DepartemenPage> {
       );
 
       if (result['success']) {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: true);
         setState(() {
           _departemenList = DepartemenService.fetchDepartemen();
@@ -188,13 +187,13 @@ class _DepartemenPageState extends State<DepartemenPage> {
         departmentNameController.clear();
         Navigator.pop(context);
       } else {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: false);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Terjadi kesalahan: $e')),
-      );
+      NotificationHelper.showTopNotification(
+          context, ['Terjadi kesalahan: $e'] as String,
+          isSuccess: false);
     }
   }
 
@@ -218,13 +217,13 @@ class _DepartemenPageState extends State<DepartemenPage> {
     if (confirm == true) {
       final result = await DepartemenService.deleteDepartemen(id);
       if (result['success']) {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: true);
         setState(() {
           _departemenList = DepartemenService.fetchDepartemen();
         });
       } else {
-        NotificationHelper.showSnackBar(context, result['message'],
+        NotificationHelper.showTopNotification(context, result['message'],
             isSuccess: false);
       }
     }

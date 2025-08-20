@@ -280,7 +280,7 @@ class _LemburInputState extends State<LemburInput> {
                     _jamMulaiController.text.isEmpty ||
                     _jamSelesaiController.text.isEmpty ||
                     _deskripsiController.text.isEmpty) {
-                  NotificationHelper.showSnackBar(
+                  NotificationHelper.showTopNotification(
                     context,
                     'Semua field wajib diisi!',
                     isSuccess: false,
@@ -299,17 +299,17 @@ class _LemburInputState extends State<LemburInput> {
                   if (!mounted) return;
 
                   if (success) {
-                    NotificationHelper.showSnackBar(
+                    NotificationHelper.showTopNotification(
                         context, 'Lembur berhasil diajukan');
                     Navigator.of(context).pop(true);
                   } else {
-                    NotificationHelper.showSnackBar(
+                    NotificationHelper.showTopNotification(
                         context, 'Gagal mengajukan lembur',
                         isSuccess: false);
                   }
                 } catch (e) {
                   if (!mounted) return;
-                  NotificationHelper.showSnackBar(
+                  NotificationHelper.showTopNotification(
                       context, 'Terjadi kesalahan: $e',
                       isSuccess: false);
                 }

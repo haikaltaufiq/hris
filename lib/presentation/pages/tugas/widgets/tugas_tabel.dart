@@ -74,7 +74,7 @@ class TugasTabel extends StatelessWidget {
     if (confirmed) {
       final message =
           await context.read<TugasProvider>().deleteTugas(tugas.id, "");
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menghapus tugas',
         isSuccess: message != null,

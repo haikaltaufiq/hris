@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/presentation/pages/potongan/potongan_form/form_edit.dart';
@@ -56,13 +57,18 @@ class PotonganTabel extends StatelessWidget {
             .read<PotonganGajiProvider>()
             .deletePotonganGaji(potongan.id!, "");
         // Tampilkan SnackBar sukses
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Potongan berhasil dihapus')),
+
+        NotificationHelper.showTopNotification(
+          context,
+          "Potongan berhasil dihapus",
+          isSuccess: true,
         );
       } catch (e) {
         // Tampilkan SnackBar gagal
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menghapus potongan: $e')),
+        NotificationHelper.showTopNotification(
+          context,
+          "Gagal menghapus potongan: $e",
+          isSuccess: false,
         );
       }
     }

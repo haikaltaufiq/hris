@@ -55,8 +55,10 @@ class _TugasInputState extends State<TugasInput> {
         setState(() {
           _isLoadingUser = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal memuat data user: $e")),
+        NotificationHelper.showTopNotification(
+          context,
+          'Gagal memuat data user: $e',
+          isSuccess: false,
         );
       }
     }
@@ -340,10 +342,10 @@ class _TugasInputState extends State<TugasInput> {
                           _tanggalSelesaiController.text.isEmpty ||
                           _lokasiController.text.isEmpty ||
                           _selectedUser == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  "Harap isi semua data wajib dan pilih user")),
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Harap isi semua data',
+                          isSuccess: false,
                         );
                         return;
                       }
@@ -359,7 +361,7 @@ class _TugasInputState extends State<TugasInput> {
                       );
 
                       if (!mounted) return;
-                      NotificationHelper.showSnackBar(
+                      NotificationHelper.showTopNotification(
                         context,
                         result['message'],
                         isSuccess: result['success'] ?? false,

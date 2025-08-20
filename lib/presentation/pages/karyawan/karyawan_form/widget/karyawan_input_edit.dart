@@ -7,11 +7,12 @@ import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/departemen_service.dart';
 import 'package:hr/data/services/jabatan_service.dart';
 import 'package:hr/data/services/peran_service.dart';
-import 'package:hr/data/services/user_service.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/provider/function/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class KaryawanInputEdit extends StatefulWidget {
   final UserModel user;
@@ -81,7 +82,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   Future<void> _loadJabatan() async {
     try {
       final data = await JabatanService.fetchJabatan();
-      if (mounted) { // ✅ Safety check
+      if (mounted) {
+        // ✅ Safety check
         setState(() {
           _jabatanList = data
               .map((j) => {"id": j.id, "nama_jabatan": j.namaJabatan})
@@ -90,9 +92,11 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
         });
       }
     } catch (e) {
-      if (mounted) { // ✅ Safety check
+      if (mounted) {
+        // ✅ Safety check
         setState(() => _isLoadingJabatan = false);
-        NotificationHelper.showSnackBar(context, "Gagal memuat jabatan: $e", isSuccess: false);
+        NotificationHelper.showTopNotification(context, "Gagal memuat jabatan: $e",
+            isSuccess: false);
       }
     }
   }
@@ -100,16 +104,19 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   Future<void> _loadPeran() async {
     try {
       final data = await PeranService.fetchPeran();
-      if (mounted) { // ✅ Safety check
+      if (mounted) {
+        // ✅ Safety check
         setState(() {
           _peranList = data;
           _isLoadingPeran = false;
         });
       }
     } catch (e) {
-      if (mounted) { // ✅ Safety check
+      if (mounted) {
+        // ✅ Safety check
         setState(() => _isLoadingPeran = false);
-        NotificationHelper.showSnackBar(context, "Gagal memuat peran: $e", isSuccess: false);
+        NotificationHelper.showTopNotification(context, "Gagal memuat peran: $e",
+            isSuccess: false);
       }
     }
   }
@@ -117,7 +124,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   Future<void> _loadDepartemen() async {
     try {
       final data = await DepartemenService.fetchDepartemen();
-      if (mounted) { // ✅ Safety check
+      if (mounted) {
+        // ✅ Safety check
         setState(() {
           _departemenList = data
               .map((d) => {"id": d.id, "nama_departemen": d.namaDepartemen})
@@ -126,19 +134,21 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
         });
       }
     } catch (e) {
-      if (mounted) { // ✅ Safety check
+      if (mounted) {
+        // ✅ Safety check
         setState(() => _isLoadingDepartemen = false);
-        NotificationHelper.showSnackBar(context, "Gagal memuat departemen: $e", isSuccess: false);
+        NotificationHelper.showTopNotification(context, "Gagal memuat departemen: $e",
+            isSuccess: false);
       }
     }
   }
 
   // ✅ Safe dropdown hint helper
-  String _getSafeDropdownHint<T>(bool isLoading, T? selectedId, 
+  String _getSafeDropdownHint<T>(bool isLoading, T? selectedId,
       List<Map<String, dynamic>> items, String nameKey) {
     if (isLoading) return 'Memuat...';
     if (selectedId == null) return 'Pilih...';
-    
+
     try {
       final selected = items.firstWhere(
         (e) => e["id"] == selectedId,
@@ -153,44 +163,54 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   // ✅ Enhanced validation
   bool _validateForm() {
     if (_namaController.text.trim().isEmpty) {
-      NotificationHelper.showSnackBar(context, "Nama tidak boleh kosong", isSuccess: false);
+      NotificationHelper.showTopNotification(context, "Nama tidak boleh kosong",
+          isSuccess: false);
       return false;
     }
 
     if (_jabatanId == null) {
-      NotificationHelper.showSnackBar(context, "Jabatan harus dipilih", isSuccess: false);
+      NotificationHelper.showTopNotification(context, "Jabatan harus dipilih",
+          isSuccess: false);
       return false;
     }
 
     if (_peranId == null) {
-      NotificationHelper.showSnackBar(context, "Peran harus dipilih", isSuccess: false);
+      NotificationHelper.showTopNotification(context, "Peran harus dipilih",
+          isSuccess: false);
       return false;
     }
 
     if (_departemenId == null) {
-      NotificationHelper.showSnackBar(context, "Departemen harus dipilih", isSuccess: false);
+      NotificationHelper.showTopNotification(context, "Departemen harus dipilih",
+          isSuccess: false);
       return false;
     }
 
     if (_gajiController.text.trim().isEmpty) {
-      NotificationHelper.showSnackBar(context, "Gaji tidak boleh kosong", isSuccess: false);
+      NotificationHelper.showTopNotification(context, "Gaji tidak boleh kosong",
+          isSuccess: false);
       return false;
     }
 
     // ✅ Validate gaji format
     final gaji = int.tryParse(_gajiController.text.trim());
     if (gaji == null || gaji <= 0) {
-      NotificationHelper.showSnackBar(context, "Gaji harus berupa angka yang valid", isSuccess: false);
+      NotificationHelper.showTopNotification(
+          context, "Gaji harus berupa angka yang valid",
+          isSuccess: false);
       return false;
     }
 
     if (_jenisKelamin == null) {
-      NotificationHelper.showSnackBar(context, "Jenis kelamin harus dipilih", isSuccess: false);
+      NotificationHelper.showTopNotification(context, "Jenis kelamin harus dipilih",
+          isSuccess: false);
       return false;
     }
 
     if (_statusPernikahan == null) {
-      NotificationHelper.showSnackBar(context, "Status pernikahan harus dipilih", isSuccess: false);
+      NotificationHelper.showTopNotification(
+          context, "Status pernikahan harus dipilih",
+          isSuccess: false);
       return false;
     }
 
@@ -205,8 +225,11 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
     setState(() => _isSubmitting = true);
 
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     try {
-      await UserService.updateUser(
+      // pakai provider biar otomatis fetchUsers setelah update
+      await userProvider.updateUser(
         widget.user.id,
         {
           "nama": _namaController.text.trim(),
@@ -223,12 +246,13 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
       );
 
       if (mounted) {
-        NotificationHelper.showSnackBar(
+        NotificationHelper.showTopNotification(
           context,
           "Data karyawan berhasil diperbarui",
           isSuccess: true,
         );
-        Navigator.pop(context, true);
+        Navigator.pop(
+            context, true); // true supaya halaman list refresh otomatis
       }
     } catch (e) {
       if (mounted) {
@@ -239,12 +263,12 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
               errorMessages.add("$field: ${messages.join(', ')}");
             }
           });
-          
+
           for (String message in errorMessages) {
-            NotificationHelper.showSnackBar(context, message, isSuccess: false);
+            NotificationHelper.showTopNotification(context, message, isSuccess: false);
           }
         } else {
-          NotificationHelper.showSnackBar(
+          NotificationHelper.showTopNotification(
             context,
             "Gagal memperbarui data: $e",
             isSuccess: false,
@@ -252,9 +276,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
         }
       }
     } finally {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-      }
+      if (mounted) setState(() => _isSubmitting = false);
     }
   }
 
@@ -311,27 +333,29 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: 'Jabatan *',
-              hint: _getSafeDropdownHint(_isLoadingJabatan, _jabatanId, 
+              hint: _getSafeDropdownHint(_isLoadingJabatan, _jabatanId,
                   _jabatanList.cast<Map<String, dynamic>>(), "nama_jabatan"),
-              items: _isLoadingJabatan 
+              items: _isLoadingJabatan
                   ? []
                   : _jabatanList
                       .where((e) => e["nama_jabatan"] != null)
                       .map((e) => e["nama_jabatan"] as String)
                       .toList(),
-              onChanged: _isLoadingJabatan ? null : (val) {
-                if (val != null) {
-                  final selected = _jabatanList.firstWhere(
-                    (e) => e["nama_jabatan"] == val,
-                    orElse: () => <String, Object>{},
-                  );
-                  if (selected.isNotEmpty) {
-                    setState(() {
-                      _jabatanId = selected["id"] as int?;
-                    });
-                  }
-                }
-              },
+              onChanged: _isLoadingJabatan
+                  ? null
+                  : (val) {
+                      if (val != null) {
+                        final selected = _jabatanList.firstWhere(
+                          (e) => e["nama_jabatan"] == val,
+                          orElse: () => <String, Object>{},
+                        );
+                        if (selected.isNotEmpty) {
+                          setState(() {
+                            _jabatanId = selected["id"] as int?;
+                          });
+                        }
+                      }
+                    },
               labelStyle: labelStyle,
               textStyle: textStyle,
               dropdownColor: AppColors.secondary,
@@ -342,27 +366,29 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: 'Peran *',
-              hint: _getSafeDropdownHint(_isLoadingPeran, _peranId, 
-                  _peranList, "nama_peran"),
-              items: _isLoadingPeran 
+              hint: _getSafeDropdownHint(
+                  _isLoadingPeran, _peranId, _peranList, "nama_peran"),
+              items: _isLoadingPeran
                   ? []
                   : _peranList
                       .where((e) => e["nama_peran"] != null)
                       .map((e) => e["nama_peran"] as String)
                       .toList(),
-              onChanged: _isLoadingPeran ? null : (val) {
-                if (val != null) {
-                  final selected = _peranList.firstWhere(
-                    (e) => e["nama_peran"] == val,
-                    orElse: () => <String, dynamic>{},
-                  );
-                  if (selected.isNotEmpty) {
-                    setState(() {
-                      _peranId = selected["id"];
-                    });
-                  }
-                }
-              },
+              onChanged: _isLoadingPeran
+                  ? null
+                  : (val) {
+                      if (val != null) {
+                        final selected = _peranList.firstWhere(
+                          (e) => e["nama_peran"] == val,
+                          orElse: () => <String, dynamic>{},
+                        );
+                        if (selected.isNotEmpty) {
+                          setState(() {
+                            _peranId = selected["id"];
+                          });
+                        }
+                      }
+                    },
               labelStyle: labelStyle,
               textStyle: textStyle,
               dropdownColor: AppColors.secondary,
@@ -373,27 +399,32 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: 'Departemen *',
-              hint: _getSafeDropdownHint(_isLoadingDepartemen, _departemenId, 
-                  _departemenList.cast<Map<String, dynamic>>(), "nama_departemen"),
-              items: _isLoadingDepartemen 
+              hint: _getSafeDropdownHint(
+                  _isLoadingDepartemen,
+                  _departemenId,
+                  _departemenList.cast<Map<String, dynamic>>(),
+                  "nama_departemen"),
+              items: _isLoadingDepartemen
                   ? []
                   : _departemenList
                       .where((e) => e["nama_departemen"] != null)
                       .map((e) => e["nama_departemen"] as String)
                       .toList(),
-              onChanged: _isLoadingDepartemen ? null : (val) {
-                if (val != null) {
-                  final selected = _departemenList.firstWhere(
-                    (e) => e["nama_departemen"] == val,
-                    orElse: () => <String, Object>{},
-                  );
-                  if (selected.isNotEmpty) {
-                    setState(() {
-                      _departemenId = selected["id"] as int?;
-                    });
-                  }
-                }
-              },
+              onChanged: _isLoadingDepartemen
+                  ? null
+                  : (val) {
+                      if (val != null) {
+                        final selected = _departemenList.firstWhere(
+                          (e) => e["nama_departemen"] == val,
+                          orElse: () => <String, Object>{},
+                        );
+                        if (selected.isNotEmpty) {
+                          setState(() {
+                            _departemenId = selected["id"] as int?;
+                          });
+                        }
+                      }
+                    },
               labelStyle: labelStyle,
               textStyle: textStyle,
               dropdownColor: AppColors.secondary,
@@ -472,9 +503,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
               child: ElevatedButton(
                 onPressed: _isSubmitting ? null : _submitData,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: _isSubmitting 
-                      ? Colors.grey 
-                      : const Color(0xFF1F1F1F),
+                  backgroundColor:
+                      _isSubmitting ? Colors.grey : const Color(0xFF1F1F1F),
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -489,7 +519,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
                             height: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           ),
                           const SizedBox(width: 10),

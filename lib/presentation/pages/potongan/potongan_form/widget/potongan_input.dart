@@ -83,7 +83,7 @@ class _PotonganInputState extends State<PotonganInput> {
                       final jumlah = double.tryParse(jumlahText);
 
                       if (name.isEmpty) {
-                        NotificationHelper.showSnackBar(
+                        NotificationHelper.showTopNotification(
                           context,
                           'Nama Potongan harus di isi',
                           isSuccess: false,
@@ -92,7 +92,7 @@ class _PotonganInputState extends State<PotonganInput> {
                       }
 
                       if (jumlah == null) {
-                        NotificationHelper.showSnackBar(
+                        NotificationHelper.showTopNotification(
                           context,
                           'Jumlah potongan harus berupa angka',
                           isSuccess: false,
@@ -112,7 +112,7 @@ class _PotonganInputState extends State<PotonganInput> {
                           ),
                         );
 
-                        NotificationHelper.showSnackBar(
+                        NotificationHelper.showTopNotification(
                           context,
                           'Potongan Berhasil dibuat',
                           isSuccess: true,
@@ -123,7 +123,7 @@ class _PotonganInputState extends State<PotonganInput> {
                         controller.clear();
                         jumlahController.clear();
                       } catch (e) {
-                        NotificationHelper.showSnackBar(
+                        NotificationHelper.showTopNotification(
                           context,
                           'Gagal membuat potongan $e',
                           isSuccess: false,

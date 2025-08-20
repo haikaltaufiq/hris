@@ -6,10 +6,11 @@ import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/services/departemen_service.dart';
 import 'package:hr/data/services/jabatan_service.dart';
 import 'package:hr/data/services/peran_service.dart';
-import 'package:hr/data/services/user_service.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/theme.dart';
+import 'package:hr/provider/function/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class KaryawanInput extends StatefulWidget {
   const KaryawanInput({super.key});
@@ -60,31 +61,37 @@ class _KaryawanInputState extends State<KaryawanInput> {
     try {
       final data = await JabatanService.fetchJabatan();
       setState(() {
-        _jabatanList = data.map((j) => {
-          "id": j.id,
-          "nama_jabatan": j.namaJabatan,
-        }).toList();
+        _jabatanList = data
+            .map((j) => {
+                  "id": j.id,
+                  "nama_jabatan": j.namaJabatan,
+                })
+            .toList();
         _isLoadingJabatan = false;
       });
     } catch (e) {
       setState(() => _isLoadingJabatan = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat jabatan: $e")),
+      NotificationHelper.showTopNotification(
+        context,
+        "Gagal memuat jabatan: $e",
+        isSuccess: false,
       );
     }
   }
 
   Future<void> _loadPeran() async {
     try {
-      final data = await PeranService.fetchPeran(); 
+      final data = await PeranService.fetchPeran();
       setState(() {
         _peranList = data;
         _isLoadingPeran = false;
       });
     } catch (e) {
       setState(() => _isLoadingPeran = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat peran: $e")),
+      NotificationHelper.showTopNotification(
+        context,
+        "Gagal memuat peran: $e",
+        isSuccess: false,
       );
     }
   }
@@ -93,16 +100,20 @@ class _KaryawanInputState extends State<KaryawanInput> {
     try {
       final data = await DepartemenService.fetchDepartemen();
       setState(() {
-        _departemenList = data.map((d) => {
-          "id": d.id,
-          "nama_departemen": d.namaDepartemen,
-        }).toList();
+        _departemenList = data
+            .map((d) => {
+                  "id": d.id,
+                  "nama_departemen": d.namaDepartemen,
+                })
+            .toList();
         _isLoadingDepartemen = false;
       });
     } catch (e) {
       setState(() => _isLoadingDepartemen = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat departemen: $e")),
+      NotificationHelper.showTopNotification(
+        context,
+        "Gagal memuat department: $e",
+        isSuccess: false,
       );
     }
   }
@@ -127,14 +138,19 @@ class _KaryawanInputState extends State<KaryawanInput> {
         _jenisKelamin == null ||
         _statusPernikahan == null ||
         _passwordController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Harap isi semua field wajib")),
+      NotificationHelper.showTopNotification(
+        context,
+        "Harap isi semua field",
+        isSuccess: false,
       );
       return;
     }
 
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+
     try {
-      await UserService.createUser({
+      // Biar service tetap dipakai tapi provider yg handle state & auto reload
+      await userProvider.createUser({
         "nama": _namaController.text,
         "peran_id": _peranId,
         "jabatan_id": _jabatanId,
@@ -148,26 +164,26 @@ class _KaryawanInputState extends State<KaryawanInput> {
         "password": _passwordController.text,
       });
 
-      NotificationHelper.showSnackBar(
+      NotificationHelper.showTopNotification(
         context,
         "Karyawan berhasil ditambahkan",
         isSuccess: true,
       );
 
-      Navigator.pop(context, true);
+      Navigator.pop(
+          context, true); // true supaya halaman sebelumnya bisa refresh
     } catch (e) {
       if (e is Map<String, dynamic>) {
         // Error validasi Laravel
         e.forEach((field, messages) {
-          NotificationHelper.showSnackBar(
+          NotificationHelper.showTopNotification(
             context,
             "$field: ${(messages as List).join(', ')}",
             isSuccess: false,
           );
         });
       } else {
-        // Error umum
-        NotificationHelper.showSnackBar(
+        NotificationHelper.showTopNotification(
           context,
           "Error: $e",
           isSuccess: false,
@@ -219,7 +235,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
             label: 'Jabatan',
             hint: _isLoadingJabatan ? 'Memuat...' : '',
             items: _jabatanList
-                .where((e) => e["nama_jabatan"] != null) 
+                .where((e) => e["nama_jabatan"] != null)
                 .map((e) => e["nama_jabatan"] as String)
                 .toList(),
             onChanged: (val) {
@@ -236,18 +252,17 @@ class _KaryawanInputState extends State<KaryawanInput> {
             dropdownIconColor: AppColors.putih,
             inputStyle: inputStyle,
           ),
-
           CustomDropDownField(
             label: 'Peran',
             hint: _isLoadingPeran ? 'Memuat...' : '',
             items: _peranList
-                .where((e) => e["nama_peran"] != null) 
+                .where((e) => e["nama_peran"] != null)
                 .map((e) => e["nama_peran"] as String)
                 .toList(),
             onChanged: (val) {
               final selected = _peranList.firstWhere(
                 (e) => e["nama_peran"] == val,
-                orElse: () => <String, dynamic>{}, 
+                orElse: () => <String, dynamic>{},
               );
               _peranId = selected["id"];
             },
@@ -258,12 +273,11 @@ class _KaryawanInputState extends State<KaryawanInput> {
             dropdownIconColor: AppColors.putih,
             inputStyle: inputStyle,
           ),
-
           CustomDropDownField(
             label: 'Departemen',
             hint: _isLoadingDepartemen ? 'Memuat...' : '',
             items: _departemenList
-                .where((e) => e["nama_departemen"] != null) 
+                .where((e) => e["nama_departemen"] != null)
                 .map((e) => e["nama_departemen"] as String)
                 .toList(),
             onChanged: (val) {
@@ -280,7 +294,6 @@ class _KaryawanInputState extends State<KaryawanInput> {
             dropdownIconColor: AppColors.putih,
             inputStyle: inputStyle,
           ),
-
           CustomInputField(
             controller: _gajiController,
             label: "Gaji Pokok",

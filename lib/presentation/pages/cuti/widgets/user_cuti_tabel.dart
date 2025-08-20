@@ -27,6 +27,7 @@ class UserCutiTabel extends StatelessWidget {
         'Selesai Cuti',
         'Alasan',
         'Status',
+        'Keterangan',
       ],
       rows: cutiList.map((c) {
         return [
@@ -36,6 +37,7 @@ class UserCutiTabel extends StatelessWidget {
           DateHelper.format(c.tanggal_selesai).toString(),
           c.shortAlasan.toString(),
           c.status.toString(),
+          "sabar"
         ];
       }).toList(),
       statusColumnIndexes: [5],

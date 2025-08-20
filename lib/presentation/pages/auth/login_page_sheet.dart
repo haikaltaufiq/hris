@@ -1,11 +1,13 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/theme.dart';
+import 'package:hr/presentation/pages/auth/widgets/login_button.dart';
+import 'package:hr/presentation/pages/auth/widgets/login_checkbox_forgot.dart';
 import 'package:hr/presentation/pages/auth/widgets/login_contact.dart';
+import 'package:hr/presentation/pages/auth/widgets/login_input_field.dart';
 import 'package:hr/presentation/pages/landing/widgets/logo_text.dart';
-import 'widgets/login_input_field.dart';
-import 'widgets/login_checkbox_forgot.dart';
-import 'widgets/login_button.dart';
 
 class LoginPageSheet extends StatefulWidget {
   const LoginPageSheet({super.key});
@@ -17,6 +19,8 @@ class LoginPageSheet extends StatefulWidget {
 class _LoginPageSheetState extends State<LoginPageSheet> {
   late TextEditingController emailController;
   late TextEditingController passwordController;
+
+  String? errorMessage;
 
   @override
   void initState() {
@@ -82,9 +86,26 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
                         const SizedBox(height: 10),
                         const LoginCheckboxAndForgot(),
                         const SizedBox(height: 22),
+                        // tampilkan error langsung di login page
+                        if (errorMessage != null) ...[
+                          Text(
+                            errorMessage!,
+                            style: GoogleFonts.poppins(
+                              color: AppColors.red,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                        ],
                         LoginButton(
                           emailController: emailController,
                           passwordController: passwordController,
+                          onError: (msg) {
+                            setState(() {
+                              errorMessage = msg;
+                            });
+                          },
                         ),
                         const Spacer(),
                         const LoginContact(),

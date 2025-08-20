@@ -12,6 +12,7 @@ class CutiModel {
   final String tanggal_selesai;
   final String alasan;
   late final String status;
+  final int approve_step;
   final Map<String, dynamic> user;
 
   CutiModel({
@@ -22,6 +23,7 @@ class CutiModel {
     required this.tanggal_selesai,
     required this.alasan,
     required this.status,
+    required this.approve_step,
     required this.user,
   });
 
@@ -34,6 +36,9 @@ class CutiModel {
       tanggal_selesai: json['tanggal_selesai'],
       alasan: json['alasan'],
       status: json['status'],
+      approve_step: json['approve_step'] is String
+          ? int.tryParse(json['approve_step']) ?? 0
+          : json['approve_step'] ?? 0,
       user: json['user'] ?? {},
     );
   }
@@ -47,6 +52,7 @@ class CutiModel {
       'tanggal_selesai': tanggal_selesai,
       'alasan': alasan,
       'status': status,
+      'approve_step': approve_step,
       'user': user,
     };
   }
