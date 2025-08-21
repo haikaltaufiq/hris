@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
 
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -10,6 +11,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/tugas_model.dart';
+import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/provider/function/tugas_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -23,14 +25,16 @@ class UserEditTugas extends StatefulWidget {
 
 class _UserEditTugasState extends State<UserEditTugas> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController =
-      TextEditingController();
+  final TextEditingController _tanggalSelesaiController = TextEditingController();
   final TextEditingController _jamMulaiController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
-  final TextEditingController _lampiranTugasController =
-      TextEditingController();
+  final TextEditingController _lampiranTugasController = TextEditingController();
+
+  File? _selectedFile; 
+  Uint8List? _selectedBytes;
+  String? _selectedFileName;
 
   @override
   void initState() {
@@ -63,15 +67,14 @@ class _UserEditTugasState extends State<UserEditTugas> {
     _lokasiController.text = widget.tugas.lokasi;
     _noteController.text = widget.tugas.note;
 
-    // user yang sudah ada
   }
 
   Future<void> _handleSubmit() async {
-    if (_lampiranTugasController.text.isEmpty) {
+    if (!kIsWeb && _selectedFile == null || kIsWeb && _selectedBytes == null) {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
-          "Harap upload lampiran",
+          "Harap upload lampiran video",
           isSuccess: false,
         );
       }
@@ -81,7 +84,8 @@ class _UserEditTugasState extends State<UserEditTugas> {
     try {
       final tugasProvider = context.read<TugasProvider>();
 
-      final result = await tugasProvider.updateTugas(
+      // Update data teks dulu
+      final resultUpdate = await tugasProvider.updateTugas(
         id: widget.tugas.id,
         judul: _judulTugasController.text,
         jamMulai: _jamMulaiController.text,
@@ -91,19 +95,38 @@ class _UserEditTugasState extends State<UserEditTugas> {
         note: _noteController.text,
       );
 
-      if (!mounted) return;
+      if (resultUpdate['success'] == true) {
+        // Lanjut upload video
+        final resultUpload = await TugasService.uploadFileTugas(
+          id: widget.tugas.id,
+          file: kIsWeb ? null : _selectedFile,
+          fileBytes: kIsWeb ? _selectedBytes : null,
+          fileName: kIsWeb ? _selectedFileName : null,
+        );
 
-      final bool isSuccess = result['success'] == true;
-      final String message = result['message'] ?? '';
 
-      NotificationHelper.showTopNotification(
-        context,
-        message,
-        isSuccess: isSuccess,
-      );
+        final bool isSuccess = resultUpload['success'] == true;
+        final String message = resultUpload['message'] ?? '';
 
-      if (isSuccess) {
-        Navigator.pop(context, true);
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            message,
+            isSuccess: isSuccess,
+          );
+        }
+
+        if (isSuccess && mounted) {
+          Navigator.pop(context, true);
+        }
+      } else {
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            resultUpdate['message'] ?? 'Gagal update tugas',
+            isSuccess: false,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -223,32 +246,24 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 label: "Lampiran",
                 onTapIcon: () async {
                   try {
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(
                       type: FileType.any,
                     );
 
                     if (result != null && result.files.isNotEmpty) {
-                      final pickedFile = result.files.single;
-
                       if (kIsWeb) {
-                        // 🔥 Web → path selalu null, jadi ambil nama + bytes
-                        _lampiranTugasController.text = pickedFile.name;
-
-                        Uint8List? fileBytes = pickedFile.bytes;
-                        if (fileBytes != null) {
-                          print(
-                              "WEB File picked: ${pickedFile.name}, size: ${fileBytes.lengthInBytes} bytes");
-                          // TODO: kirim ke API langsung sebagai bytes
-                        }
+                        setState(() {
+                          _selectedBytes = result.files.first.bytes;
+                          _selectedFileName = result.files.first.name;
+                          _lampiranTugasController.text = result.files.first.name;
+                        });
                       } else {
-                        // 🔥 Android/iOS/Desktop → bisa pake path
-                        final filePath = pickedFile.path;
+                        final filePath = result.files.single.path;
                         if (filePath != null) {
-                          _lampiranTugasController.text =
-                              filePath.split('/').last;
-                          print("MOBILE File picked: $filePath");
-                          // TODO: kirim file ke API pake MultipartFile.fromFile(filePath)
+                          setState(() {
+                            _selectedFile = File(filePath);
+                            _lampiranTugasController.text = filePath.split('/').last;
+                          });
                         }
                       }
                     }

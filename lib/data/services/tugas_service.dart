@@ -1,6 +1,9 @@
-// ignore_for_file: avoid_print
+// ignore_for_file: avoid_print, curly_braces_in_flow_control_structures
 
 import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:intl/intl.dart';
@@ -208,4 +211,63 @@ class TugasService {
               : 'Gagal menghapus tugas'),
     };
   }
+
+  /// Upload bukti video untuk tugas
+  static Future<Map<String, dynamic>> uploadFileTugas({
+    required int id,
+    File? file,
+    Uint8List? fileBytes,
+    String? fileName,
+  }) async {
+    final token = await _getToken();
+    if (token == null) throw Exception('Token tidak ditemukan');
+
+    try {
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse('$baseUrl/api/tugas/$id/upload-file'),
+      );
+
+      request.headers.addAll({
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+      });
+
+      if (kIsWeb) {
+        if (fileBytes == null || fileName == null)
+          throw Exception("fileBytes & fileName wajib di Web");
+
+        request.files.add(
+          http.MultipartFile.fromBytes(
+            'lampiran', // field umum
+            fileBytes,
+            filename: fileName,
+          ),
+        );
+      } else {
+        if (file == null) throw Exception("File wajib di Android/iOS");
+
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'lampiran',
+            file.path,
+          ),
+        );
+      }
+
+      var streamedResponse = await request.send();
+      var responseBody = await streamedResponse.stream.bytesToString();
+
+      final decoded = json.decode(responseBody);
+
+      return {
+        'success': streamedResponse.statusCode == 200,
+        'message': decoded['message'] ?? 'Gagal upload file',
+        'data': decoded,
+      };
+    } catch (e) {
+      return {'success': false, 'message': 'Terjadi error: $e'};
+    }
+  }
+
 }

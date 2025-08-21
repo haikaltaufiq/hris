@@ -3,6 +3,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/data/models/tugas_model.dart';
+import 'package:hr/presentation/pages/tugas/widgets/video.dart';
 import 'package:provider/provider.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/presentation/pages/tugas/tugas_form/tugas_edit_form.dart';
@@ -83,6 +84,67 @@ class TugasTabel extends StatelessWidget {
     }
     onActionDone?.call();
   }
+
+  // lampiran
+  void _showLampiranDialog(BuildContext context, TugasModel tugas) {
+    if (tugas.lampiran == null) {
+      NotificationHelper.showTopNotification(
+        context,
+        "Tidak ada lampiran untuk tugas ini",
+        isSuccess: false,
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: AppColors.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        title: Text(
+          'Lampiran Tugas',
+          style: GoogleFonts.poppins(color: AppColors.putih, fontWeight: FontWeight.w600),
+        ),
+        content: SizedBox(
+          height: 300,
+          child: buildLampiranWidget(tugas.lampiran!),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              'Tutup',
+              style: GoogleFonts.poppins(color: AppColors.putih, fontSize: 16),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildLampiranWidget(String url) {
+    final ext = url.split('.').last.toLowerCase();
+    if (['mp4', 'mov', 'avi', '3gp'].contains(ext)) {
+      return VideoPlayerWidget(videoUrl: url);
+    } else if (['jpg', 'jpeg', 'png', 'gif'].contains(ext)) {
+      return Image.network(url, fit: BoxFit.contain);
+    } else if (ext == 'pdf') {
+      return Center(child: Text('PDF Viewer bisa ditambahkan di sini'));
+    } else if (['mp3', 'wav', 'm4a'].contains(ext)) {
+      return Center(child: Text('Audio Player bisa ditambahkan di sini'));
+    } else {
+      return Center(
+        child: ElevatedButton(
+          onPressed: () {},
+          child: Text('Download Lampiran'),
+        ),
+      );
+    }
+  }
+
+
 
   void _showDetailDialog(BuildContext context, TugasModel tugas) {
     Color statusColor;
@@ -172,7 +234,7 @@ class TugasTabel extends StatelessWidget {
         tugas.lokasi,
         tugas.note,
         tugas.status,
-        "Lihat Lampiran"
+        tugas.lampiran != null ? "Lihat Lampiran" : "-"
       ];
     }).toList();
 
@@ -183,6 +245,7 @@ class TugasTabel extends StatelessWidget {
       onView: (row) => _showDetailDialog(context, tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
       onDelete: (row) => _deleteTugas(context, tugasList[row]),
+      onTapLampiran: (row) => _showLampiranDialog(context, tugasList[row]),
     );
   }
 }

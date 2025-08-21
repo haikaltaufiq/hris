@@ -20,11 +20,15 @@ dependencies:
   provider: ^6.1.5
   numberpicker: ^2.1.2
   file_picker: ^10.3.2
+<<<<<<< HEAD
   flutter_map: ^8.1.1
   latlong2: ^0.9.1
   geolocator: ^13.0.1
   video_player: ^2.10.0
   camera: ^0.11.2
+=======
+  video_player: ^2.6.0
+>>>>>>> eabfce30c9e9112c3a4c607264e6eb7db0a5f576
 
 dev_dependencies:
   flutter_test:

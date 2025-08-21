@@ -12,6 +12,7 @@ class CustomDataTableWidget extends StatelessWidget {
   final Function(int row)? onView;
   final Function(int row)? onEdit;
   final Function(int row)? onDelete;
+  final Function(int row)? onTapLampiran;
 
   const CustomDataTableWidget({
     Key? key,
@@ -22,6 +23,7 @@ class CustomDataTableWidget extends StatelessWidget {
     this.onView,
     this.onEdit,
     this.onDelete,
+    this.onTapLampiran,
   }) : super(key: key);
 
   Color _getStatusColor(String status) {
@@ -96,6 +98,7 @@ class CustomDataTableWidget extends StatelessWidget {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
