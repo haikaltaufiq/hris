@@ -1,3 +1,4 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -18,6 +19,8 @@ class AbsenPage extends StatefulWidget {
 
 class _AbsenPageState extends State<AbsenPage> {
   final searchController = TextEditingController(); // value awal
+  XFile? _lastVideo;
+
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +38,10 @@ class _AbsenPageState extends State<AbsenPage> {
               onFilter1Tap: () => print("Filter1 Halaman A"),
             ),
             AbsenExcelExport(),
-            AbsenTabel(),
-            AbsenTabel(),
+            AbsenTabel(lastVideo: _lastVideo),
+            AbsenTabel(lastVideo: _lastVideo),
+          
+           
           ],
         ),
 

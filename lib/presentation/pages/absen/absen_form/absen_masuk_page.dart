@@ -35,7 +35,8 @@ class _AbsenMasukPageState extends State<AbsenMasukPage> {
         ),
       ),
       body: ListView(children: [
-        InputIn(),
+        InputIn(
+        ),
       ]),
     );
   }

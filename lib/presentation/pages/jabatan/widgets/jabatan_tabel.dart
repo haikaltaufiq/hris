@@ -58,7 +58,7 @@ class JabatanTabel extends StatelessWidget {
                   ],
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 40),
+                  padding: const EdgeInsets.only(right: 20),
                   child: Text(
                     'Aksi', // No ID absen
                     style: TextStyle(
@@ -80,12 +80,11 @@ class JabatanTabel extends StatelessWidget {
                 ),
               ),
             ),
-
             const SizedBox(height: 12),
-
             ListView.separated(
               shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(), // supaya ikut scroll luar
+              physics:
+                  const NeverScrollableScrollPhysics(), // supaya ikut scroll luar
               itemCount: jabatanList.length,
               separatorBuilder: (_, __) =>
                   Divider(color: AppColors.secondary, thickness: 1),
@@ -97,7 +96,7 @@ class JabatanTabel extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          flex: 2,
+                          flex: 1,
                           child: Text(
                             jabatan.namaJabatan,
                             style: TextStyle(
@@ -110,7 +109,7 @@ class JabatanTabel extends StatelessWidget {
                         Expanded(
                           flex: 1,
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 35),
+                            padding: const EdgeInsets.only(right: 10),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
@@ -121,10 +120,10 @@ class JabatanTabel extends StatelessWidget {
                                   child: FaIcon(
                                     FontAwesomeIcons.trash,
                                     color: AppColors.putih,
-                                    size: 15,
+                                    size: 20,
                                   ),
                                 ),
-                                const SizedBox(width: 12), // jarak antar ikon
+                                const SizedBox(width: 15), // jarak antar ikon
                                 GestureDetector(
                                   onTap: () {
                                     onEdit(jabatan);
@@ -132,7 +131,7 @@ class JabatanTabel extends StatelessWidget {
                                   child: FaIcon(
                                     FontAwesomeIcons.pen,
                                     color: AppColors.putih,
-                                    size: 15,
+                                    size: 20,
                                   ),
                                 ),
                               ],

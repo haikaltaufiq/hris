@@ -1,6 +1,9 @@
 // ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
 
+import 'dart:typed_data';
+
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
@@ -222,17 +225,31 @@ class _UserEditTugasState extends State<UserEditTugas> {
                   try {
                     FilePickerResult? result =
                         await FilePicker.platform.pickFiles(
-                      type: FileType
-                          .any, // Bisa diganti FileType.custom dan extensions: ['pdf','docx'] dll
+                      type: FileType.any,
                     );
 
                     if (result != null && result.files.isNotEmpty) {
-                      // Ambil path file
-                      final filePath = result.files.single.path;
-                      if (filePath != null) {
-                        _lampiranTugasController.text =
-                            filePath.split('/').last; // cuma nama file
-                        // Kalo mau simpan full path: _lampiranTugasController.text = filePath;
+                      final pickedFile = result.files.single;
+
+                      if (kIsWeb) {
+                        // 🔥 Web → path selalu null, jadi ambil nama + bytes
+                        _lampiranTugasController.text = pickedFile.name;
+
+                        Uint8List? fileBytes = pickedFile.bytes;
+                        if (fileBytes != null) {
+                          print(
+                              "WEB File picked: ${pickedFile.name}, size: ${fileBytes.lengthInBytes} bytes");
+                          // TODO: kirim ke API langsung sebagai bytes
+                        }
+                      } else {
+                        // 🔥 Android/iOS/Desktop → bisa pake path
+                        final filePath = pickedFile.path;
+                        if (filePath != null) {
+                          _lampiranTugasController.text =
+                              filePath.split('/').last;
+                          print("MOBILE File picked: $filePath");
+                          // TODO: kirim file ke API pake MultipartFile.fromFile(filePath)
+                        }
                       }
                     }
                   } catch (e) {

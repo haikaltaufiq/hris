@@ -86,31 +86,48 @@ class TugasUserTabel extends StatelessWidget {
           style: GoogleFonts.poppins(
             color: AppColors.putih,
             fontWeight: FontWeight.w600,
+            fontSize: 18,
           ),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DetailItem(label: 'Kepada', value: tugas.user?.nama ?? '-'),
-            SizedBox(height: 5),
-            DetailItem(label: 'Judul', value: tugas.namaTugas),
-            SizedBox(height: 5),
-            DetailItem(label: 'Jam Mulai', value: parseTime(tugas.jamMulai)),
-            SizedBox(height: 5),
-            DetailItem(
-                label: 'Tanggal Mulai', value: parseDate(tugas.tanggalMulai)),
-            SizedBox(height: 5),
-            DetailItem(
-                label: 'Batas Submit', value: parseDate(tugas.tanggalSelesai)),
-            SizedBox(height: 5),
-            DetailItem(label: 'Lokasi', value: tugas.lokasi),
-            SizedBox(height: 5),
-            DetailItem(label: 'Note', value: tugas.note),
-            SizedBox(height: 5),
-            DetailItem(
-                label: 'Status', value: tugas.status, color: statusColor),
-          ],
+        content: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.6, // dialog lebih lebar
+          height:
+              MediaQuery.of(context).size.height * 0.5, // tinggi lebih besar
+          child: ListView.separated(
+            shrinkWrap: true,
+            itemCount: 8,
+            separatorBuilder: (_, __) =>
+                const SizedBox(height: 12), // jarak antar item
+            itemBuilder: (context, index) {
+              switch (index) {
+                case 0:
+                  return DetailItem(
+                      label: 'Kepada', value: tugas.user?.nama ?? '-');
+                case 1:
+                  return DetailItem(label: 'Judul', value: tugas.namaTugas);
+                case 2:
+                  return DetailItem(
+                      label: 'Jam Mulai', value: parseTime(tugas.jamMulai));
+                case 3:
+                  return DetailItem(
+                      label: 'Tanggal Mulai',
+                      value: parseDate(tugas.tanggalMulai));
+                case 4:
+                  return DetailItem(
+                      label: 'Batas Submit',
+                      value: parseDate(tugas.tanggalSelesai));
+                case 5:
+                  return DetailItem(label: 'Lokasi', value: tugas.lokasi);
+                case 6:
+                  return DetailItem(label: 'Note', value: tugas.note);
+                case 7:
+                  return DetailItem(
+                      label: 'Status', value: tugas.status, color: statusColor);
+                default:
+                  return const SizedBox();
+              }
+            },
+          ),
         ),
         actions: [
           TextButton(

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hr/presentation/pages/departemen/department_viewmodels.dart';
+import 'package:hr/presentation/pages/jabatan/jabatan_viewmodels.dart';
 import 'package:hr/presentation/pages/landing/landing_page.dart';
 import 'package:hr/provider/function/cuti_provider.dart';
 import 'package:hr/provider/function/lembur_provider.dart';
@@ -16,6 +18,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => CutiProvider()),
         ChangeNotifierProvider(create: (_) => PotonganGajiProvider()),
         ChangeNotifierProvider(create: (_) => TugasProvider()),
+        ChangeNotifierProvider(create: (_) => DepartmentViewModel()),
+        ChangeNotifierProvider(create: (_) => JabatanViewModel()),
       ],
       child: const MainApp(),
     ),

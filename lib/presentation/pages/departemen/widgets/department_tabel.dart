@@ -56,7 +56,7 @@ class DepartmentTabel extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(right: 40),
+                  padding: const EdgeInsets.only(right: 20),
                   child: Text(
                     'Aksi',
                     style: TextStyle(
@@ -95,9 +95,9 @@ class DepartmentTabel extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Expanded(
-                        flex: 2,
+                        flex: 1,
                         child: Text(
-                          departemen.namaDepartemen, 
+                          departemen.namaDepartemen,
                           style: TextStyle(
                             color: AppColors.putih,
                             fontWeight: FontWeight.w400,
@@ -108,7 +108,7 @@ class DepartmentTabel extends StatelessWidget {
                       Expanded(
                         flex: 1,
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 35),
+                          padding: const EdgeInsets.only(right: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -119,10 +119,10 @@ class DepartmentTabel extends StatelessWidget {
                                 child: FaIcon(
                                   FontAwesomeIcons.trash,
                                   color: AppColors.putih,
-                                  size: 15,
+                                  size: 20,
                                 ),
                               ),
-                              const SizedBox(width: 12),
+                              const SizedBox(width: 15),
                               GestureDetector(
                                 onTap: () {
                                   onEdit(departemen);
@@ -130,7 +130,7 @@ class DepartmentTabel extends StatelessWidget {
                                 child: FaIcon(
                                   FontAwesomeIcons.pen,
                                   color: AppColors.putih,
-                                  size: 15,
+                                  size: 20,
                                 ),
                               ),
                             ],
