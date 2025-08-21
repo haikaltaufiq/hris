@@ -13,6 +13,7 @@ class CustomDataTableWidget extends StatelessWidget {
   final Function(int row)? onView;
   final Function(int row)? onEdit;
   final Function(int row)? onDelete;
+  final Function(int row)? onTapLampiran;
 
   const CustomDataTableWidget({
     Key? key,
@@ -23,6 +24,7 @@ class CustomDataTableWidget extends StatelessWidget {
     this.onView,
     this.onEdit,
     this.onDelete,
+    this.onTapLampiran,
   }) : super(key: key);
 
   Color _getStatusColor(String status) {
@@ -46,9 +48,9 @@ class CustomDataTableWidget extends StatelessWidget {
 
   Widget _buildValueCell(
       BuildContext context, String value, int rowIndex, int colIndex) {
-    // Status column styling - check if current column is in statusColumnIndexes
-    if (statusColumnIndexes != null &&
-        statusColumnIndexes!.contains(colIndex)) {
+
+    // Status column styling
+    if (statusColumnIndexes != null && statusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
       return Align(
         alignment: Alignment.centerLeft,
@@ -87,6 +89,21 @@ class CustomDataTableWidget extends StatelessWidget {
       );
     }
 
+    // Lampiran column (kolom ke-8)
+    if (colIndex == 8 && value == "Lihat Lampiran" && onTapLampiran != null) {
+      return GestureDetector(
+        onTap: () => onTapLampiran!(rowIndex),
+        child: Text(
+          value,
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+            fontFamily: GoogleFonts.poppins().fontFamily,
+          ),
+        ),
+      );
+    }
+
     // Regular cell
     return GestureDetector(
       onTap: () => onCellTap?.call(rowIndex, colIndex),
@@ -99,6 +116,7 @@ class CustomDataTableWidget extends StatelessWidget {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {

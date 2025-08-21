@@ -155,7 +155,8 @@ class TugasUserTabel extends StatelessWidget {
       rows: rows,
       statusColumnIndexes: const [7],
       onView: (row) => _showDetailDialog(context, tugasList[row]),
-      onEdit: (row) => _editTugas(context, row),
+      onEdit: (row) => _editTugas(context, row), 
+      onTapLampiran: (row) {  },
     );
   }
 }
