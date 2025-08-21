@@ -35,8 +35,6 @@ class UserProvider extends ChangeNotifier {
   int get roleId => _user?.peran.id ?? 0;
   String get roleName => _user?.peran.namaPeran ?? 'Guest';
 
-  bool hasFeature(String featureId) => _features.contains(featureId);
-
   // ===== User setter =====
   void setUser(UserModel user) {
     _user = user;
@@ -46,17 +44,29 @@ class UserProvider extends ChangeNotifier {
         ...FeatureIds.manageCuti,
         ...FeatureIds.manageLembur,
         ...FeatureIds.dashboard,
+        ...FeatureIds.manageTask,
       ];
     } else {
       _features = [
         ...FeatureIds.userCuti,
         ...FeatureIds.userLembur,
         ...FeatureIds.dashboardUser,
+        ...FeatureIds.userTask,
       ];
       // Bisa tambah fetch fitur khusus role dari DB/API kalau perlu
     }
 
     notifyListeners();
+  }
+
+  bool hasFeature(dynamic featureId) {
+    if (featureId is String) {
+      return _features.contains(featureId);
+    } else if (featureId is List<String>) {
+      // cek kalau ada salah satu ada di _features
+      return featureId.any((f) => _features.contains(f));
+    }
+    return false;
   }
 
   void clearUser() {

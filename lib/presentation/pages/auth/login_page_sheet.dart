@@ -1,8 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/core/theme.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/presentation/pages/auth/widgets/login_button.dart';
 import 'package:hr/presentation/pages/auth/widgets/login_checkbox_forgot.dart';
 import 'package:hr/presentation/pages/auth/widgets/login_contact.dart';
@@ -87,23 +86,20 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
                         const LoginCheckboxAndForgot(),
                         const SizedBox(height: 22),
                         // tampilkan error langsung di login page
-                        if (errorMessage != null) ...[
-                          Text(
-                            errorMessage!,
-                            style: GoogleFonts.poppins(
-                              color: AppColors.red,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
                         LoginButton(
                           emailController: emailController,
                           passwordController: passwordController,
                           onError: (msg) {
+                            String notificationMsg = msg;
                             setState(() {
-                              errorMessage = msg;
+                              errorMessage = notificationMsg;
+                            });
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              NotificationHelper.showTopNotification(
+                                context,
+                                notificationMsg,
+                                isSuccess: false,
+                              );
                             });
                           },
                         ),

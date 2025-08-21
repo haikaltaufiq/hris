@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/detail_item.dart';
-import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/data/models/tugas_model.dart';
-import 'package:provider/provider.dart';
 import 'package:hr/core/theme.dart';
-import 'package:hr/presentation/pages/tugas/tugas_form/tugas_edit_form.dart';
-import 'package:hr/core/helpers/notification_helper.dart';
-import 'package:hr/provider/function/tugas_provider.dart';
+import 'package:hr/presentation/pages/tugas/tugas_form/form_user_edit.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class TugasTabel extends StatelessWidget {
+class TugasUserTabel extends StatelessWidget {
   final List<TugasModel> tugasList;
   final VoidCallback? onActionDone;
-  const TugasTabel({
+  const TugasUserTabel({
     super.key,
     required this.tugasList,
     required this.onActionDone,
@@ -29,7 +25,7 @@ class TugasTabel extends StatelessWidget {
     "Lokasi",
     "Note",
     "Status",
-    "Lampiran"
+    "Lampiran",
   ];
 
   String parseTime(String? time) {
@@ -54,33 +50,11 @@ class TugasTabel extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => TugasEditForm(
+        builder: (_) => FormUserEdit(
           tugas: tugasList[row],
         ),
       ),
     );
-    onActionDone?.call();
-  }
-
-  Future<void> _deleteTugas(BuildContext context, TugasModel tugas) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus tugas ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
-
-    if (confirmed) {
-      final message =
-          await context.read<TugasProvider>().deleteTugas(tugas.id, "");
-      NotificationHelper.showTopNotification(
-        context,
-        message ?? 'Gagal menghapus tugas',
-        isSuccess: message != null,
-      );
-    }
     onActionDone?.call();
   }
 
@@ -172,7 +146,7 @@ class TugasTabel extends StatelessWidget {
         tugas.lokasi,
         tugas.note,
         tugas.status,
-        "Lihat Lampiran"
+        "Upload Tugas ",
       ];
     }).toList();
 
@@ -182,7 +156,6 @@ class TugasTabel extends StatelessWidget {
       statusColumnIndexes: const [7],
       onView: (row) => _showDetailDialog(context, tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
-      onDelete: (row) => _deleteTugas(context, tugasList[row]),
     );
   }
 }

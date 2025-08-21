@@ -1,27 +1,24 @@
 // ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
-import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/data/models/tugas_model.dart';
-import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/user_service.dart';
 import 'package:hr/provider/function/tugas_provider.dart';
 import 'package:provider/provider.dart';
 
-class TugasInputEdit extends StatefulWidget {
+class UserEditTugas extends StatefulWidget {
   final TugasModel tugas;
-  const TugasInputEdit({super.key, required this.tugas});
+  const UserEditTugas({super.key, required this.tugas});
 
   @override
-  State<TugasInputEdit> createState() => _TugasInputEditState();
+  State<UserEditTugas> createState() => _UserEditTugasState();
 }
 
-class _TugasInputEditState extends State<TugasInputEdit> {
+class _UserEditTugasState extends State<UserEditTugas> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
   final TextEditingController _tanggalSelesaiController =
       TextEditingController();
@@ -29,12 +26,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
-
-  int _selectedMinute = 0;
-  int _selectedHour = 0;
-  UserModel? _selectedUser;
-  List<UserModel> _userList = [];
-  bool _isLoadingUser = true;
+  final TextEditingController _lampiranTugasController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -68,171 +61,14 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     _noteController.text = widget.tugas.note;
 
     // user yang sudah ada
-    _selectedUser = widget.tugas.user;
-
-    _loadUsers();
-  }
-
-  Future<void> _loadUsers() async {
-    try {
-      final userData = await UserService.fetchUsers();
-      if (mounted) {
-        setState(() {
-          _userList = userData;
-          _isLoadingUser = false;
-        });
-      }
-    } catch (e) {
-      print("Error fetch users: $e");
-      if (mounted) {
-        setState(() => _isLoadingUser = false);
-      }
-    }
-  }
-
-  void _onTapIconTime(TextEditingController controller) async {
-    showModalBottomSheet(
-      backgroundColor: AppColors.primary,
-      useRootNavigator: true,
-      context: context,
-      clipBehavior: Clip.antiAlias,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Column(
-              children: [
-                const SizedBox(height: 10),
-                ListTile(
-                  title: Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 3,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(30)),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'Pilih Waktu',
-                          style: TextStyle(
-                            color: AppColors.putih,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Mulai Tugas',
-                          style: TextStyle(
-                            color: AppColors.putih,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                NumberPickerWidget(
-                  hour: _selectedHour,
-                  minute: _selectedMinute,
-                  onHourChanged: (value) {
-                    setModalState(() {
-                      _selectedHour = value;
-                    });
-                  },
-                  onMinuteChanged: (value) {
-                    setModalState(() {
-                      _selectedMinute = value;
-                    });
-                  },
-                ),
-                FloatingActionButton.extended(
-                  backgroundColor: AppColors.secondary,
-                  onPressed: () {
-                    final formattedHour =
-                        _selectedHour.toString().padLeft(2, '0');
-                    final formattedMinute =
-                        _selectedMinute.toString().padLeft(2, '0');
-                    final formattedTime = "$formattedHour:$formattedMinute";
-                    controller.text = formattedTime;
-                    Navigator.pop(context);
-                  },
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Text(
-                      'Save',
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.poppins().fontFamily,
-                        color: AppColors.putih,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-  }
-
-  void _onTapIconDate(TextEditingController controller) async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: const Color(0xFF1F1F1F),
-              onPrimary: Colors.white,
-              onSurface: AppColors.hitam,
-              secondary: AppColors.yellow,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(foregroundColor: AppColors.hitam),
-            ),
-            textTheme: GoogleFonts.poppinsTextTheme(
-              Theme.of(context).textTheme.apply(
-                    bodyColor: AppColors.hitam,
-                    displayColor: AppColors.hitam,
-                  ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate != null && mounted) {
-      controller.text =
-          "${pickedDate.day.toString().padLeft(2, '0')} / ${pickedDate.month.toString().padLeft(2, '0')} / ${pickedDate.year}";
-    }
   }
 
   Future<void> _handleSubmit() async {
-    if (_judulTugasController.text.isEmpty ||
-        _jamMulaiController.text.isEmpty ||
-        _tanggalMulaiController.text.isEmpty ||
-        _tanggalSelesaiController.text.isEmpty ||
-        _lokasiController.text.isEmpty ||
-        _selectedUser == null) {
+    if (_lampiranTugasController.text.isEmpty) {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
-          "Harap isi semua data",
+          "Harap upload lampiran",
           isSuccess: false,
         );
       }
@@ -248,7 +84,6 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         jamMulai: _jamMulaiController.text,
         tanggalMulai: _tanggalMulaiController.text,
         tanggalSelesai: _tanggalSelesaiController.text,
-        person: _selectedUser?.id,
         lokasi: _lokasiController.text,
         note: _noteController.text,
       );
@@ -327,6 +162,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
               CustomInputField(
                 label: "Judul Tugas",
                 controller: _judulTugasController,
+                onTapIcon: () {},
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -337,7 +173,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 hint: "--:--",
                 controller: _jamMulaiController,
                 suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-                onTapIcon: () => _onTapIconTime(_jamMulaiController),
+                onTapIcon: () {},
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -347,7 +183,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 hint: "dd / mm / yyyy",
                 controller: _tanggalMulaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-                onTapIcon: () => _onTapIconDate(_tanggalMulaiController),
+                onTapIcon: () {},
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -357,41 +193,15 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 hint: "dd / mm / yyyy",
                 controller: _tanggalSelesaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-                onTapIcon: () => _onTapIconDate(_tanggalSelesaiController),
+                onTapIcon: () {},
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
               ),
-              const SizedBox(height: 10),
-              _isLoadingUser
-                  ? Center(
-                      child: CircularProgressIndicator(color: AppColors.putih))
-                  : CustomDropDownField(
-                      label: 'Karyawan',
-                      hint: 'Pilih user',
-                      items: _userList
-                          .map((user) => user.nama)
-                          .where((name) => name.isNotEmpty)
-                          .toList(),
-                      value: _selectedUser?.nama,
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedUser = _userList.firstWhere(
-                            (user) => user.nama == val,
-                            orElse: () => _userList.first,
-                          );
-                        });
-                      },
-                      labelStyle: labelStyle,
-                      textStyle: textStyle,
-                      dropdownColor: AppColors.secondary,
-                      dropdownTextColor: AppColors.putih,
-                      dropdownIconColor: AppColors.putih,
-                      inputStyle: inputStyle,
-                    ),
               CustomInputField(
                 label: "Lokasi",
                 controller: _lokasiController,
+                onTapIcon: () {},
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -399,11 +209,47 @@ class _TugasInputEditState extends State<TugasInputEdit> {
               ),
               CustomInputField(
                 label: "Note",
+                onTapIcon: () {},
                 controller: _noteController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
                 hint: '',
+              ),
+              CustomInputField(
+                label: "Lampiran",
+                onTapIcon: () async {
+                  try {
+                    FilePickerResult? result =
+                        await FilePicker.platform.pickFiles(
+                      type: FileType
+                          .any, // Bisa diganti FileType.custom dan extensions: ['pdf','docx'] dll
+                    );
+
+                    if (result != null && result.files.isNotEmpty) {
+                      // Ambil path file
+                      final filePath = result.files.single.path;
+                      if (filePath != null) {
+                        _lampiranTugasController.text =
+                            filePath.split('/').last; // cuma nama file
+                        // Kalo mau simpan full path: _lampiranTugasController.text = filePath;
+                      }
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      NotificationHelper.showTopNotification(
+                        context,
+                        'Gagal pilih file: $e',
+                        isSuccess: false,
+                      );
+                    }
+                  }
+                },
+                controller: _lampiranTugasController,
+                labelStyle: labelStyle,
+                textStyle: textStyle,
+                inputStyle: inputStyle,
+                hint: 'Upload File Lampiran',
               ),
               const SizedBox(height: 5),
               SizedBox(

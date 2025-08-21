@@ -90,8 +90,18 @@ class FeatureIds {
   ];
 
   // ====================== Modul fitur tugas ======================
-  static const addTugas = "add_tugas";
+  static const addTask = "add_task";
+  static const manageTabelTask = "manage_tabel_task";
+  static const userTabelTask = "user_tabel_task";
 
+  static const manageTask = [
+    addTask,
+    manageTabelTask,
+  ];
+
+  static const userTask = [
+    userTabelTask,
+  ];
   // Contoh paket lain bisa dibuat seperti ini
   // static const ManageLembur = [approveLembur, declineLembur];
 }

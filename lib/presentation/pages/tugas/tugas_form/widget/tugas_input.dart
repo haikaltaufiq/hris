@@ -105,7 +105,7 @@ class _TugasInputState extends State<TugasInput> {
                             ),
                           ),
                           Text(
-                            'Penambahan Tugas',
+                            'Mulai Tugas',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,

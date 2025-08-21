@@ -7,12 +7,15 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/presentation/pages/tugas/tugas_form/tugas_form.dart';
 import 'package:hr/presentation/pages/tugas/widgets/tugas_tabel.dart';
+import 'package:hr/presentation/pages/tugas/widgets/tugas_user_tabel.dart';
+import 'package:hr/provider/features/features_guard.dart';
+import 'package:hr/provider/features/features_ids.dart';
 import 'package:hr/provider/function/tugas_provider.dart';
+import 'package:hr/provider/function/user_provider.dart';
 import 'package:provider/provider.dart';
 
 class TugasPage extends StatefulWidget {
   const TugasPage({super.key});
-
   @override
   State<TugasPage> createState() => _TugasPageState();
 }
@@ -23,7 +26,6 @@ class _TugasPageState extends State<TugasPage> {
   @override
   void initState() {
     super.initState();
-    // Fetch data when page initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<TugasProvider>().fetchTugas();
     });
@@ -42,6 +44,7 @@ class _TugasPageState extends State<TugasPage> {
   @override
   Widget build(BuildContext context) {
     final tugasProvider = context.watch<TugasProvider>();
+    final userProvider = context.watch<UserProvider>(); // fix missing
 
     return Stack(
       children: [
@@ -50,7 +53,11 @@ class _TugasPageState extends State<TugasPage> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              const Header(title: 'Manajemen Tugas'),
+              Header(
+                title: userProvider.hasFeature(FeatureIds.manageTask)
+                    ? 'Manajemen Tugas'
+                    : 'Daftar Tugas',
+              ),
               SearchingBar(
                 controller: searchController,
                 onChanged: (value) {
@@ -58,18 +65,16 @@ class _TugasPageState extends State<TugasPage> {
                 },
                 onFilter1Tap: () => print("Filter1 Halaman A"),
               ),
-              // Use Consumer to watch TugasProvider state
               Consumer<TugasProvider>(
                 builder: (context, tugasProvider, child) {
                   final displayedList = searchController.text.isEmpty
                       ? tugasProvider.tugasList
                       : tugasProvider.filteredTugasList;
+
                   if (tugasProvider.isLoading) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
-                      child: const Center(
-                        child: LoadingWidget(),
-                      ),
+                      child: const Center(child: LoadingWidget()),
                     );
                   }
 
@@ -146,35 +151,49 @@ class _TugasPageState extends State<TugasPage> {
                     );
                   }
 
-                  // Show the table with data
-                  return TugasTabel(
-                    tugasList: displayedList,
-                    onActionDone: () {
-                      searchController.clear();
-                    },
-                  );
+                  if (userProvider.hasFeature(FeatureIds.manageTask)) {
+                    return FeatureGuard(
+                      featureId: "manage_tabel_task",
+                      child: TugasTabel(
+                        tugasList: displayedList,
+                        onActionDone: () {
+                          searchController.clear();
+                        },
+                      ),
+                    );
+                  } else {
+                    return FeatureGuard(
+                      featureId: "user_tabel_task",
+                      child: TugasUserTabel(
+                        tugasList: displayedList,
+                        onActionDone: () {
+                          searchController.clear();
+                        },
+                      ),
+                    );
+                  }
                 },
               ),
             ],
           ),
         ),
-        Positioned(
-          bottom: 16,
-          right: 16,
-          child: FloatingActionButton(
-            onPressed: () async {
-              final result = await Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const TugasForm()),
-              );
-              searchController.clear();
-              if (result == true) {
-                // Refresh data after successful creation
-                _refreshData();
-              }
-            },
-            backgroundColor: AppColors.secondary,
-            shape: const CircleBorder(),
-            child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+        FeatureGuard(
+          featureId: "add_task",
+          child: Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              onPressed: () async {
+                final result = await Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const TugasForm()),
+                );
+                searchController.clear();
+                if (result == true) _refreshData();
+              },
+              backgroundColor: AppColors.secondary,
+              shape: const CircleBorder(),
+              child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+            ),
           ),
         ),
       ],
