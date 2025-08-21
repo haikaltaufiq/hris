@@ -1,9 +1,10 @@
-// Custom Data Table Widget - styled like LogTabel
+// Custom Data Table Widget - styled like TugasTabel
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme.dart';
 
+// Custom Data Table Widget - styled like TugasTabel
 class CustomDataTableWidget extends StatelessWidget {
   final List<String> headers;
   final List<List<String>> rows;
@@ -23,7 +24,7 @@ class CustomDataTableWidget extends StatelessWidget {
     this.onView,
     this.onEdit,
     this.onDelete,
-    this.onTapLampiran,
+    this.onTapLampiran
   }) : super(key: key);
 
   Color _getStatusColor(String status) {
@@ -47,6 +48,7 @@ class CustomDataTableWidget extends StatelessWidget {
 
   Widget _buildValueCell(
       BuildContext context, String value, int rowIndex, int colIndex) {
+    // Status column styling - check if current column is in statusColumnIndexes
     if (statusColumnIndexes != null &&
         statusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
@@ -87,6 +89,22 @@ class CustomDataTableWidget extends StatelessWidget {
       );
     }
 
+      // Lampiran column (kolom ke-8)
+    if (colIndex == 8 && value == "Lihat Lampiran" && onTapLampiran != null) {
+      return GestureDetector(
+        onTap: () => onTapLampiran!(rowIndex),
+        child: Text(
+          value,
+          style: TextStyle(
+            color: Colors.blue,
+            decoration: TextDecoration.underline,
+            fontFamily: GoogleFonts.poppins().fontFamily,
+          ),
+        ),
+      );
+    };
+
+    // Regular cell
     return GestureDetector(
       onTap: () => onCellTap?.call(rowIndex, colIndex),
       child: Text(
@@ -98,7 +116,6 @@ class CustomDataTableWidget extends StatelessWidget {
       ),
     );
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -130,7 +147,7 @@ class CustomDataTableWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header section
+                // Header section with first row data and action buttons
                 if (row.isNotEmpty)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -139,14 +156,15 @@ class CustomDataTableWidget extends StatelessWidget {
                         children: [
                           Checkbox(
                             value: false,
-                            onChanged: (value) {},
+                            onChanged:
+                                (value) {}, // You can implement checkbox logic
                             side: BorderSide(color: AppColors.putih),
-                            checkColor: AppColors.hitam,
+                            checkColor: Colors.black,
                             activeColor: AppColors.putih,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            row[0],
+                            row[0], // First column as header
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -196,13 +214,13 @@ class CustomDataTableWidget extends StatelessWidget {
                     ],
                   ),
 
-                // Divider pakai warna dari LogTabel
+                // Divider
                 Align(
                   alignment: Alignment.center,
                   child: FractionallySizedBox(
                     widthFactor: 1.09,
-                    child: Divider(
-                      color: AppColors.secondary,
+                    child: const Divider(
+                      color: Colors.grey,
                       thickness: 1,
                     ),
                   ),
@@ -210,13 +228,15 @@ class CustomDataTableWidget extends StatelessWidget {
 
                 const SizedBox(height: 12),
 
-                // Detail rows
+                // Detail table
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: headers.length,
-                  separatorBuilder: (_, __) =>
-                      Divider(color: AppColors.secondary, thickness: 1),
+                  separatorBuilder: (_, __) => const Divider(
+                    color: Colors.grey,
+                    thickness: 1,
+                  ),
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
