@@ -64,7 +64,7 @@ class _MainLayoutState extends State<MainLayout> {
         toggleTheme: toggleTheme,
       ),
       const ProfilePage(),
-      const InfoKantor(),
+      const KantorFormPage(),
     ];
   }
 
