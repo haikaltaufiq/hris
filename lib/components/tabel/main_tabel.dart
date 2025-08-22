@@ -51,80 +51,101 @@ class CustomDataTableWidget extends StatelessWidget {
     }
   }
 
-  Widget _showStatusDropdown(
+  void _showStatusDropdown(
       BuildContext context, String currentStatus, int rowIndex, int colIndex) {
     print(
         'Debug: Showing dropdown for row $rowIndex, col $colIndex, status: $currentStatus');
 
-    final color = _getStatusColor(currentStatus);
+    // Get the RenderBox of the tapped widget to position dropdown
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+    final Size size = renderBox.size;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color, width: 1),
-        color: color.withOpacity(0.1),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: currentStatus,
-          icon: Icon(Icons.keyboard_arrow_down, color: color, size: 16),
-          dropdownColor: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          items: (statusOptions ?? ['approved', 'pending', 'rejected'])
-              .map((status) {
-            final statusColor = _getStatusColor(status);
-            return DropdownMenuItem<String>(
-              value: status,
-              child: Row(
-                children: [
-                  Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                          color: statusColor, shape: BoxShape.circle)),
-                  const SizedBox(width: 6),
-                  Text(
-                    status,
-                    style: TextStyle(
-                        color: statusColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14),
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: (newStatus) {
-            if (newStatus != null && newStatus != currentStatus) {
-              print('Debug: Status changed from $currentStatus to $newStatus');
-              onStatusChanged?.call(rowIndex, newStatus);
-            }
-          },
-          selectedItemBuilder: (context) {
-            return (statusOptions ?? ['approved', 'pending', 'rejected'])
-                .map((status) {
-              final statusColor = _getStatusColor(status);
-              return Row(
-                children: [
-                  Container(
-                      width: 10,
-                      height: 10,
-                      decoration: BoxDecoration(
-                          color: statusColor, shape: BoxShape.circle)),
-                  const SizedBox(width: 6),
-                  Text(status,
-                      style: TextStyle(
-                          color: statusColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14)),
-                ],
-              );
-            }).toList();
-          },
+    // Calculate the required width based on content
+    double calculateTextWidth(String text) {
+      final TextPainter textPainter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: GoogleFonts.poppins().fontFamily,
+            fontSize: 14,
+          ),
         ),
+        maxLines: 1,
+        textDirection: TextDirection.ltr,
+      )..layout();
+      return textPainter.size.width;
+    }
+
+    // Find the longest status text to determine dropdown width
+    final statusList = statusOptions ?? ['approved', 'pending', 'rejected'];
+    double maxTextWidth = 0;
+
+    for (String status in statusList) {
+      double textWidth = calculateTextWidth(status);
+      if (textWidth > maxTextWidth) {
+        maxTextWidth = textWidth;
+      }
+    }
+
+    // Add padding: circle (12) + spacing (8) + container padding (8) + small margin (8)
+    final dropdownWidth = maxTextWidth + 36;
+
+    showMenu<String>(
+      context: context,
+      position: RelativeRect.fromLTRB(
+        offset.dx,
+        offset.dy + size.height,
+        offset.dx + dropdownWidth,
+        offset.dy + size.height + 200, // Max height
       ),
-    );
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: AppColors.secondary,
+      elevation: 8,
+      items: statusList.map((status) {
+        final statusColor = _getStatusColor(status);
+        return PopupMenuItem<String>(
+          value: status,
+          padding: EdgeInsets.zero, // Remove default PopupMenuItem padding
+          child: Container(
+            width: dropdownWidth,
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 10),
+                Container(
+                  width: 12,
+                  height: 12,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  status,
+                  style: TextStyle(
+                    color: statusColor,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
+    ).then((selectedStatus) {
+      if (selectedStatus != null && selectedStatus != currentStatus) {
+        print('Debug: Status changed from $currentStatus to $selectedStatus');
+        onStatusChanged?.call(rowIndex, selectedStatus);
+      }
+    });
   }
 
   Widget _buildValueCell(
@@ -140,51 +161,53 @@ class CustomDataTableWidget extends StatelessWidget {
       return Align(
         alignment: Alignment.centerLeft,
         child: IntrinsicWidth(
-          child: InkWell(
-            onTap: () {
-              print('Debug: Dropdown status tapped!');
-              // Call onCellTap if provided
-              onCellTap?.call(rowIndex, colIndex);
-              // Show dropdown
-              _showStatusDropdown(context, value, rowIndex, colIndex);
-            },
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: color, width: 1),
-                color: color
-                    .withOpacity(0.1), // Added background for better visibility
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
+          child: Builder(
+            // Use Builder to get correct context for positioning
+            builder: (context) => InkWell(
+              onTap: () {
+                print('Debug: Dropdown status tapped!');
+                // Call onCellTap if provided
+                onCellTap?.call(rowIndex, colIndex);
+                // Show dropdown with proper context
+                _showStatusDropdown(context, value, rowIndex, colIndex);
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: color, width: 1),
+                  color: color.withOpacity(0.1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
+                    const SizedBox(width: 6),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        fontFamily: GoogleFonts.poppins().fontFamily,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.keyboard_arrow_down,
-                    color: color,
-                    size: 16,
-                  ),
-                ],
+                    const SizedBox(width: 4),
+                    Icon(
+                      Icons.keyboard_arrow_down,
+                      color: color,
+                      size: 16,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

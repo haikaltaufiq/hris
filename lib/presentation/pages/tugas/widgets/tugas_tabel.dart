@@ -12,7 +12,7 @@ import 'package:hr/provider/function/tugas_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class TugasTabel extends StatelessWidget {
+class TugasTabel extends StatefulWidget {
   final List<TugasModel> tugasList;
   final VoidCallback? onActionDone;
   const TugasTabel({
@@ -21,6 +21,11 @@ class TugasTabel extends StatelessWidget {
     required this.onActionDone,
   });
 
+  @override
+  State<TugasTabel> createState() => _TugasTabelState();
+}
+
+class _TugasTabelState extends State<TugasTabel> {
   final List<String> headers = const [
     "Kepada",
     "Judul",
@@ -56,11 +61,11 @@ class TugasTabel extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => TugasEditForm(
-          tugas: tugasList[row],
+          tugas: widget.tugasList[row],
         ),
       ),
     );
-    onActionDone?.call();
+    widget.onActionDone?.call();
   }
 
   Future<void> _deleteTugas(BuildContext context, TugasModel tugas) async {
@@ -82,7 +87,7 @@ class TugasTabel extends StatelessWidget {
         isSuccess: message != null,
       );
     }
-    onActionDone?.call();
+    widget.onActionDone?.call();
   }
 
   // lampiran
@@ -217,13 +222,13 @@ class TugasTabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (tugasList.isEmpty) {
+    if (widget.tugasList.isEmpty) {
       return const Center(
         child: Text('Belum ada tugas', style: TextStyle(color: Colors.white)),
       );
     }
 
-    final rows = tugasList.map((tugas) {
+    widget.tugasList.map((tugas) {
       return [
         tugas.user?.nama ?? '-',
         tugas.shortTugas,
@@ -236,22 +241,36 @@ class TugasTabel extends StatelessWidget {
         tugas.lampiran != null ? "Lihat Lampiran" : "-"
       ];
     }).toList();
-    return CustomDataTableWidget(
-      headers: headers,
-      rows: rows,
-      dropdownStatusColumnIndexes: [7], // Your status column
-      statusOptions: ['approved', 'pending', 'rejected'],
-      onCellTap: (row, col) {
-        print('Cell tapped: Row $row, Col $col');
+    return Consumer<TugasProvider>(
+      builder: (context, tugasProvider, _) {
+        final tugasList = tugasProvider.tugasList; // ambil dari provider
+        final rows = tugasList.map((tugas) {
+          return [
+            tugas.user?.nama ?? '-',
+            tugas.shortTugas,
+            parseTime(tugas.jamMulai),
+            parseDate(tugas.tanggalMulai),
+            parseDate(tugas.tanggalSelesai),
+            tugas.lokasi,
+            tugas.note,
+            tugas.status,
+            tugas.lampiran != null ? "Lihat Lampiran" : "-"
+          ];
+        }).toList();
+
+        return CustomDataTableWidget(
+          headers: headers,
+          rows: rows,
+          dropdownStatusColumnIndexes: [7],
+          statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
+          onStatusChanged: (rowIndex, newStatus) {},
+          onView: (row) => _showDetailDialog(context, tugasList[row]),
+          onEdit: (row) => _editTugas(context, row),
+          onDelete: (row) => _deleteTugas(context, tugasList[row]),
+          onTapLampiran: (row) => _showLampiranDialog(context, tugasList[row]),
+          onCellTap: (row, col) => print('Cell tapped: Row $row, Col $col'),
+        );
       },
-      onStatusChanged: (rowIndex, newStatus) {
-        // Update your data
-        print('Status changed to: $newStatus');
-      },
-      onView: (row) => _showDetailDialog(context, tugasList[row]),
-      onEdit: (row) => _editTugas(context, row),
-      onDelete: (row) => _deleteTugas(context, tugasList[row]),
-      onTapLampiran: (row) => _showLampiranDialog(context, tugasList[row]),
     );
   }
 }

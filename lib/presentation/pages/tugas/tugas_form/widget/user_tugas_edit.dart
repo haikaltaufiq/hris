@@ -25,14 +25,16 @@ class UserEditTugas extends StatefulWidget {
 
 class _UserEditTugasState extends State<UserEditTugas> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController = TextEditingController();
+  final TextEditingController _tanggalSelesaiController =
+      TextEditingController();
   final TextEditingController _jamMulaiController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
-  final TextEditingController _lampiranTugasController = TextEditingController();
+  final TextEditingController _lampiranTugasController =
+      TextEditingController();
 
-  File? _selectedFile; 
+  File? _selectedFile;
   Uint8List? _selectedBytes;
   String? _selectedFileName;
 
@@ -66,7 +68,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
     }
     _lokasiController.text = widget.tugas.lokasi;
     _noteController.text = widget.tugas.note;
-
   }
 
   Future<void> _handleSubmit() async {
@@ -103,7 +104,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
           fileBytes: kIsWeb ? _selectedBytes : null,
           fileName: kIsWeb ? _selectedFileName : null,
         );
-
 
         final bool isSuccess = resultUpload['success'] == true;
         final String message = resultUpload['message'] ?? '';
@@ -246,7 +246,8 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 label: "Lampiran",
                 onTapIcon: () async {
                   try {
-                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                    FilePickerResult? result =
+                        await FilePicker.platform.pickFiles(
                       type: FileType.any,
                     );
 
@@ -255,14 +256,16 @@ class _UserEditTugasState extends State<UserEditTugas> {
                         setState(() {
                           _selectedBytes = result.files.first.bytes;
                           _selectedFileName = result.files.first.name;
-                          _lampiranTugasController.text = result.files.first.name;
+                          _lampiranTugasController.text =
+                              result.files.first.name;
                         });
                       } else {
                         final filePath = result.files.single.path;
                         if (filePath != null) {
                           setState(() {
                             _selectedFile = File(filePath);
-                            _lampiranTugasController.text = filePath.split('/').last;
+                            _lampiranTugasController.text =
+                                filePath.split('/').last;
                           });
                         }
                       }

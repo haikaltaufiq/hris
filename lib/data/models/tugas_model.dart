@@ -12,18 +12,17 @@ class TugasModel {
   final UserModel? user;
   final String? lampiran;
 
-  TugasModel({
-    required this.id,
-    required this.namaTugas,
-    required this.jamMulai,
-    required this.tanggalMulai,
-    required this.tanggalSelesai,
-    required this.lokasi,
-    required this.note,
-    required this.status,
-    this.user,
-    this.lampiran
-  });
+  TugasModel(
+      {required this.id,
+      required this.namaTugas,
+      required this.jamMulai,
+      required this.tanggalMulai,
+      required this.tanggalSelesai,
+      required this.lokasi,
+      required this.note,
+      required this.status,
+      this.user,
+      this.lampiran});
 
   factory TugasModel.fromJson(Map<String, dynamic> json) {
     return TugasModel(
@@ -38,7 +37,7 @@ class TugasModel {
       user: (json['user'] is Map<String, dynamic>)
           ? UserModel.fromJson(json['user'])
           : null,
-      lampiran: json['lampiran'], 
+      lampiran: json['lampiran'],
     );
   }
 

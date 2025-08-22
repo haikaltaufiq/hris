@@ -12,7 +12,7 @@ class CutiModel {
   final String tanggal_selesai;
   final String alasan;
   final String keterangan_status;
-  late final String status;
+  String status;
   final int approve_step;
   final Map<String, dynamic> user;
 
