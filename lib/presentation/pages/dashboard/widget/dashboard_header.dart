@@ -41,7 +41,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
-  
+
     _loadUserData();
   }
 
@@ -199,7 +199,43 @@ class _DashboardHeaderState extends State<DashboardHeader>
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: AppColors.putih),
+                      shape: BoxShape.circle,
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.primary.withOpacity(0.8),
+                          AppColors.primary
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      border: Border.all(
+                          color: AppColors.putih.withOpacity(0.4), width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.25),
+                          blurRadius: 2,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipOval(
+                      child: _nama != null && _nama.isNotEmpty
+                          ? Center(
+                              child: Text(
+                                _nama.substring(0, 1).toUpperCase(),
+                                style: GoogleFonts.poppins(
+                                  fontSize: 50,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.putih,
+                                ),
+                              ),
+                            )
+                          : Icon(
+                              FontAwesomeIcons.user,
+                              size: 50,
+                              color: AppColors.putih,
+                            ),
+                    ),
                   ),
                 ),
                 SizedBox(width: 16),
