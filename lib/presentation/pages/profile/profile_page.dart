@@ -129,7 +129,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: Text(
                         nama!.substring(0, 1).toUpperCase(),
                         style: GoogleFonts.poppins(
-                          fontSize: 50,
+                          fontSize: 30,
                           fontWeight: FontWeight.bold,
                           color: AppColors.putih,
                         ),
@@ -334,12 +334,14 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     if (newEmail.isEmpty || oldPassword.isEmpty) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Email dan password wajib diisi')),
+                        const SnackBar(
+                            content: Text('Email dan password wajib diisi')),
                       );
                       return;
                     }
 
-                    final result = await _authService.updateEmail(newEmail, oldPassword);
+                    final result =
+                        await _authService.updateEmail(newEmail, oldPassword);
 
                     if (result['success'] == true) {
                       setState(() {

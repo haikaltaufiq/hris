@@ -130,14 +130,14 @@ class _DashboardPageState extends State<DashboardPage> {
               },
             ),
             DashboardMenuItem(
-              label: "Pengaturan",
+              label: "Info Kantor",
               featureId: "pengaturan",
-              icon: FontAwesomeIcons.gear,
+              icon: FontAwesomeIcons.info,
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MainLayout(externalPageIndex: 7),
+                    builder: (_) => MainLayout(externalPageIndex: 9),
                   ),
                 );
               },
