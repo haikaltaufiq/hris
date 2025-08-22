@@ -105,7 +105,8 @@ class TugasTabel extends StatelessWidget {
         ),
         title: Text(
           'Lampiran Tugas',
-          style: GoogleFonts.poppins(color: AppColors.putih, fontWeight: FontWeight.w600),
+          style: GoogleFonts.poppins(
+              color: AppColors.putih, fontWeight: FontWeight.w600),
         ),
         content: SizedBox(
           height: 300,
@@ -143,8 +144,6 @@ class TugasTabel extends StatelessWidget {
       );
     }
   }
-
-
 
   void _showDetailDialog(BuildContext context, TugasModel tugas) {
     Color statusColor;
@@ -237,11 +236,18 @@ class TugasTabel extends StatelessWidget {
         tugas.lampiran != null ? "Lihat Lampiran" : "-"
       ];
     }).toList();
-
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
-      statusColumnIndexes: const [7],
+      dropdownStatusColumnIndexes: [7], // Your status column
+      statusOptions: ['approved', 'pending', 'rejected'],
+      onCellTap: (row, col) {
+        print('Cell tapped: Row $row, Col $col');
+      },
+      onStatusChanged: (rowIndex, newStatus) {
+        // Update your data
+        print('Status changed to: $newStatus');
+      },
       onView: (row) => _showDetailDialog(context, tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
       onDelete: (row) => _deleteTugas(context, tugasList[row]),

@@ -1,30 +1,35 @@
-// Custom Data Table Widget - styled like TugasTabel
+// Debug Version - Custom Data Table Widget
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme.dart';
 
-// Custom Data Table Widget - styled like TugasTabel
 class CustomDataTableWidget extends StatelessWidget {
   final List<String> headers;
   final List<List<String>> rows;
   final List<int>? statusColumnIndexes;
+  final List<int>? dropdownStatusColumnIndexes;
+  final List<String>? statusOptions;
   final Function(int row, int col)? onCellTap;
   final Function(int row)? onView;
   final Function(int row)? onEdit;
   final Function(int row)? onDelete;
   final Function(int row)? onTapLampiran;
+  final Function(int row, String newStatus)? onStatusChanged;
 
   const CustomDataTableWidget({
     Key? key,
     required this.headers,
     required this.rows,
     this.statusColumnIndexes,
+    this.dropdownStatusColumnIndexes,
+    this.statusOptions,
     this.onCellTap,
     this.onView,
     this.onEdit,
     this.onDelete,
-    this.onTapLampiran
+    this.onTapLampiran,
+    this.onStatusChanged,
   }) : super(key: key);
 
   Color _getStatusColor(String status) {
@@ -46,11 +51,151 @@ class CustomDataTableWidget extends StatelessWidget {
     }
   }
 
+  Widget _showStatusDropdown(
+      BuildContext context, String currentStatus, int rowIndex, int colIndex) {
+    print(
+        'Debug: Showing dropdown for row $rowIndex, col $colIndex, status: $currentStatus');
+
+    final color = _getStatusColor(currentStatus);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color, width: 1),
+        color: color.withOpacity(0.1),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: currentStatus,
+          icon: Icon(Icons.keyboard_arrow_down, color: color, size: 16),
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          items: (statusOptions ?? ['approved', 'pending', 'rejected'])
+              .map((status) {
+            final statusColor = _getStatusColor(status);
+            return DropdownMenuItem<String>(
+              value: status,
+              child: Row(
+                children: [
+                  Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                          color: statusColor, shape: BoxShape.circle)),
+                  const SizedBox(width: 6),
+                  Text(
+                    status,
+                    style: TextStyle(
+                        color: statusColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (newStatus) {
+            if (newStatus != null && newStatus != currentStatus) {
+              print('Debug: Status changed from $currentStatus to $newStatus');
+              onStatusChanged?.call(rowIndex, newStatus);
+            }
+          },
+          selectedItemBuilder: (context) {
+            return (statusOptions ?? ['approved', 'pending', 'rejected'])
+                .map((status) {
+              final statusColor = _getStatusColor(status);
+              return Row(
+                children: [
+                  Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                          color: statusColor, shape: BoxShape.circle)),
+                  const SizedBox(width: 6),
+                  Text(status,
+                      style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14)),
+                ],
+              );
+            }).toList();
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildValueCell(
       BuildContext context, String value, int rowIndex, int colIndex) {
-    // Status column styling - check if current column is in statusColumnIndexes
+    print(
+        'Debug: Building cell - Row: $rowIndex, Col: $colIndex, Value: $value');
+
+    // Check if this is a dropdown status column
+    if (dropdownStatusColumnIndexes != null &&
+        dropdownStatusColumnIndexes!.contains(colIndex)) {
+      print('Debug: This is a DROPDOWN status column');
+      final color = _getStatusColor(value);
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: IntrinsicWidth(
+          child: InkWell(
+            onTap: () {
+              print('Debug: Dropdown status tapped!');
+              // Call onCellTap if provided
+              onCellTap?.call(rowIndex, colIndex);
+              // Show dropdown
+              _showStatusDropdown(context, value, rowIndex, colIndex);
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: color, width: 1),
+                color: color
+                    .withOpacity(0.1), // Added background for better visibility
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: color,
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Check if this is a regular status column
     if (statusColumnIndexes != null &&
         statusColumnIndexes!.contains(colIndex)) {
+      print('Debug: This is a REGULAR status column');
       final color = _getStatusColor(value);
       return Align(
         alignment: Alignment.centerLeft,
@@ -89,7 +234,7 @@ class CustomDataTableWidget extends StatelessWidget {
       );
     }
 
-      // Lampiran column (kolom ke-8)
+    // Lampiran column
     if (colIndex == 8 && value == "Lihat Lampiran" && onTapLampiran != null) {
       return GestureDetector(
         onTap: () => onTapLampiran!(rowIndex),
@@ -102,7 +247,7 @@ class CustomDataTableWidget extends StatelessWidget {
           ),
         ),
       );
-    };
+    }
 
     // Regular cell
     return GestureDetector(
@@ -119,6 +264,11 @@ class CustomDataTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print('Debug: Building table with ${rows.length} rows');
+    print('Debug: Status columns: $statusColumnIndexes');
+    print('Debug: Dropdown status columns: $dropdownStatusColumnIndexes');
+    print('Debug: Status options: $statusOptions');
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -156,15 +306,14 @@ class CustomDataTableWidget extends StatelessWidget {
                         children: [
                           Checkbox(
                             value: false,
-                            onChanged:
-                                (value) {}, // You can implement checkbox logic
+                            onChanged: (value) {},
                             side: BorderSide(color: AppColors.putih),
                             checkColor: Colors.black,
                             activeColor: AppColors.putih,
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            row[0], // First column as header
+                            row[0],
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -219,8 +368,8 @@ class CustomDataTableWidget extends StatelessWidget {
                   alignment: Alignment.center,
                   child: FractionallySizedBox(
                     widthFactor: 1.09,
-                    child: const Divider(
-                      color: Colors.grey,
+                    child: Divider(
+                      color: AppColors.secondary,
                       thickness: 1,
                     ),
                   ),
@@ -233,8 +382,8 @@ class CustomDataTableWidget extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: headers.length,
-                  separatorBuilder: (_, __) => const Divider(
-                    color: Colors.grey,
+                  separatorBuilder: (_, __) => Divider(
+                    color: AppColors.secondary,
                     thickness: 1,
                   ),
                   itemBuilder: (context, index) {

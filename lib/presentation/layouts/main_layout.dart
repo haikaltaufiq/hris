@@ -3,6 +3,7 @@ import 'package:hr/components/navigation/navbar.dart';
 import 'package:hr/core/theme.dart';
 import 'package:hr/presentation/pages/departemen/departemen_page.dart';
 import 'package:hr/presentation/pages/gaji/gaji_page.dart';
+import 'package:hr/presentation/pages/info/info_kantor.dart';
 import 'package:hr/presentation/pages/jabatan/jabatan_page.dart';
 import 'package:hr/presentation/pages/karyawan/karyawan_page.dart';
 import 'package:hr/presentation/pages/log_aktivitas/log_page.dart';
@@ -63,6 +64,7 @@ class _MainLayoutState extends State<MainLayout> {
         toggleTheme: toggleTheme,
       ),
       const ProfilePage(),
+      const KantorFormPage(),
     ];
   }
 

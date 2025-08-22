@@ -5,10 +5,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:hr/core/theme.dart'; 
 
-class MapPage extends StatelessWidget {
+class MapPageKantor extends StatelessWidget {
   final LatLng target;
 
-  const MapPage({super.key, required this.target});
+  const MapPageKantor({super.key, required this.target});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +17,7 @@ class MapPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         title: Text(
-          "Lokasi Absen",
+          "Lokasi Anda",
           style: GoogleFonts.poppins(
             color: AppColors.putih,
             fontWeight: FontWeight.w600,
