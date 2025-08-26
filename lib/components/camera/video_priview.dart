@@ -1,13 +1,8 @@
-// ---------- Video Preview Screen ----------
-import 'dart:io';
-
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
+import 'package:hr/components/camera/helper/video_file_helper.dart';
 import 'package:video_player/video_player.dart';
 
-/// ------------------------------
-/// Video Preview (opsional)
-/// ------------------------------
 class VideoPreviewScreen extends StatefulWidget {
   final XFile videoFile;
   const VideoPreviewScreen({super.key, required this.videoFile});
@@ -22,11 +17,15 @@ class _VideoPreviewScreenState extends State<VideoPreviewScreen> {
   @override
   void initState() {
     super.initState();
-    _videoController = VideoPlayerController.file(File(widget.videoFile.path))
-      ..initialize().then((_) {
-        setState(() {});
-        _videoController!.play();
-      });
+    _initVideo();
+  }
+
+  Future<void> _initVideo() async {
+    _videoController = await VideoFileHelper.getController(widget.videoFile);
+    await _videoController!.initialize();
+    _videoController!.play();
+    if (!mounted) return;
+    setState(() {});
   }
 
   @override

@@ -38,11 +38,11 @@ class NotificationHelper {
     overlay.insert(overlayEntry);
 
     // auto remove setelah durasi
-    Future.delayed(duration, () {
-      if (overlayEntry.mounted) {
-        overlayEntry.remove();
-      }
-    });
+    // Future.delayed(duration, () {
+    //   if (overlayEntry.mounted) {
+    //     overlayEntry.remove();
+    //   }
+    // });
   }
 }
 
