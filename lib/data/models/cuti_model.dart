@@ -61,9 +61,7 @@ class CutiModel {
   }
 
 //Baca nama user
-  String get nama =>
-      (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
-
+  String get nama => (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isProses => status.toLowerCase() == 'proses';
 

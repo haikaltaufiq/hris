@@ -25,6 +25,8 @@ class _KantorFormPageState extends State<KantorFormPage>
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
   final radiusController = TextEditingController();
+  final jatahCutiController = TextEditingController();
+
 
   bool isLoading = false;
   late AnimationController _animationController;
@@ -79,6 +81,7 @@ class _KantorFormPageState extends State<KantorFormPage>
         latitudeController.text = kantor.lat.toString();
         longitudeController.text = kantor.lng.toString();
         radiusController.text = kantor.radiusMeter.toString();
+        jatahCutiController.text = kantor.jatahCutiTahunan.toString();
       }
     } finally {
       if (mounted) setState(() => isLoading = false);
@@ -316,6 +319,7 @@ class _KantorFormPageState extends State<KantorFormPage>
         lat: double.tryParse(latitudeController.text) ?? 0,
         lng: double.tryParse(longitudeController.text) ?? 0,
         radiusMeter: int.tryParse(radiusController.text) ?? 0,
+        jatahCutiTahunan: int.tryParse(jatahCutiController.text) ?? 0 ,
       );
       try {
         final success = await KantorService.createKantor(kantor);
@@ -451,6 +455,19 @@ class _KantorFormPageState extends State<KantorFormPage>
                       keyboardType: TextInputType.number,
                       decoration: _modernInput(
                           "Radius Absen (meter)", Icons.circle_outlined),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? "Wajib diisi" : null,
+                    ),
+
+                    const SizedBox(height: 32),
+                    
+                    // Radius
+                    TextFormField(
+                      style: GoogleFonts.poppins(color: AppColors.putih),
+                      controller: jatahCutiController,
+                      keyboardType: TextInputType.number,
+                      decoration: _modernInput(
+                          "Jatah Cuti Tahunan", Icons.date_range),
                       validator: (v) =>
                           v == null || v.isEmpty ? "Wajib diisi" : null,
                     ),

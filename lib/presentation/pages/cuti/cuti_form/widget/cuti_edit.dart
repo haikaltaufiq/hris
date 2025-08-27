@@ -89,7 +89,7 @@ class _CutiEditState extends State<CutiEdit> {
           CustomDropDownField(
             label: 'Tipe Cuti',
             hint: '',
-            items: ['Tahunan', 'Sakit', 'Cuti Bersama', 'Izin'],
+            items: ['Tahunan', 'Sakit', 'Unpaid', 'Izin'],
             labelStyle: labelStyle,
             textStyle: textStyle,
             dropdownColor: AppColors.secondary,
