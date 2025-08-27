@@ -10,7 +10,7 @@ class CustomInputField extends StatelessWidget {
   final TextStyle labelStyle;
   final TextStyle textStyle;
   final InputDecoration inputStyle;
-  final bool? readOnly;
+  final bool readOnly;
 
   const CustomInputField({
     super.key,
@@ -32,31 +32,26 @@ class CustomInputField extends StatelessWidget {
       children: [
         Text(label, style: labelStyle),
         const SizedBox(height: 4),
-        onTapIcon != null
-            ? GestureDetector(
-                onTap: onTapIcon,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    readOnly: true,
-                    controller: controller,
-                    style: textStyle,
-                    decoration: inputStyle.copyWith(
-                      hintText: hint,
-                      suffixIcon: suffixIcon != null
-                          ? Padding(
-                              padding: const EdgeInsets.only(right: 8.0),
-                              child: suffixIcon,
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              )
-            : TextFormField(
-                controller: controller,
-                style: textStyle,
-                decoration: inputStyle.copyWith(hintText: hint),
+        GestureDetector(
+          onTap: onTapIcon,
+          child: AbsorbPointer(
+            absorbing: onTapIcon != null,
+            child: TextFormField(
+              controller: controller,
+              readOnly: readOnly,
+              style: textStyle,
+              decoration: inputStyle.copyWith(
+                hintText: hint,
+                suffixIcon: suffixIcon != null
+                    ? Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: suffixIcon,
+                      )
+                    : null,
               ),
+            ),
+          ),
+        ),
         const SizedBox(height: 20),
       ],
     );
