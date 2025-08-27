@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 // Warna dasar untuk dark mode
-const _primaryDark = Color(0xFF1F1F1F);
-const _secondaryDark = Color(0xFF3F3F3F);
-const _bgDark = Color(0xFF121212);
-const _putihDark = Color(0xFFE0E0E0);
-const _hitamDark = Color(0xFF050505);
-const _greenDark = Color(0xFF247F43);
+const _primaryDark = Color(0xFF1F1F1F); // for Card
+const _secondaryDark = Color(0xFF3F3F3F); // Button / Card
+const _bgDark = Color(0xFF121212); // Background
+const _putihDark = Color(0xFFE0E0E0); // for Text
+const _hitamDark = Color(0xFF050505); 
+const _greenDark = Color(0xFF247F43); 
 const _redDark = Color(0xFF802F2F);
 
 // Warna untuk light mode (kamu sesuaikan)
