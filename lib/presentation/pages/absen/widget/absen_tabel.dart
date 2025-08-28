@@ -112,7 +112,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
               Expanded(
                 child: MapPage(target: LatLng(lat, lng)),
               ),
-              Padding(
+              Padding(  
                 padding: const EdgeInsets.all(12.0),
                 child: Text(
                   "Koordinat: $lat, $lng",

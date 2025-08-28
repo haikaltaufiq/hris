@@ -1,7 +1,7 @@
 class KantorModel {
   final int? id;
   final String jamMasuk;
-  final String minimalKeterlambatan;
+  final int minimalKeterlambatan;
   final double lat;
   final double lng;
   final int radiusMeter;

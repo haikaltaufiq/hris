@@ -24,12 +24,18 @@ class _KantorFormPageState extends State<KantorFormPage>
   final minimalKeterlambatanController = TextEditingController();
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
-  final radiusController = TextEditingController(text: "100");
+  final radiusController = TextEditingController();
 
   bool isLoading = false;
   late AnimationController _animationController;
+  
+  // Untuk jam masuk
   int _selectedMinute = 0;
   int _selectedHour = 0;
+  
+  // Untuk minimal keterlambatan (digit pertama dan kedua)
+  int _selectedFirstDigit = 0;
+  int _selectedSecondDigit = 0;
 
   @override
   void initState() {
@@ -56,7 +62,20 @@ class _KantorFormPageState extends State<KantorFormPage>
       final kantor = await KantorService.getKantor();
       if (kantor != null) {
         jamMasukController.text = kantor.jamMasuk;
-        minimalKeterlambatanController.text = kantor.minimalKeterlambatan;
+        
+        // Convert int minimal keterlambatan ke 2 digit (00-99)
+        final minutes = kantor.minimalKeterlambatan;
+        _selectedFirstDigit = minutes ~/ 10;
+        _selectedSecondDigit = minutes % 10;
+        minimalKeterlambatanController.text = "${_selectedFirstDigit}${_selectedSecondDigit} menit";
+        
+        // Set state untuk jam masuk time picker
+        final jamMasukParts = kantor.jamMasuk.split(':');
+        if (jamMasukParts.length == 2) {
+          _selectedHour = int.tryParse(jamMasukParts[0]) ?? 0;
+          _selectedMinute = int.tryParse(jamMasukParts[1]) ?? 0;
+        }
+        
         latitudeController.text = kantor.lat.toString();
         longitudeController.text = kantor.lng.toString();
         radiusController.text = kantor.radiusMeter.toString();
@@ -77,8 +96,9 @@ class _KantorFormPageState extends State<KantorFormPage>
   }
 
   void _lihatMap() {
-    if (latitudeController.text.isEmpty || longitudeController.text.isEmpty)
+    if (latitudeController.text.isEmpty || longitudeController.text.isEmpty) {
       return;
+    }
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -92,7 +112,7 @@ class _KantorFormPageState extends State<KantorFormPage>
     );
   }
 
-  void _onTapIconTime(TextEditingController controller) async {
+  void _onTapIconTime(TextEditingController controller, {bool isKeterlambatan = false}) async {
     showModalBottomSheet(
       backgroundColor: AppColors.primary,
       context: context,
@@ -124,7 +144,7 @@ class _KantorFormPageState extends State<KantorFormPage>
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            'Pilih Waktu',
+                            isKeterlambatan ? 'Pilih Menit' : 'Pilih Waktu',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -133,7 +153,7 @@ class _KantorFormPageState extends State<KantorFormPage>
                             ),
                           ),
                           Text(
-                            'Mulai Tugas',
+                            isKeterlambatan ? 'Minimal Keterlambatan' : 'Mulai Tugas',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -145,30 +165,118 @@ class _KantorFormPageState extends State<KantorFormPage>
                       ),
                     ),
                   ),
-                  NumberPickerWidget(
-                    hour: _selectedHour,
-                    minute: _selectedMinute,
-                    onHourChanged: (value) {
-                      setModalState(() {
-                        _selectedHour = value;
-                      });
-                    },
-                    onMinuteChanged: (value) {
-                      setModalState(() {
-                        _selectedMinute = value;
-                      });
-                    },
-                  ),
+                  
+                  // Time picker atau minute picker
+                  if (isKeterlambatan)
+                    // Custom minute picker untuk minimal keterlambatan
+                    Container(
+                      height: 200,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          // Digit pertama (0-9)
+                          Container(
+                            width: 80,
+                            child: ListWheelScrollView.useDelegate(
+                              controller: FixedExtentScrollController(
+                                initialItem: _selectedFirstDigit,
+                              ),
+                              itemExtent: 50,
+                              perspective: 0.005,
+                              diameterRatio: 1.2,
+                              physics: FixedExtentScrollPhysics(),
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                builder: (context, index) {
+                                  if (index < 0 || index > 9) return null;
+                                  return Container(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      index.toString(),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 24,
+                                        color: AppColors.putih,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                childCount: 10,
+                              ),
+                              onSelectedItemChanged: (index) {
+                                setModalState(() {
+                                  _selectedFirstDigit = index;
+                                });
+                              },
+                            ),
+                          ),
+                          
+                          // Digit kedua (0-9)  
+                          Container(
+                            width: 80,
+                            child: ListWheelScrollView.useDelegate(
+                              controller: FixedExtentScrollController(
+                                initialItem: _selectedSecondDigit,
+                              ),
+                              itemExtent: 50,
+                              perspective: 0.005,
+                              diameterRatio: 1.2,
+                              physics: FixedExtentScrollPhysics(),
+                              childDelegate: ListWheelChildBuilderDelegate(
+                                builder: (context, index) {
+                                  if (index < 0 || index > 9) return null;
+                                  return Container(
+                                    alignment: Alignment.center,
+                                    child: Text(
+                                      index.toString(),
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 24,
+                                        color: AppColors.putih,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                childCount: 10,
+                              ),
+                              onSelectedItemChanged: (index) {
+                                setModalState(() {
+                                  _selectedSecondDigit = index;
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    // Time picker untuk jam masuk
+                    NumberPickerWidget(
+                      hour: _selectedHour,
+                      minute: _selectedMinute,
+                      onHourChanged: (value) {
+                        setModalState(() {
+                          _selectedHour = value;
+                        });
+                      },
+                      onMinuteChanged: (value) {
+                        setModalState(() {
+                          _selectedMinute = value;
+                        });
+                      },
+                    ),
+                    
                   FloatingActionButton.extended(
                     backgroundColor: AppColors.secondary,
                     onPressed: () {
-                      final formattedHour =
-                          _selectedHour.toString().padLeft(2, '0');
-                      final formattedMinute =
-                          _selectedMinute.toString().padLeft(2, '0');
-                      final formattedTime = "$formattedHour:$formattedMinute";
-
-                      controller.text = formattedTime;
+                      if (isKeterlambatan) {
+                        final totalMinutes = (_selectedFirstDigit * 10) + _selectedSecondDigit;
+                        controller.text = "${totalMinutes.toString().padLeft(2, '0')} menit";
+                      } else {
+                        final formattedHour = _selectedHour.toString().padLeft(2, '0');
+                        final formattedMinute = _selectedMinute.toString().padLeft(2, '0');
+                        final formattedTime = "$formattedHour:$formattedMinute";
+                        controller.text = formattedTime;
+                      }
 
                       Navigator.pop(context);
                     },
@@ -196,9 +304,15 @@ class _KantorFormPageState extends State<KantorFormPage>
   Future<void> _simpan() async {
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
+      
+      // Convert waktu minimal keterlambatan dari 2 digit ke int
+      int totalMinutes = 0;
+      final keterlambatanText = minimalKeterlambatanController.text.replaceAll(' menit', '');
+      totalMinutes = int.tryParse(keterlambatanText) ?? 0;
+      
       final kantor = KantorModel(
         jamMasuk: jamMasukController.text,
-        minimalKeterlambatan: minimalKeterlambatanController.text,
+        minimalKeterlambatan: totalMinutes,
         lat: double.tryParse(latitudeController.text) ?? 0,
         lng: double.tryParse(longitudeController.text) ?? 0,
         radiusMeter: int.tryParse(radiusController.text) ?? 0,
@@ -262,162 +376,175 @@ class _KantorFormPageState extends State<KantorFormPage>
           ListView(
             padding: EdgeInsets.all(16),
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 80),
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 80),
 
-                  const SizedBox(height: 8),
-
-                  // Form fields
-                  GestureDetector(
-                    onTap: () => _onTapIconTime(jamMasukController),
-                    child: AbsorbPointer(
-                      child: TextFormField(
-                        style: GoogleFonts.poppins(color: AppColors.putih),
-                        controller: jamMasukController,
-                        decoration:
-                            _modernInput("Jam Masuk", Icons.access_time),
-                        validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  GestureDetector(
-                    onTap: () => _onTapIconTime(minimalKeterlambatanController),
-                    child: AbsorbPointer(
-                      child: TextFormField(
-                        style: GoogleFonts.poppins(color: AppColors.putih),
-                        controller: minimalKeterlambatanController,
-                        decoration: _modernInput(
-                            "Minimal Keterlambatan", Icons.timer_off),
-                        validator: (v) => v!.isEmpty ? "Wajib diisi" : null,
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Row(
-                    children: [
-                      Expanded(
+                    // Jam masuk
+                    GestureDetector(
+                      onTap: () => _onTapIconTime(jamMasukController),
+                      child: AbsorbPointer(
                         child: TextFormField(
                           style: GoogleFonts.poppins(color: AppColors.putih),
-                          controller: latitudeController,
-                          readOnly: true,
-                          decoration: _modernInput("Latitude", Icons.place),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: TextFormField(
-                          style: GoogleFonts.poppins(color: AppColors.putih),
-                          controller: longitudeController,
-                          readOnly: true,
+                          controller: jamMasukController,
                           decoration:
-                              _modernInput("Longitude", Icons.place_outlined),
+                              _modernInput("Jam Masuk", Icons.access_time),
+                          validator: (v) =>
+                              v == null || v.isEmpty ? "Wajib diisi" : null,
                         ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  TextFormField(
-                    style: GoogleFonts.poppins(color: AppColors.putih),
-                    controller: radiusController,
-                    keyboardType: TextInputType.number,
-                    decoration: _modernInput(
-                        "Radius Absen (meter)", Icons.circle_outlined),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Action buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: isLoading ? null : _isiLokasiOtomatis,
-                          icon: Icon(Icons.my_location,
-                              color: AppColors.putih, size: 18),
-                          label: Text(
-                            "Lokasi Saya",
-                            style: GoogleFonts.poppins(
-                              color: AppColors.putih,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.putih.withOpacity(0.15),
-                            foregroundColor: AppColors.putih,
-                            elevation: 0,
-                            side: BorderSide(
-                                color: AppColors.putih.withOpacity(0.3)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          onPressed: _lihatMap,
-                          icon:
-                              Icon(Icons.map, color: AppColors.putih, size: 18),
-                          label: Text(
-                            "Lihat Map",
-                            style: GoogleFonts.poppins(
-                              color: AppColors.putih,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.putih.withOpacity(0.15),
-                            foregroundColor: AppColors.putih,
-                            elevation: 0,
-                            side: BorderSide(
-                                color: AppColors.putih.withOpacity(0.3)),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 24),
-
-                  // Save button
-                  ElevatedButton(
-                    onPressed: isLoading ? null : _simpan,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.putih,
-                      elevation: 4,
-                      shadowColor: AppColors.secondary.withOpacity(0.3),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 20),
-                    ),
-                    child: Text(
-                      "Simpan Pengaturan",
-                      style: GoogleFonts.poppins(
-                        color: AppColors.putih,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  ),
-                ],
-              ), // Simple loading overlay
+
+                    const SizedBox(height: 20),
+
+                    // Minimal keterlambatan - SEKARANG MENGGUNAKAN TIME PICKER
+                    GestureDetector(
+                      onTap: () => _onTapIconTime(minimalKeterlambatanController, isKeterlambatan: true),
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          style: GoogleFonts.poppins(color: AppColors.putih),
+                          controller: minimalKeterlambatanController,
+                          decoration: _modernInput(
+                              "Minimal Keterlambatan (menit)", Icons.timer_off),
+                          validator: (v) =>
+                              v == null || v.isEmpty ? "Wajib diisi" : null,
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Latitude & Longitude
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            style: GoogleFonts.poppins(color: AppColors.putih),
+                            controller: latitudeController,
+                            readOnly: true,
+                            decoration:
+                                _modernInput("Latitude", Icons.place),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextFormField(
+                            style: GoogleFonts.poppins(color: AppColors.putih),
+                            controller: longitudeController,
+                            readOnly: true,
+                            decoration: _modernInput(
+                                "Longitude", Icons.place_outlined),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    // Radius
+                    TextFormField(
+                      style: GoogleFonts.poppins(color: AppColors.putih),
+                      controller: radiusController,
+                      keyboardType: TextInputType.number,
+                      decoration: _modernInput(
+                          "Radius Absen (meter)", Icons.circle_outlined),
+                      validator: (v) =>
+                          v == null || v.isEmpty ? "Wajib diisi" : null,
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Tombol lokasi dan lihat map
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: isLoading ? null : _isiLokasiOtomatis,
+                            icon: Icon(Icons.my_location,
+                                color: AppColors.putih, size: 18),
+                            label: Text(
+                              "Lokasi Saya",
+                              style: GoogleFonts.poppins(
+                                color: AppColors.putih,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  AppColors.putih.withOpacity(0.15),
+                              foregroundColor: AppColors.putih,
+                              elevation: 0,
+                              side: BorderSide(
+                                  color: AppColors.putih.withOpacity(0.3)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _lihatMap,
+                            icon: Icon(Icons.map,
+                                color: AppColors.putih, size: 18),
+                            label: Text(
+                              "Lihat Map",
+                              style: GoogleFonts.poppins(
+                                color: AppColors.putih,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  AppColors.putih.withOpacity(0.15),
+                              foregroundColor: AppColors.putih,
+                              elevation: 0,
+                              side: BorderSide(
+                                  color: AppColors.putih.withOpacity(0.3)),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(14),
+                              ),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Tombol simpan
+                    ElevatedButton(
+                      onPressed: isLoading ? null : _simpan,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: AppColors.putih,
+                        elevation: 4,
+                        shadowColor: AppColors.secondary.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                      ),
+                      child: Text(
+                        "Simpan Pengaturan",
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
           if (isLoading)
