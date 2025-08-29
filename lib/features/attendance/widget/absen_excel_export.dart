@@ -2,10 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 
-class AbsenExcelExport extends StatelessWidget {
+class AbsenExcelExport extends StatefulWidget {
   const AbsenExcelExport({super.key});
 
+  @override
+  State<AbsenExcelExport> createState() => _AbsenExcelExportState();
+}
+
+class _AbsenExcelExportState extends State<AbsenExcelExport> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -74,7 +80,10 @@ class AbsenExcelExport extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 9),
-        minimumSize: Size(double.infinity, 58),
+        minimumSize: Size(
+          double.infinity,
+          context.isMobile ? 48 : 58,
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

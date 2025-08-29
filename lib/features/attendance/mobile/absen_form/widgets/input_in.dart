@@ -405,10 +405,8 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.primary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(16),
-        border:
-            Border.all(color: AppColors.secondary.withOpacity(0.3), width: 2),
+        border: Border.all(color: Color(0xFFBFBFBF).withOpacity(0.3), width: 2),
       ),
       child: Column(
         children: [
@@ -416,11 +414,11 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: AppColors.secondary.withOpacity(0.2),
+              color: Color(0xFFBFBFBF).withOpacity(0.2),
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.secondary, width: 2),
+              border: Border.all(color: Color(0xFFBFBFBF), width: 2),
             ),
-            child: Icon(Icons.videocam, size: 40, color: AppColors.secondary),
+            child: Icon(Icons.videocam, size: 40, color: Color(0xFFBFBFBF)),
           ),
           const SizedBox(height: 16),
           Text("Belum Ada Video",
