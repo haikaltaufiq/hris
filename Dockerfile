@@ -1,24 +1,18 @@
-# Stage 1: Build Flutter Web
-FROM cirrusci/flutter:stable AS build
+# Stage 1: Pakai image Node.js resmi
+FROM node:18-alpine
 
 WORKDIR /app
 
-COPY pubspec.* /app/
-RUN flutter pub get
-
-COPY . /app/
-
-RUN flutter build web --release
-
-# Stage 2: Serve dengan Node.js
-FROM node:18
-
-WORKDIR /app
-
+# Copy package.json dan package-lock.json lalu install dependencies
 COPY package*.json ./
 RUN npm install
 
-COPY --from=build /app/build/web ./build/web
+# Copy server.js dan build web folder
 COPY server.js ./
+COPY build/web ./build/web
 
+# Expose port
+EXPOSE 3000
+
+# Jalankan server
 CMD ["npm", "start"]
