@@ -1,44 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:hr/presentation/pages/departemen/department_viewmodels.dart';
-import 'package:hr/presentation/pages/jabatan/jabatan_viewmodels.dart';
-import 'package:hr/presentation/pages/landing/landing_page.dart';
-import 'package:hr/provider/function/cuti_provider.dart';
-import 'package:hr/provider/function/lembur_provider.dart';
-import 'package:hr/provider/function/potongan_gaji_provider.dart';
-import 'package:hr/provider/function/tugas_provider.dart';
-import 'package:hr/provider/function/user_provider.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/theme/theme_provider.dart';
+import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
+import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
+import 'package:hr/features/department/view_model/department_viewmodels.dart';
+import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
+import 'package:hr/features/landing/landing_page.dart';
+import 'package:hr/features/landing/mobile/landing_page.dart';
+import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
+import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
+import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => TugasProvider()),
         ChangeNotifierProvider(create: (_) => LemburProvider()),
         ChangeNotifierProvider(create: (_) => CutiProvider()),
         ChangeNotifierProvider(create: (_) => PotonganGajiProvider()),
-        ChangeNotifierProvider(create: (_) => TugasProvider()),
         ChangeNotifierProvider(create: (_) => DepartmentViewModel()),
         ChangeNotifierProvider(create: (_) => JabatanViewModel()),
       ],
-      child: const MainApp(),
+      child: const MyApp(),
     ),
   );
 }
 
-class MainApp extends StatefulWidget {
-  const MainApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-  @override
-  State<MainApp> createState() => _MainAppState();
-}
-
-class _MainAppState extends State<MainApp> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = context.watch<ThemeProvider>();
+    final languageProvider = context.watch<LanguageProvider>();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LandingPage(),
+      themeMode: themeProvider.currentMode,
+      theme: ThemeData(
+        textTheme: GoogleFonts.poppinsTextTheme(),
+      ),
+      locale: languageProvider.locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+
+      // ✅ Instead of initialRoute → tentuin di home
+      home: Builder(
+        builder: (context) {
+          if (context.isNativeMobile) {
+            return const LandingPageMobile();
+          } else {
+            return const LandingPage();
+          }
+        },
+      ),
+
+      onGenerateRoute: AppRoutes.generateRoute,
     );
   }
 }

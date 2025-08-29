@@ -1,11 +1,10 @@
 import 'dart:convert';
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/departemen_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DepartemenService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -14,10 +13,11 @@ class DepartemenService {
   // Fetch departemen
   static Future<List<DepartemenModel>> fetchDepartemen() async {
     final token = await getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/departemen'),
+      Uri.parse('${ApiConfig.baseUrl}/api/departemen'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -39,10 +39,11 @@ class DepartemenService {
     required String namaDepartemen,
   }) async {
     final token = await getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.post(
-      Uri.parse('$baseUrl/api/departemen'),
+      Uri.parse('${ApiConfig.baseUrl}/api/departemen'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -66,10 +67,11 @@ class DepartemenService {
     required String namaDepartemen,
   }) async {
     final token = await getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/departemen/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/departemen/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -90,10 +92,11 @@ class DepartemenService {
   // Hapus departemen
   static Future<Map<String, dynamic>> deleteDepartemen(int id) async {
     final token = await getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/api/departemen/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/departemen/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

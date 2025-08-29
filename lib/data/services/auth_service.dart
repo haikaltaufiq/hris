@@ -1,14 +1,13 @@
 import 'dart:convert';
+import 'package:hr/data/api/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 
 class AuthService {
-  final String baseUrl = 'http://192.168.20.50:8000';
-
   Future<Map<String, dynamic>> login(String email, String password) async {
     final response = await http.post(
-      Uri.parse('$baseUrl/api/login'),
+      Uri.parse('${ApiConfig.baseUrl}/api/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'email': email,
@@ -29,7 +28,8 @@ class AuthService {
       await prefs.setString('email', user.email);
       await prefs.setString('npwp', user.npwp ?? '');
       await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-      await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+      await prefs.setString(
+          'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
       await prefs.setString('jenis_kelamin', user.jenisKelamin);
       await prefs.setString('status_pernikahan', user.statusPernikahan);
 
@@ -59,12 +59,13 @@ class AuthService {
   }
 
   // Update email
-  Future<Map<String, dynamic>> updateEmail(String newEmail, String oldPassword) async {
+  Future<Map<String, dynamic>> updateEmail(
+      String newEmail, String oldPassword) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/email'),
+      Uri.parse('${ApiConfig.baseUrl}/api/email'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -82,20 +83,17 @@ class AuthService {
 
       return {
         'success': true,
-        'message': data['message'], 
+        'message': data['message'],
         'data': data['data']
       };
     } else {
       return {
         'success': false,
-        'message': data['message'], 
+        'message': data['message'],
         'errors': data['errors'] ?? {}
       };
     }
   }
-
-
-
 
   // ✅ Logout: hapus semua data user
   Future<void> logout() async {

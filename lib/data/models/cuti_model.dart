@@ -2,7 +2,7 @@
 
 import 'dart:ui';
 
-import 'package:hr/core/theme.dart';
+import 'package:hr/core/theme/app_colors.dart';
 
 class CutiModel {
   final int id;

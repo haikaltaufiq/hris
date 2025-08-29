@@ -13,7 +13,7 @@ class PotonganGajiModel {
     return PotonganGajiModel(
       id: json['id'],
       namaPotongan: json['nama_potongan'],
-      nominal: double.tryParse(json['nominal'].toString()) ?? 0.0,
+      nominal: double.tryParse(json['persen'].toString()) ?? 0.0,
     );
   }
 }

@@ -1,11 +1,10 @@
 import 'dart:convert';
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -14,10 +13,11 @@ class UserService {
   // Fetch user data
   static Future<List<UserModel>> fetchUsers() async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/user'),
+      Uri.parse('${ApiConfig.baseUrl}/api/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -28,7 +28,6 @@ class UserService {
       final jsonData = json.decode(response.body);
       final List dataList = jsonData['data'];
       return dataList.map((json) => UserModel.fromJson(json)).toList();
-      
     } else {
       throw Exception('Gagal memuat data user: ${response.statusCode}');
     }
@@ -42,7 +41,7 @@ class UserService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/api/user'), 
+      Uri.parse('${ApiConfig.baseUrl}/api/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -56,21 +55,25 @@ class UserService {
     } else {
       final body = json.decode(response.body);
       if (response.statusCode == 422) {
-        throw body['errors'] ?? {'error': ['Data tidak valid']};
+        throw body['errors'] ??
+            {
+              'error': ['Data tidak valid']
+            };
       } else {
         throw body['message'] ?? "Terjadi kesalahan";
       }
     }
   }
 
-  static Future<void> updateUser(int id, Map<String, dynamic> karyawanData) async {
+  static Future<void> updateUser(
+      int id, Map<String, dynamic> karyawanData) async {
     final token = await _getToken();
     if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/user/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/user/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -84,7 +87,10 @@ class UserService {
     } else {
       final body = json.decode(response.body);
       if (response.statusCode == 422) {
-        throw body['errors'] ?? {'error': ['Data tidak valid']};
+        throw body['errors'] ??
+            {
+              'error': ['Data tidak valid']
+            };
       } else if (response.statusCode == 404) {
         throw 'User tidak ditemukan';
       } else if (response.statusCode == 403) {
@@ -98,10 +104,11 @@ class UserService {
   // Hapus user
   static Future<Map<String, dynamic>> deleteUser(int id) async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/api/user/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/user/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -109,7 +116,7 @@ class UserService {
     );
 
     final body = json.decode(response.body);
-    
+
     return {
       'message': body['message'] ??
           (response.statusCode == 200

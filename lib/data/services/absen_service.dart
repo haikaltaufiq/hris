@@ -3,14 +3,13 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AbsenService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   /// Ambil token dari SharedPreferences
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -18,9 +17,11 @@ class AbsenService {
   }
 
   /// Helper: generate header request
-  static Future<Map<String, String>> _getHeaders({bool jsonType = false}) async {
+  static Future<Map<String, String>> _getHeaders(
+      {bool jsonType = false}) async {
     final token = await getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final headers = {
       'Authorization': 'Bearer $token',
@@ -37,7 +38,7 @@ class AbsenService {
     final headers = await _getHeaders();
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/absensi'),
+      Uri.parse('${ApiConfig.baseUrl}/api/absensi'),
       headers: headers,
     );
 
@@ -60,7 +61,7 @@ class AbsenService {
     Uint8List? videoBytes,
   }) async {
     final headers = await _getHeaders();
-    final uri = Uri.parse('$baseUrl/api/checkin');
+    final uri = Uri.parse('${ApiConfig.baseUrl}/api/checkin');
     final request = http.MultipartRequest('POST', uri)..headers.addAll(headers);
 
     request.fields['lat'] = lat.toString();
@@ -95,7 +96,8 @@ class AbsenService {
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
 
-      if (response.headers['content-type']?.contains('application/json') ?? false) {
+      if (response.headers['content-type']?.contains('application/json') ??
+          false) {
         final responseBody = json.decode(response.body);
         return {
           'success': responseBody['status'] ?? false,
@@ -136,7 +138,7 @@ class AbsenService {
     final videoBase64 = base64Encode(videoBytes);
 
     final response = await http.post(
-      Uri.parse('$baseUrl/api/checkin'),
+      Uri.parse('${ApiConfig.baseUrl}/api/checkin'),
       headers: headers,
       body: json.encode({
         'lat': lat,
@@ -149,7 +151,8 @@ class AbsenService {
 
     final responseBody = json.decode(response.body);
     return {
-      'success': response.statusCode == 200 && (responseBody['status'] ?? false),
+      'success':
+          response.statusCode == 200 && (responseBody['status'] ?? false),
       'message': responseBody['message'] ?? 'Gagal check-in',
       'data': responseBody['data'] ?? {},
     };
@@ -165,7 +168,7 @@ class AbsenService {
     final headers = await _getHeaders(jsonType: true);
 
     final response = await http.post(
-      Uri.parse('$baseUrl/api/checkout'),
+      Uri.parse('${ApiConfig.baseUrl}/api/checkout'),
       headers: headers,
       body: json.encode({
         'lat': lat,

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/core/theme.dart';
+import 'package:hr/core/theme/app_colors.dart';
 
 class CustomDataTableWidget extends StatelessWidget {
   final List<String> headers;

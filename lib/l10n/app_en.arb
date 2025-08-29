@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "helloText": "Hello World",
+  "loginButton": "Login",
+  "appTitle": "Human Resource Information System",
+  "subtitleApp": "The HRIS application is designed to simplify the management of attendance, leave, overtime, and employee tasks efficiently and centrally. Featuring a modern interface and intuitive navigation, HRIS streamlines HR administration processes all at your fingertips",
+  "landingWelcome": "Welcome to HRIS",
+  "landingDescription": "Your human resource management system made simple.",
+  "footerText": "All rights reserved"
+}

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/core/theme.dart';
+import 'package:hr/core/theme/app_colors.dart';
 
 class UpdateStatusDialog extends StatelessWidget {
   final Future<void> Function() onApprove;
@@ -19,6 +19,7 @@ class UpdateStatusDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       child: Container(
+        width: 400,
         margin: const EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
           color: AppColors.primary,

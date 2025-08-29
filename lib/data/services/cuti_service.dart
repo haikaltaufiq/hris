@@ -2,14 +2,13 @@
 
 import 'dart:convert';
 // import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/cuti_model.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CutiService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   // Ambil token dari SharedPreferences
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -23,7 +22,7 @@ class CutiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/cuti'),
+      Uri.parse('${ApiConfig.baseUrl}/api/cuti'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -63,7 +62,7 @@ class CutiService {
           .split('T')[0];
 
       final response = await http.post(
-        Uri.parse('$baseUrl/api/cuti'),
+        Uri.parse('${ApiConfig.baseUrl}/api/cuti'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -100,7 +99,8 @@ class CutiService {
     required String alasan,
   }) async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     // Format tanggal untuk API
     String _formatDateForApi(String input) {
@@ -109,9 +109,10 @@ class CutiService {
       if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return input;
 
       // Jika format dd / mm / yyyy
-      final parts = input.split(RegExp(r'\s*/\s*')); // split dengan / dan hilangkan spasi
+      final parts =
+          input.split(RegExp(r'\s*/\s*')); // split dengan / dan hilangkan spasi
       if (parts.length == 3) {
-        return "${parts[2]}-${parts[1].padLeft(2,'0')}-${parts[0].padLeft(2,'0')}";
+        return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
       }
       return input;
     }
@@ -128,7 +129,7 @@ class CutiService {
     print("DATA KIRIM: $requestBody");
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/cuti/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/cuti/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -138,22 +139,22 @@ class CutiService {
     );
 
     final responseBody = json.decode(response.body);
-    print("RESPON API: $responseBody"); 
+    print("RESPON API: $responseBody");
 
     return {
       'success': response.statusCode == 200,
       'message': responseBody['message'] ?? 'Gagal update tugas',
     };
-
   }
 
   // Hapus cuti
   static Future<Map<String, dynamic>> deleteCuti(int id) async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/api/cuti/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/cuti/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -161,7 +162,7 @@ class CutiService {
     );
 
     final body = json.decode(response.body);
-    
+
     return {
       'message': body['message'] ??
           (response.statusCode == 200
@@ -178,7 +179,7 @@ class CutiService {
     }
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/cuti/$id/approve'),
+      Uri.parse('${ApiConfig.baseUrl}/api/cuti/$id/approve'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -188,13 +189,12 @@ class CutiService {
     final responseData = json.decode(response.body);
 
     if (response.statusCode == 200) {
-      return responseData['message']; 
+      return responseData['message'];
     } else {
       final errorMessage = responseData['message'] ?? 'Terjadi kesalahan';
       return Future.error(errorMessage);
     }
   }
-
 
   // Decline cuti
   static Future<String?> declineCuti(int id) async {
@@ -203,7 +203,7 @@ class CutiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/cuti/$id/decline'),
+      Uri.parse('${ApiConfig.baseUrl}/api/cuti/$id/decline'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -219,5 +219,4 @@ class CutiService {
       return null;
     }
   }
-
 }

@@ -1,0 +1,9 @@
+{
+  "@@locale": "id",
+  "helloText": "Hallo Dunia",
+  "loginButton": "Login",
+  "appTitle": "Proyek HRIS",
+  "landingWelcome": "Selamat Datang di HRIS",
+  "landingDescription": "Sistem manajemen sumber daya manusia yang simpel dan efisien.",
+  "footerText": "Hak cipta dilindungi"
+}

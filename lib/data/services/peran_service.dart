@@ -1,10 +1,9 @@
 import 'dart:convert';
+import 'package:hr/data/api/api_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PeranService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -14,7 +13,7 @@ class PeranService {
     final token = await getToken();
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/peran'),
+      Uri.parse('${ApiConfig.baseUrl}/api/peran'),
       headers: {
         'Authorization': 'Bearer $token', // kalau API pakai auth
         'Accept': 'application/json',

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/core/theme.dart';
+import 'package:hr/core/theme/app_colors.dart';
 
 Future<bool> showConfirmationDialog(
   BuildContext context, {

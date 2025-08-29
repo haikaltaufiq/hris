@@ -1,14 +1,13 @@
 // ignore_for_file: avoid_print, curly_braces_in_flow_control_structures
 
 import 'dart:convert';
+import 'package:hr/data/api/api_config.dart';
+import 'package:hr/data/models/lembur_model.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:hr/data/models/lembur_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LemburService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   // Ambil token dari SharedPreferences
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -22,7 +21,7 @@ class LemburService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/lembur'),
+      Uri.parse('${ApiConfig.baseUrl}/api/lembur'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -67,7 +66,7 @@ class LemburService {
     }
 
     final response = await http.post(
-      Uri.parse('$baseUrl/api/lembur'),
+      Uri.parse('${ApiConfig.baseUrl}/api/lembur'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -88,8 +87,9 @@ class LemburService {
       return false;
     }
   }
+
   // Edit lembur
-  static Future<Map<String,dynamic>> editLembur({
+  static Future<Map<String, dynamic>> editLembur({
     required int id,
     required String tanggal,
     required String jamMulai,
@@ -97,7 +97,8 @@ class LemburService {
     required String deskripsi,
   }) async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     // Format tanggal untuk API
     String _formatDateForApi(String input) {
@@ -106,9 +107,10 @@ class LemburService {
       if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return input;
 
       // Jika format dd / mm / yyyy
-      final parts = input.split(RegExp(r'\s*/\s*')); // split dengan / dan hilangkan spasi
+      final parts =
+          input.split(RegExp(r'\s*/\s*')); // split dengan / dan hilangkan spasi
       if (parts.length == 3) {
-        return "${parts[2]}-${parts[1].padLeft(2,'0')}-${parts[0].padLeft(2,'0')}";
+        return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
       }
       return input;
     }
@@ -137,7 +139,7 @@ class LemburService {
     }
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/lembur/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -157,16 +159,17 @@ class LemburService {
     return {
       'success': response.statusCode == 200,
       'message': responseBody['message'] ?? 'Gagal mengedit lembur',
-    };    
+    };
   }
 
   // Hapus lembur
   static Future<Map<String, dynamic>> deleteLembur(int id) async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
-    
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
+
     final response = await http.delete(
-      Uri.parse('$baseUrl/api/lembur/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -174,7 +177,7 @@ class LemburService {
     );
 
     final body = json.decode(response.body);
-    
+
     return {
       'message': body['message'] ??
           (response.statusCode == 200
@@ -190,7 +193,7 @@ class LemburService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/lembur/$id/approve'),
+      Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id/approve'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -212,7 +215,7 @@ class LemburService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/lembur/$id/decline'),
+      Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id/decline'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

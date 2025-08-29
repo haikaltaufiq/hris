@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/kantor_model.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class KantorService {
-  static const String baseUrl = "http://192.168.20.50:8000/api/kantor";
-
+  /// Ambil token dari SharedPreferences
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
@@ -18,7 +18,7 @@ class KantorService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor');
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
     });
@@ -26,31 +26,95 @@ class KantorService {
     if (response.statusCode == 200) {
       final decoded = jsonDecode(response.body);
 
-      if (decoded is Map<String, dynamic> && decoded["data"] != null) {
-        return KantorModel.fromJson(decoded["data"]);
+      // fleksibel: kalau ada "data" ambil itu, kalau gak langsung objek
+      if (decoded is Map<String, dynamic>) {
+        final data = decoded["data"] ?? decoded;
+        if (data is Map<String, dynamic>) {
+          return KantorModel.fromJson(data);
+        }
       }
       return null;
+    } else if (response.statusCode == 401) {
+      throw Exception("Sesi habis, silakan login ulang.");
     } else {
-      throw Exception("Gagal load kantor: ${response.body}");
+      throw Exception(_extractError(response.body));
     }
   }
 
-  /// Simpan kantor
-  static Future<bool> createKantor(KantorModel kantor) async {
+  /// Simpan kantor baru
+  static Future<Map<String, dynamic>> createKantor(KantorModel kantor) async {
     final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null) {
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
-    final url = Uri.parse(baseUrl);
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor');
     final response = await http.post(
       url,
       headers: {
         "Content-Type": "application/json",
         "Accept": "application/json",
-        "Authorization": "Bearer $token", 
+        "Authorization": "Bearer $token",
       },
       body: jsonEncode(kantor.toJson()),
     );
 
-    return response.statusCode == 200 || response.statusCode == 201;
+    return _handleResponse(response, successMessage: "Kantor berhasil dibuat");
+  }
+
+  /// Update kantor (kalau API lo butuh)
+  static Future<Map<String, dynamic>> updateKantor(
+      int id, KantorModel kantor) async {
+    final token = await _getToken();
+    if (token == null) {
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
+
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor/$id');
+    final response = await http.put(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+      },
+      body: jsonEncode(kantor.toJson()),
+    );
+
+    return _handleResponse(response,
+        successMessage: "Kantor berhasil diupdate");
+  }
+
+  /// Helper buat handle response API
+  static Map<String, dynamic> _handleResponse(http.Response response,
+      {String? successMessage}) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return {
+        "success": true,
+        "message": successMessage ?? "Berhasil",
+      };
+    } else if (response.statusCode == 401) {
+      throw Exception("Sesi habis, silakan login ulang.");
+    } else {
+      return {
+        "success": false,
+        "message": _extractError(response.body),
+      };
+    }
+  }
+
+  /// Helper parsing pesan error
+  static String _extractError(String body) {
+    try {
+      final decoded = jsonDecode(body);
+      if (decoded is Map<String, dynamic>) {
+        return decoded["message"]?.toString() ??
+            decoded["error"]?.toString() ??
+            body;
+      }
+      return body;
+    } catch (_) {
+      return body;
+    }
   }
 }

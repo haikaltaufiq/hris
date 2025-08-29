@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/core/theme.dart';
+import 'package:hr/core/theme/app_colors.dart';
 
 class DetailItem extends StatelessWidget {
   final String label;

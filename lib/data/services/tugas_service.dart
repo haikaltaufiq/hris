@@ -4,14 +4,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:http/http.dart' as http;
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
+import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TugasService {
-  static const String baseUrl = 'http://192.168.20.50:8000';
-
   /// Ambil token dari SharedPreferences
   static Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
@@ -54,7 +53,7 @@ class TugasService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
-      Uri.parse('$baseUrl/api/tugas'),
+      Uri.parse('${ApiConfig.baseUrl}/api/tugas'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -109,7 +108,7 @@ class TugasService {
 
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/tugas'),
+        Uri.parse('${ApiConfig.baseUrl}/api/tugas'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -165,7 +164,7 @@ class TugasService {
     print("UPDATE DATA KIRIM: $requestBody");
 
     final response = await http.put(
-      Uri.parse('$baseUrl/api/tugas/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -192,7 +191,7 @@ class TugasService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.delete(
-      Uri.parse('$baseUrl/api/tugas/$id'),
+      Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -225,7 +224,7 @@ class TugasService {
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('$baseUrl/api/tugas/$id/upload-file'),
+        Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id/upload-file'),
       );
 
       request.headers.addAll({

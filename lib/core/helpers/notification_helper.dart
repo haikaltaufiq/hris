@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/core/theme.dart';
 
 class NotificationHelper {
   static void showTopNotification(
@@ -10,7 +9,7 @@ class NotificationHelper {
     Duration duration = const Duration(seconds: 3),
   }) {
     final overlay = Overlay.of(context);
-    final backgroundColor = isSuccess ? AppColors.green : AppColors.red;
+    final backgroundColor = isSuccess ? Colors.green : Colors.red;
 
     late OverlayEntry overlayEntry;
 
@@ -38,11 +37,11 @@ class NotificationHelper {
     overlay.insert(overlayEntry);
 
     // auto remove setelah durasi
-    // Future.delayed(duration, () {
-    //   if (overlayEntry.mounted) {
-    //     overlayEntry.remove();
-    //   }
-    // });
+    Future.delayed(duration, () {
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+    });
   }
 }
 
@@ -200,7 +199,7 @@ class _AnimatedSlideNotificationState extends State<AnimatedSlideNotification>
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      widget.backgroundColor == AppColors.green
+                      widget.backgroundColor == Colors.green
                           ? Icons.check_circle_outline_rounded
                           : Icons.error_outline_rounded,
                       color: Colors.white,
