@@ -1,23 +1,24 @@
-# Pakai base image Dart terbaru (versi minimal 3.6.0)
-FROM dart:3.6
+# Stage 1: Build Flutter Web
+FROM cirrusci/flutter:stable AS build
 
 WORKDIR /app
 
-# Copy pubspec.yaml dan pubspec.lock dulu
 COPY pubspec.* /app/
+RUN flutter pub get
 
-# Install dependencies
-RUN dart pub get
-
-# Copy semua file project
 COPY . /app/
 
-# Build Flutter web (kalau kamu build Flutter di sini, harus install Flutter SDK)
-# Kalau kamu cuma deploy hasil build Flutter web (build/web), ini bisa di-skip
+RUN flutter build web --release
 
-# Jalankan server.js (Node.js)
-# Jadi kita perlu Node.js juga, bisa ganti pake image node + dart, tapi lebih gampang pisah deploy server dan web
-# Kalau pakai Express server Node.js, sebaiknya deploy web dan server secara terpisah atau pakai build custom
+# Stage 2: Serve dengan Node.js
+FROM node:18
 
-# Contoh start server nodejs:
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY --from=build /app/build/web ./build/web
+COPY server.js ./
+
 CMD ["npm", "start"]
