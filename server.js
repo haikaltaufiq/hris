@@ -1,11 +1,29 @@
+console.log('ENV VARIABLES:', process.env);
+
 const express = require('express');
 const path = require('path');
 const app = express();
 
-// Serve file statis dari folder build/web
-app.use(express.static(path.join(__dirname, 'build/web')));
+// Set proper headers untuk Flutter web
+app.use((req, res, next) => {
+  res.header('Cross-Origin-Embedder-Policy', 'credentialless');
+  res.header('Cross-Origin-Opener-Policy', 'same-origin');
+  next();
+});
 
-// Semua request lain arahkan ke index.html (buat support routing di Flutter Web)
+// Serve static files dengan proper MIME types
+app.use(express.static(path.join(__dirname, 'build/web'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+    if (path.endsWith('.wasm')) {
+      res.setHeader('Content-Type', 'application/wasm');
+    }
+  }
+}));
+
+// Catch all untuk Flutter SPA
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'build/web/index.html'));
 });
@@ -13,4 +31,5 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Static files served from: ${path.join(__dirname, 'build/web')}`);
 });
