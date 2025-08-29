@@ -12,9 +12,9 @@ import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 void main() {
   runApp(

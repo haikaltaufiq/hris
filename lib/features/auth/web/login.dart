@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 import '../../../core/utils/device_size.dart';
 
