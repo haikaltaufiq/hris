@@ -22,8 +22,7 @@ extension DeviceExtension on BuildContext {
   // Alternative: if you want to distinguish native vs web
   bool get isNativeMobile => !kIsWeb && deviceWidth < 600;
   bool get isWebMobile => kIsWeb && deviceWidth < 600;
-  bool get isNativeTablet =>
-      !kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
+  bool get isNativeTablet => !kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
   bool get isWebTablet => kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
   bool get isNativeDesktop => !kIsWeb && deviceWidth >= 1024;
   bool get isWebDesktop => kIsWeb && deviceWidth >= 1024;
@@ -36,6 +35,5 @@ extension DeviceExtension on BuildContext {
 
   // padding scaling
   EdgeInsets padding(double value) => EdgeInsets.all(scale(value));
-  EdgeInsets symmetricPadding({double h = 0, double v = 0}) =>
-      EdgeInsets.symmetric(horizontal: scale(h), vertical: scale(v));
+  EdgeInsets symmetricPadding({double h = 0, double v = 0}) => EdgeInsets.symmetric(horizontal: scale(h), vertical: scale(v));
 }
