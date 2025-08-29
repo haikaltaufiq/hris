@@ -98,8 +98,7 @@ class AppRoutes {
         return _route(const Dashboard().withMainLayout(dashboard), settings);
 
       case dashboardMobile:
-        return _route(
-            const DashboardMobile().withMainLayout(dashboardMobile), settings);
+        return _route(const DashboardMobile().withMainLayout(dashboardMobile), settings);
 
       case attendance:
         return _route(const AbsenPage().withMainLayout(attendance), settings);
@@ -120,8 +119,7 @@ class AppRoutes {
         return _route(const GajiPage().withMainLayout(payroll), settings);
 
       case department:
-        return _route(
-            const DepartmentPage().withMainLayout(department), settings);
+        return _route(const DepartmentPage().withMainLayout(department), settings);
 
       case jabatan:
         return _route(const JabatanPage().withMainLayout(jabatan), settings);
