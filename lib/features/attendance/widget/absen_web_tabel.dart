@@ -177,9 +177,9 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
-        title: const Text(
+        title: Text(
           'Detail Absen',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: AppColors.putih),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -206,9 +206,9 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
+            child: Text(
               'Tutup',
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: AppColors.putih),
             ),
           ),
         ],
