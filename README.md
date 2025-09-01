@@ -24,18 +24,6 @@
 - 🔐 **Role-based Access** - Kontrol akses berdasarkan jabatan
 - 📈 **Analytics & Reports** - Dashboard dan laporan komprehensif
 - 🔔 **Notifications** - Notifikasi real-time untuk updates penting
-- 🌐 **Multi-branch Support** - Dukungan untuk multiple cabang perusahaan
-
-## 📸 Screenshots
-
-<div align="center">
-  <img src="assets/login_screen.png" alt="Login Screen" width="200"/>
-  <img src="assets/dashboard.png" alt="HR Dashboard" width="200"/>
-  <img src="assets/employee_list.png" alt="Employee List" width="200"/>
-  <img src="assets/attendance.png" alt="Attendance System" width="200"/>
-  <img src="assets/payroll.png" alt="Payroll Management" width="200"/>
-  <img src="assets/profile.png" alt="Employee Profile" width="200"/>
-</div>
 
 ## 🛠️ Tech Stack
 
@@ -214,50 +202,6 @@ flutter build ios --release
 flutter build web --release
 ```
 
-## 🤝 Contributing
-
-Kami welcome kontribusi dari developer lain! Silakan baca [CONTRIBUTING.md](CONTRIBUTING.md) untuk guidelines.
-
-### Development Setup
-
-1. Fork repository ini
-2. Create feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to branch (`git push origin feature/AmazingFeature`)
-5. Open Pull Request
-
-## 📈 Roadmap
-
-- [x] ✅ Basic UI Implementation
-- [x] ✅ Authentication System
-- [x] ✅ Database Integration
-- [ ] 🔄 Push Notifications
-- [ ] ⏳ Offline Support
-- [ ] ⏳ Multi-theme Support
-- [ ] 📋 Analytics Integration
-
-## 🐛 Known Issues
-
-- [ ] Loading screen sometimes flickers on older devices
-- [ ] Minor UI inconsistency in dark mode
-
-## 📄 Changelog
-
-### [1.2.0] - 2024-01-15
-- Added dark mode support
-- Improved performance by 30%
-- Fixed authentication bugs
-
-### [1.1.0] - 2024-01-01
-- Added user profiles
-- New dashboard layout
-- Bug fixes and improvements
-
-### [1.0.0] - 2023-12-15
-- Initial release
-- Basic CRUD operations
-- User authentication
-
 ## 📝 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -273,23 +217,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Inspiration dari project-project open source lainnya
 - Thanks to the Flutter community
 
-## 📞 Support
-
-Jika Anda mengalami masalah atau punya pertanyaan:
-
-- 📧 Email: your.email@example.com
-- 💬 Discord: [Join our server](https://discord.gg/yourserver)
-- 🐦 Twitter: [@yourusername](https://twitter.com/yourusername)
-- 📱 Telegram: [@yourusername](https://t.me/yourusername)
-
-## ⭐ Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=username/repo&type=Date)](https://star-history.com/#username/repo&Date)
 
 ---
-
-<div align="center">
-  Made with ❤️ by <a href="https://github.com/yourusername">Your Name</a>
-  <br>
-  <sub>Give a ⭐️ if this project helped you!</sub>
-</div>
