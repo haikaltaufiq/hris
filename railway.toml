@@ -1,0 +1,10 @@
+[build]
+builder = "Dockerfile"
+
+[env]
+PORT = "3000"
+
+[deploy]
+startCommand = "npm start"
+healthcheckPath = "/"
+healthcheckTimeout = 30
