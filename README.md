@@ -47,113 +47,11 @@
 - [Firebase](https://firebase.google.com/) - Real-time notifications
 - [SQLite](https://sqlite.org/) - Offline storage
 
-## 🚀 Quick Start
-
-### Prerequisites
-
-Pastikan Anda sudah menginstall:
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (>=3.0.0)
-- [Android Studio](https://developer.android.com/studio) atau [VS Code](https://code.visualstudio.com/)
-- [Git](https://git-scm.com/)
-
-### Installation
-
-1. **Clone repository**
-   ```bash
-   git clone https://github.com/username/project-name.git
-   cd project-name
-   ```
-
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Setup environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env file dengan konfigurasi Anda
-   ```
-
-4. **Run aplikasi**
-   ```bash
-   flutter run
-   ```
-
-## 📁 Project Structure
-
-```
-lib/
-├── 📁 core/
-│   ├── 📁 constants/
-│   ├── 📁 utils/
-│   └── 📁 themes/
-├── 📁 data/
-│   ├── 📁 models/
-│   ├── 📁 repositories/
-│   └── 📁 services/
-├── 📁 presentation/
-│   ├── 📁 screens/
-│   ├── 📁 widgets/
-│   └── 📁 providers/
-└── main.dart
-```
-
-## 🎯 Usage
-
-### Basic Example
-
-```dart
-import 'package:your_package/your_package.dart';
-
-void main() {
-  // Inisialisasi aplikasi
-  final app = MyApp();
-  
-  // Konfigurasi
-  app.configure(
-    apiKey: 'your-api-key',
-    baseUrl: 'https://api.example.com',
-  );
-  
-  // Jalankan aplikasi
-  runApp(app);
-}
-```
-
-### Advanced Usage
-
-```dart
-// Contoh penggunaan fitur advanced
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Awesome App')),
-      body: Center(
-        child: Text('Hello World!'),
-      ),
-    );
-  }
-}
-```
-
 ## 🔧 Configuration
 
 ### Environment Variables
 
 Buat file `.env` di root directory:
-
-```env
-API_BASE_URL=https://api.example.com
-API_KEY=your-api-key-here
-DEBUG_MODE=true
-```
 
 ### Firebase Setup
 
@@ -208,14 +106,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Haikal** - *Initial work* - [YourGithub](https://github.com/HaikalTaufiq)
-- **Grey** - *Initial work* - [YourGithub](https://github.com/Greyari)
+- **Haikal** - *Initial work* - [Haikal Taufiq](https://github.com/HaikalTaufiq)
+- **Grey** - *Initial work* - [Grey](https://github.com/Greyari)
 
 ## 🙏 Acknowledgments
 
 - Hat tip to anyone whose code was used
 - Inspiration dari project-project open source lainnya
 - Thanks to the Flutter community
-
 
 ---
