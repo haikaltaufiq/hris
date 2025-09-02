@@ -1,5 +1,5 @@
 # Stage 1: build Flutter Web
-FROM cirrusci/flutter:stable AS builder
+FROM ghcr.io/cirruslabs/flutter:3.24.3 AS builder
 
 WORKDIR /app
 COPY . .
