@@ -1,32 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/attendance/widget/absen_excel_export.dart';
 import 'package:hr/features/attendance/widget/absen_web_tabel.dart';
+import 'package:provider/provider.dart';
 
-class AbsenWebPage extends StatelessWidget {
+class AbsenWebPage extends StatefulWidget {
   const AbsenWebPage({super.key});
 
   @override
+  State<AbsenWebPage> createState() => _AbsenWebPageState();
+}
+
+class _AbsenWebPageState extends State<AbsenWebPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Auto load data saat halaman pertama kali dibuka
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AbsenProvider>(context, listen: false).fetchAbsensi();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
-        children: [
-          SearchingBar(
-            controller: SearchController(),
-            onFilter1Tap: () {},
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: AbsenExcelExport(),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: AbsenTabelWeb(),
-          ),
-        ],
+    final searchController = TextEditingController();
+    return ChangeNotifierProvider(
+      create: (_) => AbsenProvider()..fetchAbsensi(),
+      child: Consumer<AbsenProvider>(
+        builder: (context, absenProvider, _) {
+          final absen = searchController.text.isEmpty
+              ? absenProvider.absensi
+              : absenProvider.filteredAbsensi;
+          return Scaffold(
+            backgroundColor: AppColors.bg,
+            body: ListView(
+              padding: const EdgeInsets.all(16.0),
+              children: [
+                SearchingBar(
+                  controller: searchController,
+                  onChanged: (query) => absenProvider.searchAbsensi(query),
+                  onFilter1Tap: () {},
+                ),
+                const SizedBox(height: 5),
+                const AbsenExcelExport(),
+                if (absenProvider.isLoading)
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: const Center(child: LoadingWidget()),
+                  )
+                else if (absenProvider.absensi.isEmpty)
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.6,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.note_alt_outlined,
+                            size: 64,
+                            color: AppColors.putih.withOpacity(0.5),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Belum ada Absensi',
+                            style: TextStyle(
+                              color: AppColors.putih,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                        ],
+                      ),
+                    ),
+                  )
+                else
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: AbsenTabelWeb(absensi: absen),
+                  ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

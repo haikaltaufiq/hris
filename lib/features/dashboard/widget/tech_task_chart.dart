@@ -485,7 +485,6 @@ class _ModernLegendItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.putih.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
-     
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

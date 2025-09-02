@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:hr/data/services/absen_service.dart';
 import 'package:hr/data/services/location_service.dart';
+import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 
-import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 
 class InputOut extends StatefulWidget {
   const InputOut({super.key});
@@ -259,8 +261,85 @@ class _InputOutState extends State<InputOut> {
               final parts = _lokasiController.text.split(',');
               final lat = double.parse(parts[0].trim());
               final lng = double.parse(parts[1].trim());
-              Navigator.pushNamed(context, AppRoutes.mapPage,
-                  arguments: LatLng(lat, lng));
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (_) => DraggableScrollableSheet(
+                  initialChildSize: 0.9,
+                  minChildSize: 0.5,
+                  maxChildSize: 1.0,
+                  expand: false,
+                  builder: (context, scrollController) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(20)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 10,
+                            offset: const Offset(0, -3),
+                          )
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          // Konten bisa discroll
+                          Column(
+                            children: [
+                              // Handle bar
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                height: 5,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[400],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              const Text(
+                                "Lokasi Absen",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+
+                              // Map full tinggi fix
+                              Expanded(
+                                child: MapPageModal(target: LatLng(lat, lng)),
+                              ),
+
+                              const SizedBox(
+                                  height: 200), // dummy biar bisa full drag
+                            ],
+                          ),
+
+                          // Card info nempel di bawah
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: LocationInfoCard(
+                                target: LatLng(lat, lng),
+                                mapController: MapController(),
+                                onConfirm: () => Navigator.of(context).pop(),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              );
             } catch (e) {
               NotificationHelper.showTopNotification(
                 context,
@@ -301,7 +380,7 @@ class _InputOutState extends State<InputOut> {
       );
       return;
     }
-
+    final absenProvider = context.read<AbsenProvider>();
     // Show loading dialog
     showDialog(
       context: context,
@@ -314,7 +393,7 @@ class _InputOutState extends State<InputOut> {
       final lat = double.parse(parts[0].trim());
       final lng = double.parse(parts[1].trim());
 
-      final result = await AbsenService.checkout(
+      await absenProvider.checkout(
         lat: lat,
         lng: lng,
         checkoutDate: _tanggalController.text,
@@ -324,17 +403,21 @@ class _InputOutState extends State<InputOut> {
       Navigator.pop(context);
 
       if (!mounted) return;
+      final success = absenProvider.lastCheckoutResult?['success'] ?? false;
+      final message =
+          absenProvider.lastCheckoutResult?['message'] ?? 'Checkout gagal';
       NotificationHelper.showTopNotification(
         context,
-        result['message'],
-        isSuccess: result['success'],
+        message,
+        isSuccess: success,
       );
 
       // Reset lokasi kalau sukses
-      if (result['success']) {
+      if (success) {
         setState(() {
           _lokasiController.clear();
         });
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       Navigator.pop(context);

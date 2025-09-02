@@ -24,6 +24,7 @@ import 'package:hr/features/potongan/potongan_form/form_edit.dart';
 import 'package:hr/features/potongan/potongan_form/potongan_form.dart';
 import 'package:hr/features/potongan/potongan_page.dart';
 import 'package:hr/features/profile/profile_page.dart';
+import 'package:hr/features/reminder/reminder_page.dart';
 import 'package:hr/features/task/task_page.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
 import 'package:hr/layout/main_layout.dart';
@@ -55,6 +56,8 @@ class AppRoutes {
   static const String tugasForm = '/tugas_form';
   static const String karyawanForm = '/karyawan_form';
   static const String mapPage = '/map_page';
+  static const String reminder = '/reminder';
+
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
     landingPage,
@@ -156,10 +159,15 @@ class AppRoutes {
       case karyawanForm:
         return _route(
             const KaryawanForm().withMainLayout(karyawanForm), settings);
+
+      case reminder:
+        return _route(const ReminderPage().withMainLayout(reminder), settings);
+
       case mapPage:
         final args =
             settings.arguments as LatLng; // biar bisa kirim target koordinat
         return _route(MapPage(target: args).withMainLayout(mapPage), settings);
+
       case pengaturan:
         return _route(
           Consumer<ThemeProvider>(

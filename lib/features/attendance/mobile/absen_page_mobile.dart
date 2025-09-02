@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/attendance/widget/absen_excel_export.dart';
 import 'package:hr/features/attendance/widget/absen_tabel.dart';
+import 'package:provider/provider.dart';
 
 class AbsenMobile extends StatefulWidget {
   const AbsenMobile({super.key});
@@ -18,9 +21,25 @@ class AbsenMobile extends StatefulWidget {
 
 class _AbsenMobileState extends State<AbsenMobile> {
   final searchController = TextEditingController();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AbsenProvider>().fetchAbsensi();
+    });
+  }
+
+  Future<void> _refreshData() async {
+    await context.read<AbsenProvider>().fetchAbsensi();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AbsenProvider>();
+    final displayedAbsensi = provider.filteredAbsensi.isEmpty
+        ? provider.absensi
+        : provider.filteredAbsensi;
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: Stack(
@@ -30,17 +49,74 @@ class _AbsenMobileState extends State<AbsenMobile> {
               left: 16.0,
               right: 16.0,
             ),
-            child: ListView(
-              children: [
-                Header(title: "Attendance Management"),
-                SearchingBar(
-                  controller: searchController,
-                  onChanged: (value) {},
-                  onFilter1Tap: () => print("Filter1 Halaman A"),
-                ),
-                AbsenExcelExport(),
-                AbsenTabel(),
-              ],
+            child: RefreshIndicator(
+              onRefresh: _refreshData,
+              child: ListView(
+                children: [
+                  Header(title: "Attendance Management"),
+                  SearchingBar(
+                    controller: searchController,
+                    onChanged: (value) {
+                      provider.searchAbsensi(value);
+                    },
+                    onFilter1Tap: () => print("Filter1 Halaman A"),
+                  ),
+                  AbsenExcelExport(),
+                  if (provider.isLoading)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: const Center(child: LoadingWidget()),
+                    )
+                  else if (provider.absensi.isEmpty)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.note_alt_outlined,
+                              size: 64,
+                              color: AppColors.putih.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Belum ada Absensi',
+                              style: TextStyle(
+                                color: AppColors.putih,
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap tombol + untuk menambah pengajuan baru',
+                              style: TextStyle(
+                                color: AppColors.putih.withOpacity(0.7),
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      itemCount: displayedAbsensi.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final absen = displayedAbsensi[index];
+                        return AbsenTabel(
+                          absensi: absen,
+                        );
+                      },
+                    )
+                ],
+              ),
             ),
           ),
 
@@ -149,14 +225,18 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: () {
+                                    onTap: () async {
                                       Navigator.of(context).pop();
-                                      Navigator.of(context).push(
+                                      final result =
+                                          await Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               const AbsenMasukPage(),
                                         ),
                                       );
+                                      if (result == true) {
+                                        await _refreshData();
+                                      }
                                     },
                                     borderRadius: BorderRadius.circular(16),
                                     child: Padding(
@@ -246,14 +326,18 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: () {
+                                    onTap: () async {
                                       Navigator.of(context).pop();
-                                      Navigator.of(context).push(
+                                      final result =
+                                          await Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) =>
                                               const AbsenKeluarPage(),
                                         ),
                                       );
+                                      if (result == true) {
+                                        await _refreshData();
+                                      }
                                     },
                                     borderRadius: BorderRadius.circular(16),
                                     child: Padding(

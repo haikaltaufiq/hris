@@ -61,10 +61,11 @@ class DepartemenPageMobile extends StatelessWidget {
                                     departemen.id,
                                     departmentNameController.text.trim(),
                                   );
+                                  Navigator.pop(context);
+
                                   NotificationHelper.showTopNotification(
                                       context, result['message'],
                                       isSuccess: result['success']);
-                                  Navigator.pop(context);
                                 },
                               ),
                             );
@@ -104,10 +105,11 @@ class DepartemenPageMobile extends StatelessWidget {
                             onSubmit: () async {
                               final result = await vm.createDepartemen(
                                   departmentNameController.text.trim());
+                              Navigator.pop(context);
+
                               NotificationHelper.showTopNotification(
                                   context, result['message'],
                                   isSuccess: result['success']);
-                              Navigator.pop(context);
                             },
                           ),
                         );

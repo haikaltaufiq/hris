@@ -3,9 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
+import 'package:hr/features/gaji/gaji_provider.dart';
 import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
 import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
@@ -29,6 +31,8 @@ void main() {
         ChangeNotifierProvider(create: (_) => PotonganGajiProvider()),
         ChangeNotifierProvider(create: (_) => DepartmentViewModel()),
         ChangeNotifierProvider(create: (_) => JabatanViewModel()),
+        ChangeNotifierProvider(create: (_) => AbsenProvider()),
+        ChangeNotifierProvider(create: (_) => GajiProvider()),
       ],
       child: const MyApp(),
     ),
