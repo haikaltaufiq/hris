@@ -1,20 +1,25 @@
-# Base image Node.js
+# Stage 1: build Flutter Web
+FROM cirrusci/flutter:3.13.9 AS builder
+
+WORKDIR /app
+COPY . .
+RUN flutter pub get
+RUN flutter build web --release
+
+# Stage 2: serve dengan Node
 FROM node:18-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package.json dan package-lock.json
+# Copy package.json & install dependency
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install --production
 
-# Copy semua file project (termasuk server.js, build/web, dll)
-COPY . .
+# Copy hasil build Flutter Web dari stage builder
+COPY --from=builder /app/build/web ./build/web
 
-# Expose port
+# Copy server.js
+COPY server.js .
+
 EXPOSE 3000
-
-# Start server
 CMD ["npm", "start"]
