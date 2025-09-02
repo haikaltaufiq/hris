@@ -6,13 +6,18 @@ import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
-import 'package:hr/data/services/absen_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 
 import 'package:latlong2/latlong.dart';
 import 'package:video_player/video_player.dart';
 
 class AbsenTabel extends StatefulWidget {
+  final AbsenModel absensi;
+  const AbsenTabel({
+    super.key,
+    required this.absensi,
+  });
+
   @override
   State<AbsenTabel> createState() => _AbsenTabelState();
 }
@@ -30,30 +35,9 @@ class _AbsenTabelState extends State<AbsenTabel> {
     "Tipe",
   ];
 
-  List<AbsenModel> absensi = [];
+  List<AbsenModel> get absensi => [widget.absensi]; // ambil dari main
 
   bool loading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    loadAbsensi();
-  }
-
-  Future<void> loadAbsensi() async {
-    try {
-      final data = await AbsenService.fetchAbsensi();
-      setState(() {
-        absensi = data;
-        loading = false;
-      });
-    } catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat absensi: $e")),
-      );
-    }
-  }
 
   List<List<String>> get rows {
     return absensi.map((item) {
@@ -245,7 +229,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
     );
   }
 
-  void _showDetail(AbsenModel absen) {
+  void _showDetail(BuildContext context, AbsenModel absen) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -294,10 +278,6 @@ class _AbsenTabelState extends State<AbsenTabel> {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Center(child: LoadingWidget());
-    }
-
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
@@ -319,7 +299,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
           _openVideo(absen.videoUser);
         }
       },
-      onView: (rowIndex) => _showDetail(absensi[rowIndex]),
+      onView: (rowIndex) => _showDetail(context, absensi[rowIndex]),
     );
   }
 }

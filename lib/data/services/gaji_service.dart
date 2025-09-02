@@ -14,8 +14,9 @@ class GajiService {
   // Fetch gaji
   static Future<List<GajiUser>> fetchGaji() async {
     final token = await getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/api/gaji'),
@@ -34,7 +35,7 @@ class GajiService {
       throw Exception("Gagal mengambil data gaji");
     }
   }
-  
+
   // Update status gaji
   static Future<void> updateStatus(int id, String status) async {
     final token = await getToken();
@@ -56,7 +57,8 @@ class GajiService {
 
     if (response.statusCode != 200) {
       final body = json.decode(response.body);
-      throw Exception("Gagal update status: ${body['message'] ?? response.body}");
+      throw Exception(
+          "Gagal update status: ${body['message'] ?? response.body}");
     }
   }
 }

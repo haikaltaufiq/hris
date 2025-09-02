@@ -4,10 +4,9 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:numberpicker/numberpicker.dart';
 
 class NumberPage extends StatefulWidget {
-  const NumberPage({Key? key}) : super(key: key);
-
+  const NumberPage({super.key});
   @override
-  _NumberPageState createState() => _NumberPageState();
+  State<NumberPage> createState() => _NumberPageState();
 }
 
 class _NumberPageState extends State<NumberPage> {
@@ -43,6 +42,7 @@ class NumberPickerWidget extends StatelessWidget {
   final ValueChanged<int> onMinuteChanged;
 
   const NumberPickerWidget({
+    super.key,
     required this.hour,
     required this.minute,
     required this.onHourChanged,

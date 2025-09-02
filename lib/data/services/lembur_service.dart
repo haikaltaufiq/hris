@@ -101,7 +101,7 @@ class LemburService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     // Format tanggal untuk API
-    String _formatDateForApi(String input) {
+    String formatDateForApi(String input) {
       input = input.trim();
       // Jika format sudah YYYY-MM-DD, kembalikan apa adanya
       if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return input;
@@ -116,7 +116,7 @@ class LemburService {
     }
 
     // Format waktu untuk API
-    String _formatTime(String time) {
+    String formatTime(String time) {
       time = time.trim();
 
       // Jika sudah HH:mm:ss, kembalikan apa adanya
@@ -146,9 +146,9 @@ class LemburService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'tanggal': _formatDateForApi(tanggal),
-        'jam_mulai': _formatTime(jamMulai),
-        'jam_selesai': _formatTime(jamSelesai),
+        'tanggal': formatDateForApi(tanggal),
+        'jam_mulai': formatTime(jamMulai),
+        'jam_selesai': formatTime(jamSelesai),
         'deskripsi': deskripsi,
       }),
     );

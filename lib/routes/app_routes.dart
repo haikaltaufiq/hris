@@ -17,13 +17,14 @@ import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/features/lembur/lembur_page.dart';
-import 'package:hr/features/log_activity/log_activity.dart';
+import 'package:hr/features/log_activity/log_view.dart';
 import 'package:hr/features/pengaturan/pengaturan_page.dart';
 import 'package:hr/features/peran/peran_page.dart';
 import 'package:hr/features/potongan/potongan_form/form_edit.dart';
 import 'package:hr/features/potongan/potongan_form/potongan_form.dart';
 import 'package:hr/features/potongan/potongan_page.dart';
 import 'package:hr/features/profile/profile_page.dart';
+import 'package:hr/features/reminder/reminder_page.dart';
 import 'package:hr/features/task/task_page.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
 import 'package:hr/layout/main_layout.dart';
@@ -55,6 +56,8 @@ class AppRoutes {
   static const String tugasForm = '/tugas_form';
   static const String karyawanForm = '/karyawan_form';
   static const String mapPage = '/map_page';
+  static const String reminder = '/reminder';
+
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
     landingPage,
@@ -98,7 +101,8 @@ class AppRoutes {
         return _route(const Dashboard().withMainLayout(dashboard), settings);
 
       case dashboardMobile:
-        return _route(const DashboardMobile().withMainLayout(dashboardMobile), settings);
+        return _route(
+            const DashboardMobile().withMainLayout(dashboardMobile), settings);
 
       case attendance:
         return _route(const AbsenPage().withMainLayout(attendance), settings);
@@ -119,7 +123,8 @@ class AppRoutes {
         return _route(const GajiPage().withMainLayout(payroll), settings);
 
       case department:
-        return _route(const DepartmentPage().withMainLayout(department), settings);
+        return _route(
+            const DepartmentPage().withMainLayout(department), settings);
 
       case jabatan:
         return _route(const JabatanPage().withMainLayout(jabatan), settings);
@@ -154,10 +159,15 @@ class AppRoutes {
       case karyawanForm:
         return _route(
             const KaryawanForm().withMainLayout(karyawanForm), settings);
+
+      case reminder:
+        return _route(const ReminderPage().withMainLayout(reminder), settings);
+
       case mapPage:
         final args =
             settings.arguments as LatLng; // biar bisa kirim target koordinat
         return _route(MapPage(target: args).withMainLayout(mapPage), settings);
+
       case pengaturan:
         return _route(
           Consumer<ThemeProvider>(

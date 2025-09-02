@@ -92,6 +92,13 @@ class _DashboardMobileState extends State<DashboardMobile> {
                     Navigator.pushNamed(context, AppRoutes.info);
                   },
                 ),
+                DashboardMenuItem(
+                  label: "Reminder",
+                  icon: FontAwesomeIcons.alarmClock,
+                  onTap: () {
+                    Navigator.pushNamed(context, AppRoutes.reminder);
+                  },
+                ),
               ],
             ),
             const AttendanceChart(),

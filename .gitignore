@@ -17,7 +17,6 @@ migrate_working_dir/
 *.ipr
 *.iws
 .idea/
-
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
@@ -31,7 +30,10 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
-
+/build/
+/ios/Pods/
+/android/app/build/
+*.apk
 
 # Symbolication related
 app.*.symbols
@@ -44,3 +46,6 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 node_modules/
+
+# Flutter build directory
+/build/

@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
@@ -9,6 +10,7 @@ import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/kantor_service.dart';
 import 'package:hr/data/services/location_service.dart';
+import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -144,14 +146,103 @@ class _InfoPageState extends State<InfoPage>
     }
 
     try {
-      Navigator.pushNamed(
-        context,
-        AppRoutes.mapPage,
-        arguments: LatLng(
-          double.parse(latitudeController.text),
-          double.parse(longitudeController.text),
-        ),
-      );
+      if (context.isMobile) {
+        showModalBottomSheet(
+          context: context,
+          backgroundColor: Colors.transparent,
+          isScrollControlled: true,
+          builder: (_) => DraggableScrollableSheet(
+            initialChildSize: 0.9,
+            minChildSize: 0.5,
+            maxChildSize: 1.0,
+            expand: false,
+            builder: (context, scrollController) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      blurRadius: 10,
+                      offset: const Offset(0, -3),
+                    )
+                  ],
+                ),
+                child: Stack(
+                  children: [
+                    // Konten bisa discroll
+                    Column(
+                      children: [
+                        // Handle bar
+                        Container(
+                          margin: const EdgeInsets.symmetric(vertical: 10),
+                          height: 5,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[400],
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        const Text(
+                          "Lokasi Absen",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Map full tinggi fix
+                        Expanded(
+                          child: MapPageModal(
+                            target: LatLng(
+                              double.parse(latitudeController.text),
+                              double.parse(longitudeController.text),
+                            ),
+                          ),
+                        ),
+
+                        const SizedBox(
+                            height: 200), // dummy biar bisa full drag
+                      ],
+                    ),
+
+                    // Card info nempel di bawah
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: LocationInfoCard(
+                          target: LatLng(
+                            double.parse(latitudeController.text),
+                            double.parse(longitudeController.text),
+                          ),
+                          mapController: MapController(),
+                          onConfirm: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      } else {
+        Navigator.pushNamed(
+          context,
+          AppRoutes.mapPage,
+          arguments: LatLng(
+            double.parse(latitudeController.text),
+            double.parse(longitudeController.text),
+          ),
+        );
+      }
     } catch (e) {
       NotificationHelper.showTopNotification(
         context,
