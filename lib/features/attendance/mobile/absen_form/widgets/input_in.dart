@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/camera/camera.dart';
 import 'package:hr/components/camera/video_priview.dart';
@@ -12,10 +13,11 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/helpers/video_file_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:hr/data/services/absen_service.dart';
 import 'package:hr/data/services/location_service.dart';
-import 'package:hr/routes/app_routes.dart';
+import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 class InputIn extends StatefulWidget {
@@ -104,7 +106,6 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
     _timer?.cancel();
     _progressCtrl.stop();
     final file = await cameraManager.stopRecording();
-
     if (!mounted) return;
     setState(() {});
 
@@ -306,9 +307,97 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                   final lat = double.parse(parts[0].trim());
                                   final lng = double.parse(parts[1].trim());
                                   HapticFeedback.selectionClick();
-                                  Navigator.pushNamed(
-                                      context, AppRoutes.mapPage,
-                                      arguments: LatLng(lat, lng));
+                                  showModalBottomSheet(
+                                    context: context,
+                                    backgroundColor: Colors.transparent,
+                                    isScrollControlled: true,
+                                    builder: (_) => DraggableScrollableSheet(
+                                      initialChildSize: 0.9,
+                                      minChildSize: 0.5,
+                                      maxChildSize: 1.0,
+                                      expand: false,
+                                      builder: (context, scrollController) {
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius:
+                                                const BorderRadius.vertical(
+                                                    top: Radius.circular(20)),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.black26,
+                                                blurRadius: 10,
+                                                offset: const Offset(0, -3),
+                                              )
+                                            ],
+                                          ),
+                                          child: Stack(
+                                            children: [
+                                              // Konten bisa discroll
+                                              Column(
+                                                children: [
+                                                  // Handle bar
+                                                  Container(
+                                                    margin: const EdgeInsets
+                                                        .symmetric(
+                                                        vertical: 10),
+                                                    height: 5,
+                                                    width: 40,
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.grey[400],
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                    ),
+                                                  ),
+                                                  const Text(
+                                                    "Lokasi Absen",
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+
+                                                  // Map full tinggi fix
+                                                  Expanded(
+                                                    child: MapPageModal(
+                                                        target:
+                                                            LatLng(lat, lng)),
+                                                  ),
+
+                                                  const SizedBox(
+                                                      height:
+                                                          200), // dummy biar bisa full drag
+                                                ],
+                                              ),
+
+                                              // Card info nempel di bawah
+                                              Positioned(
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  child: LocationInfoCard(
+                                                    target: LatLng(lat, lng),
+                                                    mapController:
+                                                        MapController(),
+                                                    onConfirm: () =>
+                                                        Navigator.of(context)
+                                                            .pop(),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  );
                                 } catch (e) {
                                   NotificationHelper.showTopNotification(
                                     context,
@@ -668,7 +757,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
           isSuccess: false);
       return;
     }
-
+    final absenProvider = context.read<AbsenProvider>();
     // Show loading
     showDialog(
       context: context,
@@ -681,21 +770,17 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       final lat = double.parse(parts[0].trim());
       final lng = double.parse(parts[1].trim());
 
-      Map<String, dynamic> result;
-
       if (kIsWeb) {
-        // Web: pakai bytes video
         if (!await VideoFileHelper.isVideoSizeValid(_lastVideo!,
             maxSizeInMB: 50)) {
           Navigator.pop(context);
-          if (!mounted) return;
           NotificationHelper.showTopNotification(
               context, "Ukuran video terlalu besar (max 50MB)",
               isSuccess: false);
           return;
         }
         final videoBytes = await VideoFileHelper.getVideoBytes(_lastVideo!);
-        result = await AbsenService.checkin(
+        await absenProvider.checkin(
           lat: lat,
           lng: lng,
           checkinDate: _tanggalController.text,
@@ -704,8 +789,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
           videoBytes: videoBytes,
         );
       } else {
-        // Mobile: pakai path video
-        result = await AbsenService.checkin(
+        await absenProvider.checkin(
           lat: lat,
           lng: lng,
           checkinDate: _tanggalController.text,
@@ -714,28 +798,37 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
         );
       }
 
-      Navigator.pop(context); // close loading
+      Navigator.pop(context); // tutup loading
 
-      if (!mounted) return;
-      NotificationHelper.showTopNotification(context, result['message'],
-          isSuccess: result['success']);
-
-      // Reset form jika sukses
-      if (result['success']) {
+      if (absenProvider.lastCheckinResult?['success'] == true) {
+        NotificationHelper.showTopNotification(
+          context,
+          absenProvider.lastCheckinResult?['message'] ?? "Check-in berhasil",
+          isSuccess: true,
+        );
+        Navigator.of(context).pop(true);
         setState(() {
           _lastVideo = null;
           _lokasiController.clear();
         });
+
         _inlinePlayer?.dispose();
         _inlinePlayer = null;
+      } else {
+        NotificationHelper.showTopNotification(
+          context,
+          absenProvider.lastCheckinResult?['message'] ?? "Check-in gagal",
+          isSuccess: false,
+        );
       }
     } catch (e) {
       Navigator.pop(context);
       print('Error during checkin: $e');
-      if (!mounted) return;
       NotificationHelper.showTopNotification(
-          context, "Error: ${e.toString().replaceAll('Exception: ', '')}",
-          isSuccess: false);
+        context,
+        "Error: ${e.toString().replaceAll('Exception: ', '')}",
+        isSuccess: false,
+      );
     }
   }
 }

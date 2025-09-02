@@ -46,6 +46,7 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.mapPage: 16,
     AppRoutes.potonganForm: 17,
     AppRoutes.potonganEdit: 18,
+    AppRoutes.reminder: 19,
   };
 
   // Map index ke route
@@ -69,6 +70,7 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.mapPage,
     AppRoutes.potonganForm,
     AppRoutes.potonganEdit,
+    AppRoutes.reminder,
   ];
   String _nama = '';
 
@@ -308,6 +310,8 @@ class _MainLayoutState extends State<MainLayout> {
         return 'Potongan Form';
       case AppRoutes.potonganEdit:
         return 'Potongan Edit';
+      case AppRoutes.reminder:
+        return 'Reminder Page';
       default:
         return 'HRIS System';
     }
@@ -322,3 +326,4 @@ extension MainLayoutExtension on Widget {
     );
   }
 }
+

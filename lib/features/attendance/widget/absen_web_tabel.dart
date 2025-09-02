@@ -5,13 +5,18 @@ import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
-import 'package:hr/data/services/absen_service.dart';
 import 'package:hr/routes/app_routes.dart';
 
 import 'package:latlong2/latlong.dart';
 import 'package:video_player/video_player.dart';
 
 class AbsenTabelWeb extends StatefulWidget {
+  final List<AbsenModel> absensi;
+  const AbsenTabelWeb({
+    super.key,
+    required this.absensi,
+  });
+
   @override
   State<AbsenTabelWeb> createState() => _AbsenTabelWebState();
 }
@@ -29,33 +34,10 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
     "Tipe",
   ];
 
-  List<AbsenModel> absensi = [];
-
   bool loading = true;
 
-  @override
-  void initState() {
-    super.initState();
-    loadAbsensi();
-  }
-
-  Future<void> loadAbsensi() async {
-    try {
-      final data = await AbsenService.fetchAbsensi();
-      setState(() {
-        absensi = data;
-        loading = false;
-      });
-    } catch (e) {
-      setState(() => loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Gagal memuat absensi: $e")),
-      );
-    }
-  }
-
   List<List<String>> get rows {
-    return absensi.map((item) {
+    return widget.absensi.map((item) {
       return [
         item.user?.nama ?? "-",
         item.checkinDate ?? "-",
@@ -218,16 +200,12 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
 
   @override
   Widget build(BuildContext context) {
-    if (loading) {
-      return const Center(child: LoadingWidget());
-    }
-
     return CustomDataTableWeb(
       headers: headers,
       rows: rows,
       statusColumnIndexes: null,
       onCellTap: (rowIndex, colIndex) {
-        final absen = absensi[rowIndex];
+        final absen = widget.absensi[rowIndex];
 
         if (colIndex == 5 &&
             absen.checkinLat != null &&
@@ -243,7 +221,7 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
           _openVideo(absen.videoUser);
         }
       },
-      onView: (rowIndex) => _showDetail(absensi[rowIndex]),
+      onView: (rowIndex) => _showDetail(widget.absensi[rowIndex]),
     );
   }
 }
