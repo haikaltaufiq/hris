@@ -20,8 +20,9 @@ class AbsenService {
   static Future<Map<String, String>> _getHeaders(
       {bool jsonType = false}) async {
     final token = await getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final headers = {
       'Authorization': 'Bearer $token',

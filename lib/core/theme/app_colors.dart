@@ -3,6 +3,7 @@ import 'dart:ui';
 // Warna dasar untuk dark mode
 const _primaryDark = Color(0xFF1F1F1F); // for Card
 const _secondaryDark = Color(0xFF3F3F3F); // Button / Card
+const _latar3Dark = Color.fromARGB(255, 22, 22, 22); // Button / Card
 const _bgDark = Color(0xFF121212); // Background
 const _putihDark = Color(0xFFE0E0E0); // for Text
 const _hitamDark = Color(0xFF050505);
@@ -12,6 +13,8 @@ const _redDark = Color(0xFF802F2F);
 // Warna untuk light mode (kamu sesuaikan)
 const _primaryLight = Color(0xFFFFFFFF);
 const _secondaryLight = Color(0xFFF0F0F0);
+const _latar3Light = Color(0xFFFAFAFA);
+
 const _bgLight = Color.fromARGB(255, 235, 235, 235);
 const _putihLight = Color(0xFF000000);
 const _hitamLight = Color(0xFF050505);
@@ -24,6 +27,7 @@ class AppColors {
 
   static Color get primary => isDarkMode ? _primaryDark : _primaryLight;
   static Color get secondary => isDarkMode ? _secondaryDark : _secondaryLight;
+  static Color get latar3 => isDarkMode ? _latar3Dark : _latar3Light;
   static Color get bg => isDarkMode ? _bgDark : _bgLight;
   static Color get putih => isDarkMode ? _putihDark : _putihLight;
   static Color get hitam => isDarkMode ? _hitamDark : _hitamLight;

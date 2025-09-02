@@ -43,9 +43,8 @@ class _WebPagePotonganState extends State<WebPagePotongan> {
                 controller: searchController,
                 onChanged: (value) {
                   potonganProvider.filterPotonganGaji(value);
-                  print("Search Potongan: $value");
                 },
-                onFilter1Tap: () => print("Filter Potongan"),
+                onFilter1Tap: () {},
               ),
               if (potonganProvider.isLoading)
                 SizedBox(

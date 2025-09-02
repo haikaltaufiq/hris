@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';

@@ -17,7 +17,7 @@ import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/features/lembur/lembur_page.dart';
-import 'package:hr/features/log_activity/log_activity.dart';
+import 'package:hr/features/log_activity/log_view.dart';
 import 'package:hr/features/pengaturan/pengaturan_page.dart';
 import 'package:hr/features/peran/peran_page.dart';
 import 'package:hr/features/potongan/potongan_form/form_edit.dart';

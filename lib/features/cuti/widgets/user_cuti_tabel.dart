@@ -41,9 +41,7 @@ class UserCutiTabel extends StatelessWidget {
         ];
       }).toList(),
       statusColumnIndexes: [5],
-      onCellTap: (row, col) {
-        print('Klik cell row: $row, col: $col');
-      },
+      onCellTap: (row, col) {},
       onView: (row) {
         final c = cutiList[row];
         showDialog(

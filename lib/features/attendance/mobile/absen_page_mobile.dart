@@ -59,7 +59,7 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     onChanged: (value) {
                       provider.searchAbsensi(value);
                     },
-                    onFilter1Tap: () => print("Filter1 Halaman A"),
+                    onFilter1Tap: () {},
                   ),
                   AbsenExcelExport(),
                   if (provider.isLoading)

@@ -38,13 +38,11 @@ class UserLemburTabel extends StatelessWidget {
           FormatTime().formatTime(c.jamSelesai).toString(),
           c.shortDeskripsi.toString(),
           c.status.toString(),
-          c.keterangan_status,
+          c.keteranganStatus,
         ];
       }).toList(),
       statusColumnIndexes: [5],
-      onCellTap: (row, col) {
-        print('Klik cell row: $row, col: $col');
-      },
+      onCellTap: (row, col) {},
       onView: (row) {
         final c = lemburList[row];
         showDialog(

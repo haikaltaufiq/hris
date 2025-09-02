@@ -103,7 +103,7 @@ class CutiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     // Format tanggal untuk API
-    String _formatDateForApi(String input) {
+    String formatDateForApi(String input) {
       input = input.trim();
       // Jika format sudah YYYY-MM-DD, kembalikan apa adanya
       if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return input;
@@ -120,8 +120,8 @@ class CutiService {
     final requestBody = {
       'nama': nama,
       'tipe_cuti': tipeCuti,
-      'tanggal_mulai': _formatDateForApi(tanggalMulai),
-      'tanggal_selesai': _formatDateForApi(tanggalSelesai),
+      'tanggal_mulai': formatDateForApi(tanggalMulai),
+      'tanggal_selesai': formatDateForApi(tanggalSelesai),
       'alasan': alasan,
     };
 

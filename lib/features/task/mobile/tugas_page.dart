@@ -64,7 +64,7 @@ class _TugasMobileState extends State<TugasMobile> {
                     onChanged: (value) {
                       tugasProvider.filterTugas(value);
                     },
-                    onFilter1Tap: () => print("Filter1 Halaman A"),
+                    onFilter1Tap: () {},
                   ),
                   Consumer<TugasProvider>(
                     builder: (context, tugasProvider, child) {
