@@ -31,11 +31,6 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
-Dockerfile
-railway.toml
-server.js
-package-lock.json
-package.json
 /ios/Pods/
 /android/app/build/
 *.apk
