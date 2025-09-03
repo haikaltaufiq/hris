@@ -3,7 +3,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/features/log_activity/widgets/mobile_page_log.dart';
+import 'package:hr/features/log_activity/widgets/web_tabel_log.dart';
 
 class LogActivity extends StatelessWidget {
   const LogActivity({super.key});
@@ -21,17 +21,13 @@ class LogActivity extends StatelessWidget {
               controller: SearchController(),
               onFilter1Tap: () {},
             ),
-            // if (context.isMobile) ...[
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: context.isMobile ? 5.0 : 26.0,
-                vertical: context.isMobile ? 0.0 : 10.0,
+                vertical: 10.0,
               ),
-              child: MobilePageLog(),
+              child: WebTabelLog(),
             ),
-            // ] else ...[
-            //   WebPageLog(),
-            // ]
           ],
         ),
       ),

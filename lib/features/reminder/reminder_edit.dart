@@ -2,19 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/data/models/tugas_model.dart';
-import 'package:hr/features/task/tugas_form/widget/tugas_input_edit.dart';
+import 'package:hr/features/reminder/widget/reminder_edit.dart';
 
-class TugasEditForm extends StatefulWidget {
-  final TugasModel tugas;
+class ReminderEditForm extends StatelessWidget {
+  const ReminderEditForm({
+    super.key,
+  });
 
-  const TugasEditForm({super.key, required this.tugas});
-
-  @override
-  State<TugasEditForm> createState() => _TugasEditFormState();
-}
-
-class _TugasEditFormState extends State<TugasEditForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,7 +16,7 @@ class _TugasEditFormState extends State<TugasEditForm> {
       appBar: context.isMobile
           ? AppBar(
               title: Text(
-                'Edit Tugas',
+                'Edit Reminder',
                 style: TextStyle(
                   color: AppColors.putih,
                   fontSize: 22,
@@ -40,11 +34,9 @@ class _TugasEditFormState extends State<TugasEditForm> {
                 color: AppColors.putih,
               ),
             )
-          : null, // kalau bukan mobile, AppBar di-off
+          : null,
       body: ListView(children: [
-        TugasInputEdit(
-          tugas: widget.tugas, // <- ambil dari widget
-        ),
+        ReminderEditInput(),
       ]),
     );
   }

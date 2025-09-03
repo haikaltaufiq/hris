@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
+import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
 import 'package:hr/features/cuti/cuti_page.dart';
@@ -9,7 +10,7 @@ import 'package:hr/features/dashboard/dashboard_page.dart';
 import 'package:hr/features/dashboard/mobile/dashboard_page.dart';
 import 'package:hr/features/department/department_page.dart';
 import 'package:hr/features/gaji/gaji_page.dart';
-import 'package:hr/features/info_kantor/info_page.dart';
+import 'package:hr/features/pengaturan/info_kantor/info_page.dart';
 import 'package:hr/features/jabatan/jabatan_page.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form.dart';
 import 'package:hr/features/karyawan/karyawan_page.dart';
@@ -24,8 +25,11 @@ import 'package:hr/features/potongan/potongan_form/form_edit.dart';
 import 'package:hr/features/potongan/potongan_form/potongan_form.dart';
 import 'package:hr/features/potongan/potongan_page.dart';
 import 'package:hr/features/profile/profile_page.dart';
+import 'package:hr/features/reminder/reminder_edit.dart';
+import 'package:hr/features/reminder/reminder_form.dart';
 import 'package:hr/features/reminder/reminder_page.dart';
 import 'package:hr/features/task/task_page.dart';
+import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
 import 'package:hr/layout/main_layout.dart';
 import 'package:latlong2/latlong.dart';
@@ -57,6 +61,9 @@ class AppRoutes {
   static const String karyawanForm = '/karyawan_form';
   static const String mapPage = '/map_page';
   static const String reminder = '/reminder';
+  static const String taskEdit = '/task_edit';
+  static const String reminderAdd = '/reminder_add';
+  static const String reminderEdit = '/reminder_edit';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -159,6 +166,13 @@ class AppRoutes {
       case karyawanForm:
         return _route(
             const KaryawanForm().withMainLayout(karyawanForm), settings);
+      case taskEdit:
+        final tugas = settings.arguments as TugasModel;
+        return _route(
+            TugasEditForm(
+              tugas: tugas,
+            ).withMainLayout(taskEdit),
+            settings);
 
       case reminder:
         return _route(const ReminderPage().withMainLayout(reminder), settings);
@@ -181,6 +195,14 @@ class AppRoutes {
 
       case profile:
         return _route(const ProfilePage().withMainLayout(profile), settings);
+
+      case reminderAdd:
+        return _route(
+            const ReminderForm().withMainLayout(reminderAdd), settings);
+
+      case reminderEdit:
+        return _route(
+            ReminderEditForm().withMainLayout(reminderEdit), settings);
 
       default:
         return _route(

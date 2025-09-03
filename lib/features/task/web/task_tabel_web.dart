@@ -4,8 +4,8 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
-import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/widgets/video.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -58,13 +58,10 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
   }
 
   Future<void> _editTugas(BuildContext context, int row) async {
-    Navigator.push(
+    await Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (_) => TugasEditForm(
-          tugas: widget.tugasList[row],
-        ),
-      ),
+      AppRoutes.taskEdit,
+      arguments: widget.tugasList[row], // passing data tugas
     );
     widget.onActionDone?.call();
   }

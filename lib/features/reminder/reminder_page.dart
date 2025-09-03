@@ -6,6 +6,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/reminder/widget/remind_tabel.dart';
 import 'package:hr/features/reminder/widget/remind_tabel_mobile.dart';
+import 'package:hr/routes/app_routes.dart';
 
 class ReminderPage extends StatelessWidget {
   const ReminderPage({super.key});
@@ -34,7 +35,9 @@ class ReminderPage extends StatelessWidget {
             bottom: 16,
             right: 16,
             child: FloatingActionButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, AppRoutes.reminderAdd);
+              },
               backgroundColor: AppColors.secondary,
               shape: const CircleBorder(),
               child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),

@@ -1,17 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/services/log_service.dart';
 
-class WebPageLog extends StatefulWidget {
-  const WebPageLog({super.key});
+class WebTabelLog extends StatefulWidget {
+  const WebTabelLog({super.key});
 
   @override
-  State<WebPageLog> createState() => _WebPageLogState();
+  State<WebTabelLog> createState() => _WebTabelLogState();
 }
 
-class _WebPageLogState extends State<WebPageLog> {
+class _WebTabelLogState extends State<WebTabelLog> {
   List<Map<String, dynamic>> activityLogs = [];
   bool isLoading = true;
   String? errorMessage;
+  Set<String> expandedUsers = {}; // Track which users are expanded
+  Set<int> selectedLogs = {}; // Track selected logs for deletion
+  Map<String, bool> userShowAll = {}; // Track which users show all logs
+  final int itemsPerPage = 10; // Number of items to show initially
 
   @override
   void initState() {
@@ -52,94 +60,123 @@ class _WebPageLogState extends State<WebPageLog> {
     return grouped;
   }
 
+  void _toggleUserExpansion(String userName) {
+    setState(() {
+      if (expandedUsers.contains(userName)) {
+        expandedUsers.remove(userName);
+      } else {
+        expandedUsers.add(userName);
+      }
+    });
+  }
+
+  void _toggleLogSelection(int logId) {
+    setState(() {
+      if (selectedLogs.contains(logId)) {
+        selectedLogs.remove(logId);
+      } else {
+        selectedLogs.add(logId);
+      }
+    });
+  }
+
+  void _toggleShowAll(String userName) {
+    setState(() {
+      userShowAll[userName] = !(userShowAll[userName] ?? false);
+    });
+  }
+
+  void _deleteSelectedLogs() async {
+    if (selectedLogs.isEmpty) return;
+
+    // Panggil confirmation dialog custom
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: 'Hapus Log',
+      content: 'Yakin ingin menghapus ${selectedLogs.length} log yang dipilih?',
+      confirmText: 'Hapus',
+      cancelText: 'Batal',
+      confirmColor: AppColors.red,
+    );
+
+    if (confirmed) {
+      setState(() {
+        activityLogs.removeWhere((log) => selectedLogs.contains(log['id']));
+        selectedLogs.clear();
+      });
+
+      NotificationHelper.showTopNotification(
+        context,
+        'Log berhasil dihapus',
+        isSuccess: true,
+      );
+    }
+  }
+
   Color getActionColor(String action) {
     if (action.toLowerCase().contains('menambah') ||
-        action.toLowerCase().contains('tambah')) {
-      return Colors.blue;
-    }
+        action.toLowerCase().contains('tambah')) return Colors.blue;
     if (action.toLowerCase().contains('mengubah') ||
         action.toLowerCase().contains('ubah') ||
         action.toLowerCase().contains('edit') ||
-        action.toLowerCase().contains('update')) {
-      return Colors.orange;
-    }
+        action.toLowerCase().contains('update')) return Colors.orange;
     if (action.toLowerCase().contains('menolak') ||
         action.toLowerCase().contains('tolak') ||
-        action.toLowerCase().contains('reject')) {
-      return Colors.red;
-    }
+        action.toLowerCase().contains('reject')) return Colors.red;
     if (action.toLowerCase().contains('menyetujui') ||
         action.toLowerCase().contains('setuju') ||
-        action.toLowerCase().contains('approve')) {
-      return Colors.green;
-    }
+        action.toLowerCase().contains('approve')) return Colors.green;
     if (action.toLowerCase().contains('mengajukan') ||
         action.toLowerCase().contains('ajukan') ||
-        action.toLowerCase().contains('submit')) {
-      return Colors.purple;
-    }
+        action.toLowerCase().contains('submit')) return Colors.purple;
     if (action.toLowerCase().contains('check in') ||
-        action.toLowerCase().contains('checkin')) {
-      return Colors.teal;
-    }
+        action.toLowerCase().contains('checkin')) return Colors.teal;
     if (action.toLowerCase().contains('check out') ||
-        action.toLowerCase().contains('checkout')) {
-      return Colors.indigo;
-    }
+        action.toLowerCase().contains('checkout')) return Colors.indigo;
     if (action.toLowerCase().contains('upload') ||
-        action.toLowerCase().contains('lampiran')) {
-      return Colors.cyan;
-    }
+        action.toLowerCase().contains('lampiran')) return Colors.cyan;
     if (action.toLowerCase().contains('hapus') ||
-        action.toLowerCase().contains('delete')) {
-      return Colors.red.shade700;
-    }
+        action.toLowerCase().contains('delete')) return Colors.red.shade700;
     return Colors.grey;
   }
 
   IconData getActionIcon(String action) {
     if (action.toLowerCase().contains('menambah') ||
-        action.toLowerCase().contains('tambah')) {
-      return Icons.add_circle;
-    }
+        action.toLowerCase().contains('tambah'))
+      return Icons.add_circle_outline;
     if (action.toLowerCase().contains('mengubah') ||
         action.toLowerCase().contains('ubah') ||
         action.toLowerCase().contains('edit') ||
-        action.toLowerCase().contains('update')) {
-      return Icons.edit;
-    }
+        action.toLowerCase().contains('update')) return Icons.edit_outlined;
     if (action.toLowerCase().contains('menolak') ||
         action.toLowerCase().contains('tolak') ||
-        action.toLowerCase().contains('reject')) {
-      return Icons.cancel;
-    }
+        action.toLowerCase().contains('reject')) return Icons.cancel_outlined;
     if (action.toLowerCase().contains('menyetujui') ||
         action.toLowerCase().contains('setuju') ||
-        action.toLowerCase().contains('approve')) {
-      return Icons.check_circle;
-    }
+        action.toLowerCase().contains('approve'))
+      return Icons.check_circle_outline;
     if (action.toLowerCase().contains('mengajukan') ||
         action.toLowerCase().contains('ajukan') ||
-        action.toLowerCase().contains('submit')) {
-      return Icons.send;
-    }
+        action.toLowerCase().contains('submit')) return Icons.send_outlined;
     if (action.toLowerCase().contains('check in') ||
-        action.toLowerCase().contains('checkin')) {
-      return Icons.login;
-    }
+        action.toLowerCase().contains('checkin')) return Icons.login_outlined;
     if (action.toLowerCase().contains('check out') ||
-        action.toLowerCase().contains('checkout')) {
-      return Icons.logout;
-    }
+        action.toLowerCase().contains('checkout')) return Icons.logout_outlined;
     if (action.toLowerCase().contains('upload') ||
-        action.toLowerCase().contains('lampiran')) {
-      return Icons.attach_file;
-    }
+        action.toLowerCase().contains('lampiran'))
+      return Icons.attach_file_outlined;
     if (action.toLowerCase().contains('hapus') ||
-        action.toLowerCase().contains('delete')) {
-      return Icons.delete;
+        action.toLowerCase().contains('delete')) return Icons.delete_outline;
+    return Icons.info_outline;
+  }
+
+  List<Map<String, dynamic>> getDisplayLogs(
+      String userName, List<Map<String, dynamic>> userLogs) {
+    final showAll = userShowAll[userName] ?? false;
+    if (showAll || userLogs.length <= itemsPerPage) {
+      return userLogs;
     }
-    return Icons.info;
+    return userLogs.take(itemsPerPage).toList();
   }
 
   @override
@@ -149,9 +186,7 @@ class _WebPageLogState extends State<WebPageLog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: 16),
-            Text('Memuat activity log...'),
+            LoadingWidget(),
           ],
         ),
       );
@@ -196,208 +231,324 @@ class _WebPageLogState extends State<WebPageLog> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Summary Card
-        Card(
-          elevation: 2,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Icon(Icons.analytics, color: Colors.blue.shade600, size: 24),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+        // Summary Section with Delete Button
+        Row(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 24, left: 10),
+                child: Row(
                   children: [
+                    Icon(Icons.analytics_outlined,
+                        color: AppColors.putih, size: 25),
+                    const SizedBox(width: 8),
                     Text(
-                      'Total ${activityLogs.length} aktivitas',
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'dari ${grouped.length} user',
-                      style:
-                          TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                      'Total ${activityLogs.length} aktivitas dari ${grouped.length} user',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
+            if (selectedLogs.isNotEmpty)
+              IconButton(
+                onPressed: _deleteSelectedLogs,
+                icon: Icon(Icons.delete, color: Colors.red.shade600),
+                tooltip: 'Hapus log terpilih (${selectedLogs.length})',
+              ),
+          ],
         ),
-        const SizedBox(height: 16),
-        // User Logs
+
+        // User Activity Lists
         ...grouped.entries.map((entry) {
           final userName = entry.key;
           final userLogs = entry.value;
+          final isExpanded = expandedUsers.contains(userName);
+          final showAll = userShowAll[userName] ?? false;
+          final displayLogs = getDisplayLogs(userName, userLogs);
+          final hasMoreLogs = userLogs.length > itemsPerPage;
 
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Header User
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.indigo.shade600, Colors.indigo.shade400],
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                    ),
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(12),
-                      topRight: Radius.circular(12),
-                    ),
-                  ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // User Header Typography
+              InkWell(
+                onTap: () => _toggleUserExpansion(userName),
+                borderRadius: BorderRadius.circular(8),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Row(
                     children: [
+                      // Circle Avatar (matching card style)
                       CircleAvatar(
-                        backgroundColor: Colors.white,
+                        backgroundColor: AppColors.primary,
+                        radius: 18,
                         child: Text(
                           userName.substring(0, 1).toUpperCase(),
                           style: TextStyle(
-                            color: Colors.indigo.shade600,
+                            color: AppColors.putih,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              userName,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              '${userLogs.length} aktivitas',
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
+
+                      // User Name
+                      Text(
+                        userName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.putih,
                         ),
+                      ),
+
+                      // Dash Line
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 12),
+                          height: 1,
+                          color: Colors.grey.shade300,
+                        ),
+                      ),
+
+                      // Activity Count
+                      Text(
+                        '${userLogs.length} Activity',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.putih,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+
+                      const SizedBox(width: 12),
+
+                      // Expand Icon
+                      Icon(
+                        isExpanded
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: AppColors.putih,
+                        size: 20,
                       ),
                     ],
                   ),
                 ),
-                // List Log Activities
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  padding: const EdgeInsets.all(16),
-                  itemCount: userLogs.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 16),
-                  itemBuilder: (context, index) {
-                    final log = userLogs[index];
-                    final actionColor = getActionColor(log['action']);
-                    final actionIcon = getActionIcon(log['action']);
+              ),
 
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: actionColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Icon(actionIcon, color: actionColor, size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
+              // Activity List (Expandable)
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: isExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.only(left: 40, bottom: 16),
+                        child: Column(
+                          children: [
+                            // Display logs
+                            ...displayLogs.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final log = entry.value;
+                              final logId = log['id'] as int;
+                              final actionColor = getActionColor(log['action']);
+                              final actionIcon = getActionIcon(log['action']);
+                              final isLast = index == displayLogs.length - 1;
+                              final isSelected = selectedLogs.contains(logId);
+
+                              return Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: actionColor.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      log['action'],
-                                      style: TextStyle(
+                                  // Timeline
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        actionIcon,
                                         color: actionColor,
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
+                                        size: 16,
+                                      ),
+                                      if (!isLast || (hasMoreLogs && !showAll))
+                                        Container(
+                                          width: 1,
+                                          height: 50,
+                                          color: Colors.grey.shade300,
+                                          margin: const EdgeInsets.only(top: 4),
+                                        ),
+                                    ],
+                                  ),
+
+                                  const SizedBox(width: 12),
+
+                                  // Content
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom: (isLast &&
+                                                (!hasMoreLogs || showAll))
+                                            ? 0
+                                            : 16,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          // Action & Module
+                                          Row(
+                                            children: [
+                                              Text(
+                                                log['action'],
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: actionColor,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Container(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  horizontal: 6,
+                                                  vertical: 2,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey.shade100,
+                                                  borderRadius:
+                                                      BorderRadius.circular(3),
+                                                ),
+                                                child: Text(
+                                                  log['module'],
+                                                  style: TextStyle(
+                                                    fontSize: 11,
+                                                    color: Colors.grey.shade600,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+
+                                          const SizedBox(height: 4),
+
+                                          // Description
+                                          Text(
+                                            log['description'],
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.putih,
+                                            ),
+                                          ),
+
+                                          const SizedBox(height: 4),
+
+                                          // Timestamp
+                                          Text(
+                                            log['created_at'] ?? '',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade500,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ),
+
+                                  // Checkbox
                                   const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 4,
+                                  Checkbox(
+                                    value: isSelected,
+                                    onChanged: (value) =>
+                                        _toggleLogSelection(logId),
+                                    activeColor: AppColors.primary,
+                                    checkColor: AppColors.putih,
+                                    side: BorderSide(
+                                      color: Colors.grey.shade400,
+                                      width: 1.5,
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.grey.shade100,
-                                      borderRadius: BorderRadius.circular(4),
-                                    ),
-                                    child: Text(
-                                      log['module'],
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 12,
-                                      ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(3),
                                     ),
                                   ),
                                 ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                log['description'],
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.black87,
+                              );
+                            }).toList(),
+
+                            // See More / See Less Button
+                            if (hasMoreLogs)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Row(
+                                  children: [
+                                    // Timeline dot for see more button
+                                    Icon(
+                                      Icons.more_horiz,
+                                      color: Colors.grey.shade400,
+                                      size: 16,
+                                    ),
+                                    const SizedBox(width: 12),
+
+                                    // See More/Less Button
+                                    InkWell(
+                                      onTap: () => _toggleShowAll(userName),
+                                      borderRadius: BorderRadius.circular(6),
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary
+                                              .withOpacity(0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                          border: Border.all(
+                                            color: AppColors.primary
+                                                .withOpacity(0.3),
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              showAll
+                                                  ? 'Sembunyikan'
+                                                  : 'Lihat ${userLogs.length - itemsPerPage} lainnya',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppColors.putih,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Icon(
+                                              showAll
+                                                  ? Icons.keyboard_arrow_up
+                                                  : Icons.keyboard_arrow_down,
+                                              color: AppColors.putih,
+                                              size: 16,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.access_time,
-                                    size: 14,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    log['created_at'] ?? '',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                          ],
                         ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
+                      )
+                    : const SizedBox.shrink(),
+              ),
+
+              // Bottom spacing between users
+              if (entry != grouped.entries.last) const SizedBox(height: 8),
+            ],
           );
         }).toList(),
       ],

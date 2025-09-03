@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/core/utils/local_notification.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -18,7 +19,10 @@ import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  // Init local notification
+  await NotificationService.instance.init();
   runApp(
     MultiProvider(
       providers: [

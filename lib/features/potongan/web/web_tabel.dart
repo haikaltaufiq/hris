@@ -83,7 +83,7 @@ class PotonganTabelWeb extends StatelessWidget {
     final rows = potonganList.map((potongan) {
       return [
         potongan.namaPotongan,
-        potongan.nominal.toStringAsFixed(0),
+        '${potongan.nominal.toStringAsFixed(1)}%',
       ];
     }).toList();
 

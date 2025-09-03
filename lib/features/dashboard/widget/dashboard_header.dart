@@ -162,7 +162,19 @@ class _DashboardHeaderState extends State<DashboardHeader>
   @override
   void dispose() {
     _controller.dispose();
+    _dropdownOverlay?.remove();
+    _dropdownOverlay = null;
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_dropdownOverlay != null) {
+      _dropdownOverlay?.remove();
+      _dropdownOverlay = null;
+      _showDropdown = false;
+    }
   }
 
   @override

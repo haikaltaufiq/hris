@@ -86,13 +86,6 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   },
                 ),
                 DashboardMenuItem(
-                  label: "Info Kantor",
-                  icon: FontAwesomeIcons.info,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.info);
-                  },
-                ),
-                DashboardMenuItem(
                   label: "Reminder",
                   icon: FontAwesomeIcons.alarmClock,
                   onTap: () {
