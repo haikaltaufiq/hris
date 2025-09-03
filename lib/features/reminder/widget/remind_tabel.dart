@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/services/pengingat_service.dart';
+import 'package:hr/routes/app_routes.dart';
 
 class ReminderTileWeb extends StatefulWidget {
   const ReminderTileWeb({super.key});
@@ -70,7 +71,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
     try {
       final parts = dateTime.split(' ');
       if (parts.length >= 1) {
-        // return parts[0]; // Ambil bagian tanggal saja (grey)
+        return parts[0]; // Ambil bagian tanggal saja (grey)
       }
       return dateTime;
     } catch (e) {
@@ -82,24 +83,25 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
   Color _getTimeRemainingColor(String sisaHari, String relative) {
     final lowerCase = sisaHari.toLowerCase();
     final relativeLower = relative.toLowerCase();
-    
+
     // Untuk yang sudah lewat/terlambat
-    if (lowerCase.contains('yang lalu') || relativeLower.contains('yang lalu')) {
+    if (lowerCase.contains('yang lalu') ||
+        relativeLower.contains('yang lalu')) {
       return AppColors.red;
     }
-    
+
     // Untuk hari ini
     if (lowerCase.contains('hari ini')) {
       return Colors.orange;
     }
-    
+
     // Untuk yang dekat (1-3 hari)
-    if (lowerCase.contains('1 hari') || 
-        lowerCase.contains('2 hari') || 
+    if (lowerCase.contains('1 hari') ||
+        lowerCase.contains('2 hari') ||
         lowerCase.contains('3 hari')) {
       return Colors.orange;
     }
-    
+
     // Untuk yang masih lama
     return AppColors.green;
   }
@@ -258,16 +260,6 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
     );
   }
 
-  void _handleEdit(ReminderData reminder) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Edit reminder: ${reminder.judul}'),
-        backgroundColor: Colors.blue,
-        behavior: SnackBarBehavior.floating,
-      ),
-    );
-  }
-
   void _handleDelete(ReminderData reminder) {
     showDialog(
       context: context,
@@ -370,14 +362,12 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
     }
   }
 
-
   Widget _buildStatusCell(String status, int reminderId) {
     final color = _getStatusColor(status);
     return GestureDetector(
       onTapDown: (TapDownDetails details) async {
-        final RenderBox overlay = Overlay.of(context)
-            .context
-            .findRenderObject() as RenderBox;
+        final RenderBox overlay =
+            Overlay.of(context).context.findRenderObject() as RenderBox;
 
         final selectedStatus = await showMenu<String>(
           context: context,
@@ -626,20 +616,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                     ),
                   ),
                   // Pengulangan column
-                  Expanded(
-                    flex: 1,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        'Tipe Reminder',
-                        style: TextStyle(
-                          color: AppColors.putih,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                        ),
-                      ),
-                    ),
-                  ),
+
                   // tanggal column
                   Expanded(
                     flex: 1,
@@ -731,7 +708,8 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                                   style: TextStyle(
                                     color: AppColors.putih.withOpacity(0.7),
                                     fontSize: 12,
-                                    fontFamily: GoogleFonts.poppins().fontFamily,
+                                    fontFamily:
+                                        GoogleFonts.poppins().fontFamily,
                                   ),
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
@@ -740,18 +718,20 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                           ),
                         ),
                       ),
-                      
+
                       // PIC column
                       Expanded(
                         flex: 1,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
                             decoration: BoxDecoration(
                               color: Colors.blue.withOpacity(0.1),
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: Colors.blue.withOpacity(0.3)),
+                              border: Border.all(
+                                  color: Colors.blue.withOpacity(0.3)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -769,7 +749,8 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                                       color: Colors.blue,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w500,
-                                      fontFamily: GoogleFonts.poppins().fontFamily,
+                                      fontFamily:
+                                          GoogleFonts.poppins().fontFamily,
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -780,30 +761,6 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                         ),
                       ),
 
-                      // Pengulangan column
-                      Expanded(
-                        flex: 1,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Container(
-                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.putih.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(
-                              reminder.mengulang,
-                              style: TextStyle(
-                                color: AppColors.putih.withOpacity(0.8),
-                                fontSize: 12,
-                                fontFamily: GoogleFonts.poppins().fontFamily,
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ),
-                      ),
-                      
                       // Jatuh Tempo column
                       Expanded(
                         flex: 1,
@@ -823,7 +780,8 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                               Text(
                                 reminder.sisaHari,
                                 style: TextStyle(
-                                  color: _getTimeRemainingColor(reminder.sisaHari, reminder.relative),
+                                  color: _getTimeRemainingColor(
+                                      reminder.sisaHari, reminder.relative),
                                   fontSize: 11,
                                   fontFamily: GoogleFonts.poppins().fontFamily,
                                 ),
@@ -832,7 +790,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                           ),
                         ),
                       ),
-                      
+
                       // Status column (dropdown)
                       Expanded(
                         flex: 1,
@@ -841,7 +799,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                           child: _buildStatusCell(reminder.status, reminder.id),
                         ),
                       ),
-                      
+
                       // Action buttons
                       SizedBox(
                         width: 120,
@@ -879,7 +837,10 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                                     minWidth: 32,
                                     minHeight: 32,
                                   ),
-                                  onPressed: () => _handleEdit(reminder),
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                        context, AppRoutes.reminderEdit);
+                                  },
                                 ),
                               ),
                               Tooltip(

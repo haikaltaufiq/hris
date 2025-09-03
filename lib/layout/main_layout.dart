@@ -48,6 +48,8 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.potonganEdit: 18,
     AppRoutes.info: 19,
     AppRoutes.taskEdit: 20,
+    AppRoutes.reminderAdd: 21,
+    AppRoutes.reminderEdit: 22,
   };
 
   // Map index ke route
@@ -73,6 +75,8 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.potonganEdit,
     AppRoutes.info,
     AppRoutes.taskEdit,
+    AppRoutes.reminderAdd,
+    AppRoutes.reminderEdit,
   ];
   String _nama = '';
 
@@ -309,6 +313,10 @@ class _MainLayoutState extends State<MainLayout> {
         return 'Reminder Page';
       case AppRoutes.taskEdit:
         return 'Edit Task';
+      case AppRoutes.reminderAdd:
+        return 'Add Reminder';
+      case AppRoutes.reminderEdit:
+        return 'Edit Reminder';
       default:
         return 'HRIS System';
     }

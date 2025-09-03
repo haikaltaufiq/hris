@@ -25,6 +25,8 @@ import 'package:hr/features/potongan/potongan_form/form_edit.dart';
 import 'package:hr/features/potongan/potongan_form/potongan_form.dart';
 import 'package:hr/features/potongan/potongan_page.dart';
 import 'package:hr/features/profile/profile_page.dart';
+import 'package:hr/features/reminder/reminder_edit.dart';
+import 'package:hr/features/reminder/reminder_form.dart';
 import 'package:hr/features/reminder/reminder_page.dart';
 import 'package:hr/features/task/task_page.dart';
 import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
@@ -60,6 +62,8 @@ class AppRoutes {
   static const String mapPage = '/map_page';
   static const String reminder = '/reminder';
   static const String taskEdit = '/task_edit';
+  static const String reminderAdd = '/reminder_add';
+  static const String reminderEdit = '/reminder_edit';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -191,6 +195,14 @@ class AppRoutes {
 
       case profile:
         return _route(const ProfilePage().withMainLayout(profile), settings);
+
+      case reminderAdd:
+        return _route(
+            const ReminderForm().withMainLayout(reminderAdd), settings);
+
+      case reminderEdit:
+        return _route(
+            ReminderEditForm().withMainLayout(reminderEdit), settings);
 
       default:
         return _route(

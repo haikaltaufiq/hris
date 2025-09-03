@@ -321,56 +321,58 @@ class _CompanyCardState extends State<CompanyCard> {
   }
 
   Widget _buildEmptyContent() {
-    return Column(
-      children: [
-        const SizedBox(height: 20),
-        Icon(
-          Icons.business_center_outlined,
-          color: AppColors.putih.withOpacity(0.5),
-          size: 48,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Belum ada informasi kantor',
-          style: GoogleFonts.poppins(
-            color: AppColors.putih.withOpacity(0.7),
-            fontSize: 16,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Atur informasi kantor untuk mulai menggunakan sistem absensi',
-          textAlign: TextAlign.center,
-          style: GoogleFonts.poppins(
+    return Center(
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          Icon(
+            Icons.business_center_outlined,
             color: AppColors.putih.withOpacity(0.5),
-            fontSize: 12,
-            fontWeight: FontWeight.w400,
+            size: 48,
           ),
-        ),
-        const SizedBox(height: 20),
-        ElevatedButton.icon(
-          onPressed: () {
-            // TODO: Navigate to form page
-          },
-          icon: const Icon(Icons.add, size: 18),
-          label: Text(
-            'Atur Sekarang',
+          const SizedBox(height: 16),
+          Text(
+            'Belum ada informasi kantor',
             style: GoogleFonts.poppins(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
+              color: AppColors.putih.withOpacity(0.7),
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.secondary,
-            foregroundColor: AppColors.putih,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+          const SizedBox(height: 8),
+          Text(
+            'Atur informasi kantor untuk mulai menggunakan sistem absensi',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.poppins(
+              color: AppColors.putih.withOpacity(0.5),
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
             ),
           ),
-        ),
-      ],
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.info);
+            },
+            icon: const Icon(Icons.add, size: 18),
+            label: Text(
+              'Atur Sekarang',
+              style: GoogleFonts.poppins(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.secondary,
+              foregroundColor: AppColors.putih,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
