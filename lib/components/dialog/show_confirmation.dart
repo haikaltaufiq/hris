@@ -60,7 +60,7 @@ Future<bool> showConfirmationDialog(
           ),
         ),
         // Confirm button
-        Container(
+        SizedBox(
           height: 40,
           child: TextButton(
             style: TextButton.styleFrom(

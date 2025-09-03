@@ -10,9 +10,9 @@ class LemburModel {
   final String jamSelesai;
   final String deskripsi;
   final String status;
-  final int approve_step;
+  final int approveStep;
   final Map<String, dynamic> user;
-  final String keterangan_status;
+  final String keteranganStatus;
 
   LemburModel({
     required this.id,
@@ -22,9 +22,9 @@ class LemburModel {
     required this.jamSelesai,
     required this.deskripsi,
     required this.status,
-    required this.approve_step,
+    required this.approveStep,
     required this.user,
-    required this.keterangan_status,
+    required this.keteranganStatus,
   });
 
   factory LemburModel.fromJson(Map<String, dynamic> json) {
@@ -37,10 +37,10 @@ class LemburModel {
       deskripsi: json['deskripsi'],
       status: json['status'],
       user: json['user'],
-      approve_step: json['approve_step'] is String
+      approveStep: json['approve_step'] is String
           ? int.tryParse(json['approve_step']) ?? 0
           : json['approve_step'] ?? 0,
-      keterangan_status: json['keterangan_status'] ?? {},
+      keteranganStatus: json['keterangan_status'] ?? {},
     );
   }
 
@@ -53,7 +53,7 @@ class LemburModel {
       'jam_selesai': jamSelesai,
       'deskripsi': deskripsi,
       'status': status,
-      'approve_step': approve_step,
+      'approve_step': approveStep,
       'user': user,
     };
   }

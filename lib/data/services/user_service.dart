@@ -13,8 +13,9 @@ class UserService {
   // Fetch user data
   static Future<List<UserModel>> fetchUsers() async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/api/user'),
@@ -104,8 +105,9 @@ class UserService {
   // Hapus user
   static Future<Map<String, dynamic>> deleteUser(int id) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/api/user/$id'),

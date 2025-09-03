@@ -17,7 +17,7 @@ import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/features/lembur/lembur_page.dart';
-import 'package:hr/features/log_activity/log_activity.dart';
+import 'package:hr/features/log_activity/log_view.dart';
 import 'package:hr/features/pengaturan/pengaturan_page.dart';
 import 'package:hr/features/peran/peran_page.dart';
 import 'package:hr/features/potongan/potongan_form/form_edit.dart';
@@ -101,7 +101,8 @@ class AppRoutes {
         return _route(const Dashboard().withMainLayout(dashboard), settings);
 
       case dashboardMobile:
-        return _route(const DashboardMobile().withMainLayout(dashboardMobile), settings);
+        return _route(
+            const DashboardMobile().withMainLayout(dashboardMobile), settings);
 
       case attendance:
         return _route(const AbsenPage().withMainLayout(attendance), settings);
@@ -122,7 +123,8 @@ class AppRoutes {
         return _route(const GajiPage().withMainLayout(payroll), settings);
 
       case department:
-        return _route(const DepartmentPage().withMainLayout(department), settings);
+        return _route(
+            const DepartmentPage().withMainLayout(department), settings);
 
       case jabatan:
         return _route(const JabatanPage().withMainLayout(jabatan), settings);

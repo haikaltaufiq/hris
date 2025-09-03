@@ -14,8 +14,9 @@ class PotonganGajiService {
   // ✅ Fetch semua potongan gaji
   static Future<List<PotonganGajiModel>> fetchPotonganGaji() async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji'),
@@ -38,8 +39,9 @@ class PotonganGajiService {
   static Future<PotonganGajiModel> createPotonganGaji(
       PotonganGajiModel potongan) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji'),
@@ -68,8 +70,9 @@ class PotonganGajiService {
   static Future<Map<String, dynamic>> updatePotonganGaji(
       PotonganGajiModel potongan) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji/${potongan.id}'),
@@ -103,8 +106,9 @@ class PotonganGajiService {
   // Hapus potongan gaji
   static Future<bool> deletePotonganGaji(int id) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji/$id'),

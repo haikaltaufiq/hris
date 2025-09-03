@@ -9,7 +9,7 @@ class PotonganGajiProvider extends ChangeNotifier {
   List<PotonganGajiModel> get potonganList => _potonganList;
   bool get isLoading => _isLoading;
   List<PotonganGajiModel> filteredPotonganGajiList = [];
-  String _currentSearch = '';
+  final String _currentSearch = '';
 
   // ================= Fetch =================
   Future<void> fetchPotonganGaji() async {

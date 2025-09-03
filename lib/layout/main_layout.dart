@@ -40,13 +40,13 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.potonganGaji: 10,
     AppRoutes.info: 11,
     AppRoutes.logActivity: 12,
-    AppRoutes.pengaturan: 13,
-    AppRoutes.tugasForm: 14,
-    AppRoutes.karyawanForm: 15,
-    AppRoutes.mapPage: 16,
-    AppRoutes.potonganForm: 17,
-    AppRoutes.potonganEdit: 18,
-    AppRoutes.reminder: 19,
+    AppRoutes.reminder: 13,
+    AppRoutes.pengaturan: 14,
+    AppRoutes.tugasForm: 15,
+    AppRoutes.karyawanForm: 16,
+    AppRoutes.mapPage: 17,
+    AppRoutes.potonganForm: 18,
+    AppRoutes.potonganEdit: 19,
   };
 
   // Map index ke route
@@ -64,13 +64,13 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.potonganGaji,
     AppRoutes.info,
     AppRoutes.logActivity,
+    AppRoutes.reminder,
     AppRoutes.pengaturan,
     AppRoutes.tugasForm,
     AppRoutes.karyawanForm,
     AppRoutes.mapPage,
     AppRoutes.potonganForm,
     AppRoutes.potonganEdit,
-    AppRoutes.reminder,
   ];
   String _nama = '';
 
@@ -326,4 +326,3 @@ extension MainLayoutExtension on Widget {
     );
   }
 }
-

@@ -79,87 +79,85 @@ class _TugasInputState extends State<TugasInput> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Container(
-              child: Column(
-                children: [
-                  const SizedBox(height: 10),
-                  ListTile(
-                    title: Center(
-                      child: Column(
-                        children: [
-                          Container(
-                            height: 3,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(30)),
-                            ),
+            return Column(
+              children: [
+                const SizedBox(height: 10),
+                ListTile(
+                  title: Center(
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 3,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary,
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(30)),
                           ),
-                          const SizedBox(height: 10),
-                          Text(
-                            'Pilih Waktu',
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          Text(
-                            'Mulai Tugas',
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  NumberPickerWidget(
-                    hour: _selectedHour,
-                    minute: _selectedMinute,
-                    onHourChanged: (value) {
-                      setModalState(() {
-                        _selectedHour = value;
-                      });
-                    },
-                    onMinuteChanged: (value) {
-                      setModalState(() {
-                        _selectedMinute = value;
-                      });
-                    },
-                  ),
-                  FloatingActionButton.extended(
-                    backgroundColor: AppColors.secondary,
-                    onPressed: () {
-                      final formattedHour =
-                          _selectedHour.toString().padLeft(2, '0');
-                      final formattedMinute =
-                          _selectedMinute.toString().padLeft(2, '0');
-                      final formattedTime = "$formattedHour:$formattedMinute";
-
-                      controller.text = formattedTime;
-
-                      Navigator.pop(context);
-                    },
-                    label: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 18),
-                      child: Text(
-                        'Save',
-                        style: TextStyle(
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          color: AppColors.putih,
-                          fontSize: 18,
                         ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Pilih Waktu',
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        Text(
+                          'Mulai Tugas',
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                NumberPickerWidget(
+                  hour: _selectedHour,
+                  minute: _selectedMinute,
+                  onHourChanged: (value) {
+                    setModalState(() {
+                      _selectedHour = value;
+                    });
+                  },
+                  onMinuteChanged: (value) {
+                    setModalState(() {
+                      _selectedMinute = value;
+                    });
+                  },
+                ),
+                FloatingActionButton.extended(
+                  backgroundColor: AppColors.secondary,
+                  onPressed: () {
+                    final formattedHour =
+                        _selectedHour.toString().padLeft(2, '0');
+                    final formattedMinute =
+                        _selectedMinute.toString().padLeft(2, '0');
+                    final formattedTime = "$formattedHour:$formattedMinute";
+
+                    controller.text = formattedTime;
+
+                    Navigator.pop(context);
+                  },
+                  label: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: Text(
+                      'Save',
+                      style: TextStyle(
+                        fontFamily: GoogleFonts.poppins().fontFamily,
+                        color: AppColors.putih,
+                        fontSize: 18,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             );
           },
         );

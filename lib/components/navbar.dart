@@ -32,6 +32,7 @@ class ResponsiveNavBar extends StatefulWidget {
     NavItem(label: "Salary Deduction", icon: FontAwesomeIcons.calculator),
     NavItem(label: "Company Info", icon: FontAwesomeIcons.info),
     NavItem(label: "Log Activity", icon: FontAwesomeIcons.history),
+    NavItem(label: "Reminder", icon: FontAwesomeIcons.alarmClock),
     NavItem(label: "Settings", icon: FontAwesomeIcons.gear),
   ];
 

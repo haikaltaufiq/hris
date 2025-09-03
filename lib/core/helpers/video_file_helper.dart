@@ -26,14 +26,13 @@ class VideoFileHelper {
   }
 
   // Method untuk validasi ukuran file (opsional)
-  static Future<bool> isVideoSizeValid(XFile videoFile, {int maxSizeInMB = 50}) async {
+  static Future<bool> isVideoSizeValid(XFile videoFile,
+      {int maxSizeInMB = 50}) async {
     try {
       final bytes = await getVideoBytes(videoFile);
       final sizeInMB = bytes.length / (1024 * 1024);
-      print('Video size: ${sizeInMB.toStringAsFixed(2)} MB');
       return sizeInMB <= maxSizeInMB;
     } catch (e) {
-      print('Error checking video size: $e');
       return false;
     }
   }

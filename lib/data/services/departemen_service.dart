@@ -13,8 +13,9 @@ class DepartemenService {
   // Fetch departemen
   static Future<List<DepartemenModel>> fetchDepartemen() async {
     final token = await getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/api/departemen'),
@@ -39,8 +40,9 @@ class DepartemenService {
     required String namaDepartemen,
   }) async {
     final token = await getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/api/departemen'),
@@ -67,8 +69,9 @@ class DepartemenService {
     required String namaDepartemen,
   }) async {
     final token = await getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/api/departemen/$id'),
@@ -92,8 +95,9 @@ class DepartemenService {
   // Hapus departemen
   static Future<Map<String, dynamic>> deleteDepartemen(int id) async {
     final token = await getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/api/departemen/$id'),

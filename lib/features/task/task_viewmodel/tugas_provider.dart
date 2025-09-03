@@ -12,7 +12,7 @@ class TugasProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   List<TugasModel> filteredTugasList = [];
-  String _currentSearch = '';
+  final String _currentSearch = '';
 
   void _setLoading(bool value) {
     _isLoading = value;
