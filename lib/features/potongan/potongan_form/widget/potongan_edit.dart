@@ -54,7 +54,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
     if (nominal == null) {
       NotificationHelper.showTopNotification(
         context,
-        'Jumlah potongan harus berupa angka',
+        'Jumlah potongan harus berupa angka saja',
         isSuccess: false,
       );
       return;
@@ -143,7 +143,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
           ),
           CustomInputField(
             hint: "",
-            label: "Jumlah Potongan",
+            label: "Jumlah Potongan ( % )",
             controller: jumlahController,
             labelStyle: labelStyle,
             textStyle: textStyle,

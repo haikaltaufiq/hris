@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/utils/device_size.dart';
 
 class NotificationHelper {
-  static void showTopNotification(
+  static void showNotification(
     BuildContext context,
     String message, {
     bool isSuccess = true,
@@ -10,26 +11,23 @@ class NotificationHelper {
   }) {
     final overlay = Overlay.of(context);
     final backgroundColor = isSuccess ? Colors.green : Colors.red;
+    final isDesktop = !context.isMobile;
 
     late OverlayEntry overlayEntry;
 
-    // bikin entry overlay
+    // bikin entry overlay dengan posisi responsif
     overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        top: MediaQuery.of(context).padding.top + 16,
-        left: 20,
-        right: 20,
-        child: Material(
-          color: Colors.transparent,
-          child: AnimatedSlideNotification(
-            message: message,
-            backgroundColor: backgroundColor,
-            duration: duration,
-            onDismiss: () {
-              overlayEntry.remove();
-            },
-          ),
-        ),
+      builder: (context) => _buildNotificationWrapper(
+        context: context,
+        message: message,
+        backgroundColor: backgroundColor,
+        duration: duration,
+        isDesktop: isDesktop,
+        onDismiss: () {
+          if (overlayEntry.mounted) {
+            overlayEntry.remove();
+          }
+        },
       ),
     );
 
@@ -43,6 +41,65 @@ class NotificationHelper {
       }
     });
   }
+
+  static Widget _buildNotificationWrapper({
+    required BuildContext context,
+    required String message,
+    required Color backgroundColor,
+    required Duration duration,
+    required bool isDesktop,
+    required VoidCallback onDismiss,
+  }) {
+    if (isDesktop) {
+      // Desktop: pojok kanan bawah
+      return Positioned(
+        bottom: 24,
+        right: 24,
+        child: Material(
+          color: Colors.transparent,
+          child: AnimatedSlideNotification(
+            message: message,
+            backgroundColor: backgroundColor,
+            duration: duration,
+            onDismiss: onDismiss,
+            isDesktop: true,
+          ),
+        ),
+      );
+    } else {
+      // Mobile: atas
+      return Positioned(
+        top: MediaQuery.of(context).padding.top + 16,
+        left: 20,
+        right: 20,
+        child: Material(
+          color: Colors.transparent,
+          child: AnimatedSlideNotification(
+            message: message,
+            backgroundColor: backgroundColor,
+            duration: duration,
+            onDismiss: onDismiss,
+            isDesktop: false,
+          ),
+        ),
+      );
+    }
+  }
+
+  // Method untuk backward compatibility
+  static void showTopNotification(
+    BuildContext context,
+    String message, {
+    bool isSuccess = true,
+    Duration duration = const Duration(seconds: 3),
+  }) {
+    showNotification(
+      context,
+      message,
+      isSuccess: isSuccess,
+      duration: duration,
+    );
+  }
 }
 
 class AnimatedSlideNotification extends StatefulWidget {
@@ -50,6 +107,7 @@ class AnimatedSlideNotification extends StatefulWidget {
   final Color backgroundColor;
   final Duration duration;
   final VoidCallback onDismiss;
+  final bool isDesktop;
 
   const AnimatedSlideNotification({
     super.key,
@@ -57,6 +115,7 @@ class AnimatedSlideNotification extends StatefulWidget {
     required this.backgroundColor,
     required this.duration,
     required this.onDismiss,
+    required this.isDesktop,
   });
 
   @override
@@ -87,8 +146,11 @@ class _AnimatedSlideNotificationState extends State<AnimatedSlideNotification>
       duration: const Duration(milliseconds: 200),
     );
 
+    // Animasi slide berbeda untuk desktop vs mobile
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, -1.2),
+      begin: widget.isDesktop
+          ? const Offset(1.2, 0) // Slide dari kanan untuk desktop
+          : const Offset(0, -1.2), // Slide dari atas untuk mobile
       end: const Offset(0, 0),
     ).animate(CurvedAnimation(
       parent: _slideController,
@@ -153,12 +215,24 @@ class _AnimatedSlideNotificationState extends State<AnimatedSlideNotification>
           child: GestureDetector(
             onTap: _dismissNotification,
             onPanUpdate: (details) {
-              // Swipe up to dismiss
-              if (details.delta.dy < -5) {
-                _dismissNotification();
+              // Swipe untuk dismiss - berbeda untuk desktop vs mobile
+              if (widget.isDesktop) {
+                // Desktop: swipe ke kanan untuk dismiss
+                if (details.delta.dx > 5) {
+                  _dismissNotification();
+                }
+              } else {
+                // Mobile: swipe ke atas untuk dismiss
+                if (details.delta.dy < -5) {
+                  _dismissNotification();
+                }
               }
             },
             child: Container(
+              constraints: BoxConstraints(
+                maxWidth: widget.isDesktop ? 350 : double.infinity,
+                minWidth: widget.isDesktop ? 300 : 0,
+              ),
               margin: const EdgeInsets.symmetric(horizontal: 4),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               decoration: BoxDecoration(
@@ -191,6 +265,8 @@ class _AnimatedSlideNotificationState extends State<AnimatedSlideNotification>
                 ),
               ),
               child: Row(
+                mainAxisSize:
+                    widget.isDesktop ? MainAxisSize.min : MainAxisSize.max,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(8),
@@ -216,6 +292,8 @@ class _AnimatedSlideNotificationState extends State<AnimatedSlideNotification>
                         fontWeight: FontWeight.w500,
                         height: 1.4,
                       ),
+                      maxLines: widget.isDesktop ? 3 : 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 12),

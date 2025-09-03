@@ -524,7 +524,7 @@ class _InfoPageState extends State<InfoPage>
       children: [
         _buildFieldLabel(label),
         SizedBox(
-          height: 56, // Tinggi konsisten untuk semua field
+          height: 56,
           child: GestureDetector(
             onTap: onTap,
             child: AbsorbPointer(
@@ -545,42 +545,39 @@ class _InfoPageState extends State<InfoPage>
                     color: AppColors.putih.withOpacity(0.7),
                     size: 20,
                   ),
-                  filled: true,
+                  filled: false,
                   fillColor: AppColors.primary,
                   hintStyle: GoogleFonts.poppins(
                     color: AppColors.putih.withOpacity(0.5),
                     fontSize: 14,
                   ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  // **Ganti border kotak jadi hanya underline**
+                  enabledBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
-                      color: AppColors.putih.withOpacity(0.2),
-                      width: 0.5,
+                      color: AppColors.putih.withOpacity(0.3),
+                      width: 1,
                     ),
                   ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  focusedBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
                       color: AppColors.secondary,
                       width: 2,
                     ),
                   ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  errorBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
                       color: Colors.red.shade400,
                       width: 1,
                     ),
                   ),
-                  focusedErrorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                  focusedErrorBorder: UnderlineInputBorder(
                     borderSide: BorderSide(
                       color: Colors.red.shade400,
                       width: 2,
                     ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 0,
                     vertical: 16,
                   ),
                 ),

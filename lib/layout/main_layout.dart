@@ -38,15 +38,16 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.jabatan: 8,
     AppRoutes.peran: 9,
     AppRoutes.potonganGaji: 10,
-    AppRoutes.info: 11,
-    AppRoutes.logActivity: 12,
-    AppRoutes.reminder: 13,
-    AppRoutes.pengaturan: 14,
-    AppRoutes.tugasForm: 15,
-    AppRoutes.karyawanForm: 16,
-    AppRoutes.mapPage: 17,
-    AppRoutes.potonganForm: 18,
-    AppRoutes.potonganEdit: 19,
+    AppRoutes.logActivity: 11,
+    AppRoutes.reminder: 12,
+    AppRoutes.pengaturan: 13,
+    AppRoutes.tugasForm: 14,
+    AppRoutes.karyawanForm: 15,
+    AppRoutes.mapPage: 16,
+    AppRoutes.potonganForm: 17,
+    AppRoutes.potonganEdit: 18,
+    AppRoutes.info: 19,
+    AppRoutes.taskEdit: 20,
   };
 
   // Map index ke route
@@ -62,7 +63,6 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.jabatan,
     AppRoutes.peran,
     AppRoutes.potonganGaji,
-    AppRoutes.info,
     AppRoutes.logActivity,
     AppRoutes.reminder,
     AppRoutes.pengaturan,
@@ -71,6 +71,8 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.mapPage,
     AppRoutes.potonganForm,
     AppRoutes.potonganEdit,
+    AppRoutes.info,
+    AppRoutes.taskEdit,
   ];
   String _nama = '';
 
@@ -171,14 +173,7 @@ class _MainLayoutState extends State<MainLayout> {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomCenter,
-          end: Alignment.topCenter,
-          colors: [
-            AppColors.bg,
-            AppColors.primary,
-          ],
-        ),
+        color: AppColors.primary,
         border: const Border(
           bottom: BorderSide(
             color: Colors.transparent,
@@ -312,6 +307,8 @@ class _MainLayoutState extends State<MainLayout> {
         return 'Potongan Edit';
       case AppRoutes.reminder:
         return 'Reminder Page';
+      case AppRoutes.taskEdit:
+        return 'Edit Task';
       default:
         return 'HRIS System';
     }
