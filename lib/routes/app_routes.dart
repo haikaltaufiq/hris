@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/theme_provider.dart';
+import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
@@ -201,8 +202,11 @@ class AppRoutes {
             const ReminderForm().withMainLayout(reminderAdd), settings);
 
       case reminderEdit:
+        final reminder = settings.arguments as ReminderData;
         return _route(
-            ReminderEditForm().withMainLayout(reminderEdit), settings);
+          ReminderEditForm(reminder: reminder).withMainLayout(reminderEdit),
+          settings,
+        );
 
       default:
         return _route(

@@ -7,7 +7,9 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/peran_model.dart';
+import 'package:hr/data/services/pengingat_service.dart';
 import 'package:hr/data/services/peran_service.dart'; // Import the new service
 
 class ReminderInput extends StatefulWidget {
@@ -20,6 +22,8 @@ class ReminderInput extends StatefulWidget {
 class _ReminderInputState extends State<ReminderInput> {
   final TextEditingController _tanggalController = TextEditingController();
   final TextEditingController _reminderNameController = TextEditingController();
+  final TextEditingController _reminderDeskripsiController =
+      TextEditingController();
 
   PeranModel? _selectedPeran;
   List<PeranModel> _peranList = [];
@@ -99,6 +103,7 @@ class _ReminderInputState extends State<ReminderInput> {
   void dispose() {
     _tanggalController.dispose();
     _reminderNameController.dispose();
+    _reminderDeskripsiController.dispose();
     super.dispose();
   }
 
@@ -139,6 +144,14 @@ class _ReminderInputState extends State<ReminderInput> {
             hint: "",
             label: "Reminder Name",
             controller: _reminderNameController,
+            labelStyle: labelStyle,
+            textStyle: textStyle,
+            inputStyle: inputStyle,
+          ),
+          CustomInputField(
+            hint: "",
+            label: "Deskripsi",
+            controller: _reminderDeskripsiController,
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -193,6 +206,52 @@ class _ReminderInputState extends State<ReminderInput> {
                           isSuccess: false,
                         );
                         return;
+                      }
+
+                      setState(() => isLoading = true);
+
+                      try {
+                        // Format tanggal ke format backend (yyyy-MM-dd HH:mm:ss)
+                        final parts = _tanggalController.text.split(" / ");
+                        final formattedDate =
+                            "${parts[2]}-${parts[1]}-${parts[0]} 00:00:00";
+
+                        final reminder = ReminderData(
+                          id: 0, // backend akan isi otomatis
+                          judul: _reminderNameController.text,
+                          deskripsi: _reminderDeskripsiController
+                              .text, // kalau ada field deskripsi tambahin
+                          tanggalJatuhTempo: formattedDate,
+                          status: "Pending",
+                          picId: _selectedPeran!.id, // ambil id dari model
+                        );
+
+                        await PengingatService.createPengingat(reminder);
+
+                        if (mounted) {
+                          NotificationHelper.showTopNotification(
+                            context,
+                            'Reminder berhasil ditambahkan',
+                            isSuccess: true,
+                          );
+                          Navigator.pop(context, true);
+                          // reset form
+                          _reminderNameController.clear();
+                          _tanggalController.clear();
+                          setState(() {
+                            _selectedPeran = null;
+                          });
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          NotificationHelper.showTopNotification(
+                            context,
+                            'Gagal menambahkan reminder: $e',
+                            isSuccess: false,
+                          );
+                        }
+                      } finally {
+                        if (mounted) setState(() => isLoading = false);
                       }
                     },
               style: ElevatedButton.styleFrom(
