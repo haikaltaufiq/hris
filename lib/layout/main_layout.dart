@@ -146,65 +146,89 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   Widget _buildDesktopLayout() {
-    return Row(
+    return Stack(
       children: [
-        // ⭐ SOLUSI 2: Wrap navbar dengan RepaintBoundary untuk optimasi
-        RepaintBoundary(
-          child: ResponsiveNavBar(
-            selectedIndex: selectedIndex,
-            onItemTapped: _onNavItemTapped,
-            isCollapsed: isCollapsed,
-          ),
-        ),
-        Expanded(
-          child: Column(
-            children: [
-              _buildDesktopAppBar(),
-              Expanded(
-                child: Container(
-                  color: const Color(0xFF0A0A0A),
-                  child: widget.child,
-                ),
+        Row(
+          children: [
+            //sidebar
+            RepaintBoundary(
+              child: ResponsiveNavBar(
+                selectedIndex: selectedIndex,
+                onItemTapped: _onNavItemTapped,
+                isCollapsed: isCollapsed,
               ),
-            ],
-          ),
+            ),
+            //main content
+            Expanded(
+              child: Container(
+                margin: const EdgeInsets.only(top: 70), // tinggi AppBar
+                color: const Color(0xFF0A0A0A),
+                child: widget.child,
+              ),
+            ),
+          ],
+        ),
+        Positioned(
+          left: 0, // sesuai width sidebar
+          right: 0,
+          top: 0,
+          height: 70,
+          child: _buildDesktopAppBar(),
         ),
       ],
     );
   }
 
   Widget _buildDesktopAppBar() {
+    final isFormPage = [
+      AppRoutes.tugasForm,
+      AppRoutes.karyawanForm,
+      AppRoutes.potonganForm,
+      AppRoutes.potonganEdit,
+      AppRoutes.taskEdit,
+      AppRoutes.reminderAdd,
+      AppRoutes.reminderEdit,
+    ].contains(widget.currentRoute);
+
     return Container(
       height: 70,
       decoration: BoxDecoration(
         color: AppColors.primary,
-        border: const Border(
-          bottom: BorderSide(
-            color: Colors.transparent,
-            width: 0,
-          ),
-        ),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         child: Row(
           children: [
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _toggleSidebar,
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Icon(
-                    isCollapsed ? Icons.menu : Icons.menu_open,
-                    color: AppColors.putih,
-                    size: 20,
+            if (!isFormPage)
+              Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: _toggleSidebar,
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      isCollapsed ? Icons.menu : Icons.menu_open,
+                      color: AppColors.putih,
+                      size: 25,
+                    ),
                   ),
                 ),
+              )
+            else
+              const SizedBox(width: 16),
+
+            // tombol back kalau di form page
+            if (isFormPage) ...[
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: Icon(Icons.arrow_back_ios, color: AppColors.putih),
               ),
+              const SizedBox(width: 8),
+            ],
+            SizedBox(
+              width: 25,
             ),
-            const SizedBox(width: 16),
             Expanded(
               child: Text(
                 _getPageTitle(),

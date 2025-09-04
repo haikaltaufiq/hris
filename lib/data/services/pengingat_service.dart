@@ -34,31 +34,31 @@ class PengingatService {
     }
   }
 
-  // /// Tambah pengingat baru
-  // static Future<ReminderData> createPengingat(ReminderData reminder) async {
-  //   final token = await getToken();
-  //   if (token == null) throw Exception('Token tidak ditemukan');
+  /// Tambah pengingat baru
+  static Future<ReminderData> createPengingat(ReminderData reminder) async {
+    final token = await getToken();
+    if (token == null) throw Exception('Token tidak ditemukan');
 
-  //   final response = await http.post(
-  //     Uri.parse('${ApiConfig.baseUrl}/api/pengingat'),
-  //     headers: {
-  //       'Authorization': 'Bearer $token',
-  //       'Accept': 'application/json',
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: json.encode(reminder.toJson()), // pastikan ReminderData punya toJson()
-  //   );
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/api/pengingat'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(reminder.toJson()),
+    );
 
-  //   if (response.statusCode == 201) {
-  //     final jsonData = json.decode(response.body)['data'];
-  //     return ReminderData.fromJson(jsonData);
-  //   } else {
-  //     throw Exception('Gagal menambahkan pengingat: ${response.statusCode}');
-  //   }
-  // }
+    if (response.statusCode == 201) {
+      final jsonData = json.decode(response.body)['data'];
+      return ReminderData.fromJson(jsonData);
+    } else {
+      throw Exception('Gagal menambahkan pengingat: ${response.statusCode}');
+    }
+  }
 
-  /// Update pengingat
-  static Future<void> updatePengingat(int id, String newStatus) async {
+  /// Update status
+  static Future<void> updateStatus(int id, String newStatus) async {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
@@ -74,6 +74,28 @@ class PengingatService {
 
     if (response.statusCode != 200) {
       throw Exception('Gagal memperbarui status: ${response.statusCode}');
+    }
+  }
+
+  static Future<ReminderData> updatePengingat(int id, ReminderData reminder) async {
+    final token = await getToken();
+    if (token == null) throw Exception("Token tidak ditemukan");
+
+    final response = await http.put(
+      Uri.parse("${ApiConfig.baseUrl}/api/pengingat/$id"),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode(reminder.toJson()),
+    );
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body)['data'];
+      return ReminderData.fromJson(jsonData);
+    } else {
+      throw Exception("Gagal update pengingat: ${response.body}");
     }
   }
 

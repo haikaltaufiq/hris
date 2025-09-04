@@ -4,12 +4,47 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/models/pengingat_model.dart';
+import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/reminder/widget/remind_tabel.dart';
 import 'package:hr/features/reminder/widget/remind_tabel_mobile.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 
-class ReminderPage extends StatelessWidget {
+class ReminderPage extends StatefulWidget {
   const ReminderPage({super.key});
+
+  @override
+  State<ReminderPage> createState() => _ReminderPageState();
+}
+
+class _ReminderPageState extends State<ReminderPage> {
+  late final TextEditingController _searchController;
+  List<ReminderData> reminders = [];
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController();
+
+    // Fetch data saat pertama kali load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PengingatViewModel>().fetchPengingat();
+    });
+
+    // Listen to search changes
+    _searchController.addListener(() {
+      context.read<PengingatViewModel>().setSearchQuery(_searchController.text);
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +57,15 @@ class ReminderPage extends StatelessWidget {
             child: ListView(
               children: [
                 if (context.isMobile) Header(title: "Reminder Page"),
-                SearchingBar(controller: SearchController()),
-                if (context.isMobile) RemindTabelMobile(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 16.0, right: 16.0),
-                  child: ReminderTileWeb(),
-                ),
+                SearchingBar(controller: _searchController),
+                if (context.isMobile) ...[
+                  RemindTabelMobile(),
+                ] else ...[
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+                    child: ReminderTileWeb(),
+                  ),
+                ]
               ],
             ),
           ),
@@ -35,8 +73,13 @@ class ReminderPage extends StatelessWidget {
             bottom: 16,
             right: 16,
             child: FloatingActionButton(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.reminderAdd);
+              onPressed: () async {
+                final result =
+                    await Navigator.pushNamed(context, AppRoutes.reminderAdd);
+
+                if (result == true) {
+                  context.read<PengingatViewModel>().fetchPengingat();
+                }
               },
               backgroundColor: AppColors.secondary,
               shape: const CircleBorder(),

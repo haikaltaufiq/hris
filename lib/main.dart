@@ -14,6 +14,7 @@ import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
+import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -37,6 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => JabatanViewModel()),
         ChangeNotifierProvider(create: (_) => AbsenProvider()),
         ChangeNotifierProvider(create: (_) => GajiProvider()),
+        ChangeNotifierProvider(create: (_) => PengingatViewModel()),
       ],
       child: const MyApp(),
     ),
