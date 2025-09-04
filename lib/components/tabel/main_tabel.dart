@@ -295,9 +295,10 @@ class CustomDataTableWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: const Color.fromARGB(56, 5, 5, 5),
-                  blurRadius: 5,
-                  offset: const Offset(0, 1),
+                  color: Colors.black.withOpacity(0.05), // tipis banget
+                  blurRadius: 4, // kecil, biar soft
+                  spreadRadius: 0,
+                  offset: Offset(0, 1), // cuma bawah dikit
                 ),
               ],
             ),

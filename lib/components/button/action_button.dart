@@ -24,11 +24,12 @@ class ActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(8),
-          boxShadow: const [
+          boxShadow: [
             BoxShadow(
-              color: Color.fromARGB(66, 0, 0, 0),
-              blurRadius: 5,
-              offset: Offset(0, 2),
+              color: Colors.black.withOpacity(0.05), // tipis banget
+              blurRadius: 4, // kecil, biar soft
+              spreadRadius: 0,
+              offset: Offset(0, 1), // cuma bawah dikit
             ),
           ],
         ),

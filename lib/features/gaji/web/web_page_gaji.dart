@@ -57,8 +57,10 @@ class _WebPageGajiState extends State<WebPageGaji> {
               _buildEmpty()
             else
               Padding(
-                padding: EdgeInsets.all(
-                  MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
+                padding: EdgeInsets.only(
+                  right: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
+                  left: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
+                  top: MediaQuery.of(context).size.width < 600 ? 0.0 : 18.0,
                 ),
                 child: Column(
                   children: provider.displayedList

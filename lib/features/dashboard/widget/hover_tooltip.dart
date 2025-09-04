@@ -56,8 +56,10 @@ class _HoverTooltipState extends State<HoverTooltip>
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      blurRadius: 12,
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withOpacity(0.05), // tipis banget
+                      blurRadius: 4, // kecil, biar soft
+                      spreadRadius: 0,
+                      offset: Offset(0, 1), // cuma bawah dikit
                     ),
                   ],
                 ),

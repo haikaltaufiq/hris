@@ -24,7 +24,8 @@ class _GetStartedButtonState extends State<GetStartedButton>
         backgroundColor: Colors.transparent,
         barrierColor: Colors.black.withOpacity(0.5), // Darker background
         transitionAnimationController: AnimationController(
-          duration: const Duration(milliseconds: 600), // Slower, smoother animation
+          duration:
+              const Duration(milliseconds: 600), // Slower, smoother animation
           vsync: this,
         ),
         builder: (context) => const LoginPageSheet(),

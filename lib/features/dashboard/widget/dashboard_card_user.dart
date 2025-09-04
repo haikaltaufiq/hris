@@ -26,9 +26,10 @@ class DashboardCardUser extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
-              blurRadius: 15,
-              offset: const Offset(0, 8),
+              color: Colors.black.withOpacity(0.05), // tipis banget
+              blurRadius: 4, // kecil, biar soft
+              spreadRadius: 0,
+              offset: Offset(0, 1), // cuma bawah dikit
             ),
           ],
         ),
@@ -175,9 +176,11 @@ class DashboardCardUser extends StatelessWidget {
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.secondary.withOpacity(0.3),
-                            blurRadius: 8,
-                            offset: const Offset(0, 4),
+                            color:
+                                Colors.black.withOpacity(0.05), // tipis banget
+                            blurRadius: 4, // kecil, biar soft
+                            spreadRadius: 0,
+                            offset: Offset(0, 1), // cuma bawah dikit
                           ),
                         ],
                       ),

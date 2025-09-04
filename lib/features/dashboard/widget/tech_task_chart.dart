@@ -165,20 +165,7 @@ class _TechTaskChartState extends State<TechTaskChart>
               fontFamily: GoogleFonts.poppins().fontFamily,
               fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 4),
-        Container(
-          width: 60,
-          height: 4,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.secondary,
-                AppColors.secondary.withOpacity(0.3)
-              ],
-            ),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
+        const SizedBox(height: 14),
       ],
     );
   }
@@ -497,9 +484,10 @@ class _ModernLegendItem extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.4),
-                  blurRadius: 4,
-                  spreadRadius: 1,
+                  color: Colors.black.withOpacity(0.05), // tipis banget
+                  blurRadius: 4, // kecil, biar soft
+                  spreadRadius: 0,
+                  offset: Offset(0, 1), // cuma bawah dikit
                 ),
               ],
             ),

@@ -138,7 +138,10 @@ class _TaskWebPageState extends State<TaskWebPage> {
 
                   // if (userProvider.hasFeature(FeatureIds.manageTask)) {
                   return Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.only(
+                      right: 16.0,
+                      left: 16.0,
+                    ),
                     child: TugasTabelWeb(
                       tugasList: displayedList,
                       onActionDone: () {
