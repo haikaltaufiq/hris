@@ -236,15 +236,15 @@ class _CompanyCardState extends State<CompanyCard> {
                   ),
                   const SizedBox(height: 20),
                   _buildInfoItem(
-                    icon: Icons.timer_outlined,
-                    label: 'Toleransi',
-                    value: '${kantor!.minimalKeterlambatan} menit',
+                    icon: Icons.access_time_filled_outlined,
+                    label: 'Jam Keluar',
+                    value: '17.00',
                   ),
                   const SizedBox(height: 20),
                   _buildInfoItem(
-                    icon: Icons.calendar_today_outlined,
-                    label: 'Cuti Tahunan',
-                    value: '${kantor!.jatahCutiTahunan} hari',
+                    icon: Icons.timer_outlined,
+                    label: 'Toleransi',
+                    value: '${kantor!.minimalKeterlambatan} menit',
                   ),
                 ],
               ),
@@ -257,6 +257,12 @@ class _CompanyCardState extends State<CompanyCard> {
               child: Column(
                 children: [
                   _buildInfoItem(
+                    icon: Icons.calendar_today_outlined,
+                    label: 'Cuti Tahunan',
+                    value: '${kantor!.jatahCutiTahunan} hari',
+                  ),
+                  const SizedBox(height: 20),
+                  _buildInfoItem(
                     icon: Icons.location_on_outlined,
                     label: 'Koordinat',
                     value:
@@ -268,13 +274,6 @@ class _CompanyCardState extends State<CompanyCard> {
                     icon: Icons.radio_button_unchecked,
                     label: 'Radius',
                     value: '${kantor!.radiusMeter} meter',
-                  ),
-                  const SizedBox(height: 20),
-                  _buildInfoItem(
-                    icon: Icons.check_circle_outline,
-                    label: 'Status',
-                    value: 'Aktif',
-                    valueColor: AppColors.green,
                   ),
                 ],
               ),

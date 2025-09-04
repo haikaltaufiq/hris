@@ -27,6 +27,7 @@ class _InfoPageState extends State<InfoPage>
   final _formKey = GlobalKey<FormState>();
 
   final jamMasukController = TextEditingController();
+  final jamKeluarController = TextEditingController();
   final minimalKeterlambatanController = TextEditingController();
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
@@ -58,6 +59,7 @@ class _InfoPageState extends State<InfoPage>
   void dispose() {
     _animationController.dispose();
     jamMasukController.dispose();
+    jamKeluarController.dispose();
     minimalKeterlambatanController.dispose();
     latitudeController.dispose();
     longitudeController.dispose();
@@ -602,6 +604,14 @@ class _InfoPageState extends State<InfoPage>
             icon: Icons.access_time,
             readOnly: true,
             onTap: () => _onTapIconTime(jamMasukController),
+            validator: (v) => v == null || v.isEmpty ? "Wajib diisi" : null,
+          ),
+          _buildFormField(
+            label: "Jam Keluar",
+            controller: jamKeluarController,
+            icon: Icons.access_time,
+            readOnly: true,
+            onTap: () => _onTapIconTime(jamKeluarController),
             validator: (v) => v == null || v.isEmpty ? "Wajib diisi" : null,
           ),
 
