@@ -174,7 +174,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                     Icon(Icons.person, color: Colors.blue, size: 16),
                     SizedBox(width: 8),
                     Text(
-                      'PIC: ${reminder.pic}',
+                      'PIC: ${reminder.picNama}',
                       style: TextStyle(
                         color: Colors.blue,
                         fontWeight: FontWeight.w500,
@@ -194,23 +194,6 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                       'Jatuh Tempo: ${reminder.tanggalJatuhTempo}',
                       style: TextStyle(
                         color: AppColors.putih.withOpacity(0.8),
-                        fontFamily: GoogleFonts.poppins().fontFamily,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
-
-                // Pengulangan
-                Row(
-                  children: [
-                    Icon(Icons.repeat, color: AppColors.green, size: 16),
-                    SizedBox(width: 8),
-                    Text(
-                      'Pengulangan: ${reminder.mengulang}',
-                      style: TextStyle(
-                        color: AppColors.green,
-                        fontWeight: FontWeight.w500,
                         fontFamily: GoogleFonts.poppins().fontFamily,
                       ),
                     ),
@@ -339,7 +322,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
   Future<void> _updateStatus(int id, String newStatus) async {
     try {
       // Panggil service update status
-      await PengingatService.updatePengingat(id, newStatus);
+      await PengingatService.updateStatus(id, newStatus);
 
       // Refresh data setelah sukses
       await fetchReminderData();
@@ -744,7 +727,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                                 SizedBox(width: 4),
                                 Expanded(
                                   child: Text(
-                                    reminder.pic,
+                                      reminder.picNama?.toString() ?? "-",
                                     style: TextStyle(
                                       color: Colors.blue,
                                       fontSize: 12,
@@ -778,10 +761,12 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                                 ),
                               ),
                               Text(
-                                reminder.sisaHari,
+                                reminder.sisaHari ?? "-",
                                 style: TextStyle(
                                   color: _getTimeRemainingColor(
-                                      reminder.sisaHari, reminder.relative),
+                                    reminder.sisaHari ?? "-", 
+                                    reminder.relative ?? "-"
+                                  ),
                                   fontSize: 11,
                                   fontFamily: GoogleFonts.poppins().fontFamily,
                                 ),
@@ -839,7 +824,10 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                                   ),
                                   onPressed: () {
                                     Navigator.pushNamed(
-                                        context, AppRoutes.reminderEdit);
+                                        context,
+                                        AppRoutes.reminderEdit,
+                                        arguments: reminder, 
+                                    );
                                   },
                                 ),
                               ),
