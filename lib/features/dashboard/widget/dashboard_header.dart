@@ -66,9 +66,12 @@ class _DashboardHeaderState extends State<DashboardHeader>
   void _showDropdownMenu() {
     if (_dropdownOverlay != null) return; // jangan insert 2x
 
-    RenderBox renderBox =
-        _menuKey.currentContext!.findRenderObject() as RenderBox;
-    Offset offset = renderBox.localToGlobal(Offset.zero);
+    final RenderBox? renderBox =
+        _menuKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (renderBox == null) return;
+
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
 
     _dropdownOverlay = OverlayEntry(
       builder: (context) => Stack(
@@ -102,7 +105,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                         BoxShadow(
                           color: Colors.black.withOpacity(0.25),
                           blurRadius: 10,
-                          offset: Offset(0, 4),
+                          offset: const Offset(0, 4),
                         ),
                       ],
                     ),
@@ -116,8 +119,9 @@ class _DashboardHeaderState extends State<DashboardHeader>
                           _hideDropdown();
                         }),
                         _buildDropdownItem("Settings", Icons.settings, () {
+                          // Hide dropdown first, then navigate
+                          _hideDropdownImmediate();
                           Navigator.pushNamed(context, AppRoutes.pengaturan);
-                          _hideDropdown();
                         }),
                         _buildDropdownItem("Logout", Icons.logout, () {
                           _hideDropdown();
@@ -135,45 +139,79 @@ class _DashboardHeaderState extends State<DashboardHeader>
 
     Overlay.of(context).insert(_dropdownOverlay!);
     _controller.forward(from: 0);
-    _showDropdown = true;
+    setState(() {
+      _showDropdown = true;
+    });
   }
 
-  void _hideDropdown() async {
-    if (_dropdownOverlay == null) return;
-    await _controller.reverse(from: 1);
-    _dropdownOverlay?.remove();
-    _dropdownOverlay = null;
+  // Method untuk hide dropdown dengan animasi
+  void _hideDropdown() {
+    if (_dropdownOverlay == null || !_showDropdown) return;
+
+    // Set state first to prevent multiple calls
     setState(() {
       _showDropdown = false;
     });
+
+    // Use addPostFrameCallback to ensure animation completes properly on web
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.reverse().then((_) {
+        _removeOverlay();
+      }).catchError((error) {
+        // Fallback jika animasi gagal
+        _removeOverlay();
+      });
+    });
+  }
+
+  // Method untuk hide dropdown tanpa animasi (untuk navigasi)
+  void _hideDropdownImmediate() {
+    if (_dropdownOverlay == null) return;
+
+    setState(() {
+      _showDropdown = false;
+    });
+
+    _removeOverlay();
+  }
+
+  void _removeOverlay() {
+    if (_dropdownOverlay != null) {
+      _dropdownOverlay!.remove();
+      _dropdownOverlay = null;
+    }
   }
 
   Widget _buildDropdownItem(String text, IconData icon, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: AppColors.putih),
-      title: Text(text,
-          style: TextStyle(
-              color: AppColors.putih,
-              fontFamily: GoogleFonts.poppins().fontFamily)),
+      title: Text(
+        text,
+        style: TextStyle(
+          color: AppColors.putih,
+          fontFamily: GoogleFonts.poppins().fontFamily,
+        ),
+      ),
       onTap: onTap,
     );
   }
 
   @override
   void dispose() {
+    _removeOverlay();
     _controller.dispose();
-    _dropdownOverlay?.remove();
-    _dropdownOverlay = null;
     super.dispose();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Clean up overlay when dependencies change
     if (_dropdownOverlay != null) {
-      _dropdownOverlay?.remove();
-      _dropdownOverlay = null;
-      _showDropdown = false;
+      _removeOverlay();
+      setState(() {
+        _showDropdown = false;
+      });
     }
   }
 
@@ -234,23 +272,29 @@ class _DashboardHeaderState extends State<DashboardHeader>
                   ),
                 ),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_nama,
-                      style: TextStyle(
-                          fontSize: 24,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.putih)),
-                  Text(_peran,
-                      style: TextStyle(
-                          fontSize: 14,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          height: 0.8,
-                          fontWeight: FontWeight.w400,
-                          color: AppColors.putih.withOpacity(0.5))),
+                  Text(
+                    _nama,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.putih,
+                    ),
+                  ),
+                  Text(
+                    _peran,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      height: 0.8,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.putih.withOpacity(0.5),
+                    ),
+                  ),
                 ],
               ),
             ],
@@ -258,8 +302,11 @@ class _DashboardHeaderState extends State<DashboardHeader>
           GestureDetector(
             key: _menuKey,
             onTap: _toggleDropdown,
-            child: FaIcon(FontAwesomeIcons.barsStaggered,
-                color: AppColors.putih, size: 25),
+            child: FaIcon(
+              FontAwesomeIcons.barsStaggered,
+              color: AppColors.putih,
+              size: 25,
+            ),
           ),
         ],
       ),

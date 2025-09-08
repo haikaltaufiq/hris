@@ -3,8 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hr/components/custom/header.dart';
+import 'package:hr/components/custom/loading.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -66,9 +69,13 @@ class _ProfilePageState extends State<ProfilePage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
+              if (context.isMobile)
+                Align(
+                    alignment: AlignmentGeometry.centerLeft,
+                    child: Header(title: "Profile")),
               const SizedBox(height: 20),
               if (isLoading)
-                const Center(child: CircularProgressIndicator())
+                const Center(child: LoadingWidget())
               else
                 Column(
                   children: [
@@ -85,91 +92,161 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget _buildProfileCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(25),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05), // tipis banget
-            blurRadius: 4, // kecil, biar soft
-            spreadRadius: 0,
-            offset: Offset(0, 1), // cuma bawah dikit
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-      child: Column(
-        children: [
-          // Avatar
-          Container(
-            width: 120,
-            height: 120,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                colors: [AppColors.primary.withOpacity(0.8), AppColors.primary],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+    if (context.isMobile) {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Avatar
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withOpacity(0.8),
+                    AppColors.primary
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(
+                    color: AppColors.putih.withOpacity(0.4), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05), // tipis banget
+                    blurRadius: 4, // kecil, biar soft
+                    spreadRadius: 0,
+                    offset: Offset(0, 1), // cuma bawah dikit
+                  ),
+                ],
               ),
-              border:
-                  Border.all(color: AppColors.putih.withOpacity(0.4), width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05), // tipis banget
-                  blurRadius: 4, // kecil, biar soft
-                  spreadRadius: 0,
-                  offset: Offset(0, 1), // cuma bawah dikit
+              child: ClipOval(
+                child: nama != null && nama!.isNotEmpty
+                    ? Center(
+                        child: Text(
+                          nama!.substring(0, 1).toUpperCase(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.putih,
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        FontAwesomeIcons.user,
+                        size: 50,
+                        color: AppColors.putih,
+                      ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              nama ?? '-',
+              style: GoogleFonts.poppins(
+                fontSize: 26,
+                fontWeight: FontWeight.w700,
+                color: AppColors.putih,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Text(
+              peran ?? '-',
+              style: GoogleFonts.poppins(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: AppColors.putih.withOpacity(0.8),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+        child: Row(
+          children: [
+            // Avatar
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary.withOpacity(0.8),
+                    AppColors.primary
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                border: Border.all(
+                    color: AppColors.putih.withOpacity(0.4), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05), // tipis banget
+                    blurRadius: 4, // kecil, biar soft
+                    spreadRadius: 0,
+                    offset: Offset(0, 1), // cuma bawah dikit
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: nama != null && nama!.isNotEmpty
+                    ? Center(
+                        child: Text(
+                          nama!.substring(0, 1).toUpperCase(),
+                          style: GoogleFonts.poppins(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.putih,
+                          ),
+                        ),
+                      )
+                    : Icon(
+                        FontAwesomeIcons.user,
+                        size: 50,
+                        color: AppColors.putih,
+                      ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  nama ?? '-',
+                  style: GoogleFonts.poppins(
+                    fontSize: 26,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.putih,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  peran ?? '-',
+                  style: GoogleFonts.poppins(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.putih.withOpacity(0.8),
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [],
                 ),
               ],
             ),
-            child: ClipOval(
-              child: nama != null && nama!.isNotEmpty
-                  ? Center(
-                      child: Text(
-                        nama!.substring(0, 1).toUpperCase(),
-                        style: GoogleFonts.poppins(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.putih,
-                        ),
-                      ),
-                    )
-                  : Icon(
-                      FontAwesomeIcons.user,
-                      size: 50,
-                      color: AppColors.putih,
-                    ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            nama ?? '-',
-            style: GoogleFonts.poppins(
-              fontSize: 26,
-              fontWeight: FontWeight.w700,
-              color: AppColors.putih,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            peran ?? '-',
-            style: GoogleFonts.poppins(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.putih.withOpacity(0.8),
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [],
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    }
   }
 
   Widget _buildInfoSection() {
@@ -179,6 +256,11 @@ class _ProfilePageState extends State<ProfilePage> {
         'label': 'Email',
         'value': email,
         'isEditable': true
+      },
+      {
+        'icon': FontAwesomeIcons.key,
+        'label': 'Change Password',
+        'value': 'Change Password',
       },
       {
         'icon': FontAwesomeIcons.building,
@@ -213,49 +295,62 @@ class _ProfilePageState extends State<ProfilePage> {
         'value': bpjsKetenagakerjaan
       },
     ];
+    if (context.isMobile) {
+      return Column(
+        children: infoItems.map((item) => _buildInfoItem(item)).toList(),
+      );
+    } else {
+      // Desktop: dua kolom
+      final mid = (infoItems.length / 2).ceil();
+      final leftItems = infoItems.sublist(0, mid);
+      final rightItems = infoItems.sublist(mid);
 
-    return Column(
-      children: infoItems.map((item) {
-        final bool isEditable =
-            item['isEditable'] as bool? ?? false; // << cast ke bool
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 8),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(15),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05), // tipis banget
-                blurRadius: 4, // kecil, biar soft
-                spreadRadius: 0,
-                offset: Offset(0, 1), // cuma bawah dikit
-              ),
-            ],
-          ),
-          child: ListTile(
-            leading: FaIcon(item['icon'] as IconData, color: AppColors.putih),
-            title: Text(
-              item['label'] as String,
-              style: GoogleFonts.poppins(
-                  color: AppColors.putih.withOpacity(0.7), fontSize: 14),
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Column(
+              children: leftItems.map((item) => _buildInfoItem(item)).toList(),
             ),
-            subtitle: Text(
-              item['value'] as String? ?? '-',
-              style: GoogleFonts.poppins(
-                color: AppColors.putih,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            trailing: isEditable
-                ? IconButton(
-                    icon: FaIcon(FontAwesomeIcons.pen, color: AppColors.putih),
-                    onPressed: () => _showEditEmailBottomSheet(),
-                  )
-                : null,
           ),
-        );
-      }).toList(),
+          const SizedBox(width: 40), // jarak antar kolom
+          Expanded(
+            child: Column(
+              children: rightItems.map((item) => _buildInfoItem(item)).toList(),
+            ),
+          ),
+        ],
+      );
+    }
+  }
+
+// helper function biar clean
+  Widget _buildInfoItem(Map<String, dynamic> item) {
+    final bool isEditable = item['isEditable'] as bool? ?? false;
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: ListTile(
+        leading: FaIcon(item['icon'] as IconData, color: AppColors.putih),
+        title: Text(
+          item['label'] as String,
+          style: GoogleFonts.poppins(
+              color: AppColors.putih.withOpacity(0.7), fontSize: 14),
+        ),
+        subtitle: Text(
+          item['value'] as String? ?? '-',
+          style: GoogleFonts.poppins(
+            color: AppColors.putih,
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        trailing: isEditable
+            ? IconButton(
+                icon: FaIcon(FontAwesomeIcons.pen, color: AppColors.putih),
+                onPressed: () => _showEditEmailBottomSheet(),
+              )
+            : null,
+      ),
     );
   }
 
@@ -334,10 +429,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     final oldPassword = passwordController.text.trim();
 
                     if (newEmail.isEmpty || oldPassword.isEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Email dan password wajib diisi')),
-                      );
+                      NotificationHelper.showTopNotification(
+                          context, 'Email dan password wajib diisi',
+                          isSuccess: false);
                       return;
                     }
 

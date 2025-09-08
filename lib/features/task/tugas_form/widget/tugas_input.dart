@@ -262,12 +262,50 @@ class _TugasInputState extends State<TugasInput> {
             label: "Jam Mulai",
             hint: "--:--",
             controller: _jamMulaiController,
-            suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-            onTapIcon: () => _onTapIconTime(_jamMulaiController),
+            suffixIcon: context.isMobile
+                ? Icon(Icons.access_time, color: AppColors.putih)
+                : null,
+            onTapIcon: context.isMobile
+                ? () => _onTapIconTime(_jamMulaiController)
+                : () async {
+                    final picked = await showTimePicker(
+                      context: context,
+                      initialTime: const TimeOfDay(hour: 0, minute: 0),
+                      initialEntryMode: TimePickerEntryMode.input,
+                      builder: (context, child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(context)
+                              .copyWith(alwaysUse24HourFormat: true),
+                          child: Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: ColorScheme.dark(
+                                primary: AppColors.secondary,
+                                onPrimary: AppColors.putih,
+                                surface: AppColors.primary,
+                                onSurface: AppColors.putih,
+                              ),
+                              textButtonTheme: TextButtonThemeData(
+                                style: TextButton.styleFrom(
+                                  foregroundColor: AppColors.putih,
+                                ),
+                              ),
+                            ),
+                            child: child!,
+                          ),
+                        );
+                      },
+                    );
+
+                    if (picked != null) {
+                      _jamMulaiController.text =
+                          "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+                    }
+                  },
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
+
           CustomInputField(
             label: "Tanggal Mulai",
             hint: "dd / mm / yyyy",

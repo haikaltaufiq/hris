@@ -4,7 +4,6 @@ import 'package:hr/components/navbar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/routes/app_routes.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -78,20 +77,11 @@ class _MainLayoutState extends State<MainLayout> {
     AppRoutes.reminderAdd,
     AppRoutes.reminderEdit,
   ];
-  String _nama = '';
 
   @override
   void initState() {
     super.initState();
     selectedIndex = _routeToIndex[widget.currentRoute] ?? 0;
-    _loadUserData();
-  }
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _nama = prefs.getString('nama') ?? '';
-    });
   }
 
   @override
@@ -294,7 +284,7 @@ class _MainLayoutState extends State<MainLayout> {
     switch (widget.currentRoute) {
       case AppRoutes.dashboard:
       case AppRoutes.dashboardMobile:
-        return _nama.isNotEmpty ? 'Welcome $_nama' : 'Dashboard';
+        return 'Dashboard';
       case AppRoutes.attendance:
         return 'Attendance';
       case AppRoutes.task:
