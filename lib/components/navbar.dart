@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,19 +19,48 @@ class ResponsiveNavBar extends StatefulWidget {
   });
 
   static const List<NavItem> _navItems = [
-    NavItem(label: "Dashboard", icon: FontAwesomeIcons.house),
-    NavItem(label: "Attendance", icon: FontAwesomeIcons.solidCalendarCheck),
-    NavItem(label: "Task", icon: FontAwesomeIcons.listCheck),
-    NavItem(label: "Over Time", icon: FontAwesomeIcons.solidClock),
-    NavItem(label: "Leave", icon: FontAwesomeIcons.solidCalendarMinus),
+    NavItem(
+      label: "Dashboard",
+      icon: FontAwesomeIcons.house,
+      selectedIcon: FontAwesomeIcons.houseChimney,
+    ),
+    NavItem(
+      label: "Attendance",
+      icon: FontAwesomeIcons.calendarCheck,
+      selectedIcon: FontAwesomeIcons.solidCalendarCheck,
+    ),
+    NavItem(
+      label: "Task",
+      icon: FontAwesomeIcons.listCheck,
+    ),
+    NavItem(
+        label: "Over Time",
+        icon: FontAwesomeIcons.clock,
+        selectedIcon: FontAwesomeIcons.solidClock),
+    NavItem(
+        label: "Leave",
+        icon: FontAwesomeIcons.calendarMinus,
+        selectedIcon: FontAwesomeIcons.solidCalendarMinus),
     NavItem(label: "Employees", icon: FontAwesomeIcons.users),
-    NavItem(label: "Payroll", icon: FontAwesomeIcons.moneyBill),
-    NavItem(label: "Department", icon: FontAwesomeIcons.building),
-    NavItem(label: "Position", icon: FontAwesomeIcons.idBadge),
+    NavItem(
+      label: "Payroll",
+      icon: FontAwesomeIcons.moneyBill,
+    ),
+    NavItem(
+        label: "Department",
+        icon: FontAwesomeIcons.building,
+        selectedIcon: FontAwesomeIcons.solidBuilding),
+    NavItem(
+        label: "Position",
+        icon: FontAwesomeIcons.idBadge,
+        selectedIcon: FontAwesomeIcons.solidIdBadge),
     NavItem(label: "Access Rights", icon: FontAwesomeIcons.userShield),
     NavItem(label: "Salary Deduction", icon: FontAwesomeIcons.calculator),
     NavItem(label: "Log Activity", icon: FontAwesomeIcons.history),
-    NavItem(label: "Reminder", icon: FontAwesomeIcons.alarmClock),
+    NavItem(
+        label: "Reminder",
+        icon: FontAwesomeIcons.alarmClock,
+        selectedIcon: FontAwesomeIcons.solidAlarmClock),
     NavItem(label: "Settings", icon: FontAwesomeIcons.gear),
   ];
 
@@ -296,21 +324,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
               SizedBox(
                 height: 60,
               ),
-              Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: widget.isCollapsed ? 8 : AppSizes.paddingM,
-                ),
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.transparent,
-                      AppColors.primary,
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
               const SizedBox(height: AppSizes.paddingM),
               Expanded(
                 child: PageStorage(
@@ -365,7 +378,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
         children: [
           Container(
             height: 1,
-            margin: const EdgeInsets.only(bottom: AppSizes.paddingM),
+            margin: const EdgeInsets.only(bottom: AppSizes.paddingS),
           ),
           AnimatedContainer(
             duration: const Duration(milliseconds: 300),
@@ -479,6 +492,7 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
+      height: 50,
       child: MouseRegion(
         onEnter: (_) {
           setState(() => _isHovered = true);
@@ -513,14 +527,6 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
                             ? AppColors.putih.withOpacity(0.2)
                             : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
-                    border: isSelected
-                        ? Border(
-                            left: BorderSide(
-                              color: AppColors.putih,
-                              width: 2,
-                            ),
-                          )
-                        : null,
                     boxShadow: isSelected
                         ? [
                             BoxShadow(
@@ -537,7 +543,9 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
                             scale: _isHovered ? 1.1 : 1.0,
                             duration: const Duration(milliseconds: 200),
                             child: FaIcon(
-                              widget.item.icon,
+                              isSelected && widget.item.selectedIcon != null
+                                  ? widget.item.selectedIcon!
+                                  : widget.item.icon,
                               color: isSelected
                                   ? AppColors.putih
                                   : AppColors.putih.withOpacity(0.7),
@@ -551,7 +559,9 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
                               scale: _isHovered ? 1.1 : 1.0,
                               duration: const Duration(milliseconds: 200),
                               child: FaIcon(
-                                widget.item.icon,
+                                isSelected && widget.item.selectedIcon != null
+                                    ? widget.item.selectedIcon!
+                                    : widget.item.icon,
                                 color: isSelected
                                     ? AppColors.putih
                                     : AppColors.putih.withOpacity(0.7),
@@ -591,5 +601,6 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
 class NavItem {
   final String label;
   final IconData icon;
-  const NavItem({required this.label, required this.icon});
+  final IconData? selectedIcon;
+  const NavItem({required this.label, required this.icon, this.selectedIcon});
 }

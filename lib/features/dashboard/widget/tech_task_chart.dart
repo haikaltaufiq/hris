@@ -67,7 +67,6 @@ class _TechTaskChartState extends State<TechTaskChart>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader('Technical Performance'),
           const SizedBox(height: 20),
           _buildModernCard(
             child: _buildLineChart(),
@@ -93,11 +92,10 @@ class _TechTaskChartState extends State<TechTaskChart>
 
   Widget _buildDesktopLayout() {
     return Padding(
-      padding: const EdgeInsets.only(right: 16.0, left: 16.0),
+      padding: const EdgeInsets.only(right: 20.0, left: 20.0, bottom: 16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader('Technical Performance'),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -123,7 +121,7 @@ class _TechTaskChartState extends State<TechTaskChart>
                   ],
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 10),
               Expanded(
                 flex: 2,
                 child: _buildChartSection(
@@ -150,23 +148,6 @@ class _TechTaskChartState extends State<TechTaskChart>
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildHeader(String title) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-              fontSize: 18,
-              color: AppColors.putih,
-              fontFamily: GoogleFonts.poppins().fontFamily,
-              fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 14),
-      ],
     );
   }
 

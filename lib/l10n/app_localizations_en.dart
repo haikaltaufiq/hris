@@ -18,13 +18,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Human Resource Information System';
 
   @override
-  String get subtitleApp => 'The HRIS application is designed to simplify the management of attendance, leave, overtime, and employee tasks efficiently and centrally. Featuring a modern interface and intuitive navigation, HRIS streamlines HR administration processes all at your fingertips';
+  String get subtitleApp =>
+      'The HRIS application is designed to simplify the management of attendance, leave, overtime, and employee tasks efficiently and centrally. Featuring a modern interface and intuitive navigation, HRIS streamlines HR administration processes all at your fingertips';
 
   @override
-  String get landingWelcome => 'Welcome to HRIS';
+  String get landingWelcome => 'Human Resource Information System';
 
   @override
-  String get landingDescription => 'Your human resource management system made simple.';
+  String get landingDescription =>
+      'Your human resource management system made simple.';
 
   @override
   String get footerText => 'All rights reserved';

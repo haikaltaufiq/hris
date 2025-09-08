@@ -8,132 +8,141 @@ class AttendanceChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Monthly Attendance',
-            style: TextStyle(
-              fontSize: 18,
-              color: AppColors.putih,
-              fontFamily: GoogleFonts.poppins().fontFamily,
-              fontWeight: FontWeight.bold,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        /// CHART
+        Container(
+          height: 320,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(height: 16),
-
-          /// CHART
-          Container(
-            height: 220,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: 6,
-                barTouchData: BarTouchData(enabled: true),
-                titlesData: FlTitlesData(
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 28,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) => Text(
-                        value.toInt().toString(),
-                        style: GoogleFonts.poppins(
-                            color: AppColors.putih, fontSize: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Monthly Attendance',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: AppColors.putih,
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: 220,
+                child: BarChart(
+                  BarChartData(
+                    alignment: BarChartAlignment.spaceAround,
+                    maxY: 6,
+                    barTouchData: BarTouchData(enabled: true),
+                    titlesData: FlTitlesData(
+                      leftTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          reservedSize: 28,
+                          interval: 1,
+                          getTitlesWidget: (value, meta) => Text(
+                            value.toInt().toString(),
+                            style: GoogleFonts.poppins(
+                                color: AppColors.putih, fontSize: 10),
+                          ),
+                        ),
                       ),
+                      bottomTitles: AxisTitles(
+                        sideTitles: SideTitles(
+                          showTitles: true,
+                          interval: 1,
+                          getTitlesWidget: (value, meta) {
+                            const labels = [
+                              'Mon',
+                              'Tue',
+                              'Wed',
+                              'Thu',
+                              'Fri',
+                              'Sat',
+                              'Sun'
+                            ];
+                            return Text(
+                              labels[value.toInt()],
+                              style: TextStyle(
+                                  color: AppColors.putih, fontSize: 10),
+                            );
+                          },
+                        ),
+                      ),
+                      rightTitles:
+                          AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                      topTitles:
+                          AxisTitles(sideTitles: SideTitles(showTitles: false)),
                     ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      interval: 1,
-                      getTitlesWidget: (value, meta) {
-                        const labels = [
-                          'Mon',
-                          'Tue',
-                          'Wed',
-                          'Thu',
-                          'Fri',
-                          'Sat',
-                          'Sun'
-                        ];
-                        return Text(
-                          labels[value.toInt()],
-                          style:
-                              TextStyle(color: AppColors.putih, fontSize: 10),
-                        );
-                      },
+                    borderData: FlBorderData(
+                      show: false,
                     ),
+                    barGroups: [
+                      BarChartGroupData(x: 0, barRods: [
+                        BarChartRodData(toY: 3, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 2, color: Colors.red, width: 12),
+                        BarChartRodData(toY: 1, color: Colors.green, width: 12),
+                      ]),
+                      BarChartGroupData(x: 1, barRods: [
+                        BarChartRodData(toY: 2, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 3, color: Colors.red, width: 12),
+                        BarChartRodData(
+                            toY: 4.2, color: Colors.green, width: 12),
+                      ]),
+                      BarChartGroupData(x: 2, barRods: [
+                        BarChartRodData(toY: 5, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 2, color: Colors.red, width: 12),
+                        BarChartRodData(toY: 3, color: Colors.green, width: 12),
+                      ]),
+                      BarChartGroupData(x: 3, barRods: [
+                        BarChartRodData(
+                            toY: 3.1, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 4, color: Colors.red, width: 12),
+                        BarChartRodData(
+                            toY: 4.8, color: Colors.green, width: 12),
+                      ]),
+                      BarChartGroupData(x: 4, barRods: [
+                        BarChartRodData(toY: 4, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 3, color: Colors.red, width: 12),
+                        BarChartRodData(toY: 2, color: Colors.green, width: 12),
+                      ]),
+                      BarChartGroupData(x: 5, barRods: [
+                        BarChartRodData(toY: 3, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 2, color: Colors.red, width: 12),
+                        BarChartRodData(
+                            toY: 5.2, color: Colors.green, width: 12),
+                      ]),
+                      BarChartGroupData(x: 6, barRods: [
+                        BarChartRodData(toY: 4, color: Colors.blue, width: 12),
+                        BarChartRodData(toY: 3, color: Colors.red, width: 12),
+                        BarChartRodData(
+                            toY: 4.5, color: Colors.green, width: 12),
+                      ]),
+                    ],
                   ),
-                  rightTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles:
-                      AxisTitles(sideTitles: SideTitles(showTitles: false)),
                 ),
-                borderData: FlBorderData(
-                  show: false,
-                ),
-                barGroups: [
-                  BarChartGroupData(x: 0, barRods: [
-                    BarChartRodData(toY: 3, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 2, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 1, color: Colors.green, width: 12),
-                  ]),
-                  BarChartGroupData(x: 1, barRods: [
-                    BarChartRodData(toY: 2, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 3, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 4.2, color: Colors.green, width: 12),
-                  ]),
-                  BarChartGroupData(x: 2, barRods: [
-                    BarChartRodData(toY: 5, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 2, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 3, color: Colors.green, width: 12),
-                  ]),
-                  BarChartGroupData(x: 3, barRods: [
-                    BarChartRodData(toY: 3.1, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 4, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 4.8, color: Colors.green, width: 12),
-                  ]),
-                  BarChartGroupData(x: 4, barRods: [
-                    BarChartRodData(toY: 4, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 3, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 2, color: Colors.green, width: 12),
-                  ]),
-                  BarChartGroupData(x: 5, barRods: [
-                    BarChartRodData(toY: 3, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 2, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 5.2, color: Colors.green, width: 12),
-                  ]),
-                  BarChartGroupData(x: 6, barRods: [
-                    BarChartRodData(toY: 4, color: Colors.blue, width: 12),
-                    BarChartRodData(toY: 3, color: Colors.red, width: 12),
-                    BarChartRodData(toY: 4.5, color: Colors.green, width: 12),
-                  ]),
+              ),
+
+              /// LEGEND
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: const [
+                  _LegendItem(color: Colors.blue, label: 'Target'),
+                  _LegendItem(color: Colors.red, label: 'Realisasi'),
+                  _LegendItem(color: Colors.green, label: 'Forecast'),
                 ],
               ),
-            ),
-          ),
-
-          const SizedBox(height: 12),
-
-          /// LEGEND
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: const [
-              _LegendItem(color: Colors.blue, label: 'Target'),
-              _LegendItem(color: Colors.red, label: 'Realisasi'),
-              _LegendItem(color: Colors.green, label: 'Forecast'),
             ],
           ),
-        ],
-      ),
+        ),
+
+        const SizedBox(height: 12),
+      ],
     );
   }
 }

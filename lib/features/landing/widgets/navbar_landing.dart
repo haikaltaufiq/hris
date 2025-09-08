@@ -1,5 +1,6 @@
 // widgets/landing_navbar.dart
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -57,10 +58,12 @@ class LandingNavbar extends StatelessWidget {
             color: AppColors.blue,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            Icons.business,
-            size: 20,
-            color: Colors.white,
+          child: Center(
+            child: FaIcon(
+              FontAwesomeIcons.building,
+              size: 20,
+              color: Colors.white,
+            ),
           ),
         ),
         const SizedBox(width: 12),
@@ -68,7 +71,7 @@ class LandingNavbar extends StatelessWidget {
           'HRIS',
           style: TextStyle(
             fontSize: 20,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w900,
             color: Colors.black,
           ),
         ),
@@ -135,7 +138,7 @@ class LandingNavbar extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.blue,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),

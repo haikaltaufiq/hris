@@ -599,21 +599,89 @@ class _InfoPageState extends State<InfoPage>
         children: [
           // Form fields dengan spacing konsisten
           _buildFormField(
-            label: "Jam Masuk",
-            controller: jamMasukController,
-            icon: Icons.access_time,
-            readOnly: true,
-            onTap: () => _onTapIconTime(jamMasukController),
-            validator: (v) => v == null || v.isEmpty ? "Wajib diisi" : null,
-          ),
+              label: "Jam Masuk",
+              controller: jamMasukController,
+              icon: Icons.access_time,
+              readOnly: true,
+              onTap: context.isMobile
+                  ? () => _onTapIconTime(jamMasukController)
+                  : () async {
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: const TimeOfDay(hour: 0, minute: 0),
+                        initialEntryMode: TimePickerEntryMode.input,
+                        builder: (context, child) {
+                          return MediaQuery(
+                            data: MediaQuery.of(context)
+                                .copyWith(alwaysUse24HourFormat: true),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.secondary,
+                                  onPrimary: AppColors.putih,
+                                  surface: AppColors.primary,
+                                  onSurface: AppColors.putih,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.putih,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            ),
+                          );
+                        },
+                      );
+
+                      if (picked != null) {
+                        jamMasukController.text =
+                            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+                      }
+                      (v) => v == null || v.isEmpty ? "Wajib diisi" : null;
+                    }),
           _buildFormField(
-            label: "Jam Keluar",
-            controller: jamKeluarController,
-            icon: Icons.access_time,
-            readOnly: true,
-            onTap: () => _onTapIconTime(jamKeluarController),
-            validator: (v) => v == null || v.isEmpty ? "Wajib diisi" : null,
-          ),
+              label: "Jam Keluar",
+              controller: jamKeluarController,
+              icon: Icons.access_time,
+              readOnly: true,
+              onTap: context.isMobile
+                  ? () => _onTapIconTime(jamKeluarController)
+                  : () async {
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: const TimeOfDay(hour: 0, minute: 0),
+                        initialEntryMode: TimePickerEntryMode.input,
+                        builder: (context, child) {
+                          return MediaQuery(
+                            data: MediaQuery.of(context)
+                                .copyWith(alwaysUse24HourFormat: true),
+                            child: Theme(
+                              data: Theme.of(context).copyWith(
+                                colorScheme: ColorScheme.dark(
+                                  primary: AppColors.secondary,
+                                  onPrimary: AppColors.putih,
+                                  surface: AppColors.primary,
+                                  onSurface: AppColors.putih,
+                                ),
+                                textButtonTheme: TextButtonThemeData(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.putih,
+                                  ),
+                                ),
+                              ),
+                              child: child!,
+                            ),
+                          );
+                        },
+                      );
+
+                      if (picked != null) {
+                        jamKeluarController.text =
+                            "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+                      }
+                      (v) => v == null || v.isEmpty ? "Wajib diisi" : null;
+                    }),
 
           const SizedBox(height: 14),
 

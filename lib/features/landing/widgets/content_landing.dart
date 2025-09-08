@@ -1,5 +1,6 @@
 // widgets/landing_content.dart
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -36,8 +37,7 @@ class HeroSection extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 800),
         child: Column(
           children: [
-            _buildHeroIcon(context),
-            const SizedBox(height: 32),
+            const SizedBox(height: 132),
             _buildTitle(context, l10n),
             const SizedBox(height: 16),
             _buildSubtitle(context, l10n),
@@ -45,22 +45,6 @@ class HeroSection extends StatelessWidget {
             _buildCTAButtons(context),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeroIcon(BuildContext context) {
-    return Container(
-      width: 80,
-      height: 80,
-      decoration: BoxDecoration(
-        color: AppColors.blue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Icon(
-        Icons.business_center_outlined,
-        size: 40,
-        color: AppColors.blue,
       ),
     );
   }
@@ -73,7 +57,8 @@ class HeroSection extends StatelessWidget {
         fontSize: context.isMobile ? 32 : 48,
         fontWeight: FontWeight.bold,
         color: Theme.of(context).textTheme.headlineLarge?.color,
-        height: 1.1,
+        height: context.isMobile ? 1.0 : 0.5,
+        letterSpacing: -1.5,
       ),
     );
   }
@@ -194,8 +179,9 @@ class AboutSection extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 1200),
         child: Column(
           children: [
+            const SizedBox(height: 30),
             _buildSectionHeader(context),
-            const SizedBox(height: 60),
+            const SizedBox(height: 30),
             _buildAboutGrid(context),
           ],
         ),
@@ -210,7 +196,7 @@ class AboutSection extends StatelessWidget {
           height: 100,
         ),
         Text(
-          'About HRIS',
+          'About',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: context.isMobile ? 28 : 36,
@@ -238,25 +224,25 @@ class AboutSection extends StatelessWidget {
   Widget _buildAboutGrid(BuildContext context) {
     final aboutItems = [
       {
-        'icon': Icons.people_outline,
+        'icon': FontAwesomeIcons.users,
         'title': 'Manajemen Karyawan',
         'description':
             'Kelola data lengkap karyawan dari rekrutmen hingga pensiun dengan sistem yang terintegrasi dan aman',
       },
       {
-        'icon': Icons.analytics_outlined,
+        'icon': FontAwesomeIcons.chartLine,
         'title': 'Laporan & Analisis',
         'description':
             'Dapatkan insight mendalam tentang performa karyawan dan operasional HR melalui dashboard analytics',
       },
       {
-        'icon': Icons.security_outlined,
+        'icon': FontAwesomeIcons.shield,
         'title': 'Keamanan Data',
         'description':
             'Sistem keamanan berlapis dengan enkripsi data dan kontrol akses untuk melindungi informasi sensitif',
       },
       {
-        'icon': Icons.cloud_outlined,
+        'icon': FontAwesomeIcons.cloud,
         'title': 'Cloud Based',
         'description':
             'Akses sistem kapan saja dan dimana saja dengan infrastruktur cloud yang handal dan scalable',
@@ -327,7 +313,7 @@ class AboutSection extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: 28,
+              size: 20,
               color: AppColors.blue,
             ),
           ),
@@ -370,8 +356,9 @@ class FeaturesSection extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 1200),
         child: Column(
           children: [
-            _buildSectionHeader(context),
             const SizedBox(height: 30),
+            _buildSectionHeader(context),
+            const SizedBox(height: 15),
             _buildFeaturesGrid(context),
           ],
         ),
@@ -389,9 +376,9 @@ class FeaturesSection extends StatelessWidget {
             fontSize: context.isMobile ? 28 : 36,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).textTheme.headlineLarge?.color,
+            height: 1.5,
           ),
         ),
-        const SizedBox(height: 16),
         Container(
           constraints: const BoxConstraints(maxWidth: 600),
           child: Text(
@@ -411,31 +398,31 @@ class FeaturesSection extends StatelessWidget {
   Widget _buildFeaturesGrid(BuildContext context) {
     final features = [
       {
-        'icon': Icons.schedule_outlined,
+        'icon': FontAwesomeIcons.clipboardCheck,
         'title': 'Attendance Management',
         'description':
             'Track employee attendance with real-time monitoring and automated reporting system',
       },
       {
-        'icon': Icons.event_available_outlined,
+        'icon': FontAwesomeIcons.calendarCheck,
         'title': 'Leave Management',
         'description':
             'Streamline leave requests, approvals, and balance tracking in one centralized platform',
       },
       {
-        'icon': Icons.access_time_outlined,
+        'icon': FontAwesomeIcons.clock,
         'title': 'Overtime Tracking',
         'description':
             'Monitor and calculate overtime hours with automatic compensation calculations',
       },
       {
-        'icon': Icons.task_outlined,
+        'icon': FontAwesomeIcons.clipboardList,
         'title': 'Task Management',
         'description':
             'Organize, assign, and track tasks efficiently with integrated project management tools',
       },
       {
-        'icon': Icons.payment_outlined,
+        'icon': FontAwesomeIcons.moneyBill,
         'title': 'Payroll',
         'description':
             'Automated payroll processing with tax calculations, deductions, and direct deposit integration',
@@ -535,11 +522,11 @@ class FeaturesSection extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: 32,
+              size: 24,
               color: AppColors.blue,
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 12),
           Text(
             title,
             textAlign: TextAlign.center,
