@@ -92,24 +92,36 @@ class _LoginState extends State<Login> {
                       color: Colors.white,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 22),
                   Text(
-                    'HRIS',
+                    'Human Resource',
                     style: TextStyle(
-                      fontSize: 48,
+                      fontSize: 38,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
+                      letterSpacing: -1.5,
+                    ),
+                  ),
+                  Text(
+                    'Information System',
+                    style: TextStyle(
+                      fontSize: 38,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      height: 0.8,
+                      letterSpacing: -1.5,
                     ),
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    constraints: const BoxConstraints(maxWidth: 300),
+                    constraints: const BoxConstraints(maxWidth: 450),
                     child: Text(
-                      'Human Resources Information System',
+                      'An integrated HRIS solution that automates workforce management, all in one platform.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white.withOpacity(0.9),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w200,
+                        color: Colors.white.withOpacity(0.6),
                         height: 1.5,
                       ),
                     ),

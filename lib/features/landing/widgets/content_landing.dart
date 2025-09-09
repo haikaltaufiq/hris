@@ -11,12 +11,15 @@ class LandingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        HeroSection(),
-        AboutSection(),
-        FeaturesSection(),
-      ],
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: const Column(
+        children: [
+          HeroSection(),
+          AboutSection(),
+          FeaturesSection(),
+        ],
+      ),
     );
   }
 }
@@ -39,9 +42,9 @@ class HeroSection extends StatelessWidget {
           children: [
             const SizedBox(height: 132),
             _buildTitle(context, l10n),
-            const SizedBox(height: 16),
+            const SizedBox(height: 6),
             _buildSubtitle(context, l10n),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
             _buildCTAButtons(context),
           ],
         ),
@@ -50,27 +53,46 @@ class HeroSection extends StatelessWidget {
   }
 
   Widget _buildTitle(BuildContext context, AppLocalizations l10n) {
-    return Text(
-      l10n.landingWelcome,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: context.isMobile ? 32 : 48,
-        fontWeight: FontWeight.bold,
-        color: Theme.of(context).textTheme.headlineLarge?.color,
-        height: context.isMobile ? 1.0 : 0.5,
-        letterSpacing: -1.5,
-      ),
+    return Column(
+      children: [
+        Text(
+          'Human Resource',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: context.isMobile ? 32 : 48,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.headlineLarge?.color,
+            height: context.isMobile ? 0.0 : 0.5,
+            letterSpacing: -1.5,
+          ),
+        ),
+        Text(
+          'Information System',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: context.isMobile ? 32 : 48,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).textTheme.headlineLarge?.color,
+            height: context.isMobile ? 1.5 : 0,
+            letterSpacing: -1.5,
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildSubtitle(BuildContext context, AppLocalizations l10n) {
-    return Text(
-      l10n.landingDescription,
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 18,
-        color: Theme.of(context).textTheme.bodyMedium?.color,
-        height: 1.5,
+    return SizedBox(
+      width: 500,
+      child: Text(
+        l10n.landingDescription,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w300,
+          color: Colors.black.withOpacity(0.6),
+          height: context.isMobile ? 1.5 : 1.0,
+        ),
       ),
     );
   }
@@ -168,21 +190,17 @@ class AboutSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      color: Theme.of(context).brightness == Brightness.light
-          ? Colors.grey[50]
-          : Colors.grey[900],
       padding: EdgeInsets.symmetric(
         horizontal: context.isMobile ? 24 : 48,
-        vertical: context.isMobile ? 60 : 100,
+        vertical: context.isMobile ? 100 : 30,
       ),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 1200),
         child: Column(
           children: [
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             _buildSectionHeader(context),
             const SizedBox(height: 30),
-            _buildAboutGrid(context),
+            SizedBox(width: 1250, child: _buildAboutGrid(context)),
           ],
         ),
       ),
@@ -204,16 +222,17 @@ class AboutSection extends StatelessWidget {
             color: Theme.of(context).textTheme.headlineLarge?.color,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 6),
         Container(
-          constraints: const BoxConstraints(maxWidth: 800),
+          constraints: const BoxConstraints(maxWidth: 700),
           child: Text(
             'HRIS (Human Resources Information System) adalah sistem terintegrasi yang mengelola data karyawan, proses HR, dan operasional bisnis secara efisien untuk meningkatkan produktivitas organisasi.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16,
-              color: Theme.of(context).textTheme.bodyMedium?.color,
-              height: 1.5,
+              fontWeight: FontWeight.w300,
+              color: Colors.black.withOpacity(0.6),
+              height: context.isMobile ? 1.5 : 1.0,
             ),
           ),
         ),
@@ -253,7 +272,7 @@ class AboutSection extends StatelessWidget {
       return Column(
         children: aboutItems
             .map((item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 32),
+                  padding: const EdgeInsets.only(bottom: 12), // jarak rapet
                   child: _buildAboutCard(
                     context,
                     item['icon'] as IconData,
@@ -265,20 +284,44 @@ class AboutSection extends StatelessWidget {
       );
     }
 
-    return Wrap(
-      spacing: 24,
-      runSpacing: 24,
-      children: aboutItems
-          .map((item) => SizedBox(
-                width: (MediaQuery.of(context).size.width - 144) / 2,
+    // Desktop / Web grid 2x2, jarak rapet
+    return Column(
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: aboutItems.take(2).map((item) {
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8), // jarak antar card rapet
                 child: _buildAboutCard(
                   context,
                   item['icon'] as IconData,
                   item['title'] as String,
                   item['description'] as String,
                 ),
-              ))
-          .toList(),
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 12), // jarak antar row rapet
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: aboutItems.skip(2).take(2).map((item) {
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: _buildAboutCard(
+                  context,
+                  item['icon'] as IconData,
+                  item['title'] as String,
+                  item['description'] as String,
+                ),
+              ),
+            );
+          }).toList(),
+        ),
+      ],
     );
   }
 
@@ -289,7 +332,8 @@ class AboutSection extends StatelessWidget {
     String description,
   ) {
     return Container(
-      padding: const EdgeInsets.all(24),
+      // Padding internal card dikurangi atau di-set minimal
+      padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
@@ -350,16 +394,16 @@ class FeaturesSection extends StatelessWidget {
       width: double.infinity,
       padding: EdgeInsets.symmetric(
         horizontal: context.isMobile ? 24 : 48,
-        vertical: context.isMobile ? 60 : 100,
+        vertical: context.isMobile ? 60 : 190,
       ),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 1200),
         child: Column(
           children: [
-            const SizedBox(height: 30),
+            const SizedBox(height: 60),
             _buildSectionHeader(context),
             const SizedBox(height: 15),
-            _buildFeaturesGrid(context),
+            SizedBox(width: 1250, child: _buildFeaturesGrid(context)),
           ],
         ),
       ),
@@ -465,28 +509,23 @@ class FeaturesSection extends StatelessWidget {
                   ))
               .toList(),
         ),
-        const SizedBox(height: 22),
+        const SizedBox(height: 12),
         Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Expanded(child: SizedBox()),
-            ...features
-                .skip(3)
-                .map((feature) => Expanded(
-                      flex: 2,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: _buildFeatureCard(
-                          context,
-                          feature['icon'] as IconData,
-                          feature['title'] as String,
-                          feature['description'] as String,
-                        ),
-                      ),
-                    ))
-                .toList(),
-            const Expanded(child: SizedBox()),
-          ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: features.skip(3).map((feature) {
+            return Flexible(
+              fit: FlexFit.loose, // biar ngikutin height konten
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: _buildFeatureCard(
+                  context,
+                  feature['icon'] as IconData,
+                  feature['title'] as String,
+                  feature['description'] as String,
+                ),
+              ),
+            );
+          }).toList(),
         ),
       ],
     );

@@ -3,7 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/dashboard_item.dart';
 import 'package:hr/features/dashboard/widget/attendance_chart.dart';
-import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
+import 'package:hr/features/dashboard/widget/dashboard_card.dart';
 import 'package:hr/features/dashboard/widget/dashboard_header.dart';
 import 'package:hr/features/dashboard/widget/dashboard_menu.dart';
 import 'package:hr/features/dashboard/widget/status_task_chart.dart';
@@ -26,14 +26,21 @@ class _DashboardMobileState extends State<DashboardMobile> {
       backgroundColor: AppColors.bg,
       body: Padding(
         padding: const EdgeInsets.only(
-          left: 16.0,
-          right: 16.0,
+          left: 24.0,
+          right: 24.0,
         ),
         child: ListView(
           children: [
-            DashboardHeader(),
-            // const DashboardCard(),
-            const DashboardCardUser(),
+            Padding(
+              padding: const EdgeInsets.only(
+                  left: 8.0, right: 8.0, bottom: 12, top: 12),
+              child: DashboardHeader(),
+            ),
+            const DashboardCard(),
+            // const DashboardCardUser(),
+            SizedBox(
+              height: 12,
+            ),
             DashboardMenu(
               items: [
                 DashboardMenuItem(
@@ -93,6 +100,9 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   },
                 ),
               ],
+            ),
+            SizedBox(
+              height: 12,
             ),
             const AttendanceChart(),
             const TechTaskChart(),

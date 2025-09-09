@@ -258,8 +258,8 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                   child: InkWell(
                     onTap: () => widget.onItemTapped(index),
                     borderRadius: BorderRadius.circular(12),
-                    splashColor: Colors.white.withOpacity(0.1),
-                    highlightColor: Colors.white.withOpacity(0.05),
+                    splashColor: Colors.transparent,
+                    highlightColor: Colors.transparent,
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -270,15 +270,15 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                             duration: const Duration(milliseconds: 200),
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? Colors.white.withOpacity(0.1)
-                                  : Colors.transparent,
+                              color: Colors.transparent,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: FaIcon(
-                              item.icon,
-                              size: 23,
+                              isSelected && item.selectedIcon != null
+                                  ? item.selectedIcon!
+                                  : item.icon,
                               color: isSelected ? Colors.white : Colors.white60,
+                              size: 23,
                             ),
                           ),
                         ],

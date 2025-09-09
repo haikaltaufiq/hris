@@ -313,19 +313,15 @@ class CustomDataTableWidget extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          Checkbox(
-                            value: false,
-                            onChanged: (value) {},
-                            side: BorderSide(color: AppColors.putih),
-                            checkColor: Colors.black,
-                            activeColor: AppColors.putih,
-                          ),
                           const SizedBox(width: 8),
+                          FaIcon(FontAwesomeIcons.solidBookmark),
+                          const SizedBox(width: 14),
                           Text(
                             row[0],
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],

@@ -40,10 +40,10 @@ class DashboardCard extends StatelessWidget {
     if (isMobile) {
       // Mobile pake PageView
       return SizedBox(
-        height: max(130, MediaQuery.of(context).size.height * 0.12),
+        height: max(100, MediaQuery.of(context).size.height * 0.12),
         child: PageView.builder(
           itemCount: cardData.length,
-          controller: PageController(viewportFraction: 0.9),
+          controller: PageController(viewportFraction: 1.0),
           itemBuilder: (context, index) {
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),

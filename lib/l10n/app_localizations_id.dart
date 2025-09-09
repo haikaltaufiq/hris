@@ -26,7 +26,7 @@ class AppLocalizationsId extends AppLocalizations {
 
   @override
   String get landingDescription =>
-      'Sistem manajemen sumber daya manusia yang simpel dan efisien.';
+      'An integrated HRIS solution that automates workforce management, all in one platform.';
 
   @override
   String get footerText => 'Hak cipta dilindungi';

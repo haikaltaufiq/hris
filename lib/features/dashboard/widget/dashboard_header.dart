@@ -86,8 +86,8 @@ class _DashboardHeaderState extends State<DashboardHeader>
             ),
           ),
           Positioned(
-            top: offset.dy + renderBox.size.height + 5, // kasih margin bawah
-            right: MediaQuery.of(context).size.width * 0.04,
+            top: offset.dy + renderBox.size.height + 8, // sedikit lebih jauh
+            right: MediaQuery.of(context).size.width * 0.02,
             child: Material(
               color: Colors.transparent,
               child: FadeTransition(
@@ -96,37 +96,75 @@ class _DashboardHeaderState extends State<DashboardHeader>
                   sizeFactor: _sizeAnimation,
                   axisAlignment: -1.0,
                   child: Container(
-                    width: 200,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    width: 180, // lebih lebar
                     decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(12),
+                      color: AppColors.secondary, // ganti ke putih
+                      borderRadius:
+                          BorderRadius.circular(12), // corner lebih rounded
                       boxShadow: [
+                        // Shadow yang lebih bagus
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          blurRadius: 10,
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 20,
                           offset: const Offset(0, 4),
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                          spreadRadius: 0,
                         ),
                       ],
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.1),
+                        width: 0.5,
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildDropdownItem("Dashboard", Icons.dashboard, () {
-                          _hideDropdown();
-                        }),
-                        _buildDropdownItem("Profile", Icons.person, () {
-                          _hideDropdown();
-                        }),
-                        _buildDropdownItem("Settings", Icons.settings, () {
-                          // Hide dropdown first, then navigate
-                          _hideDropdownImmediate();
-                          Navigator.pushNamed(context, AppRoutes.pengaturan);
-                        }),
-                        _buildDropdownItem("Logout", Icons.logout, () {
-                          _hideDropdown();
-                        }),
-                      ],
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8), // padding vertikal
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildDropdownItem("Dashboard", Icons.dashboard, () {
+                            _hideDropdown();
+                          }),
+                          Container(
+                            height: 1,
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          _buildDropdownItem("Profile", Icons.person_outline,
+                              () {
+                            _hideDropdownImmediate();
+                            Navigator.pushNamed(context, AppRoutes.profile);
+                          }),
+                          // Divider
+                          Container(
+                            height: 1,
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          _buildDropdownItem(
+                              "Settings", Icons.settings_outlined, () {
+                            _hideDropdownImmediate();
+                            Navigator.pushNamed(context, AppRoutes.pengaturan);
+                          }),
+                          Container(
+                            height: 1,
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          _buildDropdownItem(
+                            "Logout",
+                            Icons.logout,
+                            () {
+                              _hideDropdown();
+                            },
+                          ), // tambah flag logout
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -217,99 +255,88 @@ class _DashboardHeaderState extends State<DashboardHeader>
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * 0.04,
-        vertical: MediaQuery.of(context).size.height * 0.01,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.primary.withOpacity(0.8),
-                        AppColors.primary
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    border: Border.all(
-                        color: AppColors.putih.withOpacity(0.4), width: 2),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.25),
-                        blurRadius: 2,
-                        offset: const Offset(0, 4),
-                      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            GestureDetector(
+              onTap: () {
+                Navigator.pushNamed(context, AppRoutes.profile);
+              },
+              child: Container(
+                width: 60,
+                height: 60,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.primary.withOpacity(0.8),
+                      AppColors.primary
                     ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  child: ClipOval(
-                    child: _nama.isNotEmpty
-                        ? Center(
-                            child: Text(
-                              _nama.substring(0, 1).toUpperCase(),
-                              style: GoogleFonts.poppins(
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                color: AppColors.putih,
-                              ),
+                  border: Border.all(
+                      color: AppColors.putih.withOpacity(0.4), width: 2),
+                ),
+                child: ClipOval(
+                  child: _nama.isNotEmpty
+                      ? Center(
+                          child: Text(
+                            _nama.substring(0, 1).toUpperCase(),
+                            style: GoogleFonts.poppins(
+                              fontSize: 30,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.putih,
                             ),
-                          )
-                        : Icon(
-                            FontAwesomeIcons.user,
-                            size: 50,
-                            color: AppColors.putih,
                           ),
-                  ),
+                        )
+                      : Icon(
+                          FontAwesomeIcons.user,
+                          size: 50,
+                          color: AppColors.putih,
+                        ),
                 ),
               ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _nama,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.putih,
-                    ),
-                  ),
-                  Text(
-                    _peran,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      height: 0.8,
-                      fontWeight: FontWeight.w400,
-                      color: AppColors.putih.withOpacity(0.5),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          GestureDetector(
-            key: _menuKey,
-            onTap: _toggleDropdown,
-            child: FaIcon(
-              FontAwesomeIcons.barsStaggered,
-              color: AppColors.putih,
-              size: 25,
             ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _nama,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.putih,
+                  ),
+                ),
+                Text(
+                  _peran,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                    height: 0.8,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.putih.withOpacity(0.5),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        GestureDetector(
+          key: _menuKey,
+          onTap: _toggleDropdown,
+          child: FaIcon(
+            FontAwesomeIcons.barsStaggered,
+            color: AppColors.putih,
+            size: 25,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
