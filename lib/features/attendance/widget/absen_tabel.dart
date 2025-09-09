@@ -25,6 +25,7 @@ class AbsenTabel extends StatefulWidget {
 class _AbsenTabelState extends State<AbsenTabel> {
   final List<String> headers = const [
     "Nama",
+    "Tipe",
     "Tanggal Masuk",
     "Tanggal Keluar",
     "Absen Masuk",
@@ -32,7 +33,6 @@ class _AbsenTabelState extends State<AbsenTabel> {
     "Lokasi Masuk",
     "Lokasi Keluar",
     "Video",
-    "Tipe",
   ];
 
   List<AbsenModel> get absensi => [widget.absensi]; // ambil dari main
@@ -43,6 +43,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
     return absensi.map((item) {
       return [
         item.user?.nama ?? "-",
+        item.status ?? "-",
         item.checkinDate ?? "-",
         item.checkoutDate ?? "-",
         item.checkinTime ?? "-",
@@ -56,7 +57,6 @@ class _AbsenTabelState extends State<AbsenTabel> {
         (item.videoUser != null && item.videoUser!.isNotEmpty)
             ? "See Video"
             : "-",
-        item.status ?? "-",
       ];
     }).toList();
   }

@@ -7,7 +7,7 @@ const _latar3Dark = Color.fromARGB(255, 22, 22, 22); // Button / Card
 const _bgDark = Color(0xFF121212); // Background
 const _putihDark = Color(0xFFE0E0E0); // for Text
 const _hitamDark = Color(0xFF050505);
-const _greenDark = Color(0xFF247F43);
+const _greenDark = Color.fromARGB(255, 80, 163, 83);
 const _redDark = Color(0xFF802F2F);
 
 // Warna untuk light mode (kamu sesuaikan)
@@ -18,7 +18,7 @@ const _latar3Light = Color(0xFFFAFAFA);
 const _bgLight = Color(0xFFF7F7F7);
 const _putihLight = Color(0xFF000000);
 const _hitamLight = Color(0xFF050505);
-const _greenLight = Color(0xFF1CCA56);
+const _greenLight = Color(0xFF4EDD53);
 const _redLight = Color(0xFFC82626);
 
 // Sebuah kelas yang menyimpan status theme saat ini

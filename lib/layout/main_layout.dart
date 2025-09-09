@@ -19,9 +19,17 @@ class MainLayout extends StatefulWidget {
   State<MainLayout> createState() => _MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout> {
+class _MainLayoutState extends State<MainLayout>
+    with SingleTickerProviderStateMixin {
   int selectedIndex = 0;
   bool isCollapsed = false;
+  bool _showDropdown = false;
+  late AnimationController _controller;
+  late Animation<double> _sizeAnimation;
+  late Animation<double> _fadeAnimation;
+
+  final GlobalKey _menuKey = GlobalKey();
+  OverlayEntry? _dropdownOverlay;
 
   // Map route ke index
   static const Map<String, int> _routeToIndex = {
@@ -82,6 +90,177 @@ class _MainLayoutState extends State<MainLayout> {
   void initState() {
     super.initState();
     selectedIndex = _routeToIndex[widget.currentRoute] ?? 0;
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 250),
+    );
+
+    _sizeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  void _toggleDropdown() {
+    if (_showDropdown) {
+      _hideDropdown();
+    } else {
+      _showDropdownMenu();
+    }
+  }
+
+  void _showDropdownMenu() {
+    if (_dropdownOverlay != null) return; // jangan insert 2x
+
+    final RenderBox? renderBox =
+        _menuKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (renderBox == null) return;
+
+    final Offset offset = renderBox.localToGlobal(Offset.zero);
+
+    _dropdownOverlay = OverlayEntry(
+      builder: (context) => Stack(
+        children: [
+          GestureDetector(
+            onTap: _hideDropdown,
+            behavior: HitTestBehavior.translucent,
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              color: Colors.transparent,
+            ),
+          ),
+          Positioned(
+            top: offset.dy + renderBox.size.height + 8, // sedikit lebih jauh
+            right: MediaQuery.of(context).size.width * 0.02,
+            child: Material(
+              color: Colors.transparent,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: SizeTransition(
+                  sizeFactor: _sizeAnimation,
+                  axisAlignment: -1.0,
+                  child: Container(
+                    width: 180, // lebih lebar
+                    decoration: BoxDecoration(
+                      color: AppColors.secondary, // ganti ke putih
+                      borderRadius:
+                          BorderRadius.circular(12), // corner lebih rounded
+                      boxShadow: [
+                        // Shadow yang lebih bagus
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.08),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                          spreadRadius: 0,
+                        ),
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                          spreadRadius: 0,
+                        ),
+                      ],
+                      border: Border.all(
+                        color: Colors.grey.withOpacity(0.1),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8), // padding vertikal
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildDropdownItem("Profile", Icons.person_outline,
+                              () {
+                            _hideDropdownImmediate();
+                            Navigator.pushNamed(context, AppRoutes.profile);
+                          }),
+                          // Divider
+                          Container(
+                            height: 1,
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          _buildDropdownItem(
+                              "Settings", Icons.settings_outlined, () {
+                            _hideDropdownImmediate();
+                            Navigator.pushNamed(context, AppRoutes.pengaturan);
+                          }),
+                          Container(
+                            height: 1,
+                            margin: const EdgeInsets.symmetric(horizontal: 12),
+                            color: Colors.grey.withOpacity(0.1),
+                          ),
+                          _buildDropdownItem(
+                            "Logout",
+                            Icons.logout,
+                            () {
+                              _hideDropdown();
+                            },
+                          ), // tambah flag logout
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    Overlay.of(context).insert(_dropdownOverlay!);
+    _controller.forward(from: 0);
+    setState(() {
+      _showDropdown = true;
+    });
+  }
+
+  // Method untuk hide dropdown dengan animasi
+  void _hideDropdown() {
+    if (_dropdownOverlay == null || !_showDropdown) return;
+
+    // Set state first to prevent multiple calls
+    setState(() {
+      _showDropdown = false;
+    });
+
+    // Use addPostFrameCallback to ensure animation completes properly on web
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _controller.reverse().then((_) {
+        _removeOverlay();
+      }).catchError((error) {
+        // Fallback jika animasi gagal
+        _removeOverlay();
+      });
+    });
+  }
+
+  // Method untuk hide dropdown tanpa animasi (untuk navigasi)
+  void _hideDropdownImmediate() {
+    if (_dropdownOverlay == null) return;
+
+    setState(() {
+      _showDropdown = false;
+    });
+
+    _removeOverlay();
+  }
+
+  void _removeOverlay() {
+    if (_dropdownOverlay != null) {
+      _dropdownOverlay!.remove();
+      _dropdownOverlay = null;
+    }
   }
 
   @override
@@ -89,6 +268,43 @@ class _MainLayoutState extends State<MainLayout> {
     super.didUpdateWidget(oldWidget);
     if (widget.currentRoute != oldWidget.currentRoute) {
       selectedIndex = _routeToIndex[widget.currentRoute] ?? 0;
+    }
+  }
+
+  Widget _buildDropdownItem(String text, IconData icon, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(
+        icon,
+        color: AppColors.putih,
+        size: 20,
+      ),
+      title: Text(
+        text,
+        style: TextStyle(
+          color: AppColors.putih,
+          fontSize: 14,
+        ),
+      ),
+      onTap: onTap,
+    );
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Clean up overlay when dependencies change
+    if (_dropdownOverlay != null) {
+      _removeOverlay();
+      setState(() {
+        _showDropdown = false;
+      });
     }
   }
 
@@ -181,7 +397,6 @@ class _MainLayoutState extends State<MainLayout> {
     ].contains(widget.currentRoute);
 
     return Container(
-      height: 70,
       decoration: BoxDecoration(
         color: AppColors.primary,
       ),
@@ -258,9 +473,8 @@ class _MainLayoutState extends State<MainLayout> {
         Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.profile);
-            },
+            key: _menuKey,
+            onTap: _toggleDropdown,
             borderRadius: BorderRadius.circular(20),
             child: Container(
               padding: const EdgeInsets.all(4),

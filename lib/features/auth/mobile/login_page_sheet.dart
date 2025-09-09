@@ -1,7 +1,6 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/features/auth/mobile/widgets/login_button.dart';
 import 'package:hr/features/auth/mobile/widgets/login_checkbox_forgot.dart';
 import 'package:hr/features/auth/mobile/widgets/login_contact.dart';
@@ -84,7 +83,27 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
                         ),
                         const SizedBox(height: 10),
                         const LoginCheckboxAndForgot(),
-                        const SizedBox(height: 22),
+
+                        if (errorMessage != null) ...[
+                          Text(
+                            errorMessage!,
+                            style: const TextStyle(
+                              color: Color(0xFFFF0033), // merah neon
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              shadows: [
+                                Shadow(
+                                  blurRadius: 1.0,
+                                  color:
+                                      Color(0xFFFF0033), // efek glow merah neon
+                                  offset: Offset(0, 0),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+
                         // tampilkan error langsung di login page
                         LoginButton(
                           emailController: emailController,
@@ -93,13 +112,6 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
                             String notificationMsg = msg;
                             setState(() {
                               errorMessage = notificationMsg;
-                            });
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              NotificationHelper.showTopNotification(
-                                context,
-                                notificationMsg,
-                                isSuccess: false,
-                              );
                             });
                           },
                         ),

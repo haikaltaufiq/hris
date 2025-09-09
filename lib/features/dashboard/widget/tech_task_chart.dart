@@ -62,31 +62,15 @@ class _TechTaskChartState extends State<TechTaskChart>
   }
 
   Widget _buildMobileLayout() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 20),
-          _buildModernCard(
-            child: _buildLineChart(),
-            height: 240,
-          ),
-          const SizedBox(height: 16),
-          _buildLegendGrid([
-            _LegendData(
-                color: const Color(0xFF3B82F6), label: 'Target', value: '85%'),
-            _LegendData(
-                color: const Color(0xFFEF4444),
-                label: 'Realisasi',
-                value: '78%'),
-            _LegendData(
-                color: const Color(0xFF10B981),
-                label: 'Forecast',
-                value: '92%'),
-          ]),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildModernCard(
+          child: _buildLineChart(),
+          height: 320,
+        ),
+        const SizedBox(height: 14),
+      ],
     );
   }
 
@@ -213,136 +197,164 @@ class _TechTaskChartState extends State<TechTaskChart>
   }
 
   Widget _buildLineChart() {
-    return LineChart(
-      LineChartData(
-        minX: 0,
-        maxX: 6,
-        minY: 0,
-        maxY: 6,
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: 1,
-          getDrawingHorizontalLine: (value) {
-            return FlLine(
-              color: AppColors.putih.withOpacity(0.1),
-              strokeWidth: 1,
-            );
-          },
-        ),
-        titlesData: FlTitlesData(
-          show: true,
-          bottomTitles: AxisTitles(
-            sideTitles: SideTitles(
-              showTitles: true,
-              interval: 1,
-              getTitlesWidget: (value, meta) {
-                const months = [
-                  'Jan',
-                  'Feb',
-                  'Mar',
-                  'Apr',
-                  'May',
-                  'Jun',
-                  'Jul'
-                ];
-                if (value.toInt() < months.length) {
-                  return Text(
-                    months[value.toInt()],
-                    style: GoogleFonts.poppins(
-                      color: AppColors.putih.withOpacity(0.6),
-                      fontSize: 10,
-                    ),
-                  );
-                }
-                return const SizedBox();
-              },
+    return Column(
+      children: [
+        Align(
+          alignment: AlignmentGeometry.centerLeft,
+          child: Text(
+            "Performance Trend",
+            style: TextStyle(
+              fontSize: 18,
+              color: AppColors.putih,
+              fontFamily: GoogleFonts.poppins().fontFamily,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          leftTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          topTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-          rightTitles:
-              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        borderData: FlBorderData(show: false),
-        lineBarsData: [
-          // Target line
-          LineChartBarData(
-            isCurved: true,
-            curveSmoothness: 0.3,
-            color: const Color(0xFF3B82F6),
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: const FlDotData(show: false),
-            belowBarData: BarAreaData(
-              show: true,
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF3B82F6).withOpacity(0.3),
-                  const Color(0xFF3B82F6).withOpacity(0.05),
+        Expanded(
+          child: SizedBox(
+            child: LineChart(
+              LineChartData(
+                minX: 0,
+                maxX: 6,
+                minY: 0,
+                maxY: 6,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 1,
+                  getDrawingHorizontalLine: (value) {
+                    return FlLine(
+                      color: AppColors.putih.withOpacity(0.1),
+                      strokeWidth: 1,
+                    );
+                  },
+                ),
+                titlesData: FlTitlesData(
+                  show: true,
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      interval: 1,
+                      getTitlesWidget: (value, meta) {
+                        const months = [
+                          'Jan',
+                          'Feb',
+                          'Mar',
+                          'Apr',
+                          'May',
+                          'Jun',
+                          'Jul'
+                        ];
+                        if (value.toInt() < months.length) {
+                          return Text(
+                            months[value.toInt()],
+                            style: GoogleFonts.poppins(
+                              color: AppColors.putih.withOpacity(0.6),
+                              fontSize: 10,
+                            ),
+                          );
+                        }
+                        return const SizedBox();
+                      },
+                    ),
+                  ),
+                  leftTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                  rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false)),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  // Target line
+                  LineChartBarData(
+                    isCurved: true,
+                    curveSmoothness: 0.3,
+                    color: const Color(0xFF3B82F6),
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          const Color(0xFF3B82F6).withOpacity(0.3),
+                          const Color(0xFF3B82F6).withOpacity(0.05),
+                        ],
+                      ),
+                    ),
+                    spots: const [
+                      FlSpot(0, 3.2),
+                      FlSpot(1, 2.8),
+                      FlSpot(2, 4.5),
+                      FlSpot(3, 3.8),
+                      FlSpot(4, 4.2),
+                      FlSpot(5, 3.5),
+                      FlSpot(6, 4.8),
+                    ],
+                  ),
+                  // Realisasi line
+                  LineChartBarData(
+                    isCurved: true,
+                    curveSmoothness: 0.3,
+                    color: const Color(0xFFEF4444),
+                    barWidth: 3,
+                    isStrokeCapRound: true,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: const Color(0xFFEF4444),
+                          strokeWidth: 2,
+                          strokeColor: AppColors.putih,
+                        );
+                      },
+                    ),
+                    spots: const [
+                      FlSpot(0, 2.5),
+                      FlSpot(1, 3.2),
+                      FlSpot(2, 3.8),
+                      FlSpot(3, 4.1),
+                      FlSpot(4, 3.6),
+                      FlSpot(5, 4.5),
+                      FlSpot(6, 4.2),
+                    ],
+                  ),
+                  // Forecast line (dashed effect with gradient)
+                  LineChartBarData(
+                    isCurved: true,
+                    curveSmoothness: 0.3,
+                    color: const Color(0xFF10B981),
+                    barWidth: 2,
+                    isStrokeCapRound: true,
+                    dashArray: [8, 4],
+                    dotData: const FlDotData(show: false),
+                    spots: const [
+                      FlSpot(3, 4.1),
+                      FlSpot(4, 4.5),
+                      FlSpot(5, 5.2),
+                      FlSpot(6, 5.5),
+                    ],
+                  ),
                 ],
               ),
             ),
-            spots: const [
-              FlSpot(0, 3.2),
-              FlSpot(1, 2.8),
-              FlSpot(2, 4.5),
-              FlSpot(3, 3.8),
-              FlSpot(4, 4.2),
-              FlSpot(5, 3.5),
-              FlSpot(6, 4.8),
-            ],
           ),
-          // Realisasi line
-          LineChartBarData(
-            isCurved: true,
-            curveSmoothness: 0.3,
-            color: const Color(0xFFEF4444),
-            barWidth: 3,
-            isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) {
-                return FlDotCirclePainter(
-                  radius: 4,
-                  color: const Color(0xFFEF4444),
-                  strokeWidth: 2,
-                  strokeColor: AppColors.putih,
-                );
-              },
-            ),
-            spots: const [
-              FlSpot(0, 2.5),
-              FlSpot(1, 3.2),
-              FlSpot(2, 3.8),
-              FlSpot(3, 4.1),
-              FlSpot(4, 3.6),
-              FlSpot(5, 4.5),
-              FlSpot(6, 4.2),
-            ],
-          ),
-          // Forecast line (dashed effect with gradient)
-          LineChartBarData(
-            isCurved: true,
-            curveSmoothness: 0.3,
-            color: const Color(0xFF10B981),
-            barWidth: 2,
-            isStrokeCapRound: true,
-            dashArray: [8, 4],
-            dotData: const FlDotData(show: false),
-            spots: const [
-              FlSpot(3, 4.1),
-              FlSpot(4, 4.5),
-              FlSpot(5, 5.2),
-              FlSpot(6, 5.5),
-            ],
-          ),
-        ],
-      ),
+        ),
+        _buildLegendGrid([
+          _LegendData(
+              color: const Color(0xFF3B82F6), label: 'Target', value: '85%'),
+          _LegendData(
+              color: const Color(0xFFEF4444), label: 'Gagal', value: '78%'),
+          _LegendData(
+              color: const Color(0xFF10B981), label: 'Selesai', value: '92%'),
+        ]),
+      ],
     );
   }
 

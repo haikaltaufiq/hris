@@ -356,7 +356,7 @@ class _CompanyCardState extends State<CompanyCard> {
             icon: const Icon(Icons.add, size: 18),
             label: Text(
               'Atur Sekarang',
-              style: GoogleFonts.poppins(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
               ),

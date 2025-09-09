@@ -94,7 +94,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileCard() {
     if (context.isMobile) {
       return Container(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [

@@ -26,7 +26,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get landingDescription =>
-      'Your human resource management system made simple.';
+      'An integrated HRIS solution that automates workforce management, all in one platform.';
 
   @override
   String get footerText => 'All rights reserved';

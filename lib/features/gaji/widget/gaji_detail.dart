@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/features/gaji/widget/format_currency.dart';
 import 'package:hr/features/gaji/widget/potongan.dart';
@@ -12,17 +13,17 @@ class GajiDetail extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: AppColors.latar3,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Rincian Gaji",
+          Text("Rincian Gaji",
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: Colors.black87)),
+                  color: AppColors.putih)),
           const SizedBox(height: 12),
           _buildRow("Gaji Pokok", formatCurrency(gaji.gajiPokok), Colors.blue,
               Icons.account_balance_wallet),
@@ -36,9 +37,9 @@ class GajiDetail extends StatelessWidget {
               Icon(Icons.remove_circle_outline,
                   size: 16, color: Colors.red[600]),
               const SizedBox(width: 8),
-              const Text("Detail Potongan:",
+              Text("Detail Potongan:",
                   style: TextStyle(
-                      fontWeight: FontWeight.w600, color: Colors.black87)),
+                      fontWeight: FontWeight.w600, color: AppColors.putih)),
             ],
           ),
           const SizedBox(height: 8),
@@ -108,7 +109,7 @@ class GajiDetail extends StatelessWidget {
               Text(label,
                   style: TextStyle(
                       fontWeight: isTotal ? FontWeight.w600 : FontWeight.w500,
-                      color: Colors.black87)),
+                      color: AppColors.putih)),
             ],
           ),
           Text(value,

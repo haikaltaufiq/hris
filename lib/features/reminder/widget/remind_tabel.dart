@@ -430,8 +430,8 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                   child: Column(
                     children: [
                       Icon(
-                        Icons.error_outline,
-                        color: AppColors.red,
+                        Icons.inbox_outlined,
+                        color: AppColors.putih.withOpacity(0.6),
                         size: 48,
                       ),
                       SizedBox(height: 16),
@@ -440,8 +440,9 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                             ? 'Tidak ada data pengingat'
                             : 'Tidak ada hasil untuk "${viewModel.searchQuery}"',
                         style: TextStyle(
-                          color: AppColors.red,
+                          color: AppColors.putih.withOpacity(0.6),
                           fontFamily: GoogleFonts.poppins().fontFamily,
+                          fontSize: 16,
                         ),
                         textAlign: TextAlign.center,
                       ),
