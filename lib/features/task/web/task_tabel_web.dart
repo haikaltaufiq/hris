@@ -6,6 +6,7 @@ import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/widgets/video.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -218,6 +219,26 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     );
   }
 
+  void _openMap(String latlongStr) {
+    try {
+      final parts = latlongStr.split(',');
+      final lat = double.parse(parts[0].trim());
+      final lng = double.parse(parts[1].trim());
+
+      Navigator.pushNamed(
+        context,
+        AppRoutes.mapPage,
+        arguments: LatLng(lat, lng),
+      );
+    } catch (_) {
+      NotificationHelper.showTopNotification(
+        context,
+        "Format lokasi tidak valid",
+        isSuccess: false,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.tugasList.isEmpty) {
@@ -233,7 +254,9 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         parseTime(tugas.jamMulai),
         parseDate(tugas.tanggalMulai),
         parseDate(tugas.tanggalSelesai),
-        tugas.lokasi,
+        (tugas.lokasi != null && tugas.lokasi.isNotEmpty)
+            ? "See Location"
+            : "-",
         tugas.note,
         tugas.status,
         tugas.lampiran != null ? "Lihat Lampiran" : "-"
@@ -249,7 +272,9 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             parseTime(tugas.jamMulai),
             parseDate(tugas.tanggalMulai),
             parseDate(tugas.tanggalSelesai),
-            tugas.lokasi,
+            (tugas.lokasi != null && tugas.lokasi.isNotEmpty)
+                ? "See Location"
+                : "-",
             tugas.note,
             tugas.status,
             tugas.lampiran != null ? "Lihat Lampiran" : "-"
@@ -266,7 +291,12 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           onEdit: (row) => _editTugas(context, row),
           onDelete: (row) => _deleteTugas(context, tugasList[row]),
           onTapLampiran: (row) => _showLampiranDialog(context, tugasList[row]),
-          onCellTap: (row, col) => print('Cell tapped: Row $row, Col $col'),
+          onCellTap: (row, col) {
+            final tugas = tugasList[row];
+            if (col == 5 && tugas.lokasi != null && tugas.lokasi.isNotEmpty) {
+              _openMap(tugas.lokasi);
+            }
+          },
         );
       },
     );
