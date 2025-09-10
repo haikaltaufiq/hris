@@ -65,8 +65,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                     const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
-                    // kalau layar kecil (misal < 1100px), auto jadi column
-                    final isNarrow = constraints.maxWidth < 1100;
+                    final isNarrow = constraints.maxWidth < 800;
 
                     return isNarrow
                         ? Column(
@@ -221,8 +220,12 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
 
   /// Reusable Today Card
   Widget _todayCard({required String title, required String value}) {
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final cardHeight = screenHeight * 0.2; // responsive height
+
     return Container(
-      height: 170,
+      height: cardHeight,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.amber[700],
@@ -233,19 +236,27 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
           ),
           const Spacer(),
-          Text(
-            value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 34,
-              fontWeight: FontWeight.w800,
+          // make value responsive with Flexible + FittedBox
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.bottomLeft,
+              child: Text(
+                value,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize:
+                      34, // tetap pake style asli, FittedBox yg nge-handle
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
             ),
           ),
         ],

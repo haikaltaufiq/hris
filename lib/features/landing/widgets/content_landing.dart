@@ -40,7 +40,7 @@ class HeroSection extends StatelessWidget {
         constraints: const BoxConstraints(maxWidth: 800),
         child: Column(
           children: [
-            const SizedBox(height: 132),
+            const SizedBox(height: 92),
             _buildTitle(context, l10n),
             const SizedBox(height: 6),
             _buildSubtitle(context, l10n),
@@ -197,7 +197,7 @@ class AboutSection extends StatelessWidget {
       child: Container(
         child: Column(
           children: [
-            const SizedBox(height: 20),
+            const SizedBox(height: 60),
             _buildSectionHeader(context),
             const SizedBox(height: 30),
             SizedBox(width: 1250, child: _buildAboutGrid(context)),
