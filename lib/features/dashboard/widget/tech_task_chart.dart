@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 
 class TechTaskChart extends StatefulWidget {
   const TechTaskChart({super.key});
@@ -199,18 +200,19 @@ class _TechTaskChartState extends State<TechTaskChart>
   Widget _buildLineChart() {
     return Column(
       children: [
-        Align(
-          alignment: AlignmentGeometry.centerLeft,
-          child: Text(
-            "Performance Trend",
-            style: TextStyle(
-              fontSize: 18,
-              color: AppColors.putih,
-              fontFamily: GoogleFonts.poppins().fontFamily,
-              fontWeight: FontWeight.bold,
+        if (context.isMobile)
+          Align(
+            alignment: AlignmentGeometry.centerLeft,
+            child: Text(
+              "Performance Trend",
+              style: TextStyle(
+                fontSize: 18,
+                color: AppColors.putih,
+                fontFamily: GoogleFonts.poppins().fontFamily,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
-        ),
         Expanded(
           child: SizedBox(
             child: LineChart(
