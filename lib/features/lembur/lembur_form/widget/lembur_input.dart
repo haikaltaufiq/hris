@@ -21,7 +21,7 @@ class _LemburInputState extends State<LemburInput> {
   final TextEditingController _jamMulaiController = TextEditingController();
   final TextEditingController _jamSelesaiController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
-
+  bool _isSubmitting = false;
   int _selectedMinute = 0;
   int _selectedHour = 0;
   @override
@@ -274,46 +274,53 @@ class _LemburInputState extends State<LemburInput> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
-                if (_namaController.text.isEmpty ||
-                    _tanggalController.text.isEmpty ||
-                    _jamMulaiController.text.isEmpty ||
-                    _jamSelesaiController.text.isEmpty ||
-                    _deskripsiController.text.isEmpty) {
-                  NotificationHelper.showTopNotification(
-                    context,
-                    'Semua field wajib diisi!',
-                    isSuccess: false,
-                  );
-                  return; // stop submit
-                }
+              onPressed: _isSubmitting
+                  ? null
+                  : () async {
+                      if (_namaController.text.isEmpty ||
+                          _tanggalController.text.isEmpty ||
+                          _jamMulaiController.text.isEmpty ||
+                          _jamSelesaiController.text.isEmpty ||
+                          _deskripsiController.text.isEmpty) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Semua field wajib diisi!',
+                          isSuccess: false,
+                        );
+                        return; // stop submit
+                      }
+                      setState(() => _isSubmitting = true);
 
-                try {
-                  final success = await lemburProvider.createLembur(
-                    tanggal: _tanggalController.text,
-                    jamMulai: _jamMulaiController.text,
-                    jamSelesai: _jamSelesaiController.text,
-                    deskripsi: _deskripsiController.text,
-                  );
+                      try {
+                        final success = await lemburProvider.createLembur(
+                          tanggal: _tanggalController.text,
+                          jamMulai: _jamMulaiController.text,
+                          jamSelesai: _jamSelesaiController.text,
+                          deskripsi: _deskripsiController.text,
+                        );
 
-                  if (!mounted) return;
+                        if (!mounted) return;
 
-                  if (success) {
-                    NotificationHelper.showTopNotification(
-                        context, 'Lembur berhasil diajukan');
-                    Navigator.of(context).pop(true);
-                  } else {
-                    NotificationHelper.showTopNotification(
-                        context, 'Gagal mengajukan lembur',
-                        isSuccess: false);
-                  }
-                } catch (e) {
-                  if (!mounted) return;
-                  NotificationHelper.showTopNotification(
-                      context, 'Terjadi kesalahan: $e',
-                      isSuccess: false);
-                }
-              },
+                        if (success) {
+                          NotificationHelper.showTopNotification(
+                              context, 'Lembur berhasil diajukan');
+                          Navigator.of(context).pop(true);
+                        } else {
+                          NotificationHelper.showTopNotification(
+                              context, 'Gagal mengajukan lembur',
+                              isSuccess: false);
+                        }
+                      } catch (e) {
+                        if (!mounted) return;
+                        NotificationHelper.showTopNotification(
+                            context, 'Terjadi kesalahan: $e',
+                            isSuccess: false);
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isSubmitting = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F1F1F),
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -321,14 +328,23 @@ class _LemburInputState extends State<LemburInput> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: _isSubmitting
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      'Submit',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
         ],

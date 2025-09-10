@@ -27,7 +27,7 @@ class _CutiEditState extends State<CutiEdit> {
   final TextEditingController _tanggalSelesaiController =
       TextEditingController();
   final TextEditingController _alasanController = TextEditingController();
-
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -210,40 +210,54 @@ class _CutiEditState extends State<CutiEdit> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
-                // Cek apakah ada field yang kosong
-                if (_namaController.text.isEmpty ||
-                    _tipeCutiController.text.isEmpty ||
-                    _tanggalMulaiController.text.isEmpty ||
-                    _tanggalSelesaiController.text.isEmpty ||
-                    _alasanController.text.isEmpty) {
-                  NotificationHelper.showTopNotification(
-                    context,
-                    'Semua field wajib diisi!',
-                    isSuccess: false,
-                  );
-                  return; // stop submit
-                }
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      // Cek apakah ada field yang kosong
+                      if (_namaController.text.isEmpty ||
+                          _tipeCutiController.text.isEmpty ||
+                          _tanggalMulaiController.text.isEmpty ||
+                          _tanggalSelesaiController.text.isEmpty ||
+                          _alasanController.text.isEmpty) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Semua field wajib diisi!',
+                          isSuccess: false,
+                        );
+                        return; // stop submit
+                      }
+                      setState(() => _isLoading = true);
+                      try {
+                        final result = await cutiProvider.editCuti(
+                          id: widget.cuti.id,
+                          nama: _namaController.text,
+                          tipeCuti: _tipeCutiController.text,
+                          tanggalMulai: _tanggalMulaiController.text,
+                          tanggalSelesai: _tanggalSelesaiController.text,
+                          alasan: _alasanController.text,
+                        );
 
-                final result = await cutiProvider.editCuti(
-                  id: widget.cuti.id,
-                  nama: _namaController.text,
-                  tipeCuti: _tipeCutiController.text,
-                  tanggalMulai: _tanggalMulaiController.text,
-                  tanggalSelesai: _tanggalSelesaiController.text,
-                  alasan: _alasanController.text,
-                );
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: result['success'],
+                        );
 
-                NotificationHelper.showTopNotification(
-                  context,
-                  result['message'],
-                  isSuccess: result['success'],
-                );
-
-                if (result['success']) {
-                  Navigator.pop(context, true);
-                }
-              },
+                        if (result['success']) {
+                          Navigator.pop(context, true);
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          NotificationHelper.showTopNotification(
+                              context, 'Error: $e',
+                              isSuccess: false);
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF1F1F1F),
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -251,14 +265,23 @@ class _CutiEditState extends State<CutiEdit> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: _isLoading
+                  ? SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(
+                        color: AppColors.putih,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      'Submit',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
         ],

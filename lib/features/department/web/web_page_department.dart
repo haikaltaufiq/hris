@@ -10,113 +10,138 @@ import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/department/widgets/department_tabel.dart';
 import 'package:provider/provider.dart';
 
-class WebPageDepartment extends StatelessWidget {
+class WebPageDepartment extends StatefulWidget {
   const WebPageDepartment({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final searchController = TextEditingController();
-    final departmentNameController = TextEditingController();
+  State<WebPageDepartment> createState() => _WebPageDepartmentState();
+}
 
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: ChangeNotifierProvider(
-        create: (_) => DepartmentViewModel()..fetchDepartemen(),
-        child: Consumer<DepartmentViewModel>(
-          builder: (context, vm, _) {
-            return Stack(
-              children: [
-                ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    SearchingBar(
-                      controller: searchController,
-                      onChanged: (value) => vm.searchDepartemen(value),
-                      onFilter1Tap: () {},
-                    ),
-                    if (vm.isLoading)
-                      const Center(child: LoadingWidget())
-                    else if (vm.departemenList.isEmpty)
-                      const Center(child: Text('Tidak ada data departemen'))
-                    else
-                      DepartmentTabel(
-                        departemenList: vm.departemenList,
-                        onEdit: (departemen) {
-                          departmentNameController.text =
-                              departemen.namaDepartemen;
-                          showDialog(
-                            context: context,
-                            builder: (_) => _buildDepartmentDialog(
-                              context,
-                              title: 'Edit Department',
-                              controller: departmentNameController,
-                              onSubmit: () async {
-                                final result = await vm.updateDepartemen(
-                                  departemen.id,
-                                  departmentNameController.text.trim(),
-                                );
-                                NotificationHelper.showTopNotification(
-                                    context, result['message'],
-                                    isSuccess: result['success']);
-                                Navigator.pop(context);
-                              },
-                            ),
-                          );
-                        },
-                        onDelete: (id) async {
-                          final confirmed = await showConfirmationDialog(
+class _WebPageDepartmentState extends State<WebPageDepartment> {
+  final searchController = TextEditingController();
+  final departmentNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ambil provider sekali saat halaman pertama kali
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<DepartmentViewModel>();
+      vm.loadCacheFirst();
+      if (!vm.hasCache) {
+        vm.fetchDepartemen();
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<DepartmentViewModel>(
+      builder: (context, vm, _) {
+        final departemen =
+            searchController.text.isEmpty ? vm.departemenList : vm.filteredList;
+
+        return Scaffold(
+          backgroundColor: AppColors.bg,
+          body: Stack(
+            children: [
+              ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  SearchingBar(
+                    controller: searchController,
+                    onChanged: (value) {
+                      vm.searchDepartemen(value);
+                      setState(() {}); // rebuild untuk update list search
+                    },
+                    onFilter1Tap: () {},
+                  ),
+                  if (vm.isLoading)
+                    const Center(child: LoadingWidget())
+                  else if (departemen.isEmpty)
+                    const Center(child: Text('Tidak ada data departemen'))
+                  else
+                    DepartmentTabel(
+                      departemenList: departemen,
+                      onEdit: (d) {
+                        departmentNameController.text = d.namaDepartemen;
+                        showDialog(
+                          context: context,
+                          builder: (_) => _buildDepartmentDialog(
                             context,
-                            title: "Konfirmasi Hapus",
-                            content:
-                                "Apakah Anda yakin ingin menghapus departemen ini?",
-                            confirmText: "Hapus",
-                            cancelText: "Batal",
-                            confirmColor: AppColors.red,
+                            title: 'Edit Department',
+                            controller: departmentNameController,
+                            onSubmit: () async {
+                              final result = await vm.updateDepartemen(
+                                d.id,
+                                departmentNameController.text.trim(),
+                              );
+                              NotificationHelper.showTopNotification(
+                                context,
+                                result['message'],
+                                isSuccess: result['success'],
+                              );
+                              Navigator.pop(context);
+                            },
+                          ),
+                        );
+                      },
+                      onDelete: (id) async {
+                        final confirmed = await showConfirmationDialog(
+                          context,
+                          title: "Konfirmasi Hapus",
+                          content:
+                              "Apakah Anda yakin ingin menghapus departemen ini?",
+                          confirmText: "Hapus",
+                          cancelText: "Batal",
+                          confirmColor: AppColors.red,
+                        );
+                        if (confirmed) {
+                          final result = await vm.deleteDepartemen(id);
+                          NotificationHelper.showTopNotification(
+                            context,
+                            result['message'],
+                            isSuccess: result['success'],
                           );
-                          if (confirmed) {
-                            final result = await vm.deleteDepartemen(id);
-                            NotificationHelper.showTopNotification(
-                                context, result['message'],
-                                isSuccess: result['success']);
-                          }
+                        }
+                      },
+                    ),
+                ],
+              ),
+              Positioned(
+                bottom: 16,
+                right: 16,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    departmentNameController.clear();
+                    showDialog(
+                      context: context,
+                      builder: (_) => _buildDepartmentDialog(
+                        context,
+                        title: 'Tambah Department',
+                        controller: departmentNameController,
+                        onSubmit: () async {
+                          final result = await vm.createDepartemen(
+                              departmentNameController.text.trim());
+                          NotificationHelper.showTopNotification(
+                            context,
+                            result['message'],
+                            isSuccess: result['success'],
+                          );
+                          Navigator.pop(context);
                         },
                       ),
-                  ],
+                    );
+                  },
+                  backgroundColor: AppColors.secondary,
+                  shape: const CircleBorder(),
+                  child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
                 ),
-                Positioned(
-                  bottom: 16,
-                  right: 16,
-                  child: FloatingActionButton(
-                    onPressed: () {
-                      departmentNameController.clear();
-                      showDialog(
-                        context: context,
-                        builder: (_) => _buildDepartmentDialog(
-                          context,
-                          title: 'Tambah Department',
-                          controller: departmentNameController,
-                          onSubmit: () async {
-                            final result = await vm.createDepartemen(
-                                departmentNameController.text.trim());
-                            NotificationHelper.showTopNotification(
-                                context, result['message'],
-                                isSuccess: result['success']);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      );
-                    },
-                    backgroundColor: AppColors.secondary,
-                    shape: const CircleBorder(),
-                    child:
-                        FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

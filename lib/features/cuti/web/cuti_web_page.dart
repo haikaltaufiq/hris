@@ -23,8 +23,10 @@ class _CutiWebPageState extends State<CutiWebPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<CutiProvider>().fetchCuti();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<CutiProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchCuti(); // Then fetch from API
     });
   }
 
@@ -144,14 +146,14 @@ class _CutiWebPageState extends State<CutiWebPage> {
             },
             onFilter1Tap: _toggleSort,
           ),
-          if (cutiProvider.isLoading)
+          if (cutiProvider.isLoading && displayedList.isEmpty)
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: const Center(child: LoadingWidget()),
             )
           else if (cutiProvider.errorMessage != null)
             Center(child: Text('Error: ${cutiProvider.errorMessage}'))
-          else if (cutiProvider.cutiList.isEmpty)
+          else if (cutiProvider.cutiList.isEmpty && !cutiProvider.isLoading)
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: Center(
@@ -185,7 +187,6 @@ class _CutiWebPageState extends State<CutiWebPage> {
                 ),
               ),
             )
-          // ganti bagian ListView.builder lu jadi kayak gini:
           else if (displayedList.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),

@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_final_fields
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
@@ -23,8 +24,11 @@ class _WebPageGajiState extends State<WebPageGaji> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        context.read<GajiProvider>().fetchGaji()); // langsung fetch pas load
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<GajiProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchGaji(); // Then fetch from API
+    }); // langsung fetch pas load
   }
 
   @override
@@ -49,11 +53,11 @@ class _WebPageGajiState extends State<WebPageGaji> {
             ),
 
             // --- Konten data gaji ---
-            if (provider.isLoading)
+            if (provider.isLoading && provider.displayedList.isEmpty)
               _buildLoading()
             else if (provider.error != null)
               _buildError(provider.error!)
-            else if (provider.displayedList.isEmpty)
+            else if (provider.displayedList.isEmpty && !provider.isLoading)
               _buildEmpty()
             else
               Padding(
@@ -103,17 +107,31 @@ class _WebPageGajiState extends State<WebPageGaji> {
         ),
       );
 
-  Widget _buildEmpty() => const Center(
-        child: Padding(
-          padding: EdgeInsets.all(32.0),
+  Widget _buildEmpty() => Center(
+          child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.inbox, size: 64, color: Colors.grey),
-              SizedBox(height: 16),
-              Text("Tidak ada data yang ditemukan"),
+              Icon(
+                Icons.money_off,
+                size: 64,
+                color: AppColors.putih.withOpacity(0.5),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Belum ada data gaji',
+                style: TextStyle(
+                  color: AppColors.putih,
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
             ],
           ),
         ),
-      );
+      ));
 }

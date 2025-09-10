@@ -22,12 +22,14 @@ class _TaskWebPageState extends State<TaskWebPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<TugasProvider>().fetchTugas();
+      final provider = context.read<TugasProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchTugas(); // Then fetch from API
     });
   }
 
   Future<void> _refreshData() async {
-    await context.read<TugasProvider>().fetchTugas();
+    await context.read<TugasProvider>().fetchTugas(forceRefresh: true);
   }
 
   @override
@@ -60,7 +62,7 @@ class _TaskWebPageState extends State<TaskWebPage> {
                       ? tugasProvider.tugasList
                       : tugasProvider.filteredTugasList;
 
-                  if (tugasProvider.isLoading) {
+                  if (tugasProvider.isLoading && displayedList.isEmpty) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: const Center(child: LoadingWidget()),
@@ -100,7 +102,7 @@ class _TaskWebPageState extends State<TaskWebPage> {
                     );
                   }
 
-                  if (displayedList.isEmpty) {
+                  if (displayedList.isEmpty && !tugasProvider.isLoading) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: Center(

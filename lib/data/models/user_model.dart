@@ -58,4 +58,20 @@ class UserModel {
               namaDepartemen: ''), // fallback pakai id
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nama': nama,
+      'email': email,
+      'jenis_kelamin': jenisKelamin,
+      'status_pernikahan': statusPernikahan,
+      'gaji_pokok': gajiPokok,
+      'npwp': npwp,
+      'bpjs_kesehatan': bpjsKesehatan,
+      'bpjs_ketenagakerjaan': bpjsKetenagakerjaan,
+      'jabatan': jabatan?.toJson(),
+      'peran': peran.toJson(),
+      'departemen': departemen.toJson(),
+    };
+  }
 }

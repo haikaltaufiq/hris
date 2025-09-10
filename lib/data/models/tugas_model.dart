@@ -40,6 +40,20 @@ class TugasModel {
       lampiran: json['lampiran'],
     );
   }
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nama_tugas': namaTugas,
+      'jam_mulai': jamMulai,
+      'tanggal_mulai': tanggalMulai,
+      'tanggal_selesai': tanggalSelesai,
+      'lokasi': lokasi,
+      'instruksi_tugas': note,
+      'status': status,
+      'user': user?.toJson(),
+      'lampiran': lampiran,
+    };
+  }
 
   String get shortTugas =>
       namaTugas.length > 20 ? '${namaTugas.substring(0, 20)}...' : namaTugas;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/user_service.dart';
 
@@ -34,7 +35,11 @@ class UserProvider extends ChangeNotifier {
   int get roleId => _user?.peran.id ?? 0;
   String get roleName => _user?.peran.namaPeran ?? 'Guest';
 
+  final _userbox = Hive.box('user');
+  bool _hasCache = false;
+  bool get hasCache => _hasCache;
   // ===== User setter =====
+
   void setUser(UserModel user) {
     _user = user;
     notifyListeners();
@@ -56,23 +61,69 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Load cache immediately (synchronous)
+  void loadCacheFirst() {
+    try {
+      final hasCache = _userbox.containsKey('user_list');
+      if (hasCache) {
+        final cached = _userbox.get('user_list') as List;
+        if (cached.isNotEmpty) {
+          _users = cached
+              .map(
+                  (json) => UserModel.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+          _hasCache = true;
+          notifyListeners(); // Update UI immediately
+          print('✅ Cache loaded: ${_users.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading cache: $e');
+    }
+  }
+
   // ===== CRUD Users =====
-  Future<void> fetchUsers() async {
+  Future<void> fetchUsers({bool forceRefresh = false}) async {
+    print('🔄 fetchUsers called - forceRefresh: $forceRefresh');
+
+    // Load cache first if not force refresh
+    if (!forceRefresh && _users.isEmpty) {
+      loadCacheFirst();
+    }
+
     _isLoading = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
-      _users = await UserService.fetchUsers();
-      // Reset search setiap fetch baru
-      _filteredUsers = [];
-      _currentSearch = '';
+      print('🌐 Calling API...');
+      final apiData = await UserService.fetchUsers();
+      print('✅ API success: ${apiData.length} items');
+
+      _users = apiData;
+      _filteredUsers.clear();
+      _errorMessage = null;
+
+      // Save to cache
+      await _userbox.put(
+        'user_list',
+        _users.map((c) => c.toJson()).toList(),
+      );
+      print('💾 Cache saved');
+
+      _hasCache = true;
     } catch (e) {
+      print('❌ API Error: $e');
       _errorMessage = e.toString();
-    } finally {
-      _isLoading = false;
-      notifyListeners();
+
+      // If no data and cache exists, load cache
+      if (_users.isEmpty) {
+        loadCacheFirst();
+      }
     }
+
+    _isLoading = false;
+    notifyListeners();
+    print('🏁 fetchUsers completed - items: ${_users.length}');
   }
 
   Future<void> createUser(Map<String, dynamic> data) async {
@@ -82,7 +133,7 @@ class UserProvider extends ChangeNotifier {
 
     try {
       await UserService.createUser(data);
-      await fetchUsers(); // refresh list
+      await fetchUsers(forceRefresh: true); // refresh list
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -98,7 +149,7 @@ class UserProvider extends ChangeNotifier {
 
     try {
       await UserService.updateUser(id, data);
-      await fetchUsers(); // refresh list
+      await fetchUsers(forceRefresh: true); // refresh list
     } catch (e) {
       _errorMessage = e.toString();
     } finally {
@@ -114,7 +165,7 @@ class UserProvider extends ChangeNotifier {
 
     try {
       await UserService.deleteUser(id);
-      await fetchUsers(); // refresh list
+      await fetchUsers(forceRefresh: true); // refresh list
     } catch (e) {
       _errorMessage = e.toString();
     } finally {

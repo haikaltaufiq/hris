@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
@@ -24,6 +26,17 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Init local notification
   await NotificationService.instance.init();
+  await Hive.initFlutter();
+  await Hive.openBox('user');
+  await Hive.openBox('cuti');
+  await Hive.openBox('lembur');
+  await Hive.openBox('tugas');
+  await Hive.openBox('absen');
+  await Hive.openBox('gaji');
+  await Hive.openBox('potongan_gaji');
+  await Hive.openBox('department');
+  await Hive.openBox('jabatan');
+  await Hive.openBox('pengingat');
   runApp(
     MultiProvider(
       providers: [

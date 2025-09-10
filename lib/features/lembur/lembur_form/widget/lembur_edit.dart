@@ -24,7 +24,7 @@ class _LemburEditState extends State<LemburEdit> {
   final TextEditingController _jamMulaiController = TextEditingController();
   final TextEditingController _jamSelesaiController = TextEditingController();
   final TextEditingController _deskripsiController = TextEditingController();
-
+  bool isLoading = false;
   int _selectedMinute = 0;
   int _selectedHour = 0;
   @override
@@ -281,38 +281,56 @@ class _LemburEditState extends State<LemburEdit> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
-                if (_namaController.text.isEmpty ||
-                    _tanggalController.text.isEmpty ||
-                    _jamMulaiController.text.isEmpty ||
-                    _jamSelesaiController.text.isEmpty ||
-                    _deskripsiController.text.isEmpty) {
-                  NotificationHelper.showTopNotification(
-                    context,
-                    'Semua field wajib diisi!',
-                    isSuccess: false,
-                  );
-                  return; // stop submit
-                }
-                final result = await lemburProvider.editLembur(
-                  id: widget.lembur.id,
-                  tanggal: _tanggalController.text,
-                  jamMulai: _jamMulaiController.text,
-                  jamSelesai: _jamSelesaiController.text,
-                  deskripsi: _deskripsiController.text,
-                );
+              onPressed: isLoading
+                  ? null
+                  : () async {
+                      if (_namaController.text.isEmpty ||
+                          _tanggalController.text.isEmpty ||
+                          _jamMulaiController.text.isEmpty ||
+                          _jamSelesaiController.text.isEmpty ||
+                          _deskripsiController.text.isEmpty) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Semua field wajib diisi!',
+                          isSuccess: false,
+                        );
+                        return; // stop submit
+                      }
+                      setState(() {
+                        isLoading = true;
+                      });
 
-                NotificationHelper.showTopNotification(
-                  context,
-                  result['message'],
-                  isSuccess: result['success'],
-                );
+                      try {
+                        final result = await lemburProvider.editLembur(
+                          id: widget.lembur.id,
+                          tanggal: _tanggalController.text,
+                          jamMulai: _jamMulaiController.text,
+                          jamSelesai: _jamSelesaiController.text,
+                          deskripsi: _deskripsiController.text,
+                        );
 
-                if (result['success']) {
-                  Navigator.pop(context,
-                      true); // kembalikan true agar halaman sebelumnya bisa refresh
-                }
-              },
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: result['success'],
+                        );
+
+                        if (result['success']) {
+                          Navigator.pop(context,
+                              true); // kembalikan true agar halaman sebelumnya bisa refresh
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          NotificationHelper.showTopNotification(
+                              context, 'Error: $e',
+                              isSuccess: false);
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() => isLoading = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF1F1F1F),
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -320,14 +338,23 @@ class _LemburEditState extends State<LemburEdit> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: isLoading
+                  ? SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      'Submit',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
         ],

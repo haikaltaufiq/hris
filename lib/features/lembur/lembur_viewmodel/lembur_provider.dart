@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/data/services/lembur_service.dart';
 
@@ -14,20 +15,73 @@ class LemburProvider extends ChangeNotifier {
   List<LemburModel> filteredLemburList = [];
   String _currentSearch = '';
 
+  final _lemburBox = Hive.box('lembur');
+  bool _hasCache = false;
+  bool get hasCache => _hasCache;
+
+  /// Load cache immediately (synchronous)
+  void loadCacheFirst() {
+    try {
+      final hasCache = _lemburBox.containsKey('cuti_list');
+      if (hasCache) {
+        final cached = _lemburBox.get('cuti_list') as List;
+        if (cached.isNotEmpty) {
+          _lemburList = cached
+              .map((json) =>
+                  LemburModel.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+          _hasCache = true;
+          notifyListeners(); // Update UI immediately
+          print('✅ Cache loaded: ${_lemburList.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading cache: $e');
+    }
+  }
+
   // Fetch semua lembur
-  Future<void> fetchLembur() async {
+  Future<void> fetchLembur({bool forceRefresh = false}) async {
+    print('🔄 fetchLembur called - forceRefresh: $forceRefresh');
+
+    // Load cache first if not force refresh
+    if (!forceRefresh && _lemburList.isEmpty) {
+      loadCacheFirst();
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      _lemburList = await LemburService.fetchLembur();
+      print('🌐 Calling API...');
+      final apiData = await LemburService.fetchLembur();
+      print('✅ API success: ${apiData.length} items');
+
+      _lemburList = apiData;
+      filteredLemburList.clear();
+      _errorMessage = null;
+
+      // Save to cache
+      await _lemburBox.put(
+        'lembur_list',
+        _lemburList.map((c) => c.toJson()).toList(),
+      );
+      print('💾 Cache saved');
+
+      _hasCache = true;
     } catch (e) {
-      print('Error fetch lembur: $e');
-      _lemburList = [];
+      print('❌ API Error: $e');
+      _errorMessage = e.toString();
+
+      // If no data and cache exists, load cache
+      if (_lemburList.isEmpty) {
+        loadCacheFirst();
+      }
     }
 
     _isLoading = false;
     notifyListeners();
+    print('🏁 fetchLembur completed - items: ${_lemburList.length}');
   }
 
   /// Searching fitur
@@ -60,7 +114,7 @@ class LemburProvider extends ChangeNotifier {
     );
 
     if (success) {
-      await fetchLembur(); // Refresh list setelah create
+      await fetchLembur(forceRefresh: true); // Refresh list setelah create
     }
     return success;
   }
@@ -82,7 +136,7 @@ class LemburProvider extends ChangeNotifier {
     );
 
     if (result['success'] == true) {
-      await fetchLembur(); // Refresh list setelah edit
+      await fetchLembur(forceRefresh: true); // Refresh list setelah edit
     }
 
     return result;
@@ -91,7 +145,7 @@ class LemburProvider extends ChangeNotifier {
   // Delete lembur
   Future<String?> deleteLembur(int id, String currentSearch) async {
     final result = await LemburService.deleteLembur(id);
-    await fetchLembur(); // Refresh list setelah delete
+    await fetchLembur(forceRefresh: true); // Refresh list setelah delete
     filterLembur(_currentSearch);
     return result['message'];
   }
@@ -99,7 +153,7 @@ class LemburProvider extends ChangeNotifier {
   // Approve lembur
   Future<String?> approveLembur(int id, String currentSearch) async {
     final message = await LemburService.approveLembur(id);
-    await fetchLembur(); // Refresh list setelah approve
+    await fetchLembur(forceRefresh: true); // Refresh list setelah approve
     filterLembur(_currentSearch);
     return message;
   }
@@ -107,7 +161,7 @@ class LemburProvider extends ChangeNotifier {
   // Decline lembur
   Future<String?> declineLembur(int id, String currentSearch) async {
     final message = await LemburService.declineLembur(id);
-    await fetchLembur(); // Refresh list setelah decline
+    await fetchLembur(forceRefresh: true); // Refresh list setelah decline
     filterLembur(_currentSearch);
     return message;
   }
@@ -128,7 +182,7 @@ class LemburProvider extends ChangeNotifier {
 
     if (id != null) {
       await LemburService.approveLembur(id); // update di backend
-      await fetchLembur(); // refresh cuti utama
+      await fetchLembur(forceRefresh: true); // refresh cuti utama
       // apply filter lagi jika ada search aktif
       if (filteredLemburList.isNotEmpty) filterLembur('');
     }
@@ -140,7 +194,7 @@ class LemburProvider extends ChangeNotifier {
 
     if (id != null) {
       await LemburService.declineLembur(id);
-      await fetchLembur();
+      await fetchLembur(forceRefresh: true);
       if (filteredLemburList.isNotEmpty) filterLembur('');
     }
   }
@@ -151,7 +205,7 @@ class LemburProvider extends ChangeNotifier {
 
     if (id != null) {
       LemburService.deleteLembur(id).then((_) async {
-        await fetchLembur();
+        await fetchLembur(forceRefresh: true);
         if (filteredLemburList.isNotEmpty) filterLembur('');
       });
     }

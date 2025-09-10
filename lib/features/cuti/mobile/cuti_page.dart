@@ -29,13 +29,17 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<CutiProvider>().fetchCuti();
+
+    // Load cache immediately (synchronous)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<CutiProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchCuti(); // Then fetch from API
     });
   }
 
   Future<void> _refreshData() async {
-    await context.read<CutiProvider>().fetchCuti();
+    await context.read<CutiProvider>().fetchCuti(forceRefresh: true);
   }
 
   Future<void> _deleteCuti(CutiModel cuti) async {
@@ -140,10 +144,10 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   @override
   Widget build(BuildContext context) {
     final cutiProvider = context.watch<CutiProvider>();
-    // final userProvider = context.watch<UserProvider>();
     final displayedList = searchController.text.isEmpty
         ? cutiProvider.cutiList
         : cutiProvider.filteredCutiList;
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: Stack(
@@ -165,12 +169,14 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                     },
                     onFilter1Tap: _toggleSort,
                   ),
-                  if (cutiProvider.isLoading)
+
+                  // Updated loading logic
+                  if (cutiProvider.isLoading && displayedList.isEmpty)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: const Center(child: LoadingWidget()),
                     )
-                  else if (cutiProvider.cutiList.isEmpty)
+                  else if (displayedList.isEmpty && !cutiProvider.isLoading)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: Center(
@@ -184,7 +190,9 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Belum ada pengajuan',
+                              cutiProvider.errorMessage != null
+                                  ? 'Gagal memuat data'
+                                  : 'Belum ada pengajuan',
                               style: TextStyle(
                                 color: AppColors.putih,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -194,7 +202,9 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tap tombol + untuk menambah pengajuan baru',
+                              cutiProvider.errorMessage != null
+                                  ? 'Tarik ke bawah untuk refresh'
+                                  : 'Tap tombol + untuk menambah pengajuan baru',
                               style: TextStyle(
                                 color: AppColors.putih.withOpacity(0.7),
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -206,8 +216,6 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                         ),
                       ),
                     )
-                  // else if (userProvider.hasFeature("approval_card"))
-
                   else
                     ListView.builder(
                       itemCount: displayedList.length,
@@ -222,12 +230,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                           onDelete: () => _deleteCuti(cuti),
                         );
                       },
-                    )
-                  // else
-                  //   UserCutiTabel(
-                  //     cutiList: displayedList,
-                  //     onDelete: (cuti) => _deleteCuti(cuti),
-                  //   ),
+                    ),
                 ],
               ),
             ),

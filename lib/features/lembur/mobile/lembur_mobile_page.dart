@@ -27,13 +27,16 @@ class _LemburMobileState extends State<LemburMobile> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<LemburProvider>().fetchLembur();
+    // Load cache immediately (synchronous)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<LemburProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchLembur(); // Then fetch from API
     });
   }
 
   Future<void> _refreshData() async {
-    await context.read<LemburProvider>().fetchLembur();
+    await context.read<LemburProvider>().fetchLembur(forceRefresh: true);
   }
 
   Future<void> _deleteLembur(LemburModel lembur) async {
@@ -162,14 +165,14 @@ class _LemburMobileState extends State<LemburMobile> {
                     },
                     onFilter1Tap: _toggleSort,
                   ),
-                  if (lemburProvider.isLoading)
+                  if (lemburProvider.isLoading && displayedList.isEmpty)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: const Center(child: LoadingWidget()),
                     )
                   else if (lemburProvider.errorMessage != null)
                     Center(child: Text('Error: ${lemburProvider.errorMessage}'))
-                  else if (lemburProvider.lemburList.isEmpty)
+                  else if (displayedList.isEmpty && !lemburProvider.isLoading)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: Center(
@@ -239,7 +242,7 @@ class _LemburMobileState extends State<LemburMobile> {
                 );
 
                 if (result == true) {
-                  context.read<LemburProvider>().fetchLembur();
+                  setState(() {});
                 }
               },
               backgroundColor: AppColors.secondary,

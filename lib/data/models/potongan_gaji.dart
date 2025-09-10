@@ -19,4 +19,13 @@ class PotonganGajiModel {
       nilai: double.tryParse(json['nilai'].toString()) ?? 0.0,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nama_potongan': namaPotongan,
+      'persen': nominal,
+      'nilai': nilai,
+    };
+  }
 }

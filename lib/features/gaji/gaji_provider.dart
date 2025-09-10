@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/data/services/gaji_service.dart';
 
@@ -14,20 +15,70 @@ class GajiProvider extends ChangeNotifier {
   bool get isLoading => _loading;
   String? get error => _error;
 
+  final _gajibox = Hive.box('gaji');
+  bool _hasCache = false;
+  bool get hasCache => _hasCache;
+
+  /// Load cache immediately (synchronous)
+  void loadCacheFirst() {
+    try {
+      final hasCache = _gajibox.containsKey('gaji_list');
+      if (hasCache) {
+        final cached = _gajibox.get('gaji_list') as List;
+        if (cached.isNotEmpty) {
+          _gajiList = cached
+              .map((json) => GajiUser.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+          _hasCache = true;
+          notifyListeners(); // Update UI immediately
+          print('✅ Cache loaded: ${_gajiList.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading cache: $e');
+    }
+  }
+
   /// Fetch data dari API
-  Future<void> fetchGaji() async {
+  Future<void> fetchGaji({bool forceRefresh = false}) async {
+    print('🔄 fetchGaji called - forceRefresh: $forceRefresh');
+
+    // Load cache first if not force refresh
+    if (!forceRefresh && _gajiList.isEmpty) {
+      loadCacheFirst();
+    }
+
     _loading = true;
-    _error = null;
     notifyListeners();
 
     try {
-      _gajiList = await GajiService.fetchGaji();
+      print('🌐 Calling API...');
+      final apiData = await GajiService.fetchGaji();
+      print('✅ API success: ${apiData.length} items');
+
+      _gajiList = apiData;
+      _searchQuery = '';
+      _error = null;
+      // Save to cache
+      await _gajibox.put(
+        'gaji_list',
+        _gajiList.map((c) => c.toJson()).toList(),
+      );
+      print('💾 Cache saved');
+
+      _hasCache = true;
     } catch (e) {
+      print('❌ API Error: $e');
       _error = e.toString();
-    } finally {
-      _loading = false;
-      notifyListeners();
+      // If no data and cache exists, load cache
+      if (_gajiList.isEmpty) {
+        loadCacheFirst();
+      }
     }
+
+    _loading = false;
+    notifyListeners();
+    print('🏁 fetchGaji completed - items: ${_gajiList.length}');
   }
 
   /// Update search query

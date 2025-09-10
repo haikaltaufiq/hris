@@ -25,12 +25,14 @@ class _AbsenMobileState extends State<AbsenMobile> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<AbsenProvider>().fetchAbsensi();
+      final provider = context.read<AbsenProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchAbsensi(); // Then fetch from API
     });
   }
 
   Future<void> _refreshData() async {
-    await context.read<AbsenProvider>().fetchAbsensi();
+    await context.read<AbsenProvider>().fetchAbsensi(forceRefresh: true);
   }
 
   @override
@@ -62,12 +64,12 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     onFilter1Tap: () {},
                   ),
                   AbsenExcelExport(),
-                  if (provider.isLoading)
+                  if (provider.isLoading && displayedAbsensi.isEmpty)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: const Center(child: LoadingWidget()),
                     )
-                  else if (provider.absensi.isEmpty)
+                  else if (provider.absensi.isEmpty && !provider.isLoading)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: Center(

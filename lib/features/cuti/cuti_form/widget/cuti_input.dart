@@ -23,7 +23,7 @@ class _CutiInputState extends State<CutiInput> {
   final TextEditingController _tanggalSelesaiController =
       TextEditingController();
   final TextEditingController _alasanController = TextEditingController();
-
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -202,41 +202,56 @@ class _CutiInputState extends State<CutiInput> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () async {
-                // Cek apakah ada field yang kosong
-                if (_namaController.text.isEmpty ||
-                    _tipeCutiController.text.isEmpty ||
-                    _tanggalMulaiController.text.isEmpty ||
-                    _tanggalSelesaiController.text.isEmpty ||
-                    _alasanController.text.isEmpty) {
-                  NotificationHelper.showTopNotification(
-                    context,
-                    'Semua field wajib diisi!',
-                    isSuccess: false,
-                  );
-                  return; // stop submit
-                }
-                final success = await cutiProvider.createCuti(
-                  nama: _namaController.text,
-                  tipeCuti: _tipeCutiController.text,
-                  tanggalMulai: _tanggalMulaiController.text,
-                  tanggalSelesai: _tanggalSelesaiController.text,
-                  alasan: _alasanController.text,
-                );
-                if (success) {
-                  if (context.mounted) {
-                    NotificationHelper.showTopNotification(
-                        context, 'Cuti berhasil diajukan');
-                    Navigator.of(context).pop(true);
-                  }
-                } else {
-                  if (context.mounted) {
-                    NotificationHelper.showTopNotification(
-                        context, 'Gagal mengajukan Cuti',
-                        isSuccess: false);
-                  }
-                }
-              },
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      // Cek apakah ada field yang kosong
+                      if (_namaController.text.isEmpty ||
+                          _tipeCutiController.text.isEmpty ||
+                          _tanggalMulaiController.text.isEmpty ||
+                          _tanggalSelesaiController.text.isEmpty ||
+                          _alasanController.text.isEmpty) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Semua field wajib diisi!',
+                          isSuccess: false,
+                        );
+                        return; // stop submit
+                      }
+                      setState(() => _isLoading = true);
+                      try {
+                        final success = await cutiProvider.createCuti(
+                          nama: _namaController.text,
+                          tipeCuti: _tipeCutiController.text,
+                          tanggalMulai: _tanggalMulaiController.text,
+                          tanggalSelesai: _tanggalSelesaiController.text,
+                          alasan: _alasanController.text,
+                        );
+                        if (success) {
+                          if (context.mounted) {
+                            NotificationHelper.showTopNotification(
+                                context, 'Cuti berhasil diajukan');
+                            Navigator.of(context).pop(true);
+                          }
+                        } else {
+                          if (context.mounted) {
+                            NotificationHelper.showTopNotification(
+                                context, 'Gagal mengajukan Cuti',
+                                isSuccess: false);
+                          }
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          NotificationHelper.showTopNotification(
+                              context, 'Error: $e',
+                              isSuccess: false);
+                        }
+                      } finally {
+                        if (mounted) {
+                          setState(() => _isLoading = false);
+                        }
+                      }
+                    },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF1F1F1F),
                 padding: const EdgeInsets.symmetric(vertical: 18),
@@ -244,14 +259,23 @@ class _CutiInputState extends State<CutiInput> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: _isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: AppColors.putih,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      'Submit',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
         ],

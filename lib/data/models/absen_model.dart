@@ -65,4 +65,27 @@ class AbsenModel {
       user: json['user'] != null ? UserModel.fromJson(json['user']) : null,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    data['id'] = id;
+    data['user_id'] = userId;
+    data['tugas_id'] = tugasId;
+    data['checkin_lat'] = checkinLat;
+    data['checkin_lng'] = checkinLng;
+    data['checkin_time'] = checkinTime;
+    data['checkin_date'] = checkinDate;
+    data['checkout_lat'] = checkoutLat;
+    data['checkout_lng'] = checkoutLng;
+    data['checkout_time'] = checkoutTime;
+    data['checkout_date'] = checkoutDate;
+    data['video_user'] = videoUser;
+    data['status'] = status;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    if (user != null) {
+      data['user'] = user!.toJson();
+    }
+    return data;
+  }
 }

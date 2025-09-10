@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/data/services/absen_service.dart';
 
@@ -24,20 +25,74 @@ class AbsenProvider extends ChangeNotifier {
   Map<String, dynamic>? get lastCheckinResult => _lastCheckinResult;
   Map<String, dynamic>? get lastCheckoutResult => _lastCheckoutResult;
 
+  final _absenBox = Hive.box('absen');
+  bool _hasCache = false;
+  bool get hasCache => _hasCache;
+
   // ================= SERVICE WRAPPER ================= //
+  /// Load cache immediately (synchronous)
+  void loadCacheFirst() {
+    try {
+      final hasCache = _absenBox.containsKey('absen_list');
+      if (hasCache) {
+        final cached = _absenBox.get('absen_list') as List;
+        if (cached.isNotEmpty) {
+          _absensi = cached
+              .map((json) =>
+                  AbsenModel.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+          _hasCache = true;
+          notifyListeners(); // Update UI immediately
+          print('✅ Cache loaded: ${_absensi.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading cache: $e');
+    }
+  }
 
   /// Fetch daftar absensi
-  Future<void> fetchAbsensi() async {
-    _setLoading(true);
-    _clearError();
-    try {
-      final result = await AbsenService.fetchAbsensi();
-      _absensi = result;
-      _filteredAbsensi = [];
-    } catch (e) {
-      _setError('Gagal ambil data absensi: $e');
+  Future<void> fetchAbsensi({bool forceRefresh = false}) async {
+    print('🔄 fetchAbsen called - forceRefresh: $forceRefresh');
+
+    // Load cache first if not force refresh
+    if (!forceRefresh && _absensi.isEmpty) {
+      loadCacheFirst();
     }
-    _setLoading(false);
+
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      print('🌐 Calling API...');
+      final apiData = await AbsenService.fetchAbsensi();
+      print('✅ API success: ${apiData.length} items');
+
+      _absensi = apiData;
+      filteredAbsensi.clear();
+      _errorMessage = null;
+
+      // Save to cache
+      await _absenBox.put(
+        'absen_list',
+        _absensi.map((c) => c.toJson()).toList(),
+      );
+      print('💾 Cache saved');
+
+      _hasCache = true;
+    } catch (e) {
+      print('❌ API Error: $e');
+      _errorMessage = e.toString();
+
+      // If no data and cache exists, load cache
+      if (_absensi.isEmpty) {
+        loadCacheFirst();
+      }
+    }
+
+    _isLoading = false;
+    notifyListeners();
+    print('🏁 fetchAbsensi completed - items: ${_absensi.length}');
   }
 
   /// Check-in

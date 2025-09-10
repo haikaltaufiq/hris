@@ -23,8 +23,12 @@ class _LemburWebPageState extends State<LemburWebPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<LemburProvider>().fetchLembur();
+    // Load cache immediately (synchronous)
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<LemburProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchLembur(); // Then fetch from API
     });
   }
 
@@ -144,14 +148,15 @@ class _LemburWebPageState extends State<LemburWebPage> {
             },
             onFilter1Tap: _toggleSort,
           ),
-          if (lemburProvider.isLoading)
+          if (lemburProvider.isLoading && displayedList.isEmpty)
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: const Center(child: LoadingWidget()),
             )
           else if (lemburProvider.errorMessage != null)
             Center(child: Text('Error: ${lemburProvider.errorMessage}'))
-          else if (lemburProvider.lemburList.isEmpty)
+          else if (lemburProvider.lemburList.isEmpty &&
+              !lemburProvider.isLoading)
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,
               child: Center(
@@ -185,7 +190,6 @@ class _LemburWebPageState extends State<LemburWebPage> {
                 ),
               ),
             )
-          // ganti bagian ListView.builder lu jadi kayak gini:
           else if (displayedList.isNotEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),

@@ -13,4 +13,11 @@ class DepartemenModel {
       namaDepartemen: json['nama_departemen'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'namaDepartemen': namaDepartemen,
+    };
+  }
 }

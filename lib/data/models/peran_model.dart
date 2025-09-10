@@ -13,4 +13,11 @@ class PeranModel {
       namaPeran: json['nama_peran'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nama_peran': namaPeran,
+    };
+  }
 }

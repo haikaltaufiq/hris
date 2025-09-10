@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/data/services/cuti_service.dart';
 
@@ -14,20 +15,73 @@ class CutiProvider with ChangeNotifier {
   List<CutiModel> filteredCutiList = [];
   final String _currentSearch = '';
 
+  final _cutiBox = Hive.box('cuti');
+  bool _hasCache = false;
+  bool get hasCache => _hasCache;
+
+  /// Load cache immediately (synchronous)
+  void loadCacheFirst() {
+    try {
+      final hasCache = _cutiBox.containsKey('cuti_list');
+      if (hasCache) {
+        final cached = _cutiBox.get('cuti_list') as List;
+        if (cached.isNotEmpty) {
+          _cutiList = cached
+              .map(
+                  (json) => CutiModel.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+          _hasCache = true;
+          notifyListeners(); // Update UI immediately
+          print('✅ Cache loaded: ${_cutiList.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading cache: $e');
+    }
+  }
+
   /// Ambil semua data cuti dari API
-  Future<void> fetchCuti() async {
+  Future<void> fetchCuti({bool forceRefresh = false}) async {
+    print('🔄 fetchCuti called - forceRefresh: $forceRefresh');
+
+    // Load cache first if not force refresh
+    if (!forceRefresh && _cutiList.isEmpty) {
+      loadCacheFirst();
+    }
+
     _isLoading = true;
-    _errorMessage = null;
     notifyListeners();
 
     try {
-      _cutiList = await CutiService.fetchCuti();
+      print('🌐 Calling API...');
+      final apiData = await CutiService.fetchCuti();
+      print('✅ API success: ${apiData.length} items');
+
+      _cutiList = apiData;
+      filteredCutiList.clear();
+      _errorMessage = null;
+
+      // Save to cache
+      await _cutiBox.put(
+        'cuti_list',
+        _cutiList.map((c) => c.toJson()).toList(),
+      );
+      print('💾 Cache saved');
+
+      _hasCache = true;
     } catch (e) {
+      print('❌ API Error: $e');
       _errorMessage = e.toString();
+
+      // If no data and cache exists, load cache
+      if (_cutiList.isEmpty) {
+        loadCacheFirst();
+      }
     }
 
     _isLoading = false;
     notifyListeners();
+    print('🏁 fetchCuti completed - items: ${_cutiList.length}');
   }
 
   /// Searching fitur
@@ -66,7 +120,7 @@ class CutiProvider with ChangeNotifier {
     );
 
     if (success) {
-      await fetchCuti(); // refresh data
+      await fetchCuti(forceRefresh: true); // refresh data
     }
 
     return success;
@@ -91,7 +145,7 @@ class CutiProvider with ChangeNotifier {
     );
 
     if (result['success'] == true) {
-      await fetchCuti(); // refresh data
+      await fetchCuti(forceRefresh: true); // refresh data
     }
 
     return result;
@@ -100,7 +154,7 @@ class CutiProvider with ChangeNotifier {
   /// Hapus cuti
   Future<String> deleteCuti(int id, String currentSearch) async {
     final result = await CutiService.deleteCuti(id);
-    await fetchCuti();
+    await fetchCuti(forceRefresh: true);
     filterCuti(_currentSearch);
     return result['message'] ?? 'Tidak ada pesan';
   }
@@ -108,7 +162,7 @@ class CutiProvider with ChangeNotifier {
   /// Approve cuti
   Future<String?> approveCuti(int id, String currentSearch) async {
     final message = await CutiService.approveCuti(id);
-    await fetchCuti();
+    await fetchCuti(forceRefresh: true);
     filterCuti(_currentSearch);
     return message;
   }
@@ -116,7 +170,7 @@ class CutiProvider with ChangeNotifier {
   /// Decline cuti
   Future<String?> declineCuti(int id, String currentSearch) async {
     final message = await CutiService.declineCuti(id);
-    await fetchCuti();
+    await fetchCuti(forceRefresh: true);
     filterCuti(_currentSearch);
 
     return message;
@@ -128,7 +182,7 @@ class CutiProvider with ChangeNotifier {
 
     if (id != null) {
       await CutiService.approveCuti(id); // update di backend
-      await fetchCuti(); // refresh cuti utama
+      await fetchCuti(forceRefresh: true); // refresh cuti utama
       // apply filter lagi jika ada search aktif
       if (filteredCutiList.isNotEmpty) filterCuti('');
     }
@@ -140,7 +194,7 @@ class CutiProvider with ChangeNotifier {
 
     if (id != null) {
       await CutiService.declineCuti(id);
-      await fetchCuti();
+      await fetchCuti(forceRefresh: true);
       if (filteredCutiList.isNotEmpty) filterCuti('');
     }
   }
@@ -151,7 +205,7 @@ class CutiProvider with ChangeNotifier {
 
     if (id != null) {
       CutiService.deleteCuti(id).then((_) async {
-        await fetchCuti();
+        await fetchCuti(forceRefresh: true);
         if (filteredCutiList.isNotEmpty) filterCuti('');
       });
     }

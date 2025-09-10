@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
@@ -26,12 +27,14 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
     super.initState();
     // Auto load data saat halaman pertama kali dibuka
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UserProvider>(context, listen: false).fetchUsers();
+      final provider = context.read<UserProvider>();
+      provider.loadCacheFirst(); // Load cache first
+      provider.fetchUsers(); // Then fetch from API
     });
   }
 
   Future<void> _refreshData() async {
-    await context.read<UserProvider>().fetchUsers();
+    await context.read<UserProvider>().fetchUsers(forceRefresh: true);
   }
 
   @override
@@ -65,12 +68,50 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
                         },
                         onFilter1Tap: () => print("Filter1 Halaman A"),
                       ),
-                      if (isLoading)
+                      if (isLoading && users.isEmpty)
                         Center(
                           child: LoadingWidget(),
                         )
                       else if (errorMessage != null)
                         Center(child: Text(errorMessage))
+                      else if (users.isEmpty && !isLoading)
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.6,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.person,
+                                  size: 64,
+                                  color: AppColors.putih.withOpacity(0.5),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Belum ada Karyawan',
+                                  style: TextStyle(
+                                    color: AppColors.putih,
+                                    fontFamily:
+                                        GoogleFonts.poppins().fontFamily,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Tap tombol + untuk menambah karyawan baru',
+                                  style: TextStyle(
+                                    color: AppColors.putih.withOpacity(0.7),
+                                    fontFamily:
+                                        GoogleFonts.poppins().fontFamily,
+                                    fontSize: 14,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        )
                       else
                         KaryawanTabel(users: users),
                     ],

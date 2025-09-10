@@ -11,121 +11,139 @@ import 'package:provider/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class DepartemenPageMobile extends StatelessWidget {
+class DepartemenPageMobile extends StatefulWidget {
   const DepartemenPageMobile({super.key});
 
   @override
+  State<DepartemenPageMobile> createState() => _DepartemenPageMobileState();
+}
+
+class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
+  final searchController = TextEditingController();
+  final departmentNameController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ambil provider sekali saat halaman pertama kali
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vm = context.read<DepartmentViewModel>();
+      vm.loadCacheFirst();
+      if (!vm.hasCache) {
+        vm.fetchDepartemen();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final searchController = TextEditingController();
-    final departmentNameController = TextEditingController();
+    return Consumer<DepartmentViewModel>(
+      builder: (context, vm, _) {
+        final departemen =
+            searchController.text.isEmpty ? vm.departemenList : vm.filteredList;
 
-    return ChangeNotifierProvider(
-      create: (_) => DepartmentViewModel()..fetchDepartemen(),
-      child: Consumer<DepartmentViewModel>(
-        builder: (context, vm, _) {
-          return Scaffold(
-            backgroundColor: AppColors.bg,
-            body: Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-              ),
-              child: Stack(
-                children: [
-                  ListView(
-                    children: [
-                      Header(title: 'Manajemen Departemen'),
-                      SearchingBar(
-                        controller: searchController,
-                        onChanged: (value) => vm.searchDepartemen(value),
-                        onFilter1Tap: () {},
-                      ),
-                      if (vm.isLoading)
-                        const Center(child: LoadingWidget())
-                      else if (vm.departemenList.isEmpty)
-                        const Center(child: Text('Tidak ada data departemen'))
-                      else
-                        DepartmentTabel(
-                          departemenList: vm.departemenList,
-                          onEdit: (departemen) {
-                            departmentNameController.text =
-                                departemen.namaDepartemen;
-                            showDialog(
-                              context: context,
-                              builder: (_) => _buildDepartmentDialog(
-                                context,
-                                title: 'Edit Department',
-                                controller: departmentNameController,
-                                onSubmit: () async {
-                                  final result = await vm.updateDepartemen(
-                                    departemen.id,
-                                    departmentNameController.text.trim(),
-                                  );
-                                  Navigator.pop(context);
-
-                                  NotificationHelper.showTopNotification(
-                                      context, result['message'],
-                                      isSuccess: result['success']);
-                                },
-                              ),
-                            );
-                          },
-                          onDelete: (id) async {
-                            final confirmed = await showConfirmationDialog(
+        return Scaffold(
+          backgroundColor: AppColors.bg,
+          body: Padding(
+            padding: const EdgeInsets.only(
+              left: 16.0,
+              right: 16.0,
+            ),
+            child: Stack(
+              children: [
+                ListView(
+                  children: [
+                    Header(title: 'Manajemen Departemen'),
+                    SearchingBar(
+                      controller: searchController,
+                      onChanged: (value) => vm.searchDepartemen(value),
+                      onFilter1Tap: () {},
+                    ),
+                    if (vm.isLoading)
+                      const Center(child: LoadingWidget())
+                    else if (departemen.isEmpty)
+                      const Center(child: Text('Tidak ada data departemen'))
+                    else
+                      DepartmentTabel(
+                        departemenList: departemen,
+                        onEdit: (departemen) {
+                          departmentNameController.text =
+                              departemen.namaDepartemen;
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildDepartmentDialog(
                               context,
-                              title: "Konfirmasi Hapus",
-                              content:
-                                  "Apakah Anda yakin ingin menghapus departemen ini?",
-                              confirmText: "Hapus",
-                              cancelText: "Batal",
-                              confirmColor: AppColors.red,
-                            );
-                            if (confirmed) {
-                              final result = await vm.deleteDepartemen(id);
-                              NotificationHelper.showTopNotification(
-                                  context, result['message'],
-                                  isSuccess: result['success']);
-                            }
+                              title: 'Edit Department',
+                              controller: departmentNameController,
+                              onSubmit: () async {
+                                final result = await vm.updateDepartemen(
+                                  departemen.id,
+                                  departmentNameController.text.trim(),
+                                );
+                                Navigator.pop(context);
+
+                                NotificationHelper.showTopNotification(
+                                    context, result['message'],
+                                    isSuccess: result['success']);
+                              },
+                            ),
+                          );
+                        },
+                        onDelete: (id) async {
+                          final confirmed = await showConfirmationDialog(
+                            context,
+                            title: "Konfirmasi Hapus",
+                            content:
+                                "Apakah Anda yakin ingin menghapus departemen ini?",
+                            confirmText: "Hapus",
+                            cancelText: "Batal",
+                            confirmColor: AppColors.red,
+                          );
+                          if (confirmed) {
+                            final result = await vm.deleteDepartemen(id);
+                            NotificationHelper.showTopNotification(
+                                context, result['message'],
+                                isSuccess: result['success']);
+                          }
+                        },
+                      ),
+                  ],
+                ),
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: FloatingActionButton(
+                    onPressed: () {
+                      departmentNameController.clear();
+                      showDialog(
+                        context: context,
+                        builder: (_) => _buildDepartmentDialog(
+                          context,
+                          title: 'Tambah Department',
+                          controller: departmentNameController,
+                          onSubmit: () async {
+                            final result = await vm.createDepartemen(
+                                departmentNameController.text.trim());
+                            Navigator.pop(context);
+
+                            NotificationHelper.showTopNotification(
+                                context, result['message'],
+                                isSuccess: result['success']);
                           },
                         ),
-                    ],
+                      );
+                    },
+                    backgroundColor: AppColors.secondary,
+                    shape: const CircleBorder(),
+                    child:
+                        FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
                   ),
-                  Positioned(
-                    bottom: 16,
-                    right: 16,
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        departmentNameController.clear();
-                        showDialog(
-                          context: context,
-                          builder: (_) => _buildDepartmentDialog(
-                            context,
-                            title: 'Tambah Department',
-                            controller: departmentNameController,
-                            onSubmit: () async {
-                              final result = await vm.createDepartemen(
-                                  departmentNameController.text.trim());
-                              Navigator.pop(context);
-
-                              NotificationHelper.showTopNotification(
-                                  context, result['message'],
-                                  isSuccess: result['success']);
-                            },
-                          ),
-                        );
-                      },
-                      backgroundColor: AppColors.secondary,
-                      shape: const CircleBorder(),
-                      child:
-                          FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 

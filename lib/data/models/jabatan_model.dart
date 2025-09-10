@@ -13,4 +13,11 @@ class JabatanModel {
       namaJabatan: json['nama_jabatan'],
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nama_jabatan': namaJabatan,
+    };
+  }
 }
