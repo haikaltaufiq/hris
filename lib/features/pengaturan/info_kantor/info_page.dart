@@ -9,8 +9,8 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/kantor_service.dart';
-import 'package:hr/data/services/location_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
+import 'package:hr/features/pengaturan/info_kantor/location_dialog.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -102,36 +102,6 @@ class _InfoPageState extends State<InfoPage>
       // Set default values if loading fails
       jamMasukController.text = "08:00";
       minimalKeterlambatanController.text = "15 menit";
-    } finally {
-      if (mounted) setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _isiLokasiOtomatis() async {
-    setState(() => isLoading = true);
-    try {
-      final position = await LocationService.getCurrentPosition();
-      if (position != null) {
-        latitudeController.text = position.latitude.toStringAsFixed(7);
-        longitudeController.text = position.longitude.toStringAsFixed(7);
-      } else {
-        if (mounted) {
-          NotificationHelper.showTopNotification(
-            context,
-            "Tidak dapat mengakses lokasi",
-            isSuccess: false,
-          );
-        }
-      }
-    } catch (e) {
-      print('Error getting location: $e');
-      if (mounted) {
-        NotificationHelper.showTopNotification(
-          context,
-          "Error mengakses lokasi: ${e.toString()}",
-          isSuccess: false,
-        );
-      }
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
@@ -777,14 +747,20 @@ class _InfoPageState extends State<InfoPage>
                 child: SizedBox(
                   height: 50,
                   child: ElevatedButton.icon(
-                    onPressed: isLoading ? null : _isiLokasiOtomatis,
+                    onPressed: () {
+                      LocationDialogService.showLocationDialog(
+                        context: context,
+                        latitudeController: latitudeController,
+                        longitudeController: longitudeController,
+                      );
+                    },
                     icon: Icon(
                       Icons.my_location,
                       color: AppColors.putih,
                       size: 18,
                     ),
                     label: Text(
-                      "Lokasi Saya",
+                      "Bagikan Lokasi",
                       style: GoogleFonts.poppins(
                         color: AppColors.putih,
                         fontSize: 14,

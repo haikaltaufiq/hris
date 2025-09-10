@@ -348,14 +348,15 @@ class _TechTaskChartState extends State<TechTaskChart>
             ),
           ),
         ),
-        _buildLegendGrid([
-          _LegendData(
-              color: const Color(0xFF3B82F6), label: 'Target', value: '85%'),
-          _LegendData(
-              color: const Color(0xFFEF4444), label: 'Gagal', value: '78%'),
-          _LegendData(
-              color: const Color(0xFF10B981), label: 'Selesai', value: '92%'),
-        ]),
+        if (context.isMobile)
+          _buildLegendGrid([
+            _LegendData(
+                color: const Color(0xFF3B82F6), label: 'Target', value: '85%'),
+            _LegendData(
+                color: const Color(0xFFEF4444), label: 'Gagal', value: '78%'),
+            _LegendData(
+                color: const Color(0xFF10B981), label: 'Selesai', value: '92%'),
+          ]),
       ],
     );
   }
