@@ -53,8 +53,7 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
       if (!mounted) return;
 
       setState(() {
-        _peranList =
-            peranData.map((data) => PeranModel.fromJson(data)).toList();
+        _peranList = peranData;
         _isLoadingPeran = false;
 
         // Coba cari PIC lama sesuai id

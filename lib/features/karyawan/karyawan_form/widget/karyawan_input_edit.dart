@@ -7,6 +7,7 @@ import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/departemen_service.dart';
 import 'package:hr/data/services/jabatan_service.dart';
@@ -39,7 +40,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
   // Data lists
   List<Map<String, Object>> _jabatanList = [];
-  List<Map<String, dynamic>> _peranList = [];
+  List<PeranModel> _peranList = [];
   List<Map<String, Object>> _departemenList = [];
 
   // Loading states
@@ -146,22 +147,39 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
     }
   }
 
-  // ✅ Safe dropdown hint helper
-  String _getSafeDropdownHint<T>(bool isLoading, T? selectedId,
-      List<Map<String, dynamic>> items, String nameKey) {
+  // ✅ Safe dropdown hint helper tuntuk yang type objek
+  String _getSafeDropdownHint<T>(
+      bool isLoading, int? selectedId, List<T> items, String Function(T) getLabel) {
+    if (isLoading) return 'Memuat...';
+    if (selectedId == null) return 'Pilih...';
+
+    try {
+      final selectedItem = items.firstWhere(
+        (item) => (item as dynamic).id == selectedId,
+      );
+      return getLabel(selectedItem);
+    } catch (e) {
+      return 'Pilih...';
+    }
+  }
+
+  // ✅ Safe dropdown hint helper tuntuk yang type string
+  String _getSafeDropdownHintMap(
+      bool isLoading, int? selectedId, List<Map<String, dynamic>> items, String key) {
     if (isLoading) return 'Memuat...';
     if (selectedId == null) return 'Pilih...';
 
     try {
       final selected = items.firstWhere(
-        (e) => e["id"] == selectedId,
+        (e) => e['id'] == selectedId,
         orElse: () => <String, dynamic>{},
       );
-      return selected.isNotEmpty ? selected[nameKey] as String : 'Pilih...';
+      return selected.isNotEmpty ? selected[key].toString() : 'Pilih...';
     } catch (e) {
       return 'Pilih...';
     }
   }
+
 
   // ✅ Enhanced validation
   bool _validateForm() {
@@ -339,8 +357,12 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: 'Jabatan *',
-              hint: _getSafeDropdownHint(_isLoadingJabatan, _jabatanId,
-                  _jabatanList.cast<Map<String, dynamic>>(), "nama_jabatan"),
+              hint: _getSafeDropdownHintMap(
+                  _isLoadingJabatan,
+                  _jabatanId,
+                  _jabatanList,
+                  "nama_jabatan",
+              ),
               items: _isLoadingJabatan
                   ? []
                   : _jabatanList
@@ -372,25 +394,30 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: 'Peran *',
-              hint: _getSafeDropdownHint(
-                  _isLoadingPeran, _peranId, _peranList, "nama_peran"),
+              hint: _getSafeDropdownHint<PeranModel>(
+                  _isLoadingPeran,
+                  _peranId,
+                  _peranList,
+                  (e) => e.namaPeran, // sekarang pakai properti model
+              ),
+
               items: _isLoadingPeran
                   ? []
                   : _peranList
-                      .where((e) => e["nama_peran"] != null)
-                      .map((e) => e["nama_peran"] as String)
+                      .where((e) => e.namaPeran.isNotEmpty)
+                      .map((e) => e.namaPeran)
                       .toList(),
               onChanged: _isLoadingPeran
                   ? null
                   : (val) {
                       if (val != null) {
                         final selected = _peranList.firstWhere(
-                          (e) => e["nama_peran"] == val,
-                          orElse: () => <String, dynamic>{},
+                          (e) => e.namaPeran == val,
+                          orElse: () => PeranModel(id: 0, namaPeran: '', fitur: []),
                         );
-                        if (selected.isNotEmpty) {
+                        if (selected.id != 0) {
                           setState(() {
-                            _peranId = selected["id"];
+                            _peranId = selected.id;
                           });
                         }
                       }
@@ -405,11 +432,12 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: 'Departemen *',
-              hint: _getSafeDropdownHint(
+              hint: _getSafeDropdownHintMap(
                   _isLoadingDepartemen,
                   _departemenId,
-                  _departemenList.cast<Map<String, dynamic>>(),
-                  "nama_departemen"),
+                  _departemenList,
+                  "nama_departemen",
+              ),
               items: _isLoadingDepartemen
                   ? []
                   : _departemenList
