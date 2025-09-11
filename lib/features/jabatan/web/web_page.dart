@@ -25,7 +25,11 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<JabatanViewModel>().fetchJabatan(context);
+      final vm = context.read<JabatanViewModel>();
+      vm.loadCacheFirst();
+      if (!vm.hasCache) {
+        vm.fetchJabatan();
+      }
     });
   }
 
@@ -116,11 +120,11 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: Consumer<JabatanViewModel>(
-        builder: (context, vm, child) {
-          return Stack(
+    return Consumer<JabatanViewModel>(
+      builder: (context, vm, child) {
+        return Scaffold(
+          backgroundColor: AppColors.bg,
+          body: Stack(
             children: [
               ListView(
                 padding: const EdgeInsets.all(16),
@@ -135,39 +139,36 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                   else if (vm.jabatanList.isEmpty)
                     const Center(child: Text('Tidak ada data jabatan'))
                   else
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: WebTabelJabat(
-                        jabatanList: vm.jabatanList,
-                        onEdit: (jabatan) {
-                          jabatanNameController.text = jabatan.namaJabatan;
-                          showDialog(
-                            context: context,
-                            builder: (_) => buildJabatanDialog(
-                              title: 'Edit Jabatan',
-                              onSubmit: () {
-                                vm.updateJabatan(context, jabatan.id,
-                                    jabatanNameController.text);
-                                Navigator.pop(context);
-                              },
-                            ),
-                          );
-                        },
-                        onDelete: (id) async {
-                          final confirmed = await showConfirmationDialog(
-                            context,
-                            title: "Konfirmasi Hapus",
-                            content:
-                                "Apakah Anda yakin ingin menghapus departemen ini?",
-                            confirmText: "Hapus",
-                            cancelText: "Batal",
-                            confirmColor: AppColors.red,
-                          );
-                          if (confirmed) {
-                            await vm.deleteJabatan(context, id);
-                          }
-                        },
-                      ),
+                    WebTabelJabat(
+                      jabatanList: vm.jabatanList,
+                      onEdit: (jabatan) {
+                        jabatanNameController.text = jabatan.namaJabatan;
+                        showDialog(
+                          context: context,
+                          builder: (_) => buildJabatanDialog(
+                            title: 'Edit Jabatan',
+                            onSubmit: () {
+                              vm.updateJabatan(context, jabatan.id,
+                                  jabatanNameController.text);
+                              Navigator.pop(context);
+                            },
+                          ),
+                        );
+                      },
+                      onDelete: (id) async {
+                        final confirmed = await showConfirmationDialog(
+                          context,
+                          title: "Konfirmasi Hapus",
+                          content:
+                              "Apakah Anda yakin ingin menghapus departemen ini?",
+                          confirmText: "Hapus",
+                          cancelText: "Batal",
+                          confirmColor: AppColors.red,
+                        );
+                        if (confirmed) {
+                          await vm.deleteJabatan(context, id);
+                        }
+                      },
                     ),
                 ],
               ),
@@ -194,9 +195,9 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                 ),
               ),
             ],
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

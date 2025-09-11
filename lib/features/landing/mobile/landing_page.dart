@@ -14,7 +14,7 @@ class LandingPageMobile extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF000000),
       resizeToAvoidBottomInset: false,
       body: Stack(
         children: [

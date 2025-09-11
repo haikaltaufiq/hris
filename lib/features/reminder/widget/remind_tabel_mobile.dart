@@ -188,17 +188,29 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
   Widget build(BuildContext context) {
     return Consumer<PengingatViewModel>(
       builder: (context, viewModel, child) {
+        final displayList = viewModel.searchQuery.isEmpty
+            ? viewModel.pengingatList
+            : viewModel.filteredList;
         if (viewModel.isLoading) {
           return const Center(child: LoadingWidget());
         }
 
-        final rows = viewModel.filteredList.map((reminder) {
+        final reminders = displayList;
+        if (reminders.isEmpty) {
+          return Center(
+            child: Text(
+              'Belum ada reminder',
+              style: TextStyle(color: AppColors.putih),
+            ),
+          );
+        }
+        final rows = reminders.map((reminder) {
           return [
-            reminder.picNama ?? '-', // default '-' kalo null
-            reminder.judul, // default '-' kalo null
-            reminder.tanggalJatuhTempo, // default '-' kalo null
-            reminder.sisaHari ?? '-', // default '-' kalo null
-            reminder.status, // default '-' kalo null
+            reminder.picNama ?? '-',
+            reminder.judul,
+            reminder.tanggalJatuhTempo,
+            reminder.sisaHari ?? '-',
+            reminder.status,
           ];
         }).toList();
 
@@ -206,21 +218,22 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
           headers: headers,
           rows: rows,
           statusColumnIndexes: const [4], // kolom status
-          onView: (rowIndex) => _handleView,
+          onView: (rowIndex) {
+            final reminder = reminders[rowIndex];
+            _handleView(reminder);
+          },
           onDelete: (rowIndex) async {
-            final reminder = viewModel.filteredList[rowIndex];
+            final reminder = reminders[rowIndex];
             await viewModel.deletePengingat(reminder.id);
           },
           onEdit: (rowIndex) async {
-            final reminder = viewModel.pengingatList[rowIndex];
+            final reminder = reminders[rowIndex];
             final result = await Navigator.pushNamed(
               context,
               AppRoutes.reminderEdit,
               arguments: reminder,
             );
-
             if (result == true) {
-              // panggil provider untuk refresh
               context.read<PengingatViewModel>().fetchPengingat();
             }
           },

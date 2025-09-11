@@ -23,8 +23,12 @@ class _PotonganMobileState extends State<PotonganMobile> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<PotonganGajiProvider>().fetchPotonganGaji();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<PotonganGajiProvider>();
+      if (provider.potonganList.isEmpty) {
+        provider.loadCacheFirst();
+        provider.fetchPotonganGaji();
+      }
     });
   }
 
@@ -59,12 +63,13 @@ class _PotonganMobileState extends State<PotonganMobile> {
                     },
                     onFilter1Tap: () {},
                   ),
-                  if (potonganProvider.isLoading)
+                  if (potonganProvider.isLoading && displayedList.isEmpty)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: const Center(child: LoadingWidget()),
                     )
-                  else if (potonganProvider.potonganList.isEmpty)
+                  else if (potonganProvider.potonganList.isEmpty &&
+                      !potonganProvider.isLoading)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
                       child: Center(

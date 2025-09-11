@@ -10,23 +10,14 @@ class BackgroundImage extends StatelessWidget {
       angle: math.pi / 2.2,
       child: Transform.scale(
         scale: 2.35,
-        child: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-              image: AssetImage('assets/images/dahua.jpg'),
-              fit: BoxFit.contain,
-            ),
+        child: SizedBox.expand(
+          // ganti Container kosong jadi ini
+          child: Image.asset(
+            'assets/images/dahua.webp',
+            fit: BoxFit.contain, // sama kayak DecorationImage lo
           ),
         ),
       ),
     );
-  }
-}
-
-class ImagePreloader {
-  static Future<void> preloadImages(BuildContext context) async {
-    await precacheImage(const AssetImage('assets/images/dahua.jpg'), context);
-    // You can add more images here:
-    // await precacheImage(const AssetImage('assets/images/other_image.jpg'), context);
   }
 }

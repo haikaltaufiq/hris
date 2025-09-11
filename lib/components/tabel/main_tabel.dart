@@ -314,7 +314,10 @@ class CustomDataTableWidget extends StatelessWidget {
                       Row(
                         children: [
                           const SizedBox(width: 8),
-                          FaIcon(FontAwesomeIcons.solidBookmark),
+                          FaIcon(
+                            FontAwesomeIcons.solidBookmark,
+                            color: AppColors.putih,
+                          ),
                           const SizedBox(width: 14),
                           Text(
                             row[0],

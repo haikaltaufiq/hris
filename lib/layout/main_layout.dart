@@ -57,6 +57,7 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.taskEdit: 20,
     AppRoutes.reminderAdd: 21,
     AppRoutes.reminderEdit: 22,
+    AppRoutes.peranForm: 23,
   };
 
   // Map index ke route
@@ -84,6 +85,7 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.taskEdit,
     AppRoutes.reminderAdd,
     AppRoutes.reminderEdit,
+    AppRoutes.peranForm,
   ];
 
   @override
@@ -545,6 +547,8 @@ class _MainLayoutState extends State<MainLayout>
         return 'Add Reminder';
       case AppRoutes.reminderEdit:
         return 'Edit Reminder';
+      case AppRoutes.peranForm:
+        return 'Peran Form';
       default:
         return 'HRIS System';
     }
