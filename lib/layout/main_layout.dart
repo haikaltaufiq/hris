@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/navbar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -19,14 +22,14 @@ class MainLayout extends StatefulWidget {
   State<MainLayout> createState() => _MainLayoutState();
 }
 
-class _MainLayoutState extends State<MainLayout>
-    with SingleTickerProviderStateMixin {
+class _MainLayoutState extends State<MainLayout> with SingleTickerProviderStateMixin {
   int selectedIndex = 0;
   bool isCollapsed = false;
   bool _showDropdown = false;
   late AnimationController _controller;
   late Animation<double> _sizeAnimation;
   late Animation<double> _fadeAnimation;
+  List<String> _userFitur = [];
 
   final GlobalKey _menuKey = GlobalKey();
   OverlayEntry? _dropdownOverlay;
@@ -89,6 +92,7 @@ class _MainLayoutState extends State<MainLayout>
   @override
   void initState() {
     super.initState();
+    _loadFitur();
     selectedIndex = _routeToIndex[widget.currentRoute] ?? 0;
 
     _controller = AnimationController(
@@ -104,6 +108,18 @@ class _MainLayoutState extends State<MainLayout>
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
+  }
+
+  // ambil fitur dari shared preferences
+  Future<void> _loadFitur() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fiturString = prefs.getString('fitur');
+    if (fiturString != null) {
+      final List<dynamic> decoded = jsonDecode(fiturString);
+      setState(() {
+        _userFitur = decoded.map((f) => f['nama_fitur'].toString()).toList();
+      });
+    }
   }
 
   void _toggleDropdown() {
@@ -336,6 +352,7 @@ class _MainLayoutState extends State<MainLayout>
           ? ResponsiveNavBar(
               selectedIndex: selectedIndex,
               onItemTapped: _onNavItemTapped,
+              userFitur: _userFitur,
             )
           : null,
     );
@@ -362,6 +379,7 @@ class _MainLayoutState extends State<MainLayout>
                 selectedIndex: selectedIndex,
                 onItemTapped: _onNavItemTapped,
                 isCollapsed: isCollapsed,
+                userFitur: _userFitur,
               ),
             ),
             //main content

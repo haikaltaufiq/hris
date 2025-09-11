@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:hr/data/api/api_config.dart';
+import 'package:hr/data/models/fitur_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
@@ -18,7 +19,6 @@ class AuthService {
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final user = UserModel.fromJson(data['data']);
-
       final prefs = await SharedPreferences.getInstance();
 
       // Simpan token dan data user
@@ -28,8 +28,7 @@ class AuthService {
       await prefs.setString('email', user.email);
       await prefs.setString('npwp', user.npwp ?? '');
       await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-      await prefs.setString(
-          'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+      await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
       await prefs.setString('jenis_kelamin', user.jenisKelamin);
       await prefs.setString('status_pernikahan', user.statusPernikahan);
 
@@ -43,6 +42,7 @@ class AuthService {
       await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
       await prefs.setString('departemen', user.departemen.namaDepartemen);
       await prefs.setString('peran', user.peran.namaPeran);
+      await prefs.setString('fitur', jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
 
       return {
         'success': true,
@@ -94,6 +94,18 @@ class AuthService {
       };
     }
   }
+
+  // Ambil fitur dari SharedPreferences
+  Future<List<Fitur>> getFitur() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fiturString = prefs.getString('fitur');
+    if (fiturString == null) return [];
+
+    final List<dynamic> decoded = jsonDecode(fiturString);
+    return decoded.map((f) => Fitur.fromJson(f)).toList();
+  }
+
+  
 
   // ✅ Logout: hapus semua data user
   Future<void> logout() async {
