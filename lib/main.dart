@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
@@ -15,6 +14,7 @@ import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
 import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
+import 'package:hr/features/peran/peran_viewmodel.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
 import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
@@ -22,10 +22,13 @@ import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   // Init local notification
   await NotificationService.instance.init();
+
+  // Init Hive
   await Hive.initFlutter();
   await Hive.openBox('user');
   await Hive.openBox('cuti');
@@ -37,6 +40,8 @@ void main() async {
   await Hive.openBox('department');
   await Hive.openBox('jabatan');
   await Hive.openBox('pengingat');
+  await Hive.openBox('peran');
+
   runApp(
     MultiProvider(
       providers: [
@@ -52,10 +57,44 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AbsenProvider()),
         ChangeNotifierProvider(create: (_) => GajiProvider()),
         ChangeNotifierProvider(create: (_) => PengingatViewModel()),
+        ChangeNotifierProvider(create: (_) => PeranViewModel()),
       ],
-      child: const MyApp(),
+      child: const PrecacheWrapper(),
     ),
   );
+}
+
+/// Wrapper khusus buat preload asset image biar gak kedip
+class PrecacheWrapper extends StatefulWidget {
+  const PrecacheWrapper({super.key});
+
+  @override
+  State<PrecacheWrapper> createState() => _PrecacheWrapperState();
+}
+
+class _PrecacheWrapperState extends State<PrecacheWrapper> {
+  bool _ready = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Precache background image
+    precacheImage(const AssetImage('assets/images/dahua.webp'), context)
+        .then((_) {
+      if (mounted) {
+        setState(() => _ready = true);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_ready) {
+      // tampilkan blank background biar gak flicker
+      return const ColoredBox(color: Colors.black);
+    }
+    return const MyApp();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -75,8 +114,6 @@ class MyApp extends StatelessWidget {
       locale: languageProvider.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-
-      // ✅ Instead of initialRoute → tentuin di home
       home: Builder(
         builder: (context) {
           if (context.isNativeMobile) {
@@ -86,7 +123,6 @@ class MyApp extends StatelessWidget {
           }
         },
       ),
-
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }

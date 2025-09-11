@@ -21,6 +21,7 @@ import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/features/lembur/lembur_page.dart';
 import 'package:hr/features/log_activity/log_view.dart';
 import 'package:hr/features/pengaturan/pengaturan_page.dart';
+import 'package:hr/features/peran/peran_form/form_page.dart';
 import 'package:hr/features/peran/peran_page.dart';
 import 'package:hr/features/potongan/potongan_form/form_edit.dart';
 import 'package:hr/features/potongan/potongan_form/potongan_form.dart';
@@ -65,6 +66,7 @@ class AppRoutes {
   static const String taskEdit = '/task_edit';
   static const String reminderAdd = '/reminder_add';
   static const String reminderEdit = '/reminder_edit';
+  static const String peranForm = '/peran_form';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -177,6 +179,10 @@ class AppRoutes {
 
       case reminder:
         return _route(const ReminderPage().withMainLayout(reminder), settings);
+
+      case peranForm:
+        return _route(
+            const PeranFormPage().withMainLayout(peranForm), settings);
 
       case mapPage:
         final args =

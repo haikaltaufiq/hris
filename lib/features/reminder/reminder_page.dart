@@ -31,7 +31,11 @@ class _ReminderPageState extends State<ReminderPage> {
 
     // Fetch data saat pertama kali load
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PengingatViewModel>().fetchPengingat();
+      final provider = context.read<PengingatViewModel>();
+      if (provider.pengingatList.isEmpty) {
+        provider.loadCacheFirst();
+        provider.fetchPengingat();
+      }
     });
 
     // Listen to search changes

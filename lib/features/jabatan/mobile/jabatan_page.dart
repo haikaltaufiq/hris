@@ -24,7 +24,11 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<JabatanViewModel>().fetchJabatan(context);
+      final vm = context.read<JabatanViewModel>();
+      vm.loadCacheFirst();
+      if (!vm.hasCache) {
+        vm.fetchJabatan();
+      }
     });
   }
 

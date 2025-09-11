@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/services/pengingat_service.dart';
 
@@ -13,23 +14,75 @@ class PengingatViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
 
-  /// Fetch awal
-  Future<void> fetchPengingat() async {
+  final _pengingatBox = Hive.box('pengingat');
+  bool _hasCache = false;
+  bool get hasCache => _hasCache;
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  /// Load cache immediately (synchronous)
+  void loadCacheFirst() {
+    try {
+      final hasCache = _pengingatBox.containsKey('pengingat_list');
+      if (hasCache) {
+        final cached = _pengingatBox.get('pengingat_list') as List;
+        if (cached.isNotEmpty) {
+          _pengingatList = cached
+              .map((json) =>
+                  ReminderData.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
+          _hasCache = true;
+          notifyListeners(); // Update UI immediately
+          print('✅ Cache loaded: ${_pengingatList.length} items');
+        }
+      }
+    } catch (e) {
+      print('❌ Error loading cache: $e');
+    }
+  }
+
+  /// Fetch awal data
+  Future<void> fetchPengingat({bool forceRefresh = false}) async {
+    print('🔄 fetchPengingat called - forceRefresh: $forceRefresh');
+
+    // Load cache first if not force refresh
+    if (!forceRefresh && _pengingatList.isEmpty) {
+      loadCacheFirst();
+    }
+
     _isLoading = true;
     notifyListeners();
 
     try {
-      final result = await PengingatService.fetchPengingat();
-      _pengingatList = result;
-      _applyFilter();
+      print('🌐 Calling API...');
+      final apiData = await PengingatService.fetchPengingat();
+      print('✅ API success: ${apiData.length} items');
+
+      _pengingatList = apiData;
+      _filteredList.clear();
+      _errorMessage = null;
+
+      // Save to cache
+      await _pengingatBox.put(
+        'pengingat_list',
+        _pengingatList.map((c) => c.toJson()).toList(),
+      );
+      print('💾 Cache saved');
+
+      _hasCache = true;
     } catch (e) {
-      if (kDebugMode) {
-        print("Error fetchPengingat: $e");
+      print('❌ API Error: $e');
+      _errorMessage = e.toString();
+
+      // If no data and cache exists, load cache
+      if (_pengingatList.isEmpty) {
+        loadCacheFirst();
       }
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
+
+    _isLoading = false;
+    notifyListeners();
+    print('🏁 fetchPengingat completed - items: ${_pengingatList.length}');
   }
 
   /// Tambah pengingat

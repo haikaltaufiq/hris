@@ -70,7 +70,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
 
       showModalBottomSheet(
         context: context,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColors.bg,
         isScrollControlled: true,
         builder: (_) => DraggableScrollableSheet(
           initialChildSize: 0.9,
@@ -80,7 +80,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
           builder: (context, scrollController) {
             return Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.bg,
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
@@ -106,12 +106,13 @@ class _AbsenTabelState extends State<AbsenTabel> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      const Text(
+                      Text(
                         "Lokasi Absen",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
+                          color: AppColors.putih,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -285,15 +286,15 @@ class _AbsenTabelState extends State<AbsenTabel> {
       onCellTap: (rowIndex, colIndex) {
         final absen = absensi[rowIndex];
 
-        if (colIndex == 5 &&
+        if (colIndex == 6 &&
             absen.checkinLat != null &&
             absen.checkinLng != null) {
           _openMap("${absen.checkinLat}, ${absen.checkinLng}");
-        } else if (colIndex == 6 &&
+        } else if (colIndex == 7 &&
             absen.checkoutLat != null &&
             absen.checkoutLng != null) {
           _openMap("${absen.checkoutLat}, ${absen.checkoutLng}");
-        } else if (colIndex == 7 &&
+        } else if (colIndex == 8 &&
             absen.videoUser != null &&
             absen.videoUser!.isNotEmpty) {
           _openVideo(absen.videoUser);

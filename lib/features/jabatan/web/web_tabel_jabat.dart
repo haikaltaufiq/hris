@@ -26,18 +26,23 @@ class WebTabelJabat extends StatelessWidget {
             ])
         .toList();
 
-    return CustomDataTableWeb(
-      headers: headers,
-      rows: rows,
-      columnFlexValues: const [2], // biar kolom nama dept agak lebar
-      onEdit: (rowIndex) {
-        final departemen = jabatanList[rowIndex];
-        onEdit(departemen);
-      },
-      onDelete: (rowIndex) {
-        final departemen = jabatanList[rowIndex];
-        onDelete(departemen.id);
-      },
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * 0.01,
+      ),
+      child: CustomDataTableWeb(
+        headers: headers,
+        rows: rows,
+        columnFlexValues: const [2], // biar kolom nama dept agak lebar
+        onEdit: (rowIndex) {
+          final departemen = jabatanList[rowIndex];
+          onEdit(departemen);
+        },
+        onDelete: (rowIndex) {
+          final departemen = jabatanList[rowIndex];
+          onDelete(departemen.id);
+        },
+      ),
     );
   }
 }
