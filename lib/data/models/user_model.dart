@@ -49,7 +49,7 @@ class UserModel {
       peran: (json['peran'] != null && json['peran'] is Map<String, dynamic>)
           ? PeranModel.fromJson(json['peran'])
           : PeranModel(
-              id: json['peran_id'] ?? 0, namaPeran: ''), // fallback pakai id
+              id: json['peran_id'] ?? 0, namaPeran: '', fitur: []), // fallback pakai id
       departemen: (json['departemen'] != null &&
               json['departemen'] is Map<String, dynamic>)
           ? DepartemenModel.fromJson(json['departemen'])

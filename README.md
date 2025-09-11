@@ -53,13 +53,6 @@
 
 Buat file `.env` di root directory:
 
-### Firebase Setup
-
-1. Buat project baru di [Firebase Console](https://console.firebase.google.com/)
-2. Download `google-services.json` untuk Android
-3. Download `GoogleService-Info.plist` untuk iOS
-4. Place files sesuai dengan dokumentasi Firebase
-
 ## 📊 Performance
 
 | Feature | Benchmark |

@@ -7,6 +7,7 @@ import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/services/departemen_service.dart';
 import 'package:hr/data/services/jabatan_service.dart';
 import 'package:hr/data/services/peran_service.dart';
@@ -38,7 +39,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
 
   // Data lists
   List<Map<String, Object>> _jabatanList = [];
-  List<Map<String, dynamic>> _peranList = [];
+  List<PeranModel> _peranList = [];
   List<Map<String, Object>> _departemenList = [];
 
   // Loading states
@@ -258,15 +259,15 @@ class _KaryawanInputState extends State<KaryawanInput> {
             label: 'Peran',
             hint: _isLoadingPeran ? 'Memuat...' : '',
             items: _peranList
-                .where((e) => e["nama_peran"] != null)
-                .map((e) => e["nama_peran"] as String)
+                .where((e) => e.namaPeran.isNotEmpty)
+                .map((e) => e.namaPeran)
                 .toList(),
             onChanged: (val) {
               final selected = _peranList.firstWhere(
-                (e) => e["nama_peran"] == val,
-                orElse: () => <String, dynamic>{},
+                (e) => e.namaPeran == val,
+                orElse: () => PeranModel(id: 0, namaPeran: '', fitur: []),
               );
-              _peranId = selected["id"];
+              _peranId = selected.id;
             },
             labelStyle: labelStyle,
             textStyle: textStyle,

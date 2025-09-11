@@ -41,8 +41,7 @@ class _ReminderInputState extends State<ReminderInput> {
       final peranData = await PeranService.fetchPeran();
       if (mounted) {
         setState(() {
-          _peranList =
-              peranData.map((data) => PeranModel.fromJson(data)).toList();
+          _peranList = peranData;
           _isLoadingPeran = false;
         });
       }
