@@ -62,7 +62,7 @@ class AbsenService {
     Uint8List? videoBytes,
   }) async {
     final headers = await _getHeaders();
-    final uri = Uri.parse('${ApiConfig.baseUrl}/api/checkin');
+    final uri = Uri.parse('${ApiConfig.baseUrl}/api/absensi/checkin');
     final request = http.MultipartRequest('POST', uri)..headers.addAll(headers);
 
     request.fields['lat'] = lat.toString();
@@ -139,7 +139,7 @@ class AbsenService {
     final videoBase64 = base64Encode(videoBytes);
 
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/checkin'),
+      Uri.parse('${ApiConfig.baseUrl}/api/absensi/checkin'),
       headers: headers,
       body: json.encode({
         'lat': lat,
@@ -169,7 +169,7 @@ class AbsenService {
     final headers = await _getHeaders(jsonType: true);
 
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/checkout'),
+      Uri.parse('${ApiConfig.baseUrl}/api/absensi/checkout'),
       headers: headers,
       body: json.encode({
         'lat': lat,

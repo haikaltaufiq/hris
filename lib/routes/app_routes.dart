@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/models/pengingat_model.dart';
+import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
@@ -181,8 +182,9 @@ class AppRoutes {
         return _route(const ReminderPage().withMainLayout(reminder), settings);
 
       case peranForm:
+        final peran = settings.arguments as PeranModel?;
         return _route(
-            const PeranFormPage().withMainLayout(peranForm), settings);
+            PeranFormPage(peran: peran).withMainLayout(peranForm), settings);
 
       case mapPage:
         final args =
