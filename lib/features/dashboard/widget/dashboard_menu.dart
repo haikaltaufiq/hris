@@ -343,7 +343,3 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
     );
   }
 }
-
-class UserProvider {
-  get roleName => null;
-}

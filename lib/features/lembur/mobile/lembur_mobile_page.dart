@@ -5,12 +5,14 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:hr/features/lembur/widgets/lembur_card.dart';
+import 'package:hr/features/lembur/widgets/lembur_user_card.dart';
 import 'package:provider/provider.dart';
 
 class LemburMobile extends StatefulWidget {
@@ -209,25 +211,34 @@ class _LemburMobileState extends State<LemburMobile> {
                       ),
                     )
                   else
-                    ListView.builder(
-                      itemCount: displayedList.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final lembur = displayedList[index];
-                        return LemburCard(
-                          lembur: lembur,
-                          onApprove: () => _approveLembur(lembur),
-                          onDecline: () => _declineLembur(lembur),
-                          onDelete: () => _deleteLembur(lembur),
-                        );
-                      },
-                    ),
-                  // else
-                  //   UserLemburTabel(
-                  //     lemburList: displayedList,
-                  //     onDelete: (lembur) => _deleteLembur(lembur),
-                  //   ),
+                    Column(
+                      children: [
+                        ListView.builder(
+                          itemCount: displayedList.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            final lembur = displayedList[index];
+                            return FeatureGuard(
+                              requiredFeature: 'lihat_semua_lembur',
+                              child: LemburCard(
+                                lembur: lembur,
+                                onApprove: () => _approveLembur(lembur),
+                                onDecline: () => _declineLembur(lembur),
+                                onDelete: () => _deleteLembur(lembur),
+                              ),
+                            );
+                          },
+                        ),
+                        FeatureGuard(
+                          requiredFeature: 'lihat_lembur_sendiri',
+                          child: UserLemburTabel(
+                            lemburList: displayedList,
+                            onDelete: (lembur) => _deleteLembur(lembur),
+                          ),
+                        ),
+                      ],
+                    )
                 ],
               ),
             ),
@@ -235,19 +246,22 @@ class _LemburMobileState extends State<LemburMobile> {
           Positioned(
             bottom: 16,
             right: 16,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final result = await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const LemburForm()),
-                );
+            child: FeatureGuard(
+              requiredFeature: 'tambah_lembur',
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const LemburForm()),
+                  );
 
-                if (result == true) {
-                  setState(() {});
-                }
-              },
-              backgroundColor: AppColors.secondary,
-              shape: const CircleBorder(),
-              child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+                  if (result == true) {
+                    setState(() {});
+                  }
+                },
+                backgroundColor: AppColors.secondary,
+                shape: const CircleBorder(),
+                child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+              ),
             ),
           ),
         ],

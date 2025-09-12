@@ -52,7 +52,7 @@ class ResponsiveNavBar extends StatefulWidget {
       requiredFeature: "lihat_cuti",
     ),
     NavItemWithFeature(
-      label: "Employees", 
+      label: "Employees",
       icon: FontAwesomeIcons.users,
       requiredFeature: "karyawan",
     ),
@@ -74,17 +74,17 @@ class ResponsiveNavBar extends StatefulWidget {
       requiredFeature: "jabatan",
     ),
     NavItemWithFeature(
-      label: "Access Rights", 
+      label: "Access Rights",
       icon: FontAwesomeIcons.userShield,
       requiredFeature: "peran",
     ),
     NavItemWithFeature(
-      label: "Salary Deduction", 
+      label: "Salary Deduction",
       icon: FontAwesomeIcons.calculator,
       requiredFeature: "potongan_gaji",
     ),
     NavItemWithFeature(
-      label: "Log Activity", 
+      label: "Log Activity",
       icon: FontAwesomeIcons.history,
       requiredFeature: "log_aktifitas",
     ),
@@ -95,24 +95,25 @@ class ResponsiveNavBar extends StatefulWidget {
       requiredFeature: "pengingat",
     ),
     NavItemWithFeature(
-      label: "Settings", 
+      label: "Settings",
       icon: FontAwesomeIcons.gear,
-      requiredFeature: "kantor",
+      requiredFeature: "pengaturan",
     ),
   ];
 
   // Method untuk filter menu berdasarkan fitur user
   List<NavItem> get _filteredNavItems {
     return _allNavItems
-        .where((item) => 
-            item.requiredFeature == null || // Menu tanpa requirement 
-            userFitur.contains(item.requiredFeature)) // Menu yang fiturnya dimiliki user
+        .where((item) =>
+            item.requiredFeature == null || // Menu tanpa requirement
+            userFitur.contains(
+                item.requiredFeature)) // Menu yang fiturnya dimiliki user
         .map((item) => NavItem(
-            originalIndex: _allNavItems.indexOf(item),
-            label: item.label,
-            icon: item.icon,
-            selectedIcon: item.selectedIcon,
-          ))
+              originalIndex: _allNavItems.indexOf(item),
+              label: item.label,
+              icon: item.icon,
+              selectedIcon: item.selectedIcon,
+            ))
         .toList();
   }
 
@@ -126,7 +127,8 @@ class ResponsiveNavBar extends StatefulWidget {
   State<ResponsiveNavBar> createState() => _ResponsiveNavBarState();
 }
 
-class _ResponsiveNavBarState extends State<ResponsiveNavBar> with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+class _ResponsiveNavBarState extends State<ResponsiveNavBar>
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
   static ScrollController? _scrollController;
   static double _lastScrollPosition = 0.0;
   static final PageStorageBucket _bucket = PageStorageBucket();
@@ -278,7 +280,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar> with TickerProvider
 
   Widget _buildMobileBottomNav(BuildContext context) {
     final mobileItems = widget._mobileNavItems;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.hitam,
@@ -393,8 +395,8 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar> with TickerProvider
                             item: filteredItems[index],
                             selectedIndex: widget.selectedIndex,
                             isCollapsed: widget.isCollapsed,
-                            onTap: (originalIndex) => widget.onItemTapped(originalIndex),     
-                                                   
+                            onTap: (originalIndex) =>
+                                widget.onItemTapped(originalIndex),
                             fadeAnimation: _fadeAnimation,
                           ),
                         ],
@@ -651,7 +653,7 @@ class NavItemWithFeature {
   final IconData icon;
   final IconData? selectedIcon;
   final String? requiredFeature;
-  
+
   const NavItemWithFeature({
     required this.label,
     required this.icon,

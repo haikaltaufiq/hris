@@ -423,6 +423,7 @@ class _MainLayoutState extends State<MainLayout>
       AppRoutes.taskEdit,
       AppRoutes.reminderAdd,
       AppRoutes.reminderEdit,
+      AppRoutes.peranForm,
     ].contains(widget.currentRoute);
 
     return Container(

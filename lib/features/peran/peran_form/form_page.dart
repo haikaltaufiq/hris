@@ -23,6 +23,170 @@ class _PeranFormPageState extends State<PeranFormPage> {
   List<Fitur> _allFitur = [];
   List<Fitur> _selectedFitur = [];
   bool _saving = false;
+  bool _selectAll = false;
+
+  // 🎯 DEFINISI HIERARKI FITUR
+  final Map<String, FeatureRule> _featureRules = {
+    // CUTI RULES
+    'lihat_cuti_sendiri': FeatureRule(
+      parent: 'lihat_cuti',
+      siblings: ['lihat_semua_cuti'],
+    ),
+    'lihat_semua_cuti': FeatureRule(
+      parent: 'lihat_cuti',
+      siblings: ['lihat_cuti_sendiri'],
+    ),
+    'tambah_cuti': FeatureRule(parent: 'lihat_cuti'),
+    'edit_cuti': FeatureRule(parent: 'lihat_cuti'),
+    'hapus_cuti': FeatureRule(parent: 'lihat_cuti'),
+
+    // LEMBUR RULES
+    'lihat_lembur_sendiri': FeatureRule(
+      parent: 'lihat_lembur',
+      siblings: ['lihat_semua_lembur'],
+    ),
+    'lihat_semua_lembur': FeatureRule(
+      parent: 'lihat_lembur',
+      siblings: ['lihat_lembur_sendiri'],
+    ),
+    'tambah_lembur': FeatureRule(parent: 'lihat_lembur'),
+    'edit_lembur': FeatureRule(parent: 'lihat_lembur'),
+    'hapus_lembur': FeatureRule(parent: 'lihat_lembur'),
+
+    // TUGAS RULES
+    'lihat_tugas_sendiri': FeatureRule(
+      parent: 'lihat_tugas',
+      siblings: ['lihat_semua_tugas'],
+    ),
+    'lihat_semua_tugas': FeatureRule(
+      parent: 'lihat_tugas',
+      siblings: ['lihat_tugas_sendiri'],
+    ),
+    'edit_tugas': FeatureRule(
+      parent: 'lihat_tugas',
+      siblings: ['tambah_lampiran_tugas'],
+    ),
+    'tambah_lampiran_tugas': FeatureRule(
+      parent: 'lihat_tugas',
+      siblings: ['edit_tugas'],
+    ),
+
+    'tambah_tugas': FeatureRule(parent: 'lihat_tugas'),
+    'hapus_tugas': FeatureRule(parent: 'lihat_tugas'),
+
+    // ABSENSI RULES
+    'lihat_absensi_sendiri': FeatureRule(
+      parent: 'absensi',
+      siblings: ['lihat_semua_absensi'],
+    ),
+    'lihat_semua_absensi': FeatureRule(
+      parent: 'absensi',
+      siblings: ['lihat_absensi_sendiri'],
+    ),
+
+    // LEMBUR APPROVAL RULES
+    'approve_lembur_step2': FeatureRule(
+      parent: 'approve_lembur',
+      siblings: ['approve_lembur_step1'],
+    ),
+    'approve_lembur_step1': FeatureRule(
+      parent: 'approve_lembur',
+      siblings: ['approve_lembur_step2'],
+    ),
+
+    // CUTI APPROVAL RULES
+    'approve_cuti_step2': FeatureRule(
+      parent: 'approve_cuti',
+      siblings: ['approve_cuti_step1'],
+    ),
+    'approve_cuti_step1': FeatureRule(
+      parent: 'approve_cuti',
+      siblings: ['approve_cuti_step2'],
+    ),
+  };
+
+  // 🎯 FITUR YANG PERLU KONFIRMASI SAAT SUBMIT
+  final Map<String, List<String>> _confirmationFeatures = {
+    'lihat_cuti': ['lihat_cuti_sendiri', 'lihat_semua_cuti'],
+    'lihat_lembur': ['lihat_lembur_sendiri', 'lihat_semua_lembur'],
+    'lihat_tugas': ['lihat_tugas_sendiri', 'lihat_semua_tugas'],
+    'absensi': ['lihat_absensi_sendiri', 'lihat_semua_absensi'],
+    'approve_lembur': ['approve_lembur_step1', 'approve_lembur_step2'],
+    'approve_cuti': ['approve_cuti_step1', 'approve_cuti_step2'],
+  };
+
+  // 🎯 PAKETAN FITUR
+  final Map<String, List<String>> _fiturPackages = {
+    'Super Admin': [
+      'lihat_lembur', //lembur
+      'lihat_semua_lembur',
+      'approve_lembur',
+      'approve_lembur_step2',
+      'decline_lembur',
+      'lihat_cuti', //cuti
+      'lihat_semua_cuti',
+      'approve_cuti',
+      'approve_cuti_step2',
+      'decline_cuti',
+      'lihat_tugas', //tugas
+      'lihat_semua_tugas',
+      'tambah_tugas',
+      'edit_tugas',
+      'hapus_tugas',
+      'departemen', //departemen
+      'peran', //peran
+      'jabatan', //jabatan
+      'karyawan', //karyawan
+      'gaji', //gaji
+      'potongan_gaji', //potongan gaji
+      'kantor', //kantor
+      'absensi',
+      'lihat_semua_absensi',
+      'log_aktifitas',
+      'pengaturan',
+      'pengingat',
+    ],
+    'Admin Office': [
+      'lihat_lembur',
+      'lihat_semua_lembur',
+      'approve_lembur',
+      'approve_lembur_step1',
+      'decline_lembur',
+      'lihat_cuti',
+      'lihat_semua_cuti',
+      'approve_cuti',
+      'approve_cuti_step1',
+      'decline_cuti',
+      'lihat_tugas',
+      'lihat_semua_tugas',
+      'tambah_tugas',
+      'edit_tugas',
+      'hapus_tugas',
+      'gaji',
+      'absensi',
+      'lihat_semua_absensi',
+      'pengaturan',
+      'pengingat',
+    ],
+    'Technical': [
+      'lihat_lembur',
+      'lihat_lembur_sendiri',
+      'tambah_lembur',
+      'edit_lembur',
+      'hapus_lembur',
+      'lihat_cuti',
+      'lihat_cuti_sendiri',
+      'tambah_cuti',
+      'edit_cuti',
+      'hapus_cuti',
+      'lihat_tugas',
+      'lihat_tugas_sendiri',
+      'tambah_lampiran_tugas',
+      'absensi',
+      'lihat_absensi_sendiri',
+      'pengaturan',
+    ],
+  };
 
   @override
   void initState() {
@@ -37,6 +201,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
   Future<void> _loadFitur() async {
     try {
       _allFitur = await FiturService.fetchFitur();
+      _updateSelectAllState();
       setState(() {});
     } catch (e) {
       debugPrint('Gagal load fitur: $e');
@@ -52,18 +217,191 @@ class _PeranFormPageState extends State<PeranFormPage> {
         .toList();
   }
 
+  void _updateSelectAllState() {
+    _selectAll =
+        _allFitur.isNotEmpty && _selectedFitur.length == _allFitur.length;
+  }
+
+  // 🎯 ENHANCED TOGGLE FITUR DENGAN HIERARKI
   void _toggleFitur(Fitur f, bool select) {
     setState(() {
       if (select) {
-        if (!_selectedFitur.any((e) => e.id == f.id)) _selectedFitur.add(f);
+        if (!_selectedFitur.any((e) => e.id == f.id)) {
+          _selectedFitur.add(f);
+        }
+        _applyFeatureRules(f.namaFitur, true);
       } else {
         _selectedFitur.removeWhere((e) => e.id == f.id);
+        _applyFeatureRules(f.namaFitur, false);
+      }
+      _updateSelectAllState();
+    });
+  }
+
+  // 🎯 APPLY FEATURE RULES
+  void _applyFeatureRules(String featureName, bool isSelected) {
+    final rule = _featureRules[featureName];
+    if (rule == null) return;
+
+    if (isSelected) {
+      // Auto-check parent
+      if (rule.parent != null) {
+        final parentFitur = _allFitur.firstWhere(
+          (f) => f.namaFitur == rule.parent,
+          orElse: () => Fitur(id: 0, namaFitur: '', deskripsiFitur: ''),
+        );
+        if (parentFitur.id != 0 &&
+            !_selectedFitur.any((e) => e.id == parentFitur.id)) {
+          _selectedFitur.add(parentFitur);
+        }
+      }
+
+      // Auto-uncheck siblings
+      if (rule.siblings != null) {
+        for (String siblingName in rule.siblings!) {
+          _selectedFitur.removeWhere((f) => f.namaFitur == siblingName);
+        }
+      }
+    }
+  }
+
+  void _toggleSelectAll(bool? value) {
+    setState(() {
+      if (value == true) {
+        _selectedFitur = List.from(_allFitur);
+        _selectAll = true;
+      } else {
+        _selectedFitur.clear();
+        _selectAll = false;
       }
     });
   }
 
+  void _selectPackage(String packageName) {
+    final packageFeatures = _fiturPackages[packageName] ?? [];
+    setState(() {
+      _selectedFitur.clear();
+      for (String featureName in packageFeatures) {
+        final fitur = _allFitur.firstWhere(
+          (f) => f.namaFitur.toLowerCase().contains(featureName.toLowerCase()),
+          orElse: () => Fitur(id: 0, namaFitur: '', deskripsiFitur: ''),
+        );
+        if (fitur.id != 0 && !_selectedFitur.any((e) => e.id == fitur.id)) {
+          _selectedFitur.add(fitur);
+        }
+      }
+      _updateSelectAllState();
+    });
+  }
+
+  // 🎯 CHECK KONFIRMASI SEBELUM SUBMIT
+  Future<bool> _checkConfirmation() async {
+    for (String parentFeature in _confirmationFeatures.keys) {
+      final children = _confirmationFeatures[parentFeature]!;
+
+      // Cek apakah parent ada tapi children tidak ada
+      bool hasParent = _selectedFitur.any((f) => f.namaFitur == parentFeature);
+      bool hasAnyChild = children
+          .any((child) => _selectedFitur.any((f) => f.namaFitur == child));
+
+      if (hasParent && !hasAnyChild) {
+        // Show confirmation dialog
+        String? selected =
+            await _showConfirmationDialog(parentFeature, children);
+        if (selected != null) {
+          // Add selected child feature
+          final childFitur = _allFitur.firstWhere(
+            (f) => f.namaFitur == selected,
+            orElse: () => Fitur(id: 0, namaFitur: '', deskripsiFitur: ''),
+          );
+          if (childFitur.id != 0) {
+            setState(() {
+              _selectedFitur.add(childFitur);
+            });
+          }
+        } else {
+          return false; // User cancelled
+        }
+      }
+    }
+    return true;
+  }
+
+  // 🎯 SHOW CONFIRMATION DIALOG
+  Future<String?> _showConfirmationDialog(
+      String parentFeature, List<String> options) async {
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: AppColors.bg,
+          title: Text(
+            'Pilih Akses untuk ${_getFeatureDisplayName(parentFeature)}',
+            style: TextStyle(color: AppColors.putih, fontSize: 18),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: options.map((option) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(option),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      foregroundColor: AppColors.putih,
+                      padding: EdgeInsets.symmetric(vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      _getFeatureDisplayName(option),
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text('Batal', style: TextStyle(color: AppColors.putih)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // 🎯 GET DISPLAY NAME FOR FEATURES
+  String _getFeatureDisplayName(String featureName) {
+    final displayNames = {
+      'lihat_cuti': 'Lihat Cuti',
+      'lihat_cuti_sendiri': 'Lihat Cuti Sendiri',
+      'lihat_semua_cuti': 'Lihat Semua Cuti',
+      'lihat_lembur': 'Lihat Lembur',
+      'lihat_lembur_sendiri': 'Lihat Lembur Sendiri',
+      'lihat_semua_lembur': 'Lihat Semua Lembur',
+      'lihat_tugas': 'Lihat Tugas',
+      'lihat_tugas_sendiri': 'Lihat Tugas Sendiri',
+      'lihat_semua_tugas': 'Lihat Semua Tugas',
+      'absensi': 'Absensi',
+      'lihat_absensi_sendiri': 'Lihat Absensi Sendiri',
+      'lihat_semua_absensi': 'Lihat Semua Absensi',
+    };
+    return displayNames[featureName] ?? featureName;
+  }
+
   Future<void> _savePeran() async {
     if (_namaController.text.isEmpty) return;
+
+    // Check confirmation before saving
+    bool confirmed = await _checkConfirmation();
+    if (!confirmed) return;
+
     setState(() => _saving = true);
 
     try {
@@ -143,7 +481,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
             ),
             const SizedBox(height: 16),
 
-            // ================== Search Fitur Manual ==================
+            // Search Fitur Manual
             TextField(
               controller: _searchController,
               onChanged: (_) => setState(() {}),
@@ -169,8 +507,148 @@ class _PeranFormPageState extends State<PeranFormPage> {
                 ),
               ),
             ),
-
             const SizedBox(height: 16),
+
+            // Template Fitur
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppColors.secondary.withOpacity(0.3)),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Template Fitur:',
+                    style: TextStyle(
+                      color: AppColors.putih,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Builder(
+                    builder: (context) {
+                      bool isMobile = MediaQuery.of(context).size.width < 600;
+                      if (isMobile) {
+                        return ElevatedButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => AlertDialog(
+                                title: Text(
+                                  'Pilih Paket',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                backgroundColor: AppColors.bg,
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children:
+                                      _fiturPackages.keys.map((packageName) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4.0),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          _selectPackage(packageName);
+                                          Navigator.pop(context);
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.secondary,
+                                          foregroundColor: AppColors.putih,
+                                          minimumSize:
+                                              const Size(double.infinity, 40),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8)),
+                                        ),
+                                        child: Text(
+                                          packageName,
+                                          style:
+                                              TextStyle(color: AppColors.putih),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.secondary,
+                            foregroundColor: AppColors.putih,
+                            minimumSize: const Size(120, 50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: const Text('Pilih Paket'),
+                        );
+                      } else {
+                        return Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: _fiturPackages.keys.map((packageName) {
+                            return ElevatedButton(
+                              onPressed: () => _selectPackage(packageName),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.secondary,
+                                foregroundColor: AppColors.putih,
+                                minimumSize: const Size(120, 50),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              child: Text(
+                                packageName,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 6),
+
+            // Select All Checkbox
+            Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 4),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Daftar Fitur (${_selectedFitur.length}/${_allFitur.length})',
+                    style: TextStyle(
+                      color: AppColors.putih,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: Checkbox(
+                      value: _selectAll,
+                      activeColor: AppColors.secondary,
+                      checkColor: AppColors.putih,
+                      onChanged: _toggleSelectAll,
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
             // List Fitur
             Expanded(
@@ -210,54 +688,6 @@ class _PeranFormPageState extends State<PeranFormPage> {
               }(),
             ),
 
-            // Select All / Clear All
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () =>
-                        setState(() => _selectedFitur = List.from(_allFitur)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.secondary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                    ),
-                    child: Text(
-                      'Pilih Semua',
-                      style: TextStyle(
-                          color: AppColors.putih,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: _selectedFitur.isEmpty
-                            ? Colors.grey
-                            : Colors.orange,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        padding: const EdgeInsets.symmetric(vertical: 18)),
-                    onPressed: _selectedFitur.isEmpty
-                        ? null
-                        : () => setState(() => _selectedFitur.clear()),
-                    child: Text(
-                      'Hapus Semua',
-                      style: TextStyle(
-                          color: AppColors.putih,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    ),
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 16),
 
             // Save Button
@@ -293,4 +723,12 @@ class _PeranFormPageState extends State<PeranFormPage> {
       ),
     );
   }
+}
+
+// 🎯 CLASS UNTUK DEFINISI ATURAN FITUR
+class FeatureRule {
+  final String? parent;
+  final List<String>? siblings;
+
+  FeatureRule({this.parent, this.siblings});
 }
