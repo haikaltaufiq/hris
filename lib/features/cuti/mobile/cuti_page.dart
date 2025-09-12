@@ -7,12 +7,14 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
 import 'package:hr/features/cuti/widgets/cuti_card.dart';
+import 'package:hr/features/cuti/widgets/user_cuti_tabel.dart';
 import 'package:provider/provider.dart';
 
 class CutiPageMobile extends StatefulWidget {
@@ -89,7 +91,6 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
         );
       } catch (e) {
         // kalau gagal (error dari API)
-
         NotificationHelper.showTopNotification(
           context,
           e.toString(),
@@ -161,7 +162,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
               ),
               child: ListView(
                 children: [
-                  Header(title: 'Pengajuan Cuti'),
+                  const Header(title: 'Pengajuan Cuti'),
                   SearchingBar(
                     controller: searchController,
                     onChanged: (value) {
@@ -216,45 +217,80 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                         ),
                       ),
                     )
-                  else
-                    ListView.builder(
-                      itemCount: displayedList.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final cuti = displayedList[index];
-                        return CutiCard(
-                          cuti: cuti,
-                          onApprove: () => _approveCuti(cuti),
-                          onDecline: () => _declineCuti(cuti),
-                          onDelete: () => _deleteCuti(cuti),
-                        );
-                      },
+                  else ...[
+                    // FeatureGuard untuk Admin - melihat semua cuti
+                    FeatureGuard(
+                      requiredFeature: 'lihat_semua_cuti',
+                      child: ListView.builder(
+                        itemCount: displayedList.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final cuti = displayedList[index];
+                          return CutiCard(
+                            cuti: cuti,
+                            onApprove: () => _approveCuti(cuti),
+                            onDecline: () => _declineCuti(cuti),
+                            onDelete: () => _deleteCuti(cuti),
+                          );
+                        },
+                      ),
                     ),
+
+                    // FeatureGuard untuk User - melihat cuti sendiri saja
+                    FeatureGuard(
+                      requiredFeature: 'lihat_cuti_sendiri',
+                      child: ListView.builder(
+                        itemCount: displayedList.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return UserCutiTabel(
+                            cutiList: displayedList,
+                            onDelete: (CutiModel cuti) {
+                              _deleteCuti(cuti);
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ]
                 ],
               ),
             ),
           ),
+
+          // FloatingActionButton untuk tambah cuti - tanpa FeatureGuard atau dengan FeatureGuard jika diperlukan
           Positioned(
             bottom: 16,
             right: 16,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final result = await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const CutiForm()),
-                );
+            child: FeatureGuard(
+              requiredFeature:
+                  'tambah_cuti', // Tambahkan jika diperlukan role-based access
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const CutiForm()),
+                  );
 
-                if (result == true) {
-                  setState(() {});
-                }
-              },
-              backgroundColor: AppColors.secondary,
-              shape: const CircleBorder(),
-              child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+                  if (result == true) {
+                    _refreshData(); // Lebih baik gunakan _refreshData() daripada setState()
+                  }
+                },
+                backgroundColor: AppColors.secondary,
+                shape: const CircleBorder(),
+                child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+              ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }

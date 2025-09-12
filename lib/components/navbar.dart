@@ -10,62 +10,118 @@ class ResponsiveNavBar extends StatefulWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
   final bool isCollapsed;
+  final List<String> userFitur;
 
   const ResponsiveNavBar({
     super.key,
     required this.selectedIndex,
     required this.onItemTapped,
     this.isCollapsed = false,
+    required this.userFitur,
   });
 
-  static const List<NavItem> _navItems = [
-    NavItem(
+  // Definisi semua menu dengan fitur yang diperlukan
+  static const List<NavItemWithFeature> _allNavItems = [
+    NavItemWithFeature(
       label: "Dashboard",
       icon: FontAwesomeIcons.house,
       selectedIcon: FontAwesomeIcons.houseChimney,
+      requiredFeature: null, // Dashboard selalu ditampilkan
     ),
-    NavItem(
+    NavItemWithFeature(
       label: "Attendance",
       icon: FontAwesomeIcons.calendarCheck,
       selectedIcon: FontAwesomeIcons.solidCalendarCheck,
+      requiredFeature: "absensi",
     ),
-    NavItem(
+    NavItemWithFeature(
       label: "Task",
       icon: FontAwesomeIcons.listCheck,
+      requiredFeature: "lihat_tugas",
     ),
-    NavItem(
-        label: "Over Time",
-        icon: FontAwesomeIcons.clock,
-        selectedIcon: FontAwesomeIcons.solidClock),
-    NavItem(
-        label: "Leave",
-        icon: FontAwesomeIcons.calendarMinus,
-        selectedIcon: FontAwesomeIcons.solidCalendarMinus),
-    NavItem(label: "Employees", icon: FontAwesomeIcons.users),
-    NavItem(
+    NavItemWithFeature(
+      label: "Over Time",
+      icon: FontAwesomeIcons.clock,
+      selectedIcon: FontAwesomeIcons.solidClock,
+      requiredFeature: "lihat_lembur",
+    ),
+    NavItemWithFeature(
+      label: "Leave",
+      icon: FontAwesomeIcons.calendarMinus,
+      selectedIcon: FontAwesomeIcons.solidCalendarMinus,
+      requiredFeature: "lihat_cuti",
+    ),
+    NavItemWithFeature(
+      label: "Employees",
+      icon: FontAwesomeIcons.users,
+      requiredFeature: "karyawan",
+    ),
+    NavItemWithFeature(
       label: "Payroll",
       icon: FontAwesomeIcons.moneyBill,
+      requiredFeature: "gaji",
     ),
-    NavItem(
-        label: "Department",
-        icon: FontAwesomeIcons.building,
-        selectedIcon: FontAwesomeIcons.solidBuilding),
-    NavItem(
-        label: "Position",
-        icon: FontAwesomeIcons.idBadge,
-        selectedIcon: FontAwesomeIcons.solidIdBadge),
-    NavItem(label: "Access Rights", icon: FontAwesomeIcons.userShield),
-    NavItem(label: "Salary Deduction", icon: FontAwesomeIcons.calculator),
-    NavItem(label: "Log Activity", icon: FontAwesomeIcons.history),
-    NavItem(
-        label: "Reminder",
-        icon: FontAwesomeIcons.alarmClock,
-        selectedIcon: FontAwesomeIcons.solidAlarmClock),
-    NavItem(label: "Settings", icon: FontAwesomeIcons.gear),
+    NavItemWithFeature(
+      label: "Department",
+      icon: FontAwesomeIcons.building,
+      selectedIcon: FontAwesomeIcons.solidBuilding,
+      requiredFeature: "departemen",
+    ),
+    NavItemWithFeature(
+      label: "Position",
+      icon: FontAwesomeIcons.idBadge,
+      selectedIcon: FontAwesomeIcons.solidIdBadge,
+      requiredFeature: "jabatan",
+    ),
+    NavItemWithFeature(
+      label: "Access Rights",
+      icon: FontAwesomeIcons.userShield,
+      requiredFeature: "peran",
+    ),
+    NavItemWithFeature(
+      label: "Salary Deduction",
+      icon: FontAwesomeIcons.calculator,
+      requiredFeature: "potongan_gaji",
+    ),
+    NavItemWithFeature(
+      label: "Log Activity",
+      icon: FontAwesomeIcons.history,
+      requiredFeature: "log_aktifitas",
+    ),
+    NavItemWithFeature(
+      label: "Reminder",
+      icon: FontAwesomeIcons.alarmClock,
+      selectedIcon: FontAwesomeIcons.solidAlarmClock,
+      requiredFeature: "pengingat",
+    ),
+    NavItemWithFeature(
+      label: "Settings",
+      icon: FontAwesomeIcons.gear,
+      requiredFeature: "pengaturan",
+    ),
   ];
 
-  static List<NavItem> get _mobileNavItems =>
-      _navItems.length > 5 ? _navItems.sublist(0, 5) : _navItems;
+  // Method untuk filter menu berdasarkan fitur user
+  List<NavItem> get _filteredNavItems {
+    return _allNavItems
+        .where((item) =>
+            item.requiredFeature == null || // Menu tanpa requirement
+            userFitur.contains(
+                item.requiredFeature)) // Menu yang fiturnya dimiliki user
+        .map((item) => NavItem(
+              originalIndex: _allNavItems.indexOf(item),
+              label: item.label,
+              icon: item.icon,
+              selectedIcon: item.selectedIcon,
+            ))
+        .toList();
+  }
+
+  // Method untuk mobile navigation (ambil maksimal 5 item pertama)
+  List<NavItem> get _mobileNavItems {
+    final filtered = _filteredNavItems;
+    return filtered.length > 5 ? filtered.sublist(0, 5) : filtered;
+  }
 
   @override
   State<ResponsiveNavBar> createState() => _ResponsiveNavBarState();
@@ -98,31 +154,26 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   }
 
   void _initializeControllers() {
-    // Animation controller untuk width transition
     _slideController = AnimationController(
       duration: const Duration(milliseconds: 350),
       vsync: this,
     );
 
-    // Animation controller untuk opacity transition
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    // Smooth curve untuk slide animation
     _slideAnimation = CurvedAnimation(
       parent: _slideController,
       curve: Curves.easeInOutCubic,
     );
 
-    // Fade animation untuk text elements
     _fadeAnimation = CurvedAnimation(
       parent: _fadeController,
       curve: Curves.easeInOut,
     );
 
-    // Set initial state
     if (widget.isCollapsed) {
       _slideController.value = 1.0;
       _fadeController.value = 0.0;
@@ -136,7 +187,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   void didUpdateWidget(ResponsiveNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Trigger animations when collapse state changes
     if (oldWidget.isCollapsed != widget.isCollapsed) {
       if (widget.isCollapsed) {
         _fadeController.reverse();
@@ -156,7 +206,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
     if (_scrollController == null) {
       _scrollController =
           ScrollController(initialScrollOffset: _lastScrollPosition);
-
       _scrollController!.addListener(_saveScrollPosition);
     }
 
@@ -230,6 +279,8 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   }
 
   Widget _buildMobileBottomNav(BuildContext context) {
+    final mobileItems = widget._mobileNavItems;
+
     return Container(
       decoration: BoxDecoration(
         color: AppColors.hitam,
@@ -246,17 +297,15 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children:
-                ResponsiveNavBar._mobileNavItems.asMap().entries.map((entry) {
-              int index = entry.key;
+            children: mobileItems.asMap().entries.map((entry) {
               NavItem item = entry.value;
-              bool isSelected = index == widget.selectedIndex;
+              bool isSelected = item.originalIndex == widget.selectedIndex;
 
               return Expanded(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () => widget.onItemTapped(index),
+                    onTap: () => widget.onItemTapped(item.originalIndex),
                     borderRadius: BorderRadius.circular(12),
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
@@ -298,6 +347,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
     final double screenWidth = MediaQuery.of(context).size.width;
     final double collapsedWidth = 70;
     final double expandedWidth = screenWidth < 1024 ? 220 : 260;
+    final filteredItems = widget._filteredNavItems;
 
     return AnimatedBuilder(
       animation: _slideAnimation,
@@ -321,9 +371,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                height: 60,
-              ),
+              SizedBox(height: 60),
               const SizedBox(height: AppSizes.paddingM),
               Expanded(
                 child: PageStorage(
@@ -337,17 +385,18 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                     padding: EdgeInsets.symmetric(
                       horizontal: widget.isCollapsed ? 4 : AppSizes.paddingS,
                     ),
-                    itemCount: ResponsiveNavBar._navItems.length,
+                    itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
                       return Column(
                         children: [
                           _SidebarNavItemWidget(
                             key: ValueKey('nav_item_$index'),
                             index: index,
-                            item: ResponsiveNavBar._navItems[index],
+                            item: filteredItems[index],
                             selectedIndex: widget.selectedIndex,
                             isCollapsed: widget.isCollapsed,
-                            onTap: widget.onItemTapped,
+                            onTap: (originalIndex) =>
+                                widget.onItemTapped(originalIndex),
                             fadeAnimation: _fadeAnimation,
                           ),
                         ],
@@ -485,7 +534,7 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
 
   @override
   Widget build(BuildContext context) {
-    final bool isSelected = widget.index == widget.selectedIndex;
+    final bool isSelected = widget.item.originalIndex == widget.selectedIndex;
     final double screenWidth = MediaQuery.of(context).size.width;
     final double iconSize = screenWidth < 1024 ? 16 : 18;
     final double fontSize = screenWidth < 1024 ? 13 : 14;
@@ -505,7 +554,7 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => widget.onTap(widget.index),
+            onTap: () => widget.onTap(widget.item.originalIndex),
             borderRadius: BorderRadius.circular(12),
             splashColor: AppColors.putih.withOpacity(0.1),
             highlightColor: AppColors.putih.withOpacity(0.05),
@@ -598,9 +647,32 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
   }
 }
 
-class NavItem {
+// Class untuk menu item dengan fitur yang diperlukan
+class NavItemWithFeature {
   final String label;
   final IconData icon;
   final IconData? selectedIcon;
-  const NavItem({required this.label, required this.icon, this.selectedIcon});
+  final String? requiredFeature;
+
+  const NavItemWithFeature({
+    required this.label,
+    required this.icon,
+    this.selectedIcon,
+    this.requiredFeature,
+  });
+}
+
+// Class untuk menu item biasa (tanpa fitur)
+class NavItem {
+  final int originalIndex;
+  final String label;
+  final IconData icon;
+  final IconData? selectedIcon;
+
+  const NavItem({
+    required this.originalIndex,
+    required this.label,
+    required this.icon,
+    this.selectedIcon,
+  });
 }

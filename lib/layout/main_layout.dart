@@ -1,9 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/navbar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -27,10 +30,11 @@ class _MainLayoutState extends State<MainLayout>
   late AnimationController _controller;
   late Animation<double> _sizeAnimation;
   late Animation<double> _fadeAnimation;
+  List<String> _userFitur = [];
 
   final GlobalKey _menuKey = GlobalKey();
   OverlayEntry? _dropdownOverlay;
-
+  static List<String>? _cachedFitur;
   // Map route ke index
   static const Map<String, int> _routeToIndex = {
     AppRoutes.dashboard: 0,
@@ -106,6 +110,27 @@ class _MainLayoutState extends State<MainLayout>
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
+
+    if (_cachedFitur != null) {
+      _userFitur = _cachedFitur!;
+    } else {
+      _loadFitur();
+    }
+  }
+
+  // ambil fitur dari shared preferences
+  Future<void> _loadFitur() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fiturString = prefs.getString('fitur');
+    if (fiturString != null) {
+      final List<dynamic> decoded = jsonDecode(fiturString);
+      _cachedFitur = decoded.map((f) => f['nama_fitur'].toString()).toList();
+      if (mounted) {
+        setState(() {
+          _userFitur = _cachedFitur!;
+        });
+      }
+    }
   }
 
   void _toggleDropdown() {
@@ -338,6 +363,7 @@ class _MainLayoutState extends State<MainLayout>
           ? ResponsiveNavBar(
               selectedIndex: selectedIndex,
               onItemTapped: _onNavItemTapped,
+              userFitur: _userFitur,
             )
           : null,
     );
@@ -364,6 +390,7 @@ class _MainLayoutState extends State<MainLayout>
                 selectedIndex: selectedIndex,
                 onItemTapped: _onNavItemTapped,
                 isCollapsed: isCollapsed,
+                userFitur: _userFitur,
               ),
             ),
             //main content
@@ -396,6 +423,7 @@ class _MainLayoutState extends State<MainLayout>
       AppRoutes.taskEdit,
       AppRoutes.reminderAdd,
       AppRoutes.reminderEdit,
+      AppRoutes.peranForm,
     ].contains(widget.currentRoute);
 
     return Container(

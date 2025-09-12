@@ -5,8 +5,8 @@ import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/peran_model.dart';
-import 'package:hr/features/peran/peran_form/form_page.dart';
 import 'package:hr/features/peran/peran_viewmodel.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
 class WebTabelPeranWeb extends StatefulWidget {
@@ -89,10 +89,16 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
   }
 
   void _handleEdit(PeranModel peran) async {
-    Navigator.push(
+    final result = await Navigator.pushNamed(
       context,
-      MaterialPageRoute(builder: (context) => PeranFormPage(peran: peran)),
+      AppRoutes.peranForm,
+      arguments: peran, // <-- kirim data
     );
+
+    if (result == true) {
+      final viewModel = context.read<PeranViewModel>();
+      await viewModel.fetchPeran();
+    }
   }
 
   // -------------------- HAPUS PERAN --------------------

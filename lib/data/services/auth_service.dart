@@ -1,59 +1,113 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hr/data/api/api_config.dart';
+import 'package:hr/data/models/fitur_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 
 class AuthService {
-  Future<Map<String, dynamic>> login(String email, String password) async {
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'email': email,
-        'password': password,
-      }),
-    );
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final user = UserModel.fromJson(data['data']);
+  // helper ambil device info lengkap
+  Future<Map<String, String>> _getDeviceInfo() async {
+    final deviceInfo = DeviceInfoPlugin();
 
-      final prefs = await SharedPreferences.getInstance();
-
-      // Simpan token dan data user
-      await prefs.setString('token', data['token']);
-      await prefs.setInt('id', user.id);
-      await prefs.setString('nama', user.nama);
-      await prefs.setString('email', user.email);
-      await prefs.setString('npwp', user.npwp ?? '');
-      await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-      await prefs.setString(
-          'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
-      await prefs.setString('jenis_kelamin', user.jenisKelamin);
-      await prefs.setString('status_pernikahan', user.statusPernikahan);
-
-      // Konversi gajiPokok ke double jika ada, fallback 0
-      await prefs.setDouble(
-        'gaji_pokok',
-        double.tryParse(user.gajiPokok ?? '0') ?? 0,
-      );
-
-      // Cek null untuk jabatan
-      await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
-      await prefs.setString('departemen', user.departemen.namaDepartemen);
-      await prefs.setString('peran', user.peran.namaPeran);
-
+    if (kIsWeb) {
       return {
-        'success': true,
-        'token': data['token'],
-        'user': user,
-        'message': data['message'],
+        "device_id": "web_browser",
+        "device_model": "web",
+        "device_manufacturer": "web",
+        "device_version": "unknown",
+      };
+    } else if (Platform.isAndroid) {
+      final androidInfo = await deviceInfo.androidInfo;
+      return {
+        "device_id": androidInfo.id,
+        "device_model": androidInfo.model,
+        "device_manufacturer": androidInfo.manufacturer,
+        "device_version": "Android ${androidInfo.version.release}",
+      };
+    } else if (Platform.isIOS) {
+      final iosInfo = await deviceInfo.iosInfo;
+      return {
+        "device_id": iosInfo.identifierForVendor ?? "unknown_ios",
+        "device_model": iosInfo.utsname.machine,
+        "device_manufacturer": "Apple",
+        "device_version": iosInfo.systemVersion,
       };
     } else {
       return {
+        "device_id": "unknown_device",
+        "device_model": "unknown",
+        "device_manufacturer": "unknown",
+        "device_version": "unknown",
+      };
+    }
+  }
+  
+  // login dengan email, password, dan device_id
+  Future<Map<String, dynamic>> login(String email, String password) async {
+    final deviceInfo = await _getDeviceInfo();
+
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/login'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password,
+          'device_id': deviceInfo["device_id"] ?? 'unknown_device',
+          'device_model': deviceInfo["device_model"] ?? 'unknown_model',
+          'device_manufacturer': deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
+          'device_version': deviceInfo["device_version"] ?? 'unknown_version',
+        }),
+      ).timeout(const Duration(seconds: 120));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final user = UserModel.fromJson(data['data']);
+        final prefs = await SharedPreferences.getInstance();
+
+        // simpan token & data user
+        await prefs.setString('token', data['token']);
+        await prefs.setInt('id', user.id);
+        await prefs.setString('nama', user.nama);
+        await prefs.setString('email', user.email);
+        await prefs.setString('npwp', user.npwp ?? '');
+        await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
+        await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+        await prefs.setString('jenis_kelamin', user.jenisKelamin);
+        await prefs.setString('status_pernikahan', user.statusPernikahan);
+        await prefs.setDouble('gaji_pokok', double.tryParse(user.gajiPokok ?? '0') ?? 0);
+        await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
+        await prefs.setString('departemen', user.departemen.namaDepartemen);
+        await prefs.setString('peran', user.peran.namaPeran);
+        await prefs.setString('fitur', jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
+        await prefs.setBool('onboarding', data['onboarding'] ?? false);
+
+        return {
+          'success': true,
+          'token': data['token'],
+          'user': user,
+          'onboarding': data['onboarding'] ?? false,
+          'message': data['message'],
+        };
+      } else {
+        // tangani error API dengan jelas
+        final errorData = jsonDecode(response.body);
+        return {
+          'success': false,
+          'message': errorData['message'] ?? 'Login gagal',
+        };
+      }
+    } catch (e) {
+      return {
         'success': false,
-        'message': jsonDecode(response.body)['message'],
+        'message': e.toString(),
       };
     }
   }
@@ -95,31 +149,43 @@ class AuthService {
     }
   }
 
-  // ✅ Logout: hapus semua data user
+  // Ambil fitur dari SharedPreferences
+  Future<List<Fitur>> getFitur() async {
+    final prefs = await SharedPreferences.getInstance();
+    final fiturString = prefs.getString('fitur');
+    if (fiturString == null) return [];
+
+    final List<dynamic> decoded = jsonDecode(fiturString);
+    return decoded.map((f) => Fitur.fromJson(f)).toList();
+  }
+
+  
+
+  // Logout: hapus semua data user
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // lebih aman, hapus semua
   }
 
-  // ✅ Ambil token
+  // Ambil token
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
 
-  // ✅ Ambil nama user
+  // Ambil nama user
   Future<String?> getNama() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('nama');
   }
 
-  // ✅ Ambil peran user
+  // Ambil peran user
   Future<String?> getPeran() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('peran');
   }
 
-  // ✅ Ambil semua data user
+  // Ambil semua data user
   Future<Map<String, dynamic>> getUserData() async {
     final prefs = await SharedPreferences.getInstance();
     return {

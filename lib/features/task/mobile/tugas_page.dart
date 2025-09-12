@@ -4,15 +4,20 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
 import 'package:hr/features/task/widgets/tugas_tabel.dart';
+import 'package:hr/features/task/widgets/tugas_user_tabel.dart';
+// Add missing import if TugasUserTabel exists in different file
+// import 'package:hr/features/task/widgets/tugas_user_tabel.dart';
 
 import 'package:provider/provider.dart';
 
 class TugasMobile extends StatefulWidget {
   const TugasMobile({super.key});
+
   @override
   State<TugasMobile> createState() => _TugasMobileState();
 }
@@ -43,7 +48,7 @@ class _TugasMobileState extends State<TugasMobile> {
   @override
   Widget build(BuildContext context) {
     final tugasProvider = context.watch<TugasProvider>();
-    // final userProvider = context.watch<UserProvider>(); // fix missing
+    // final userProvider = context.watch<UserProvider>(); // Uncomment if needed
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -58,7 +63,7 @@ class _TugasMobileState extends State<TugasMobile> {
               ),
               child: ListView(
                 children: [
-                  Header(
+                  const Header(
                     title: 'Daftar Tugas',
                   ),
                   SearchingBar(
@@ -158,44 +163,57 @@ class _TugasMobileState extends State<TugasMobile> {
                         );
                       }
 
-                      // if (userProvider.hasFeature(FeatureIds.manageTask)) {
-                      return TugasTabel(
-                        tugasList: displayedList,
-                        onActionDone: () {
-                          searchController.clear();
-                        },
+                      return Column(
+                        children: [
+                          FeatureGuard(
+                            requiredFeature: 'lihat_semua_tugas',
+                            child: TugasTabel(
+                              tugasList: displayedList,
+                              onActionDone: () {
+                                searchController.clear();
+                              },
+                            ),
+                          ),
+                          // Option 1: If TugasUserTabel exists, uncomment and fix import
+                          FeatureGuard(
+                            requiredFeature: "tambah_lampiran_tugas",
+                            child: TugasUserTabel(
+                              tugasList: displayedList,
+                              onActionDone: () {
+                                searchController.clear();
+                              },
+                            ),
+                          ),
+                        ],
                       );
-                      // } else {
-                      //   return FeatureGuard(
-                      //     featureId: "user_tabel_task",
-                      //     child: 
-                      //       },TugasUserTabel(
-                      //       tugasList: displayedList,
-                      //       onActionDone: () {
-                      //         searchController.clear();
-                      //     ),
-                      //   );
-                      // }
                     },
                   ),
                 ],
               ),
             ),
           ),
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final result = await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => const TugasForm()),
-                );
-                searchController.clear();
-                if (result == true) _refreshData();
-              },
-              backgroundColor: AppColors.secondary,
-              shape: const CircleBorder(),
-              child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+          FeatureGuard(
+            requiredFeature: 'tambah_tugas',
+            child: Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const TugasForm(),
+                    ),
+                  );
+                  searchController.clear();
+                  if (result == true) _refreshData();
+                },
+                backgroundColor: AppColors.secondary,
+                shape: const CircleBorder(),
+                child: FaIcon(
+                  FontAwesomeIcons.plus,
+                  color: AppColors.putih,
+                ),
+              ),
             ),
           ),
         ],

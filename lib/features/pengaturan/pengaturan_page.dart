@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/pengaturan/widgets/company_card.dart';
@@ -93,9 +94,12 @@ class _PengaturanPageState extends State<PengaturanPage>
             ),
 
           //Company Card
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: CompanyCard(),
+          FeatureGuard(
+            requiredFeature: 'kantor',
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: CompanyCard(),
+            ),
           ),
           const SizedBox(height: 14),
 
@@ -346,9 +350,12 @@ class _PengaturanPageState extends State<PengaturanPage>
 
           const SizedBox(height: 14),
 
-          Padding(
-            padding: const EdgeInsets.all(4.0),
-            child: ResetDb(),
+          FeatureGuard(
+            requiredFeature: 'kantor',
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: ResetDb(),
+            ),
           ),
         ],
       ),
