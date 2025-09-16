@@ -238,7 +238,7 @@ class _CompanyCardState extends State<CompanyCard> {
                   _buildInfoItem(
                     icon: Icons.access_time_filled_outlined,
                     label: 'Jam Keluar',
-                    value: '17.00',
+                    value: kantor!.jamKeluar,
                   ),
                   const SizedBox(height: 20),
                   _buildInfoItem(

@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/models/pengingat_model.dart';
@@ -8,11 +7,14 @@ import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
 import 'package:hr/features/cuti/cuti_page.dart';
+import 'package:hr/features/danger/danger_page.dart';
 import 'package:hr/features/dashboard/dashboard_page.dart';
 import 'package:hr/features/dashboard/mobile/dashboard_page.dart';
 import 'package:hr/features/department/department_page.dart';
 import 'package:hr/features/gaji/gaji_page.dart';
-import 'package:hr/features/pengaturan/info_kantor/info_page.dart';
+import 'package:hr/features/info_kantor/info_kantor_page.dart';
+import 'package:hr/on_boarding.dart';
+import 'package:hr/features/info_kantor/info_page_form.dart';
 import 'package:hr/features/jabatan/jabatan_page.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form.dart';
 import 'package:hr/features/karyawan/karyawan_page.dart';
@@ -39,6 +41,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 class AppRoutes {
+  static const String onboarding = '/onboarding';
   static const String landingPage = '/';
   static const String landingPageMobile = '/landing_mobile';
   static const String login = '/login';
@@ -68,37 +71,34 @@ class AppRoutes {
   static const String reminderAdd = '/reminder_add';
   static const String reminderEdit = '/reminder_edit';
   static const String peranForm = '/peran_form';
+  static const String infoKantor = '/info_kantor';
+  static const String danger = '/danger';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
     landingPage,
     landingPageMobile,
     login,
+    onboarding,
   ];
 
   /// Universal route helper
   static PageRoute _route(Widget page, RouteSettings settings) {
-    if (kIsWeb) {
-      // Web → no animation (biar ga geter)
-      return PageRouteBuilder(
-        pageBuilder: (_, __, ___) => page,
-        transitionDuration: Duration.zero,
-        reverseTransitionDuration: Duration.zero,
-        settings: settings,
-      );
-    } else {
-      // Mobile → default animasi
-      return MaterialPageRoute(
-        builder: (_) => page,
-        settings: settings,
-      );
-    }
+    return PageRouteBuilder(
+      pageBuilder: (_, __, ___) => page,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+      settings: settings,
+    );
   }
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final String? routeName = settings.name;
 
     switch (routeName) {
+      case onboarding:
+        return _route(const OnBoarding(), settings);
+
       case landingPage:
         return _route(const LandingPage(), settings);
 
@@ -180,6 +180,11 @@ class AppRoutes {
 
       case reminder:
         return _route(const ReminderPage().withMainLayout(reminder), settings);
+      case infoKantor:
+        return _route(
+            const InfoKantorPage().withMainLayout(infoKantor), settings);
+      case danger:
+        return _route(const DangerPage().withMainLayout(danger), settings);
 
       case peranForm:
         final peran = settings.arguments as PeranModel?;

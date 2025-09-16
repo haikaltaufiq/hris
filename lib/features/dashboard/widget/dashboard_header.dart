@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -16,6 +18,7 @@ class DashboardHeader extends StatefulWidget {
 
 class _DashboardHeaderState extends State<DashboardHeader>
     with SingleTickerProviderStateMixin {
+  late BuildContext rootContext; // simpan context utama
   bool _showDropdown = false;
   late AnimationController _controller;
   late Animation<double> _sizeAnimation;
@@ -127,14 +130,6 @@ class _DashboardHeaderState extends State<DashboardHeader>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDropdownItem("Dashboard", Icons.dashboard, () {
-                            _hideDropdown();
-                          }),
-                          Container(
-                            height: 1,
-                            margin: const EdgeInsets.symmetric(horizontal: 12),
-                            color: Colors.grey.withOpacity(0.1),
-                          ),
                           _buildDropdownItem("Profile", Icons.person_outline,
                               () {
                             _hideDropdownImmediate();
@@ -159,10 +154,25 @@ class _DashboardHeaderState extends State<DashboardHeader>
                           _buildDropdownItem(
                             "Logout",
                             Icons.logout,
-                            () {
-                              _hideDropdown();
+                            () async {
+                              _hideDropdownImmediate();
+
+                              Future.microtask(() async {
+                                final auth = AuthService();
+                                await auth.logout();
+
+                                if (!mounted) return;
+
+                                Navigator.pushAndRemoveUntil(
+                                  rootContext, // pakai context utama, bukan overlay
+                                  MaterialPageRoute(
+                                    builder: (_) => const LandingPageMobile(),
+                                  ),
+                                  (route) => false,
+                                );
+                              });
                             },
-                          ), // tambah flag logout
+                          ),
                         ],
                       ),
                     ),
@@ -244,6 +254,8 @@ class _DashboardHeaderState extends State<DashboardHeader>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    rootContext = context; // biar gak klik 2 kali logout
+
     // Clean up overlay when dependencies change
     if (_dropdownOverlay != null) {
       _removeOverlay();
