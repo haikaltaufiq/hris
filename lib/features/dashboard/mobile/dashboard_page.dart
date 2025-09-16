@@ -110,6 +110,20 @@ class _DashboardMobileState extends State<DashboardMobile> {
                       Navigator.pushNamed(context, AppRoutes.reminder);
                     },
                   ),
+                  DashboardMenuItem(
+                    label: "Info Kantor",
+                    icon: FontAwesomeIcons.infoCircle,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.infoKantor);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Danger",
+                    icon: FontAwesomeIcons.triangleExclamation,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.danger);
+                    },
+                  ),
                 ],
               ),
             ),

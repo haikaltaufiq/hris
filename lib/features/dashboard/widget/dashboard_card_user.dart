@@ -2,11 +2,47 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/data/models/kantor_model.dart';
+import 'package:hr/data/services/kantor_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
+import 'package:intl/intl.dart';
 
-class DashboardCardUser extends StatelessWidget {
+class DashboardCardUser extends StatefulWidget {
   const DashboardCardUser({super.key});
+
+  @override
+  State<DashboardCardUser> createState() => _DashboardCardUserState();
+}
+
+class _DashboardCardUserState extends State<DashboardCardUser> {
+  KantorModel? kantor;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadKantorData();
+  }
+
+  Future<void> _loadKantorData() async {
+    try {
+      final data = await KantorService.getKantor();
+      if (mounted) {
+        setState(() {
+          kantor = data;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+      print('Error loading kantor data: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +115,8 @@ class DashboardCardUser extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    "Aug 14, 2025",
+                    DateFormat('dd MMM, yyyy')
+                        .format(DateTime.now()), // contoh: Aug 14, 2025
                     style: GoogleFonts.poppins(
                       fontSize: 10,
                       fontWeight: FontWeight.w500,
@@ -120,7 +157,9 @@ class DashboardCardUser extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    "08:00 - 17:00",
+                    kantor != null
+                        ? "${kantor!.jamMasuk} - ${kantor!.jamKeluar}"
+                        : "08:00 - 17:00",
                     style: GoogleFonts.poppins(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

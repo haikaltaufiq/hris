@@ -99,6 +99,16 @@ class ResponsiveNavBar extends StatefulWidget {
       icon: FontAwesomeIcons.gear,
       requiredFeature: "pengaturan",
     ),
+    NavItemWithFeature(
+      label: "Info Kantor",
+      icon: FontAwesomeIcons.circleInfo,
+      requiredFeature: null,
+    ),
+    NavItemWithFeature(
+      label: "Danger Zone",
+      icon: FontAwesomeIcons.triangleExclamation,
+      requiredFeature: null,
+    ),
   ];
 
   // Method untuk filter menu berdasarkan fitur user

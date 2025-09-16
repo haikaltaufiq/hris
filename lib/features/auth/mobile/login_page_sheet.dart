@@ -36,8 +36,6 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
     return Stack(
       children: [
         ClipRRect(
@@ -66,7 +64,7 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
                     child: Column(
                       children: [
                         const SizedBox(height: 92),
-                        LogoText(topMargin: screenHeight * 0.1),
+                        LogoText(),
                         const SizedBox(height: 150),
                         LoginInputField(
                           label: 'Email',

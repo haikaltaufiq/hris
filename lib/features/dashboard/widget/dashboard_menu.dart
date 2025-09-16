@@ -201,8 +201,8 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
       maxChildSize: 1.0,
       builder: (context, scrollController) {
         return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
+          decoration: BoxDecoration(
+            color: AppColors.bg,
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
               BoxShadow(
@@ -237,13 +237,16 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
-                        color: Colors.grey[800],
+                        color: AppColors.putih,
                         fontFamily: GoogleFonts.poppins().fontFamily,
                       ),
                     ),
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: Icon(Icons.close, color: Colors.grey[600]),
+                      icon: Icon(
+                        Icons.close,
+                        color: AppColors.putih,
+                      ),
                     ),
                   ],
                 ),
@@ -322,7 +325,7 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
                 item.label,
                 style: TextStyle(
                   fontSize: fontSize,
-                  color: Colors.grey[700],
+                  color: AppColors.putih,
                   fontFamily: GoogleFonts.poppins().fontFamily,
                   fontWeight: FontWeight.w500,
                 ),

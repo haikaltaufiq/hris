@@ -12,7 +12,7 @@ import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/kantor_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
-import 'package:hr/features/pengaturan/info_kantor/location_dialog.dart';
+import 'package:hr/features/info_kantor/location_dialog.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:numberpicker/numberpicker.dart';
@@ -77,7 +77,8 @@ class _InfoPageState extends State<InfoPage>
       if (kantor != null) {
         jamMasukController.text = kantor.jamMasuk;
         jamKeluarController.text = kantor.jamKeluar;
-        minimalKeterlambatanController.text = kantor.minimalKeterlambatan.toString();
+        minimalKeterlambatanController.text =
+            kantor.minimalKeterlambatan.toString();
         latitudeController.text = kantor.lat.toString();
         longitudeController.text = kantor.lng.toString();
         radiusController.text = kantor.radiusMeter.toString();
@@ -133,7 +134,7 @@ class _InfoPageState extends State<InfoPage>
             builder: (context, scrollController) {
               return Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppColors.bg,
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(20)),
                   boxShadow: [
@@ -159,13 +160,13 @@ class _InfoPageState extends State<InfoPage>
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        const Text(
+                        Text(
                           "Lokasi Absen",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.putih),
                         ),
                         const SizedBox(height: 10),
 
@@ -433,7 +434,8 @@ class _InfoPageState extends State<InfoPage>
       final kantor = KantorModel(
         jamMasuk: jamMasukController.text,
         jamKeluar: jamKeluarController.text,
-        minimalKeterlambatan:int.tryParse(minimalKeterlambatanController.text) ?? 0,
+        minimalKeterlambatan:
+            int.tryParse(minimalKeterlambatanController.text) ?? 0,
         lat: double.tryParse(latitudeController.text) ?? 0,
         lng: double.tryParse(longitudeController.text) ?? 0,
         radiusMeter: int.tryParse(radiusController.text) ?? 0,

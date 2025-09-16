@@ -26,7 +26,7 @@ class LandingPageMobile extends StatelessWidget {
               children: [
                 Padding(
                   padding: const EdgeInsets.only(top: 50),
-                  child: LogoText(topMargin: screenHeight * 0.2),
+                  child: LogoText(),
                 ),
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
