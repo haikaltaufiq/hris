@@ -88,7 +88,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
 
   Future<void> _loadUsers() async {
     try {
-      final userData = await UserService.fetchUsers();
+      final userData = await UserService.fetchUsersTugas();
       if (mounted) {
         setState(() {
           _userList = userData;
