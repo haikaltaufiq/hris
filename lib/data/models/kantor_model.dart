@@ -1,6 +1,7 @@
 class KantorModel {
   final int? id;
   final String jamMasuk;
+  final String jamKeluar;
   final int? minimalKeterlambatan;
   final double lat;
   final double lng;
@@ -9,6 +10,7 @@ class KantorModel {
   KantorModel({
     this.id,
     required this.jamMasuk,
+    required this.jamKeluar,
     required this.minimalKeterlambatan,
     required this.lat,
     required this.lng,
@@ -20,6 +22,7 @@ class KantorModel {
     return KantorModel(
         id: json['id'],
         jamMasuk: json['jam_masuk'],
+        jamKeluar: json['jam_keluar'],
         minimalKeterlambatan: json['minimal_keterlambatan'],
         lat: double.parse(json['lat'].toString()),
         lng: double.parse(json['lng'].toString()),
@@ -30,6 +33,7 @@ class KantorModel {
   Map<String, dynamic> toJson() {
     return {
       "jam_masuk": jamMasuk,
+      "jam_keluar": jamKeluar,
       "minimal_keterlambatan": minimalKeterlambatan,
       "lat": lat,
       "lng": lng,

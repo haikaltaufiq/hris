@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -74,8 +76,8 @@ class _InfoPageState extends State<InfoPage>
       final kantor = await KantorService.getKantor();
       if (kantor != null) {
         jamMasukController.text = kantor.jamMasuk;
-        minimalKeterlambatanController.text =
-            kantor.minimalKeterlambatan.toString();
+        jamKeluarController.text = kantor.jamKeluar;
+        minimalKeterlambatanController.text = kantor.minimalKeterlambatan.toString();
         latitudeController.text = kantor.lat.toString();
         longitudeController.text = kantor.lng.toString();
         radiusController.text = kantor.radiusMeter.toString();
@@ -99,9 +101,9 @@ class _InfoPageState extends State<InfoPage>
       }
     } catch (e) {
       print('Error loading kantor data: $e');
-      // Set default values if loading fails
-      jamMasukController.text = "08:00";
-      minimalKeterlambatanController.text = "15 menit";
+      // // Set default values if loading fails
+      // jamMasukController.text = "08:00";
+      // minimalKeterlambatanController.text = "15 menit";
     } finally {
       if (mounted) setState(() => isLoading = false);
     }
@@ -430,8 +432,8 @@ class _InfoPageState extends State<InfoPage>
       // bikin model dari inputan form
       final kantor = KantorModel(
         jamMasuk: jamMasukController.text,
-        minimalKeterlambatan:
-            int.tryParse(minimalKeterlambatanController.text) ?? 0,
+        jamKeluar: jamKeluarController.text,
+        minimalKeterlambatan:int.tryParse(minimalKeterlambatanController.text) ?? 0,
         lat: double.tryParse(latitudeController.text) ?? 0,
         lng: double.tryParse(longitudeController.text) ?? 0,
         radiusMeter: int.tryParse(radiusController.text) ?? 0,

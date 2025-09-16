@@ -159,12 +159,84 @@ class AuthService {
     return decoded.map((f) => Fitur.fromJson(f)).toList();
   }
 
-  
-
-  // Logout: hapus semua data user
-  Future<void> logout() async {
+  // Cek user dari token (persist login pakai /me)
+  Future<Map<String, dynamic>> me() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // lebih aman, hapus semua
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      return {'success': false, 'message': 'Token tidak ditemukan'};
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('${ApiConfig.baseUrl}/api/me'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        final user = UserModel.fromJson(data['data']);
+
+        // update data di SharedPreferences biar sinkron
+        await prefs.setInt('id', user.id);
+        await prefs.setString('nama', user.nama);
+        await prefs.setString('email', user.email);
+        await prefs.setString('peran', user.peran.namaPeran);
+
+        return {
+          'success': true,
+          'user': user,
+        };
+      } else {
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Gagal ambil data user',
+        };
+      }
+    } catch (e) {
+      return {
+        'success': false,
+        'message': e.toString(),
+      };
+    }
+  }
+
+
+  // Logout hapus token di backend & clear prefs
+  Future<Map<String, dynamic>> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      await prefs.clear();
+      return {'success': true, 'message': 'Sudah logout (local only)'};
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('${ApiConfig.baseUrl}/api/logout'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      await prefs.clear();
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {'success': true, 'message': data['message']};
+      } else {
+        return {'success': false, 'message': 'Logout gagal'};
+      }
+    } catch (e) {
+      return {'success': false, 'message': e.toString()};
+    }
   }
 
   // Ambil token

@@ -1,6 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/data/services/log_service.dart';
 
 class ResetDb extends StatelessWidget {
   const ResetDb({super.key});
@@ -90,19 +93,114 @@ class ResetDb extends StatelessWidget {
   }
 
   void _confirmReset(BuildContext context, String title) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi",
-      content: "Yakin Reset $title? Data akan hilang permanen.",
-      confirmText: "Reset",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+    if (title != "Log Aktivitas") {
+      // reset biasa untuk Gaji, Absen, Cuti, dll.
+      final confirmed = await showConfirmationDialog(
+        context,
+        title: "Konfirmasi",
+        content: "Yakin Reset $title? Data akan hilang permanen.",
+        confirmText: "Reset",
+        cancelText: "Batal",
+        confirmColor: AppColors.red,
+      );
 
-    if (confirmed) {
-      debugPrint("$title berhasil direset");
+      if (confirmed) {
+        debugPrint("$title berhasil direset");
+      }
+      return;
     }
+
+    // Untuk Log Aktivitas → pilih bulan-tahun dulu
+    List<Map<String, dynamic>> months = await ActivityLogService.fetchAvailableMonths();
+
+    if (months.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Data log aktifitas bersih.")),
+      );
+      return;
+    }
+
+    int? selectedBulan;
+    int? selectedTahun;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                top: 16,
+                left: 16,
+                right: 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Pilih Bulan Log Aktivitas", style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 12),
+                  DropdownButton<int>(
+                    isExpanded: true,
+                    hint: const Text("Bulan"),
+                    value: selectedBulan,
+                    items: months
+                        .map((e) => DropdownMenuItem<int>(
+                              value: e['bulan'] as int, // <--- cast ke int
+                              child: Text("Bulan ${e['bulan']} - ${e['tahun']} (${e['jumlah']} log)"),
+                            ))
+                        .toList(),
+                    onChanged: (val) => setState(() => selectedBulan = val),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(backgroundColor: AppColors.red),
+                    onPressed: selectedBulan != null
+                        ? () async {
+                            Navigator.pop(context);
+                            final monthData = months.firstWhere((e) => e['bulan'] == selectedBulan);
+                            selectedTahun = monthData['tahun'];
+
+                            final confirmed = await showConfirmationDialog(
+                              context,
+                              title: "Konfirmasi",
+                              content: "Yakin hapus log bulan $selectedBulan tahun $selectedTahun?",
+                              confirmText: "Reset",
+                              cancelText: "Batal",
+                              confirmColor: AppColors.red,
+                            );
+
+                            if (confirmed) {
+                              try {
+                                await ActivityLogService.resetByMonth(selectedBulan!, selectedTahun!);
+
+                                // Tampilkan SnackBar sebelum Navigator.pop
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Log bulan $selectedBulan tahun $selectedTahun berhasil dihapus")),
+                                );
+
+                                Navigator.pop(context); // baru tutup bottom sheet
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Gagal menghapus log: $e")),
+                                );
+                              }
+                            }
+                          }
+                        : null,
+                    child: const Text("Reset Log"),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
+
 }
 
 class DangerButton extends StatefulWidget {

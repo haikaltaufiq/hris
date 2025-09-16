@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
-import 'package:hr/core/utils/device_size.dart';
+// import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/core/utils/local_notification.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
@@ -11,8 +11,8 @@ import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/gaji/gaji_provider.dart';
 import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
-import 'package:hr/features/landing/landing_page.dart';
-import 'package:hr/features/landing/mobile/landing_page.dart';
+// import 'package:hr/features/landing/landing_page.dart';
+// import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:hr/features/peran/peran_viewmodel.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
@@ -20,6 +20,7 @@ import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:hr/splash_wrapper.dart';
 import 'package:provider/provider.dart';
 
 Future<void> main() async {
@@ -114,15 +115,8 @@ class MyApp extends StatelessWidget {
       locale: languageProvider.locale,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: Builder(
-        builder: (context) {
-          if (context.isNativeMobile) {
-            return const LandingPageMobile();
-          } else {
-            return const LandingPage();
-          }
-        },
-      ),
+      // Splashwrapper akan handle routing ke login atau landing page
+      home: const SplashWrapper(),
       onGenerateRoute: AppRoutes.generateRoute,
     );
   }

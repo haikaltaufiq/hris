@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/navbar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -229,10 +230,21 @@ class _MainLayoutState extends State<MainLayout>
                           _buildDropdownItem(
                             "Logout",
                             Icons.logout,
-                            () {
-                              _hideDropdown();
+                            () async {
+                              _hideDropdownImmediate();
+                              final prefs = await SharedPreferences.getInstance();
+                              await prefs.clear(); // hapus semua, termasuk token & fitur
+
+                              if (mounted) {
+                                Navigator.pushAndRemoveUntil(
+                                  // ignore: use_build_context_synchronously
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                                  (route) => false,
+                                );
+                              }
                             },
-                          ), // tambah flag logout
+                          ),
                         ],
                       ),
                     ),
