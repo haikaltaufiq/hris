@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:ui';
 
 import 'package:hr/core/theme/app_colors.dart';
@@ -13,6 +15,8 @@ class LemburModel {
   final int approveStep;
   final Map<String, dynamic> user;
   final String keteranganStatus;
+  final String catatan_penolakan;
+
 
   LemburModel({
     required this.id,
@@ -25,6 +29,7 @@ class LemburModel {
     required this.approveStep,
     required this.user,
     required this.keteranganStatus,
+    required this.catatan_penolakan,
   });
 
   factory LemburModel.fromJson(Map<String, dynamic> json) {
@@ -41,6 +46,7 @@ class LemburModel {
           ? int.tryParse(json['approve_step']) ?? 0
           : json['approve_step'] ?? 0,
       keteranganStatus: json['keterangan_status'] ?? {},
+      catatan_penolakan: json['catatan_penolakan'] ?? '',
     );
   }
 

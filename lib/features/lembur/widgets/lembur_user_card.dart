@@ -8,13 +8,13 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/lembur_model.dart';
 
 class UserLemburTabel extends StatelessWidget {
-  final void Function(LemburModel lembur) onDelete;
+  final void Function(LemburModel lembur)? onDelete;
   final List<LemburModel> lemburList;
 
   const UserLemburTabel({
     super.key,
     required this.lemburList,
-    required this.onDelete,
+    this.onDelete,
   });
 
   @override
@@ -38,7 +38,7 @@ class UserLemburTabel extends StatelessWidget {
 
         // kalau status ditolak → kolom 7 kosong, kolom 8 isi keterangan_status
         if (status == 'ditolak') {
-          kolom7 = 'Gaboleh Lembur jir';
+          kolom7 = c.catatan_penolakan;
           kolom8 = c.keteranganStatus;
         }
 

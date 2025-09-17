@@ -37,7 +37,7 @@ class UserCutiTabel extends StatelessWidget {
 
         // kalau status ditolak → kolom 7 kosong, kolom 8 isi keterangan_status
         if (status == 'ditolak') {
-          kolom7 = 'Gaboleh Cuti jir';
+          kolom7 = c.catatan_penolakan;
           kolom8 = c.keterangan_status;
         }
 

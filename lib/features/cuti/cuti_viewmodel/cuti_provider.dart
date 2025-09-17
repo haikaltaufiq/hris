@@ -126,38 +126,38 @@ class CutiProvider with ChangeNotifier {
     return success;
   }
 
-  /// Edit cuti
-  Future<Map<String, dynamic>> editCuti({
-    required int id,
-    required String nama,
-    required String tipeCuti,
-    required String tanggalMulai,
-    required String tanggalSelesai,
-    required String alasan,
-  }) async {
-    final result = await CutiService.editCuti(
-      id: id,
-      nama: nama,
-      tipeCuti: tipeCuti,
-      tanggalMulai: tanggalMulai,
-      tanggalSelesai: tanggalSelesai,
-      alasan: alasan,
-    );
+  // /// Edit cuti
+  // Future<Map<String, dynamic>> editCuti({
+  //   required int id,
+  //   required String nama,
+  //   required String tipeCuti,
+  //   required String tanggalMulai,
+  //   required String tanggalSelesai,
+  //   required String alasan,
+  // }) async {
+  //   final result = await CutiService.editCuti(
+  //     id: id,
+  //     nama: nama,
+  //     tipeCuti: tipeCuti,
+  //     tanggalMulai: tanggalMulai,
+  //     tanggalSelesai: tanggalSelesai,
+  //     alasan: alasan,
+  //   );
 
-    if (result['success'] == true) {
-      await fetchCuti(forceRefresh: true); // refresh data
-    }
+  //   if (result['success'] == true) {
+  //     await fetchCuti(forceRefresh: true); // refresh data
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  /// Hapus cuti
-  Future<String> deleteCuti(int id, String currentSearch) async {
-    final result = await CutiService.deleteCuti(id);
-    await fetchCuti(forceRefresh: true);
-    filterCuti(_currentSearch);
-    return result['message'] ?? 'Tidak ada pesan';
-  }
+  // /// Hapus cuti
+  // Future<String> deleteCuti(int id, String currentSearch) async {
+  //   final result = await CutiService.deleteCuti(id);
+  //   await fetchCuti(forceRefresh: true);
+  //   filterCuti(_currentSearch);
+  //   return result['message'] ?? 'Tidak ada pesan';
+  // }
 
   /// Approve cuti
   Future<String?> approveCuti(int id, String currentSearch) async {
@@ -168,8 +168,8 @@ class CutiProvider with ChangeNotifier {
   }
 
   /// Decline cuti
-  Future<String?> declineCuti(int id, String currentSearch) async {
-    final message = await CutiService.declineCuti(id);
+  Future<String?> declineCuti(int id, String catatanPenolakan) async {
+    final message = await CutiService.declineCuti(id, catatanPenolakan);
     await fetchCuti(forceRefresh: true);
     filterCuti(_currentSearch);
 
@@ -189,25 +189,25 @@ class CutiProvider with ChangeNotifier {
   }
 
   /// Decline cuti (tetap bisa pakai onDecline callback)
-  Future<void> decline(Future<void> Function()? onDecline, {int? id}) async {
+  Future<void> decline(Future<void> Function()? onDecline, {int? id, String? catatan_penolakan}) async {
     if (onDecline != null) await onDecline();
 
-    if (id != null) {
-      await CutiService.declineCuti(id);
+    if (id != null && catatan_penolakan != null) {
+      await CutiService.declineCuti(id, catatan_penolakan);
       await fetchCuti(forceRefresh: true);
       if (filteredCutiList.isNotEmpty) filterCuti('');
     }
   }
 
-  /// Delete cuti (tetap bisa pakai onDelete callback)
-  void delete(VoidCallback? onDelete, {int? id}) {
-    if (onDelete != null) onDelete();
+  // /// Delete cuti (tetap bisa pakai onDelete callback)
+  // void delete(VoidCallback? onDelete, {int? id}) {
+  //   if (onDelete != null) onDelete();
 
-    if (id != null) {
-      CutiService.deleteCuti(id).then((_) async {
-        await fetchCuti(forceRefresh: true);
-        if (filteredCutiList.isNotEmpty) filterCuti('');
-      });
-    }
-  }
+  //   if (id != null) {
+  //     CutiService.deleteCuti(id).then((_) async {
+  //       await fetchCuti(forceRefresh: true);
+  //       if (filteredCutiList.isNotEmpty) filterCuti('');
+  //     });
+  //   }
+  // }
 }

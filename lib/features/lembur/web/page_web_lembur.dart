@@ -34,28 +34,28 @@ class _LemburWebPageState extends State<LemburWebPage> {
     });
   }
 
-  Future<void> _deleteLembur(LemburModel lembur) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus lembur ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+  // Future<void> _deleteLembur(LemburModel lembur) async {
+  //   final confirmed = await showConfirmationDialog(
+  //     context,
+  //     title: "Konfirmasi Hapus",
+  //     content: "Apakah Anda yakin ingin menghapus lembur ini?",
+  //     confirmText: "Hapus",
+  //     cancelText: "Batal",
+  //     confirmColor: AppColors.red,
+  //   );
 
-    if (confirmed) {
-      final message =
-          await context.read<LemburProvider>().deleteLembur(lembur.id, "");
-      searchController.clear();
+  //   if (confirmed) {
+  //     final message =
+  //         await context.read<LemburProvider>().deleteLembur(lembur.id, "");
+  //     searchController.clear();
 
-      NotificationHelper.showTopNotification(
-        context,
-        message!,
-        isSuccess: message != "",
-      );
-    }
-  }
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       message!,
+  //       isSuccess: message != "",
+  //     );
+  //   }
+  // }
 
   Future<void> _approveLembur(LemburModel lembur) async {
     final confirmed = await showConfirmationDialog(
@@ -92,8 +92,8 @@ class _LemburWebPageState extends State<LemburWebPage> {
   }
 
   Future<void> _declineLembur(LemburModel lembur) async {
-    final alasanController = TextEditingController();
-    String? alasan;
+    final catatanPenolakanController = TextEditingController();
+    String? catatan_penolakan;
 
     // Step 1: Dialog isi alasan
     final isiAlasan = await showDialog<bool>(
@@ -105,7 +105,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Alasan Penolakan",
+            "Catatan Penolakan",
             style: GoogleFonts.poppins(
               color: AppColors.putih,
               fontWeight: FontWeight.w600,
@@ -117,7 +117,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
                     ? 0.9
                     : 0.4), // mobile lebih lebar, desktop ideal
             child: TextFormField(
-              controller: alasanController,
+              controller: catatanPenolakanController,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
                 hintText: "Tuliskan alasan penolakan...",
@@ -140,8 +140,8 @@ class _LemburWebPageState extends State<LemburWebPage> {
             ),
             TextButton(
               onPressed: () {
-                if (alasanController.text.trim().isNotEmpty) {
-                  alasan = alasanController.text.trim();
+                if (catatanPenolakanController.text.trim().isNotEmpty) {
+                  catatan_penolakan = catatanPenolakanController.text.trim();
                   Navigator.pop(context, true);
                 }
               },
@@ -153,7 +153,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
       },
     );
 
-    if (isiAlasan != true || alasan == null) return;
+    if (isiAlasan != true || catatan_penolakan == null) return;
 
     final confirmed = await showConfirmationDialog(
       context,
@@ -166,7 +166,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
 
     if (confirmed) {
       final message =
-          await context.read<LemburProvider>().declineLembur(lembur.id, "");
+          await context.read<LemburProvider>().declineLembur(lembur.id, catatan_penolakan!);
       searchController.clear();
 
       NotificationHelper.showTopNotification(
@@ -260,7 +260,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
               padding: const EdgeInsets.all(16.0),
               child: WebTabelLembur(
                 lemburList: displayedList,
-                onDelete: _deleteLembur,
+                // onDelete: _deleteLembur,
                 onApprove: (lembur) => _approveLembur(lembur),
                 onDecline: (lembur) => _declineLembur(lembur),
               ),

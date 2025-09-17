@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names, annotate_overrides, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
@@ -32,28 +34,28 @@ class _CutiWebPageState extends State<CutiWebPage> {
     });
   }
 
-  Future<void> _deleteCuti(CutiModel cuti) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus Cuti ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+  // Future<void> _deleteCuti(CutiModel cuti) async {
+  //   final confirmed = await showConfirmationDialog(
+  //     context,
+  //     title: "Konfirmasi Hapus",
+  //     content: "Apakah Anda yakin ingin menghapus Cuti ini?",
+  //     confirmText: "Hapus",
+  //     cancelText: "Batal",
+  //     confirmColor: AppColors.red,
+  //   );
 
-    if (confirmed) {
-      final message =
-          await context.read<CutiProvider>().deleteCuti(cuti.id, "");
-      searchController.clear();
+  //   if (confirmed) {
+  //     final message =
+  //         await context.read<CutiProvider>().deleteCuti(cuti.id, "");
+  //     searchController.clear();
 
-      NotificationHelper.showTopNotification(
-        context,
-        message,
-        isSuccess: message != "",
-      );
-    }
-  }
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       message,
+  //       isSuccess: message != "",
+  //     );
+  //   }
+  // }
 
   Future<void> _approveCuti(CutiModel cuti) async {
     final confirmed = await showConfirmationDialog(
@@ -90,8 +92,8 @@ class _CutiWebPageState extends State<CutiWebPage> {
   }
 
   Future<void> _declineCuti(CutiModel cuti) async {
-    final alasanController = TextEditingController();
-    String? alasan;
+    final catatanPenolakanController = TextEditingController();
+    String? catatan_penolakan;
 
     // Step 1: Dialog isi alasan
     final isiAlasan = await showDialog<bool>(
@@ -103,7 +105,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Alasan Penolakan",
+            "Catatan Penolakan",
             style: GoogleFonts.poppins(
               color: AppColors.putih,
               fontWeight: FontWeight.w600,
@@ -115,7 +117,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
                     ? 0.9
                     : 0.4), // mobile lebih lebar, desktop ideal
             child: TextFormField(
-              controller: alasanController,
+              controller: catatanPenolakanController,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
                 hintText: "Tuliskan alasan penolakan...",
@@ -138,8 +140,8 @@ class _CutiWebPageState extends State<CutiWebPage> {
             ),
             TextButton(
               onPressed: () {
-                if (alasanController.text.trim().isNotEmpty) {
-                  alasan = alasanController.text.trim();
+                if (catatanPenolakanController.text.trim().isNotEmpty) {
+                  catatan_penolakan = catatanPenolakanController.text.trim();
                   Navigator.pop(context, true);
                 }
               },
@@ -151,7 +153,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
       },
     );
 
-    if (isiAlasan != true || alasan == null) return;
+    if (isiAlasan != true || catatan_penolakan == null) return;
 
     // Step 2: Konfirmasi submit
     final confirmed = await showConfirmationDialog(
@@ -165,7 +167,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
 
     if (confirmed) {
       final message =
-          await context.read<CutiProvider>().declineCuti(cuti.id, alasan!);
+          await context.read<CutiProvider>().declineCuti(cuti.id, catatan_penolakan!);
 
       searchController.clear();
 
@@ -259,7 +261,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
               padding: const EdgeInsets.all(16.0),
               child: WebTabelCuti(
                 cutiList: displayedList,
-                onDelete: _deleteCuti,
+                // onDelete: _deleteCuti,
                 onApprove: (cuti) => _approveCuti(cuti),
                 onDecline: (cuti) => _declineCuti(cuti),
               ),
