@@ -215,8 +215,8 @@ class _LemburMobileState extends State<LemburMobile> {
       body: Stack(
         children: [
           RefreshIndicator(
-            color: AppColors.putih,
-            backgroundColor: AppColors.bg,
+                color: AppColors.putih,
+              backgroundColor: AppColors.bg,
             onRefresh: _refreshData,
             child: Padding(
               padding: const EdgeInsets.only(
