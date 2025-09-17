@@ -13,7 +13,7 @@ import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
-import 'package:hr/features/pengaturan/info_kantor/location_dialog.dart';
+import 'package:hr/features/info_kantor/location_dialog.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';

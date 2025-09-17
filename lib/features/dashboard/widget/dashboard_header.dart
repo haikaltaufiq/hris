@@ -130,14 +130,6 @@ class _DashboardHeaderState extends State<DashboardHeader>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDropdownItem("Dashboard", Icons.dashboard, () {
-                            _hideDropdown();
-                          }),
-                          Container(
-                            height: 1,
-                            margin: const EdgeInsets.symmetric(horizontal: 12),
-                            color: Colors.grey.withOpacity(0.1),
-                          ),
                           _buildDropdownItem("Profile", Icons.person_outline,
                               () {
                             _hideDropdownImmediate();
@@ -160,7 +152,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             color: Colors.grey.withOpacity(0.1),
                           ),
                           _buildDropdownItem(
-                            "Logout mobile",
+                            "Logout",
                             Icons.logout,
                             () async {
                               _hideDropdownImmediate();

@@ -53,8 +53,8 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.logActivity: 11,
     AppRoutes.reminder: 12,
     AppRoutes.pengaturan: 13,
-    AppRoutes.tugasForm: 14,
-    AppRoutes.karyawanForm: 15,
+    AppRoutes.infoKantor: 14,
+    AppRoutes.danger: 15,
     AppRoutes.mapPage: 16,
     AppRoutes.potonganForm: 17,
     AppRoutes.potonganEdit: 18,
@@ -63,6 +63,8 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.reminderAdd: 21,
     AppRoutes.reminderEdit: 22,
     AppRoutes.peranForm: 23,
+    AppRoutes.tugasForm: 24,
+    AppRoutes.karyawanForm: 25,
   };
 
   // Map index ke route
@@ -81,8 +83,8 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.logActivity,
     AppRoutes.reminder,
     AppRoutes.pengaturan,
-    AppRoutes.tugasForm,
-    AppRoutes.karyawanForm,
+    AppRoutes.infoKantor,
+    AppRoutes.danger,
     AppRoutes.mapPage,
     AppRoutes.potonganForm,
     AppRoutes.potonganEdit,
@@ -91,6 +93,8 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.reminderAdd,
     AppRoutes.reminderEdit,
     AppRoutes.peranForm,
+    AppRoutes.tugasForm,
+    AppRoutes.karyawanForm,
   ];
 
   @override
@@ -232,14 +236,17 @@ class _MainLayoutState extends State<MainLayout>
                             Icons.logout,
                             () async {
                               _hideDropdownImmediate();
-                              final prefs = await SharedPreferences.getInstance();
-                              await prefs.clear(); // hapus semua, termasuk token & fitur
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs
+                                  .clear(); // hapus semua, termasuk token & fitur
 
                               if (mounted) {
                                 Navigator.pushAndRemoveUntil(
                                   // ignore: use_build_context_synchronously
                                   context,
-                                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                                  MaterialPageRoute(
+                                      builder: (_) => const LoginPage()),
                                   (route) => false,
                                 );
                               }
@@ -589,6 +596,10 @@ class _MainLayoutState extends State<MainLayout>
         return 'Edit Reminder';
       case AppRoutes.peranForm:
         return 'Peran Form';
+      case AppRoutes.infoKantor:
+        return 'Info Kantor';
+      case AppRoutes.danger:
+        return 'Danger Zone';
       default:
         return 'HRIS System';
     }
