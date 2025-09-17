@@ -42,28 +42,28 @@ class _LemburMobileState extends State<LemburMobile> {
     await context.read<LemburProvider>().fetchLembur(forceRefresh: true);
   }
 
-  Future<void> _deleteLembur(LemburModel lembur) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus lembur ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+  // Future<void> _deleteLembur(LemburModel lembur) async {
+  //   final confirmed = await showConfirmationDialog(
+  //     context,
+  //     title: "Konfirmasi Hapus",
+  //     content: "Apakah Anda yakin ingin menghapus lembur ini?",
+  //     confirmText: "Hapus",
+  //     cancelText: "Batal",
+  //     confirmColor: AppColors.red,
+  //   );
 
-    if (confirmed) {
-      final message =
-          await context.read<LemburProvider>().deleteLembur(lembur.id, "");
-      searchController.clear();
+  //   if (confirmed) {
+  //     final message =
+  //         await context.read<LemburProvider>().deleteLembur(lembur.id, "");
+  //     searchController.clear();
 
-      NotificationHelper.showTopNotification(
-        context,
-        message!,
-        isSuccess: message != "",
-      );
-    }
-  }
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       message!,
+  //       isSuccess: message != "",
+  //     );
+  //   }
+  // }
 
   Future<void> _approveLembur(LemburModel lembur) async {
     final confirmed = await showConfirmationDialog(
@@ -100,8 +100,8 @@ class _LemburMobileState extends State<LemburMobile> {
   }
 
   Future<void> _declineLembur(LemburModel lembur) async {
-    final alasanController = TextEditingController();
-    String? alasan;
+    final catatanPenolakanController = TextEditingController();
+    String? catatan_penolakan;
 
     // Step 1: Dialog isi alasan
     final isiAlasan = await showDialog<bool>(
@@ -113,7 +113,7 @@ class _LemburMobileState extends State<LemburMobile> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Alasan Penolakan",
+            "Catatan Penolakan",
             style: GoogleFonts.poppins(
               color: AppColors.putih,
               fontWeight: FontWeight.w600,
@@ -125,7 +125,7 @@ class _LemburMobileState extends State<LemburMobile> {
                     ? 0.9
                     : 0.4), // mobile lebih lebar, desktop ideal
             child: TextFormField(
-              controller: alasanController,
+              controller: catatanPenolakanController,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
                 hintText: "Tuliskan alasan penolakan...",
@@ -148,8 +148,8 @@ class _LemburMobileState extends State<LemburMobile> {
             ),
             TextButton(
               onPressed: () {
-                if (alasanController.text.trim().isNotEmpty) {
-                  alasan = alasanController.text.trim();
+                if (catatanPenolakanController.text.trim().isNotEmpty) {
+                  catatan_penolakan = catatanPenolakanController.text.trim();
                   Navigator.pop(context, true);
                 }
               },
@@ -161,7 +161,7 @@ class _LemburMobileState extends State<LemburMobile> {
       },
     );
 
-    if (isiAlasan != true || alasan == null) return;
+    if (isiAlasan != true || catatan_penolakan == null) return;
 
     final confirmed = await showConfirmationDialog(
       context,
@@ -291,16 +291,18 @@ class _LemburMobileState extends State<LemburMobile> {
                                 lembur: lembur,
                                 onApprove: () => _approveLembur(lembur),
                                 onDecline: () => _declineLembur(lembur),
-                                onDelete: () => _deleteLembur(lembur),
+                                // onDelete: () => _deleteLembur(lembur),
                               ),
                             );
                           },
                         ),
+
+                        // FeatureGuard untuk User - melihat cuti sendiri saja
                         FeatureGuard(
                           requiredFeature: 'lihat_lembur_sendiri',
                           child: UserLemburTabel(
                             lemburList: displayedList,
-                            onDelete: (lembur) => _deleteLembur(lembur),
+                            // onDelete: (lembur) => _deleteLembur(lembur),
                           ),
                         ),
                       ],

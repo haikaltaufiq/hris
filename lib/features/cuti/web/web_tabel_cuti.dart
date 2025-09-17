@@ -8,7 +8,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/cuti_model.dart';
 
 class WebTabelCuti extends StatelessWidget {
-  final void Function(CutiModel cuti) onDelete;
+  // final void Function(CutiModel cuti) onDelete;
   final List<CutiModel> cutiList;
   final void Function(CutiModel cuti) onApprove;
   final void Function(CutiModel cuti) onDecline;
@@ -16,7 +16,7 @@ class WebTabelCuti extends StatelessWidget {
   const WebTabelCuti({
     super.key,
     required this.cutiList,
-    required this.onDelete,
+    // required this.onDelete,
     required this.onApprove,
     required this.onDecline,
   });
@@ -94,10 +94,10 @@ class WebTabelCuti extends StatelessWidget {
           ),
         );
       },
-      onDelete: (row) {
-        final c = cutiList[row];
-        onDelete(c);
-      },
+      // onDelete: (row) {
+      //   final c = cutiList[row];
+      //   onDelete(c);
+      // },
       onEdit: (row) {
         final c = cutiList[row];
         showDialog(

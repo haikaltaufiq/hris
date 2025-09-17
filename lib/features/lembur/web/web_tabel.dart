@@ -9,7 +9,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/lembur_model.dart';
 
 class WebTabelLembur extends StatelessWidget {
-  final void Function(LemburModel lembur) onDelete;
+  // final void Function(LemburModel lembur) onDelete;
   final List<LemburModel> lemburList;
   final void Function(LemburModel lembur) onApprove;
   final void Function(LemburModel lembur) onDecline;
@@ -17,7 +17,7 @@ class WebTabelLembur extends StatelessWidget {
   const WebTabelLembur({
     super.key,
     required this.lemburList,
-    required this.onDelete,
+    // required this.onDelete,
     required this.onApprove,
     required this.onDecline,
   });
@@ -95,10 +95,10 @@ class WebTabelLembur extends StatelessWidget {
           ),
         );
       },
-      onDelete: (row) {
-        final c = lemburList[row];
-        onDelete(c);
-      },
+      // onDelete: (row) {
+      //   final c = lemburList[row];
+      //   onDelete(c);
+      // },
       onEdit: (row) {
         final c = lemburList[row];
         showDialog(

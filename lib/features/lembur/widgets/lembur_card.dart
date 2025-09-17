@@ -14,14 +14,14 @@ class LemburCard extends StatelessWidget {
   final LemburModel lembur;
   final Future<void> Function() onApprove;
   final Future<void> Function() onDecline;
-  final VoidCallback onDelete;
+  final VoidCallback? onDelete;
 
   const LemburCard({
     super.key,
     required this.lembur,
     required this.onApprove,
     required this.onDecline,
-    required this.onDelete,
+    this.onDelete,
   });
 
   @override
@@ -210,11 +210,11 @@ class LemburCard extends StatelessWidget {
                       ),
                     ] else ...[
                       // Admin Office pas Proses, atau status lain → Edit & Delete
-                      ActionButton(
-                        label: 'Delete',
-                        color: AppColors.red,
-                        onTap: () => onDelete(),
-                      ),
+                      // ActionButton(
+                      //   label: 'Delete',
+                      //   color: AppColors.red,
+                      //   onTap: () => onDelete(),
+                      // ),
                       ActionButton(
                         label: 'Edit',
                         color: AppColors.yellow,

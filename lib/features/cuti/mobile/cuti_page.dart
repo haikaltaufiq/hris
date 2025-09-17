@@ -44,28 +44,28 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
     await context.read<CutiProvider>().fetchCuti(forceRefresh: true);
   }
 
-  Future<void> _deleteCuti(CutiModel cuti) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus cuti ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+  // Future<void> _deleteCuti(CutiModel cuti) async {
+  //   final confirmed = await showConfirmationDialog(
+  //     context,
+  //     title: "Konfirmasi Hapus",
+  //     content: "Apakah Anda yakin ingin menghapus cuti ini?",
+  //     confirmText: "Hapus",
+  //     cancelText: "Batal",
+  //     confirmColor: AppColors.red,
+  //   );
 
-    if (confirmed) {
-      final message =
-          await context.read<CutiProvider>().deleteCuti(cuti.id, "");
-      searchController.clear();
+  //   if (confirmed) {
+  //     final message =
+  //         await context.read<CutiProvider>().deleteCuti(cuti.id, "");
+  //     searchController.clear();
 
-      NotificationHelper.showTopNotification(
-        context,
-        message,
-        isSuccess: message != "",
-      );
-    }
-  }
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       message,
+  //       isSuccess: message != "",
+  //     );
+  //   }
+  // }
 
   Future<void> _approveCuti(CutiModel cuti) async {
     final confirmed = await showConfirmationDialog(
@@ -101,8 +101,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   }
 
   Future<void> _declineCuti(CutiModel cuti) async {
-    final alasanController = TextEditingController();
-    String? alasan;
+    final catatanPenolakanController = TextEditingController();
+    String? catatan_penolakan;
 
     // Step 1: Dialog isi alasan
     final isiAlasan = await showDialog<bool>(
@@ -126,7 +126,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                     ? 0.9
                     : 0.4), // mobile lebih lebar, desktop ideal
             child: TextFormField(
-              controller: alasanController,
+              controller: catatanPenolakanController,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
                 hintText: "Tuliskan alasan penolakan...",
@@ -149,8 +149,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
             ),
             TextButton(
               onPressed: () {
-                if (alasanController.text.trim().isNotEmpty) {
-                  alasan = alasanController.text.trim();
+                if (catatanPenolakanController.text.trim().isNotEmpty) {
+                  catatan_penolakan = catatanPenolakanController.text.trim();
                   Navigator.pop(context, true);
                 }
               },
@@ -162,7 +162,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
       },
     );
 
-    if (isiAlasan != true || alasan == null) return;
+    if (isiAlasan != true || catatan_penolakan == null) return;
 
     // Step 2: Konfirmasi submit
     final confirmed = await showConfirmationDialog(
@@ -176,7 +176,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
 
     if (confirmed) {
       final message =
-          await context.read<CutiProvider>().declineCuti(cuti.id, alasan!);
+          await context.read<CutiProvider>().declineCuti(cuti.id, catatan_penolakan!);
 
       searchController.clear();
 
@@ -298,7 +298,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                             cuti: cuti,
                             onApprove: () => _approveCuti(cuti),
                             onDecline: () => _declineCuti(cuti),
-                            onDelete: () => _deleteCuti(cuti),
+                            // onDelete: () => _deleteCuti(cuti),
                           );
                         },
                       ),
@@ -310,7 +310,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                       child: UserCutiTabel(
                         cutiList: displayedList,
                         onDelete: (CutiModel cuti) {
-                          _deleteCuti(cuti);
+                          // _deleteCuti(cuti);
                         },
                       ),
                     ),
