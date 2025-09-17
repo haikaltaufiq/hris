@@ -10,6 +10,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -101,6 +102,70 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   }
 
   Future<void> _declineCuti(CutiModel cuti) async {
+    final alasanController = TextEditingController();
+    String? alasan;
+
+    // Step 1: Dialog isi alasan
+    final isiAlasan = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            "Alasan Penolakan",
+            style: GoogleFonts.poppins(
+              color: AppColors.putih,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width *
+                (context.isMobile
+                    ? 0.9
+                    : 0.4), // mobile lebih lebar, desktop ideal
+            child: TextFormField(
+              controller: alasanController,
+              style: TextStyle(color: AppColors.putih),
+              decoration: InputDecoration(
+                hintText: "Tuliskan alasan penolakan...",
+                hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.6)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.putih.withOpacity(0.4)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.secondary),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text("Batal",
+                  style: GoogleFonts.poppins(color: AppColors.putih)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (alasanController.text.trim().isNotEmpty) {
+                  alasan = alasanController.text.trim();
+                  Navigator.pop(context, true);
+                }
+              },
+              child: Text("Lanjut",
+                  style: GoogleFonts.poppins(color: AppColors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isiAlasan != true || alasan == null) return;
+
+    // Step 2: Konfirmasi submit
     final confirmed = await showConfirmationDialog(
       context,
       title: "Konfirmasi Penolakan",
@@ -112,7 +177,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
 
     if (confirmed) {
       final message =
-          await context.read<CutiProvider>().declineCuti(cuti.id, "");
+          await context.read<CutiProvider>().declineCuti(cuti.id, alasan!);
+
       searchController.clear();
 
       NotificationHelper.showTopNotification(
@@ -240,17 +306,10 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                     // FeatureGuard untuk User - melihat cuti sendiri saja
                     FeatureGuard(
                       requiredFeature: 'lihat_cuti_sendiri',
-                      child: ListView.builder(
-                        itemCount: displayedList.length,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return UserCutiTabel(
-                            cutiList: displayedList,
-                            onDelete: (CutiModel cuti) {
-                              _deleteCuti(cuti);
-                            },
-                          );
+                      child: UserCutiTabel(
+                        cutiList: displayedList,
+                        onDelete: (CutiModel cuti) {
+                          _deleteCuti(cuti);
                         },
                       ),
                     ),
