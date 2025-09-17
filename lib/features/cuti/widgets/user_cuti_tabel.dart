@@ -5,7 +5,6 @@ import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/cuti_model.dart';
-import 'package:hr/features/cuti/cuti_form/cuti_edit_form.dart';
 
 class UserCutiTabel extends StatelessWidget {
   final void Function(CutiModel cuti) onDelete;
@@ -30,6 +29,18 @@ class UserCutiTabel extends StatelessWidget {
         'Keterangan',
       ],
       rows: cutiList.map((c) {
+        final status = c.status.toString().toLowerCase();
+
+        // default value biar tetep length sama
+        String kolom7 = c.keterangan_status;
+        String kolom8 = '-';
+
+        // kalau status ditolak → kolom 7 kosong, kolom 8 isi keterangan_status
+        if (status == 'ditolak') {
+          kolom7 = 'Gaboleh Cuti jir';
+          kolom8 = c.keterangan_status;
+        }
+
         return [
           c.user['nama']?.toString() ?? '',
           c.tipe_cuti.toString(),
@@ -37,7 +48,8 @@ class UserCutiTabel extends StatelessWidget {
           DateHelper.format(c.tanggal_selesai).toString(),
           c.shortAlasan.toString(),
           c.status.toString(),
-          c.keterangan_status,
+          kolom7,
+          kolom8,
         ];
       }).toList(),
       statusColumnIndexes: [5],
@@ -87,17 +99,6 @@ class UserCutiTabel extends StatelessWidget {
             ],
           ),
         );
-      },
-      onEdit: (row) {
-        final c = cutiList[row];
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => CutiEditForm(cuti: c)),
-        );
-      },
-      onDelete: (row) {
-        final c = cutiList[row];
-        onDelete(c);
       },
     );
   }

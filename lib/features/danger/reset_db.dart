@@ -5,7 +5,7 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/data/services/log_service.dart';
+import 'package:hr/data/services/danger_service.dart';
 
 class ResetDb extends StatelessWidget {
   const ResetDb({super.key});
@@ -95,8 +95,16 @@ class ResetDb extends StatelessWidget {
   }
 
   void _confirmReset(BuildContext context, String title) async {
-    if (title != "Log Aktivitas") {
-      // reset biasa untuk Gaji, Absen, Cuti, dll.
+    // mapping title ke jenis
+    String? jenis;
+    if (title == "Cuti") jenis = "cuti";
+    if (title == "Absen") jenis = "absensi";
+    if (title == "Lembur") jenis = "lembur";
+    if (title == "Tugas") jenis = "tugas";
+    if (title == "Log Aktivitas") jenis = "log";
+
+    if (jenis == null) {
+      // Gaji, Absen, dll → reset biasa aja
       final confirmed = await showConfirmationDialog(
         context,
         title: "Konfirmasi",
@@ -107,30 +115,31 @@ class ResetDb extends StatelessWidget {
       );
 
       if (confirmed) {
-        debugPrint("$title berhasil direset");
+        NotificationHelper.showTopNotification(
+            context, "$title berhasil direset",
+            isSuccess: true);
       }
       return;
     }
 
-    // Untuk Log Aktivitas → pilih bulan-tahun dulu
+    // semua yg pakai bulan-tahun (log, cuti, lembur, tugas)
     List<Map<String, dynamic>> months =
-        await ActivityLogService.fetchAvailableMonths();
+        await DangerService.fetchAvailableMonths(jenis: jenis);
 
     if (months.isEmpty) {
       NotificationHelper.showTopNotification(
-          context, "Data log aktifitas bersih.");
-
+          context, "Data $title sudah bersih.");
       return;
     }
 
-    // **Panggil showResetLogDialog biar muncul**
-    await showResetLogDialog(context: context, months: months);
+    await showResetLogDialog(context: context, months: months, jenis: jenis);
   }
 
 // Fungsi modal
   Future<void> showResetLogDialog({
     required BuildContext context,
     required List<Map<String, dynamic>> months,
+    required String jenis,
   }) async {
     int? selectedBulan;
     int? selectedTahun;
@@ -159,7 +168,7 @@ class ResetDb extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        "Pilih Bulan Log Aktivitas",
+                        "Pilih Bulan ${jenis.toUpperCase()}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -169,11 +178,9 @@ class ResetDb extends StatelessWidget {
                       const SizedBox(height: 16),
                       DropdownButton<int>(
                         isExpanded: true,
-                        value: selectedBulan, // bisa null
-                        hint: Text(
-                          "Bulan",
-                          style: TextStyle(color: AppColors.putih),
-                        ),
+                        value: selectedBulan,
+                        hint: Text("Bulan",
+                            style: TextStyle(color: AppColors.putih)),
                         dropdownColor: AppColors.bg,
                         style: TextStyle(color: AppColors.putih),
                         items: months.map((month) {
@@ -182,7 +189,7 @@ class ResetDb extends StatelessWidget {
                           final jumlah = month['jumlah'] as int;
                           return DropdownMenuItem<int>(
                             value: bulan,
-                            child: Text("Bulan $bulan - $tahun ($jumlah log)"),
+                            child: Text("Bulan $bulan - $tahun ($jumlah data)"),
                           );
                         }).toList(),
                         onChanged: (val) {
@@ -226,7 +233,7 @@ class ResetDb extends StatelessWidget {
                                         context,
                                         title: "Konfirmasi",
                                         content:
-                                            "Yakin hapus log bulan $selectedBulan tahun $selectedTahun?",
+                                            "Yakin reset $jenis bulan $selectedBulan tahun $selectedTahun?",
                                         confirmText: "Reset",
                                         cancelText: "Batal",
                                         confirmColor: AppColors.red,
@@ -234,30 +241,33 @@ class ResetDb extends StatelessWidget {
 
                                       if (confirmed) {
                                         try {
-                                          await ActivityLogService.resetByMonth(
-                                              selectedBulan!, selectedTahun!);
+                                          await DangerService.resetByMonth(
+                                            bulan: selectedBulan!,
+                                            tahun: selectedTahun!,
+                                            jenis: jenis,
+                                          );
 
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
                                                 content: Text(
-                                                    "Log bulan $selectedBulan tahun $selectedTahun berhasil dihapus")),
+                                                    "$jenis bulan $selectedBulan tahun $selectedTahun berhasil direset")),
                                           );
                                         } catch (e) {
                                           ScaffoldMessenger.of(context)
                                               .showSnackBar(
                                             SnackBar(
                                                 content: Text(
-                                                    "Gagal menghapus log: $e")),
+                                                    "Gagal reset $jenis: $e")),
                                           );
                                         }
 
-                                        Navigator.pop(context); // tutup modal
+                                        Navigator.pop(context);
                                       }
                                     }
                                   : null,
-                              child: const Text("Reset Log",
-                                  style: TextStyle(color: Colors.white)),
+                              child: Text("Reset ${jenis.toUpperCase()}",
+                                  style: const TextStyle(color: Colors.white)),
                             ),
                           ),
                         ],

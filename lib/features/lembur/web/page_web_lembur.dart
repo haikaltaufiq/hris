@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:hr/features/lembur/web/web_tabel.dart';
@@ -90,6 +92,69 @@ class _LemburWebPageState extends State<LemburWebPage> {
   }
 
   Future<void> _declineLembur(LemburModel lembur) async {
+    final alasanController = TextEditingController();
+    String? alasan;
+
+    // Step 1: Dialog isi alasan
+    final isiAlasan = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            "Alasan Penolakan",
+            style: GoogleFonts.poppins(
+              color: AppColors.putih,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width *
+                (context.isMobile
+                    ? 0.9
+                    : 0.4), // mobile lebih lebar, desktop ideal
+            child: TextFormField(
+              controller: alasanController,
+              style: TextStyle(color: AppColors.putih),
+              decoration: InputDecoration(
+                hintText: "Tuliskan alasan penolakan...",
+                hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.6)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.putih.withOpacity(0.4)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.secondary),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text("Batal",
+                  style: GoogleFonts.poppins(color: AppColors.putih)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (alasanController.text.trim().isNotEmpty) {
+                  alasan = alasanController.text.trim();
+                  Navigator.pop(context, true);
+                }
+              },
+              child: Text("Lanjut",
+                  style: GoogleFonts.poppins(color: AppColors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isiAlasan != true || alasan == null) return;
+
     final confirmed = await showConfirmationDialog(
       context,
       title: "Konfirmasi Penolakan",
