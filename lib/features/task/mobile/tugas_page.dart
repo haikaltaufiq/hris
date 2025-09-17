@@ -55,6 +55,8 @@ class _TugasMobileState extends State<TugasMobile> {
       body: Stack(
         children: [
           RefreshIndicator(
+            color: AppColors.putih,
+            backgroundColor: AppColors.bg,
             onRefresh: _refreshData,
             child: Padding(
               padding: const EdgeInsets.only(

@@ -328,13 +328,18 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
               ),
             ),
             const SizedBox(width: 6),
-            Text(
-              status,
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-                fontFamily: GoogleFonts.poppins().fontFamily,
+            Flexible(
+              child: Text(
+                status,
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                softWrap: false,
               ),
             ),
             const SizedBox(width: 4),

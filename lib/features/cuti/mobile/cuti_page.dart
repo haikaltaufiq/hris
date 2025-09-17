@@ -32,7 +32,6 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   @override
   void initState() {
     super.initState();
-
     // Load cache immediately (synchronous)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<CutiProvider>();
@@ -220,6 +219,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
       body: Stack(
         children: [
           RefreshIndicator(
+            color: AppColors.putih,
+            backgroundColor: AppColors.bg,
             onRefresh: _refreshData,
             child: Padding(
               padding: const EdgeInsets.only(

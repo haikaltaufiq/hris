@@ -220,7 +220,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) => const Center(
+                                  builder: (context) => Center(
                                     child: CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                           Colors.white),

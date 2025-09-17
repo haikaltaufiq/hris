@@ -52,6 +52,8 @@ class _PotonganMobileState extends State<PotonganMobile> {
         child: Stack(
           children: [
             RefreshIndicator(
+              color: AppColors.putih,
+              backgroundColor: AppColors.bg,
               onRefresh: _refreshData,
               child: ListView(
                 children: [

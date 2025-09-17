@@ -53,6 +53,8 @@ class _AbsenMobileState extends State<AbsenMobile> {
               right: 16.0,
             ),
             child: RefreshIndicator(
+              color: AppColors.putih,
+              backgroundColor: AppColors.bg,
               onRefresh: _refreshData,
               child: ListView(
                 children: [
