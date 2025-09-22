@@ -104,14 +104,14 @@ class CutiProvider with ChangeNotifier {
   }
 
   /// Tambah cuti baru
-  Future<bool> createCuti({
+  Future<Map<String, dynamic>> createCuti({
     required String nama,
     required String tipeCuti,
     required String tanggalMulai,
     required String tanggalSelesai,
     required String alasan,
   }) async {
-    final success = await CutiService.createCuti(
+    final response = await CutiService.createCuti(
       nama: nama,
       tipeCuti: tipeCuti,
       tanggalMulai: tanggalMulai,
@@ -119,11 +119,12 @@ class CutiProvider with ChangeNotifier {
       alasan: alasan,
     );
 
-    if (success) {
-      await fetchCuti(forceRefresh: true); // refresh data
+    // Pastikan response dari service berbentuk Map {success: bool, message: String}
+    if (response['success'] == true) {
+      await fetchCuti(forceRefresh: true); // refresh data setelah berhasil
     }
 
-    return success;
+    return response;
   }
 
   // /// Edit cuti
@@ -189,7 +190,8 @@ class CutiProvider with ChangeNotifier {
   }
 
   /// Decline cuti (tetap bisa pakai onDecline callback)
-  Future<void> decline(Future<void> Function()? onDecline, {int? id, String? catatan_penolakan}) async {
+  Future<void> decline(Future<void> Function()? onDecline,
+      {int? id, String? catatan_penolakan}) async {
     if (onDecline != null) await onDecline();
 
     if (id != null && catatan_penolakan != null) {

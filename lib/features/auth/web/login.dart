@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/services/auth_service.dart';
@@ -391,6 +392,8 @@ class _LoginState extends State<Login> {
             });
 
             if (result['success']) {
+              await FeatureAccess.init();
+
               NotificationHelper.showTopNotification(
                 context,
                 result['message'],

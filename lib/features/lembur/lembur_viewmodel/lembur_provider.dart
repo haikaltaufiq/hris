@@ -100,23 +100,24 @@ class LemburProvider extends ChangeNotifier {
   }
 
   // Create lembur
-  Future<bool> createLembur({
+  Future<Map<String, dynamic>> createLembur({
     required String tanggal,
     required String jamMulai,
     required String jamSelesai,
     required String deskripsi,
   }) async {
-    final success = await LemburService.createLembur(
+    final response = await LemburService.createLembur(
       tanggal: tanggal,
       jamMulai: jamMulai,
       jamSelesai: jamSelesai,
       deskripsi: deskripsi,
     );
 
-    if (success) {
+    if (response['success'] == true) {
       await fetchLembur(forceRefresh: true); // Refresh list setelah create
     }
-    return success;
+
+    return response; // langsung balikin Map biar UI bisa ambil message
   }
 
   // // Edit lembur
@@ -166,7 +167,6 @@ class LemburProvider extends ChangeNotifier {
     return message;
   }
 
-
   void setError(String message) {
     _errorMessage = message;
     notifyListeners();
@@ -190,7 +190,8 @@ class LemburProvider extends ChangeNotifier {
   }
 
   /// Decline dengan callback (opsional dari UI)
-  Future<void> decline(Future<void> Function()? onDecline, {int? id, String? catatan_penolakan}) async {
+  Future<void> decline(Future<void> Function()? onDecline,
+      {int? id, String? catatan_penolakan}) async {
     if (onDecline != null) await onDecline();
 
     if (id != null && catatan_penolakan != null) {

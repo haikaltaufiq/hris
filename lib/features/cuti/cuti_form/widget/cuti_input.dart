@@ -220,14 +220,14 @@ class _CutiInputState extends State<CutiInput> {
                       }
                       setState(() => _isLoading = true);
                       try {
-                        final success = await cutiProvider.createCuti(
+                        final result = await cutiProvider.createCuti(
                           nama: _namaController.text,
                           tipeCuti: _tipeCutiController.text,
                           tanggalMulai: _tanggalMulaiController.text,
                           tanggalSelesai: _tanggalSelesaiController.text,
                           alasan: _alasanController.text,
                         );
-                        if (success) {
+                        if (result['success'] == true) {
                           if (context.mounted) {
                             NotificationHelper.showTopNotification(
                                 context, 'Cuti berhasil diajukan');
@@ -235,8 +235,8 @@ class _CutiInputState extends State<CutiInput> {
                           }
                         } else {
                           if (context.mounted) {
-                            NotificationHelper.showTopNotification(
-                                context, 'Gagal mengajukan Cuti',
+                            NotificationHelper.showTopNotification(context,
+                                result['message'] ?? 'Gagal mengajukan cuti',
                                 isSuccess: false);
                           }
                         }

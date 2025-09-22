@@ -292,7 +292,7 @@ class _LemburInputState extends State<LemburInput> {
                       setState(() => _isSubmitting = true);
 
                       try {
-                        final success = await lemburProvider.createLembur(
+                        final result = await lemburProvider.createLembur(
                           tanggal: _tanggalController.text,
                           jamMulai: _jamMulaiController.text,
                           jamSelesai: _jamSelesaiController.text,
@@ -301,13 +301,13 @@ class _LemburInputState extends State<LemburInput> {
 
                         if (!mounted) return;
 
-                        if (success) {
+                        if (result['success'] == true) {
                           NotificationHelper.showTopNotification(
                               context, 'Lembur berhasil diajukan');
                           Navigator.of(context).pop(true);
                         } else {
-                          NotificationHelper.showTopNotification(
-                              context, 'Gagal mengajukan lembur',
+                          NotificationHelper.showTopNotification(context,
+                              result['message'] ?? 'Gagal mengajukan lembur',
                               isSuccess: false);
                         }
                       } catch (e) {

@@ -39,15 +39,16 @@ class LemburService {
   }
 
   // Fungsi mengajukan lembur
-  static Future<bool> createLembur({
+  static Future<Map<String, dynamic>> createLembur({
     required String tanggal,
     required String jamMulai,
     required String jamSelesai,
     required String deskripsi,
   }) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     try {
       tanggal = DateFormat('dd / MM / yyyy')
@@ -55,14 +56,18 @@ class LemburService {
           .toIso8601String()
           .split('T')[0];
     } catch (e) {
-      print('❌ Format tanggal tidak valid: $tanggal');
-      return false;
+      return {
+        'success': false,
+        'message': 'Format tanggal tidak valid: $tanggal',
+      };
     }
 
     if (!RegExp(r'^\d{2}:\d{2}$').hasMatch(jamMulai) ||
         !RegExp(r'^\d{2}:\d{2}$').hasMatch(jamSelesai)) {
-      print('❌ Format jam tidak valid: $jamMulai - $jamSelesai');
-      return false;
+      return {
+        'success': false,
+        'message': 'Format jam tidak valid: $jamMulai - $jamSelesai',
+      };
     }
 
     final response = await http.post(
@@ -80,11 +85,18 @@ class LemburService {
       }),
     );
 
+    final data = jsonDecode(response.body);
+
     if (response.statusCode == 201) {
-      return true;
+      return {
+        'success': true,
+        'message': data['message'] ?? 'Lembur berhasil diajukan',
+      };
     } else {
-      print('❌ Gagal create lembur: ${response.statusCode} ${response.body}');
-      return false;
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Gagal mengajukan lembur',
+      };
     }
   }
 

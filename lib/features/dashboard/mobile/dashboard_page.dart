@@ -47,9 +47,6 @@ class _DashboardMobileState extends State<DashboardMobile> {
               requiredFeature: 'lihat_absensi_sendiri',
               child: const DashboardCardUser(),
             ),
-            SizedBox(
-              height: 12,
-            ),
             FeatureGuard(
               requiredFeature: 'karyawan',
               child: DashboardMenu(

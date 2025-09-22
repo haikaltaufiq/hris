@@ -39,8 +39,8 @@ class CutiService {
     }
   }
 
-  // Tambah cuti
-  static Future<bool> createCuti({
+// Tambah cuti
+  static Future<Map<String, dynamic>> createCuti({
     required String nama,
     required String tipeCuti,
     required String tanggalMulai,
@@ -48,8 +48,9 @@ class CutiService {
     required String alasan,
   }) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     try {
       final formattedMulai = DateFormat('dd / MM / yyyy')
@@ -77,15 +78,25 @@ class CutiService {
         }),
       );
 
+      final data = jsonDecode(response.body);
+
       if (response.statusCode == 201) {
-        return true;
+        return {
+          'success': true,
+          'message': data['message'] ?? 'Cuti berhasil diajukan',
+        };
       } else {
-        print('Gagal mengajukan cuti: ${response.statusCode} ${response.body}');
-        return false;
+        return {
+          'success': false,
+          'message': data['message'] ?? 'Gagal mengajukan cuti',
+        };
       }
     } catch (e) {
-      print('❌ Format tanggal tidak valid: $tanggalMulai - $tanggalSelesai');
-      return false;
+      return {
+        'success': false,
+        'message':
+            'Format tanggal tidak valid: $tanggalMulai - $tanggalSelesai',
+      };
     }
   }
 
