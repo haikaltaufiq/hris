@@ -5,13 +5,16 @@ import 'package:hr/l10n/app_localizations.dart';
 import '../../../core/utils/device_size.dart';
 
 class LandingFooter extends StatelessWidget {
-  const LandingFooter({super.key});
+  final Map<String, GlobalKey> sectionKeys;
+
+  const LandingFooter({super.key, required this.sectionKeys});
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
 
     return Container(
+      key: sectionKeys['contact'],
       width: double.infinity,
       color: AppColors.blue,
       padding: EdgeInsets.symmetric(
@@ -118,9 +121,10 @@ class LandingFooter extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Text(
-              'HRIS',
+              'Human Resource',
               style: TextStyle(
                 fontSize: 20,
+                letterSpacing: -0.5,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
               ),

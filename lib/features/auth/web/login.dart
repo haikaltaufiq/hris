@@ -161,29 +161,29 @@ class _LoginState extends State<Login> {
     return Column(
       children: [
         if (showLogo) ...[
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              Icons.business_center_outlined,
-              size: 40,
-              color: AppColors.blue,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'HRIS',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: AppColors.blue,
-            ),
-          ),
-          const SizedBox(height: 32),
+          // Container(
+          //   width: 80,
+          //   height: 80,
+          //   decoration: BoxDecoration(
+          //     color: AppColors.blue.withOpacity(0.1),
+          //     borderRadius: BorderRadius.circular(20),
+          //   ),
+          //   child: Icon(
+          //     Icons.business_center_outlined,
+          //     size: 40,
+          //     color: AppColors.blue,
+          //   ),
+          // ),
+          // const SizedBox(height: 24),
+          // Text(
+          //   'HRIS',
+          //   style: TextStyle(
+          //     fontSize: 32,
+          //     fontWeight: FontWeight.bold,
+          //     color: AppColors.blue,
+          //   ),
+          // ),
+          const SizedBox(height: 102),
         ],
         Text(
           'Welcome',

@@ -13,7 +13,7 @@ const _redDark = Color(0xFF802F2F);
 // Warna untuk light mode (kamu sesuaikan)
 const _primaryLight = Color(0xFFFFFFFF);
 const _secondaryLight = Color(0xFFF0F0F0);
-const _latar3Light = Color(0xFFFAFAFA);
+const _latar3Light = Color(0xFFF0F0F0);
 
 const _bgLight = Color(0xFFF7F7F7);
 const _putihLight = Color(0xFF000000);

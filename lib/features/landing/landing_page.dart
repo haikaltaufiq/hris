@@ -12,7 +12,27 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  final ScrollController _scrollController = ScrollController();
+  late ScrollController _scrollController = ScrollController();
+  late Map<String, GlobalKey> _sectionKeys;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    // Inisialisasi GlobalKeys untuk setiap section
+    _sectionKeys = {
+      'home': GlobalKey(),
+      'about': GlobalKey(),
+      'features': GlobalKey(),
+      'contact': GlobalKey(),
+    };
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +43,7 @@ class _LandingPageState extends State<LandingPage> {
           // Fixed Navbar
           LandingNavbar(
             scrollController: _scrollController,
+            sectionKeys: _sectionKeys,
           ),
 
           // Scrollable Content
@@ -31,8 +52,12 @@ class _LandingPageState extends State<LandingPage> {
               controller: _scrollController,
               child: Column(
                 children: [
-                  LandingContent(),
-                  LandingFooter(),
+                  LandingContent(
+                    sectionKeys: _sectionKeys,
+                  ),
+                  LandingFooter(
+                    sectionKeys: _sectionKeys,
+                  ),
                 ],
               ),
             ),
