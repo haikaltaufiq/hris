@@ -8,6 +8,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
@@ -41,28 +42,28 @@ class _LemburMobileState extends State<LemburMobile> {
     await context.read<LemburProvider>().fetchLembur(forceRefresh: true);
   }
 
-  Future<void> _deleteLembur(LemburModel lembur) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus lembur ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+  // Future<void> _deleteLembur(LemburModel lembur) async {
+  //   final confirmed = await showConfirmationDialog(
+  //     context,
+  //     title: "Konfirmasi Hapus",
+  //     content: "Apakah Anda yakin ingin menghapus lembur ini?",
+  //     confirmText: "Hapus",
+  //     cancelText: "Batal",
+  //     confirmColor: AppColors.red,
+  //   );
 
-    if (confirmed) {
-      final message =
-          await context.read<LemburProvider>().deleteLembur(lembur.id, "");
-      searchController.clear();
+  //   if (confirmed) {
+  //     final message =
+  //         await context.read<LemburProvider>().deleteLembur(lembur.id, "");
+  //     searchController.clear();
 
-      NotificationHelper.showTopNotification(
-        context,
-        message!,
-        isSuccess: message != "",
-      );
-    }
-  }
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       message!,
+  //       isSuccess: message != "",
+  //     );
+  //   }
+  // }
 
   Future<void> _approveLembur(LemburModel lembur) async {
     final confirmed = await showConfirmationDialog(
@@ -99,6 +100,69 @@ class _LemburMobileState extends State<LemburMobile> {
   }
 
   Future<void> _declineLembur(LemburModel lembur) async {
+    final catatanPenolakanController = TextEditingController();
+    String? catatan_penolakan;
+
+    // Step 1: Dialog isi alasan
+    final isiAlasan = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            "Catatan Penolakan",
+            style: GoogleFonts.poppins(
+              color: AppColors.putih,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width *
+                (context.isMobile
+                    ? 0.9
+                    : 0.4), // mobile lebih lebar, desktop ideal
+            child: TextFormField(
+              controller: catatanPenolakanController,
+              style: TextStyle(color: AppColors.putih),
+              decoration: InputDecoration(
+                hintText: "Tuliskan alasan penolakan...",
+                hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.6)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.putih.withOpacity(0.4)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.secondary),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text("Batal",
+                  style: GoogleFonts.poppins(color: AppColors.putih)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (catatanPenolakanController.text.trim().isNotEmpty) {
+                  catatan_penolakan = catatanPenolakanController.text.trim();
+                  Navigator.pop(context, true);
+                }
+              },
+              child: Text("Lanjut",
+                  style: GoogleFonts.poppins(color: AppColors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isiAlasan != true || catatan_penolakan == null) return;
+
     final confirmed = await showConfirmationDialog(
       context,
       title: "Konfirmasi Penolakan",
@@ -151,6 +215,8 @@ class _LemburMobileState extends State<LemburMobile> {
       body: Stack(
         children: [
           RefreshIndicator(
+                color: AppColors.putih,
+              backgroundColor: AppColors.bg,
             onRefresh: _refreshData,
             child: Padding(
               padding: const EdgeInsets.only(
@@ -225,16 +291,18 @@ class _LemburMobileState extends State<LemburMobile> {
                                 lembur: lembur,
                                 onApprove: () => _approveLembur(lembur),
                                 onDecline: () => _declineLembur(lembur),
-                                onDelete: () => _deleteLembur(lembur),
+                                // onDelete: () => _deleteLembur(lembur),
                               ),
                             );
                           },
                         ),
+
+                        // FeatureGuard untuk User - melihat cuti sendiri saja
                         FeatureGuard(
                           requiredFeature: 'lihat_lembur_sendiri',
                           child: UserLemburTabel(
                             lemburList: displayedList,
-                            onDelete: (lembur) => _deleteLembur(lembur),
+                            // onDelete: (lembur) => _deleteLembur(lembur),
                           ),
                         ),
                       ],

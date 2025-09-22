@@ -47,147 +47,86 @@ class _TugasMobileState extends State<TugasMobile> {
 
   @override
   Widget build(BuildContext context) {
-    final tugasProvider = context.watch<TugasProvider>();
-    // final userProvider = context.watch<UserProvider>(); // Uncomment if needed
+    final provider = context.watch<TugasProvider>();
+    final displayedTugas = provider.filteredTugasList.isEmpty
+        ? provider.tugasList
+        : provider.filteredTugasList;
 
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: Stack(
         children: [
-          RefreshIndicator(
-            onRefresh: _refreshData,
-            child: Padding(
-              padding: const EdgeInsets.only(
-                left: 16.0,
-                right: 16.0,
-              ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: RefreshIndicator(
+              color: AppColors.putih,
+              backgroundColor: AppColors.bg,
+              onRefresh: _refreshData,
               child: ListView(
                 children: [
-                  const Header(
-                    title: 'Daftar Tugas',
-                  ),
+                  const Header(title: "Daftar Tugas"),
                   SearchingBar(
                     controller: searchController,
-                    onChanged: (value) {
-                      tugasProvider.filterTugas(value);
-                    },
+                    onChanged: provider.filterTugas,
                     onFilter1Tap: () {},
                   ),
-                  Consumer<TugasProvider>(
-                    builder: (context, tugasProvider, child) {
-                      final displayedList = searchController.text.isEmpty
-                          ? tugasProvider.tugasList
-                          : tugasProvider.filteredTugasList;
-
-                      if (tugasProvider.isLoading && displayedList.isEmpty) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: const Center(child: LoadingWidget()),
-                        );
-                      }
-
-                      if (tugasProvider.errorMessage != null) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Error: ${tugasProvider.errorMessage}',
-                                  style: TextStyle(
-                                    color: AppColors.red,
-                                    fontFamily:
-                                        GoogleFonts.poppins().fontFamily,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: _refreshData,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.secondary,
-                                  ),
-                                  child: Text(
-                                    'Retry',
-                                    style: TextStyle(
-                                      color: AppColors.putih,
-                                      fontFamily:
-                                          GoogleFonts.poppins().fontFamily,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      if (displayedList.isEmpty && !tugasProvider.isLoading) {
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height * 0.6,
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.assignment_outlined,
-                                  size: 64,
-                                  color: AppColors.putih.withOpacity(0.5),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  'Belum ada tugas',
-                                  style: TextStyle(
-                                    color: AppColors.putih,
-                                    fontFamily:
-                                        GoogleFonts.poppins().fontFamily,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  'Tap tombol + untuk menambah tugas baru',
-                                  style: TextStyle(
-                                    color: AppColors.putih.withOpacity(0.7),
-                                    fontFamily:
-                                        GoogleFonts.poppins().fontFamily,
-                                    fontSize: 14,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-
-                      return Column(
-                        children: [
-                          FeatureGuard(
-                            requiredFeature: 'lihat_semua_tugas',
-                            child: TugasTabel(
-                              tugasList: displayedList,
-                              onActionDone: () {
-                                searchController.clear();
-                              },
-                            ),
-                          ),
-                          // Option 1: If TugasUserTabel exists, uncomment and fix import
-                          FeatureGuard(
-                            requiredFeature: "tambah_lampiran_tugas",
-                            child: TugasUserTabel(
-                              tugasList: displayedList,
-                              onActionDone: () {
-                                searchController.clear();
-                              },
-                            ),
-                          ),
-                        ],
-                      );
-                    },
+                  FeatureGuard(
+                    requiredFeature: 'lihat_semua_tugas',
+                    child: TugasTabel(
+                      tugasList: displayedTugas,
+                      onActionDone: () => searchController.clear(),
+                    ),
                   ),
+                  if (provider.isLoading && displayedTugas.isEmpty)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: const Center(child: LoadingWidget()),
+                    )
+                  else if (provider.tugasList.isEmpty && !provider.isLoading)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.assignment_outlined,
+                                size: 64,
+                                color: AppColors.putih.withOpacity(0.5)),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Belum ada tugas',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.putih,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tap tombol + untuk menambah tugas baru',
+                              style: GoogleFonts.poppins(
+                                color: AppColors.putih.withOpacity(0.7),
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      itemCount: displayedTugas.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemBuilder: (context, index) {
+                        final tugas = displayedTugas[index];
+                        return TugasUserTabel(
+                          tugasList: [tugas],
+                          onActionDone: () => searchController.clear(),
+                        );
+                      },
+                    ),
                 ],
               ),
             ),

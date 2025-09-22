@@ -78,6 +78,14 @@ class DashboardCard extends StatelessWidget {
             decoration: BoxDecoration(
               color: AppColors.primary,
               borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05), // tipis banget
+                  blurRadius: 4, // kecil, biar soft
+                  spreadRadius: 0,
+                  offset: Offset(0, 1), // cuma bawah dikit
+                ),
+              ],
             ),
             child: Padding(
               padding: const EdgeInsets.all(16),

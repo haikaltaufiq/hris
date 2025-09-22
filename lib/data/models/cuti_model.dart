@@ -12,6 +12,7 @@ class CutiModel {
   final String tanggal_selesai;
   final String alasan;
   final String keterangan_status;
+  final String catatan_penolakan;
   String status;
   final int approve_step;
   final Map<String, dynamic> user;
@@ -27,6 +28,7 @@ class CutiModel {
     required this.approve_step,
     required this.user,
     required this.keterangan_status,
+    required this.catatan_penolakan,
   });
 
   factory CutiModel.fromJson(Map<String, dynamic> json) {
@@ -43,6 +45,7 @@ class CutiModel {
           : json['approve_step'] ?? 0,
       user: json['user'] ?? {},
       keterangan_status: json['keterangan_status'] ?? {},
+      catatan_penolakan: json['catatan_penolakan'] ?? '',
     );
   }
 

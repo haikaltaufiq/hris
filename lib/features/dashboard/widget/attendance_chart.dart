@@ -13,7 +13,6 @@ class AttendanceChart extends StatelessWidget {
       children: [
         /// CHART
         Container(
-          height: 320,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: AppColors.primary,

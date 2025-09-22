@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/services/auth_service.dart';
@@ -161,29 +162,29 @@ class _LoginState extends State<Login> {
     return Column(
       children: [
         if (showLogo) ...[
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: AppColors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              Icons.business_center_outlined,
-              size: 40,
-              color: AppColors.blue,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'HRIS',
-            style: TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
-              color: AppColors.blue,
-            ),
-          ),
-          const SizedBox(height: 32),
+          // Container(
+          //   width: 80,
+          //   height: 80,
+          //   decoration: BoxDecoration(
+          //     color: AppColors.blue.withOpacity(0.1),
+          //     borderRadius: BorderRadius.circular(20),
+          //   ),
+          //   child: Icon(
+          //     Icons.business_center_outlined,
+          //     size: 40,
+          //     color: AppColors.blue,
+          //   ),
+          // ),
+          // const SizedBox(height: 24),
+          // Text(
+          //   'HRIS',
+          //   style: TextStyle(
+          //     fontSize: 32,
+          //     fontWeight: FontWeight.bold,
+          //     color: AppColors.blue,
+          //   ),
+          // ),
+          const SizedBox(height: 102),
         ],
         Text(
           'Welcome',
@@ -391,6 +392,8 @@ class _LoginState extends State<Login> {
             });
 
             if (result['success']) {
+              await FeatureAccess.init();
+
               NotificationHelper.showTopNotification(
                 context,
                 result['message'],

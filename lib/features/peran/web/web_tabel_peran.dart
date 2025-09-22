@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/core/helpers/pagination.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/features/peran/peran_viewmodel.dart';
@@ -17,6 +18,9 @@ class WebTabelPeranWeb extends StatefulWidget {
 }
 
 class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
+  int currentPage = 0;
+  int rowsPerPage = 5;
+
   void _handleView(PeranModel peran) {
     showDialog(
       context: context,
@@ -223,22 +227,31 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
         }
 
         final headers = ['Nama Peran'];
-        final rows = peranList.map((p) {
-          return [
-            p.namaPeran,
-          ];
-        }).toList();
+        final paginatedList = peranList
+            .skip(currentPage * rowsPerPage)
+            .take(rowsPerPage)
+            .toList();
 
-        return CustomDataTableWeb(
-          headers: headers,
-          rows: rows,
-          columnFlexValues: const [3, 2],
-          onCellTap: (rowIndex, colIndex) {
-            if (colIndex == 1) _handleView(peranList[rowIndex]);
-          },
-          onView: (rowIndex) => _handleView(peranList[rowIndex]),
-          onEdit: (rowIndex) => _handleEdit(peranList[rowIndex]),
-          onDelete: (rowIndex) => _hapusPeran(peranList[rowIndex]),
+        return Column(
+          children: [
+            CustomDataTableWeb(
+              headers: headers,
+              rows: paginatedList.map((p) => [p.namaPeran]).toList(),
+              onView: (i) => _handleView(paginatedList[i]),
+              onEdit: (i) => _handleEdit(paginatedList[i]),
+              onDelete: (i) => _hapusPeran(paginatedList[i]),
+            ),
+            PaginationControls(
+              currentPage: currentPage,
+              rowsPerPage: rowsPerPage,
+              totalItems: peranList.length,
+              onPageChanged: (newPage) {
+                setState(() {
+                  currentPage = newPage;
+                });
+              },
+            ),
+          ],
         );
       },
     );

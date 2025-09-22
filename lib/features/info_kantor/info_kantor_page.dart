@@ -32,7 +32,9 @@ class _InfoKantorPageState extends State<InfoKantorPage> {
             onFilter1Tap: () {},
           ),
           Padding(
-            padding: const EdgeInsets.all(4.0),
+            padding: EdgeInsets.symmetric(
+                horizontal: context.isMobile ? 4.0 : 30.0,
+                vertical: context.isMobile ? 4.0 : 16.0),
             child: CompanyCard(),
           ),
         ]),

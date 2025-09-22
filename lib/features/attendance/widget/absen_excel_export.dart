@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:intl/intl.dart'; // untuk format tanggal
 
 class AbsenExcelExport extends StatefulWidget {
   const AbsenExcelExport({super.key});
@@ -12,6 +14,57 @@ class AbsenExcelExport extends StatefulWidget {
 }
 
 class _AbsenExcelExportState extends State<AbsenExcelExport> {
+  DateTime? _startDate;
+  DateTime? _endDate;
+
+  Future<void> _pickDate({required bool isStart}) async {
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: const Color(0xFF1F1F1F),
+              onPrimary: Colors.white,
+              onSurface: AppColors.hitam,
+              secondary: AppColors.yellow,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.hitam,
+              ),
+            ),
+            textTheme: GoogleFonts.poppinsTextTheme(
+              Theme.of(context).textTheme.apply(
+                    bodyColor: AppColors.hitam,
+                    displayColor: AppColors.hitam,
+                  ),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        if (isStart) {
+          _startDate = pickedDate;
+        } else {
+          _endDate = pickedDate;
+        }
+      });
+    }
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return "dd/mm/yyyy";
+    return DateFormat("dd/MM/yyyy").format(date);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -25,8 +78,9 @@ class _AbsenExcelExportState extends State<AbsenExcelExport> {
           Expanded(
             child: _buildDateCard(
               title: 'Start Date',
-              subtitle: 'dd/mm/yyyy',
+              subtitle: _formatDate(_startDate),
               icon: FontAwesomeIcons.calendar,
+              onPressed: () => _pickDate(isStart: true),
             ),
           ),
           const SizedBox(width: 8),
@@ -35,18 +89,29 @@ class _AbsenExcelExportState extends State<AbsenExcelExport> {
           Expanded(
             child: _buildDateCard(
               title: 'End Date',
-              subtitle: 'dd/mm/yyyy',
+              subtitle: _formatDate(_endDate),
               icon: FontAwesomeIcons.calendar,
+              onPressed: () => _pickDate(isStart: false),
             ),
           ),
           const SizedBox(width: 8),
 
-          // Calculate Button
+          // Download Button
           SizedBox(
             width: 48,
             height: 48,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                if (_startDate != null && _endDate != null) {
+                  // TODO: export Excel pake startDate & endDate
+                  print("Export dari ${_formatDate(_startDate)} "
+                      "sampai ${_formatDate(_endDate)}");
+                } else {
+                  NotificationHelper.showTopNotification(
+                      context, "Pilih start & end date dulu",
+                      isSuccess: false);
+                }
+              },
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.zero,
                 backgroundColor: AppColors.secondary,
@@ -70,10 +135,10 @@ class _AbsenExcelExportState extends State<AbsenExcelExport> {
     required String title,
     required String subtitle,
     required IconData icon,
-    VoidCallback? onPressed, // optional, kalau mau kasih fungsi klik
+    VoidCallback? onPressed,
   }) {
     return ElevatedButton(
-      onPressed: onPressed ?? () {}, // default no-op kalau gak dikasih
+      onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
         shape: RoundedRectangleBorder(
@@ -88,7 +153,7 @@ class _AbsenExcelExportState extends State<AbsenExcelExport> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Text bagian kiri
+          // Text
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -114,7 +179,7 @@ class _AbsenExcelExportState extends State<AbsenExcelExport> {
             ],
           ),
 
-          // Icon bagian kanan
+          // Icon
           FaIcon(icon, color: AppColors.putih, size: 20),
         ],
       ),

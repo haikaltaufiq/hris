@@ -356,7 +356,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   Widget _buildDesktopSidebar(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
     final double collapsedWidth = 70;
-    final double expandedWidth = screenWidth < 1024 ? 220 : 260;
+    final double expandedWidth = screenWidth < 1024 ? 220 : 220;
     final filteredItems = widget._filteredNavItems;
 
     return AnimatedBuilder(
@@ -369,12 +369,12 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
           width: currentWidth,
           height: double.infinity,
           decoration: BoxDecoration(
-            color: AppColors.secondary,
+            color: AppColors.latar3,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.3),
                 blurRadius: 12,
-                offset: const Offset(4, 0),
+                offset: const Offset(5, 0),
               ),
             ],
           ),
@@ -430,9 +430,10 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   Widget _buildSidebarFooter(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(
-          right: AppSizes.paddingM,
-          left: AppSizes.paddingM,
-          bottom: AppSizes.paddingM),
+        right: AppSizes.paddingM,
+        left: AppSizes.paddingM,
+        bottom: AppSizes.paddingM,
+      ),
       child: Column(
         children: [
           Container(
@@ -485,6 +486,45 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       ),
                     ],
                   ),
+                ),
+                // titik tiga
+                PopupMenuButton<String>(
+                  icon: Icon(
+                    Icons.more_vert,
+                    color: AppColors.putih.withOpacity(0.7),
+                    size: 18,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'settings') {
+                      debugPrint("Settings diklik");
+                      // TODO: buka halaman settings
+                    } else if (value == 'logout') {
+                      debugPrint("Logout diklik");
+                      // TODO: trigger logout
+                    }
+                  },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 'settings',
+                      child: Row(
+                        children: const [
+                          Icon(Icons.settings, size: 16),
+                          SizedBox(width: 8),
+                          Text("Settings"),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'logout',
+                      child: Row(
+                        children: const [
+                          Icon(Icons.logout, size: 16),
+                          SizedBox(width: 8),
+                          Text("Logout"),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -551,7 +591,6 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
 
     return Container(
       margin: const EdgeInsets.only(bottom: 4),
-      height: 50,
       child: MouseRegion(
         onEnter: (_) {
           setState(() => _isHovered = true);
@@ -577,7 +616,7 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
                   curve: Curves.easeInOutCubic,
                   padding: EdgeInsets.symmetric(
                     horizontal: widget.isCollapsed ? 8 : AppSizes.paddingM,
-                    vertical: AppSizes.paddingM,
+                    vertical: 12,
                   ),
                   decoration: BoxDecoration(
                     color: isSelected

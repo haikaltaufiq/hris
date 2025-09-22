@@ -415,8 +415,8 @@ class _MainLayoutState extends State<MainLayout>
             //main content
             Expanded(
               child: Container(
-                margin: const EdgeInsets.only(top: 70), // tinggi AppBar
-                color: const Color(0xFF0A0A0A),
+                margin: const EdgeInsets.only(top: 60), // tinggi AppBar
+                color: AppColors.latar3,
                 child: widget.child,
               ),
             ),
@@ -426,7 +426,7 @@ class _MainLayoutState extends State<MainLayout>
           left: 0, // sesuai width sidebar
           right: 0,
           top: 0,
-          height: 70,
+          height: 60,
           child: _buildDesktopAppBar(),
         ),
       ],
@@ -448,6 +448,13 @@ class _MainLayoutState extends State<MainLayout>
     return Container(
       decoration: BoxDecoration(
         color: AppColors.primary,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 14),

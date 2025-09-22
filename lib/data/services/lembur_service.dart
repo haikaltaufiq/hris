@@ -39,15 +39,16 @@ class LemburService {
   }
 
   // Fungsi mengajukan lembur
-  static Future<bool> createLembur({
+  static Future<Map<String, dynamic>> createLembur({
     required String tanggal,
     required String jamMulai,
     required String jamSelesai,
     required String deskripsi,
   }) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     try {
       tanggal = DateFormat('dd / MM / yyyy')
@@ -55,14 +56,18 @@ class LemburService {
           .toIso8601String()
           .split('T')[0];
     } catch (e) {
-      print('❌ Format tanggal tidak valid: $tanggal');
-      return false;
+      return {
+        'success': false,
+        'message': 'Format tanggal tidak valid: $tanggal',
+      };
     }
 
     if (!RegExp(r'^\d{2}:\d{2}$').hasMatch(jamMulai) ||
         !RegExp(r'^\d{2}:\d{2}$').hasMatch(jamSelesai)) {
-      print('❌ Format jam tidak valid: $jamMulai - $jamSelesai');
-      return false;
+      return {
+        'success': false,
+        'message': 'Format jam tidak valid: $jamMulai - $jamSelesai',
+      };
     }
 
     final response = await http.post(
@@ -80,111 +85,118 @@ class LemburService {
       }),
     );
 
+    final data = jsonDecode(response.body);
+
     if (response.statusCode == 201) {
-      return true;
+      return {
+        'success': true,
+        'message': data['message'] ?? 'Lembur berhasil diajukan',
+      };
     } else {
-      print('❌ Gagal create lembur: ${response.statusCode} ${response.body}');
-      return false;
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Gagal mengajukan lembur',
+      };
     }
   }
 
-  // Edit lembur
-  static Future<Map<String, dynamic>> editLembur({
-    required int id,
-    required String tanggal,
-    required String jamMulai,
-    required String jamSelesai,
-    required String deskripsi,
-  }) async {
-    final token = await _getToken();
-    if (token == null)
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
+  // // Edit lembur
+  // static Future<Map<String, dynamic>> editLembur({
+  //   required int id,
+  //   required String tanggal,
+  //   required String jamMulai,
+  //   required String jamSelesai,
+  //   required String deskripsi,
+  // }) async {
+  //   final token = await _getToken();
+  //   if (token == null)
+  //     throw Exception('Token tidak ditemukan. Harap login ulang.');
 
-    // Format tanggal untuk API
-    String formatDateForApi(String input) {
-      input = input.trim();
-      // Jika format sudah YYYY-MM-DD, kembalikan apa adanya
-      if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return input;
+  //   // Format tanggal untuk API
+  //   String formatDateForApi(String input) {
+  //     input = input.trim();
+  //     // Jika format sudah YYYY-MM-DD, kembalikan apa adanya
+  //     if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(input)) return input;
 
-      // Jika format dd / mm / yyyy
-      final parts =
-          input.split(RegExp(r'\s*/\s*')); // split dengan / dan hilangkan spasi
-      if (parts.length == 3) {
-        return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
-      }
-      return input;
-    }
+  //     // Jika format dd / mm / yyyy
+  //     final parts =
+  //         input.split(RegExp(r'\s*/\s*')); // split dengan / dan hilangkan spasi
+  //     if (parts.length == 3) {
+  //       return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
+  //     }
+  //     return input;
+  //   }
 
-    // Format waktu untuk API
-    String formatTime(String time) {
-      time = time.trim();
+  //   // Format waktu untuk API
+  //   String formatTime(String time) {
+  //     time = time.trim();
 
-      // Jika sudah HH:mm:ss, kembalikan apa adanya
-      if (RegExp(r'^\d{1,2}:\d{2}:\d{2}$').hasMatch(time)) {
-        return time;
-      }
+  //     // Jika sudah HH:mm:ss, kembalikan apa adanya
+  //     if (RegExp(r'^\d{1,2}:\d{2}:\d{2}$').hasMatch(time)) {
+  //       return time;
+  //     }
 
-      // Jika HH:mm, tambahkan ":00"
-      if (RegExp(r'^\d{1,2}:\d{2}$').hasMatch(time)) {
-        return '$time:00';
-      }
+  //     // Jika HH:mm, tambahkan ":00"
+  //     if (RegExp(r'^\d{1,2}:\d{2}$').hasMatch(time)) {
+  //       return '$time:00';
+  //     }
 
-      // Kalau masih 12 jam (1:16 PM), parse dengan jm
-      try {
-        final dateTime = DateFormat.jm().parse(time);
-        return DateFormat('HH:mm:ss').format(dateTime);
-      } catch (e) {
-        return time;
-      }
-    }
+  //     // Kalau masih 12 jam (1:16 PM), parse dengan jm
+  //     try {
+  //       final dateTime = DateFormat.jm().parse(time);
+  //       return DateFormat('HH:mm:ss').format(dateTime);
+  //     } catch (e) {
+  //       return time;
+  //     }
+  //   }
 
-    final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'tanggal': formatDateForApi(tanggal),
-        'jam_mulai': formatTime(jamMulai),
-        'jam_selesai': formatTime(jamSelesai),
-        'deskripsi': deskripsi,
-      }),
-    );
+  //   final response = await http.put(
+  //     Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id'),
+  //     headers: {
+  //       'Authorization': 'Bearer $token',
+  //       'Accept': 'application/json',
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: jsonEncode({
+  //       'tanggal': formatDateForApi(tanggal),
+  //       'jam_mulai': formatTime(jamMulai),
+  //       'jam_selesai': formatTime(jamSelesai),
+  //       'deskripsi': deskripsi,
+  //     }),
+  //   );
 
-    final responseBody = json.decode(response.body);
-    print("RESPON API: $responseBody");
+  //   final responseBody = json.decode(response.body);
+  //   print("RESPON API: $responseBody");
 
-    return {
-      'success': response.statusCode == 200,
-      'message': responseBody['message'] ?? 'Gagal mengedit lembur',
-    };
-  }
+  //   return {
+  //     'success': response.statusCode == 200,
+  //     'message': responseBody['message'] ?? 'Gagal mengedit lembur',
+  //   };
+  // }
 
-  // Hapus lembur
-  static Future<Map<String, dynamic>> deleteLembur(int id) async {
-    final token = await _getToken();
-    if (token == null)
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
+  // // Hapus lembur
+  // static Future<Map<String, dynamic>> deleteLembur(int id) async {
+  //   final token = await _getToken();
+  //   if (token == null)
+  //     throw Exception('Token tidak ditemukan. Harap login ulang.');
 
-    final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
+  //   final response = await http.delete(
+  //     Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id'),
+  //     headers: {
+  //       'Authorization': 'Bearer $token',
+  //       'Accept': 'application/json',
+  //     },
+  //   );
 
-    final body = json.decode(response.body);
+  //   final body = json.decode(response.body);
 
-    return {
-      'message': body['message'] ??
-          (response.statusCode == 200
-              ? 'Tugas berhasil dihapus'
-              : 'Gagal menghapus tugas'),
-    };
-  }
+  //   return {
+  //     'message': body['message'] ??
+  //         (response.statusCode == 200
+  //             ? 'Tugas berhasil dihapus'
+  //             : 'Gagal menghapus tugas'),
+  //   };
+  // }
 
   // Fungsi menyetuji lembur
   static Future<String?> approveLembur(int id) async {
@@ -209,24 +221,31 @@ class LemburService {
   }
 
   // Fungsi menolak lembur
-  static Future<String?> declineLembur(int id) async {
+  static Future<String?> declineLembur(int id, String catatan_penolakan) async {
     final token = await _getToken();
-    if (token == null)
+    if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
 
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/api/lembur/$id/decline'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
+        'Content-Type': 'application/json',
       },
+      body: jsonEncode({
+        'catatan_penolakan': catatan_penolakan,
+      }),
     );
 
+    final responseData = json.decode(response.body);
+
     if (response.statusCode == 200) {
-      return json.decode(response.body)['message'];
+      return responseData['message'] ?? "Lembur berhasil ditolak";
     } else {
-      print('Gagal menolak cuti: ${response.statusCode} ${response.body}');
-      return null;
+      print('❌ Gagal menolak lembur: ${response.statusCode} ${response.body}');
+      return responseData['message'] ?? "Gagal menolak lembur";
     }
   }
 }

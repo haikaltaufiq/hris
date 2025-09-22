@@ -100,55 +100,56 @@ class LemburProvider extends ChangeNotifier {
   }
 
   // Create lembur
-  Future<bool> createLembur({
+  Future<Map<String, dynamic>> createLembur({
     required String tanggal,
     required String jamMulai,
     required String jamSelesai,
     required String deskripsi,
   }) async {
-    final success = await LemburService.createLembur(
+    final response = await LemburService.createLembur(
       tanggal: tanggal,
       jamMulai: jamMulai,
       jamSelesai: jamSelesai,
       deskripsi: deskripsi,
     );
 
-    if (success) {
+    if (response['success'] == true) {
       await fetchLembur(forceRefresh: true); // Refresh list setelah create
     }
-    return success;
+
+    return response; // langsung balikin Map biar UI bisa ambil message
   }
 
-  // Edit lembur
-  Future<Map<String, dynamic>> editLembur({
-    required int id,
-    required String tanggal,
-    required String jamMulai,
-    required String jamSelesai,
-    required String deskripsi,
-  }) async {
-    final result = await LemburService.editLembur(
-      id: id,
-      tanggal: tanggal,
-      jamMulai: jamMulai,
-      jamSelesai: jamSelesai,
-      deskripsi: deskripsi,
-    );
+  // // Edit lembur
+  // Future<Map<String, dynamic>> editLembur({
+  //   required int id,
+  //   required String tanggal,
+  //   required String jamMulai,
+  //   required String jamSelesai,
+  //   required String deskripsi,
+  // }) async {
+  //   final result = await LemburService.editLembur(
+  //     id: id,
+  //     tanggal: tanggal,
+  //     jamMulai: jamMulai,
+  //     jamSelesai: jamSelesai,
+  //     deskripsi: deskripsi,
+  //   );
 
-    if (result['success'] == true) {
-      await fetchLembur(forceRefresh: true); // Refresh list setelah edit
-    }
+  //   if (result['success'] == true) {
+  //     await fetchLembur(forceRefresh: true); // Refresh list setelah edit
+  //   }
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  // Delete lembur
-  Future<String?> deleteLembur(int id, String currentSearch) async {
-    final result = await LemburService.deleteLembur(id);
-    await fetchLembur(forceRefresh: true); // Refresh list setelah delete
-    filterLembur(_currentSearch);
-    return result['message'];
-  }
+  // // Delete lembur
+  // Future<String?> deleteLembur(int id, String currentSearch) async {
+  //   final result = await LemburService.deleteLembur(id);
+  //   await fetchLembur(forceRefresh: true); // Refresh list setelah delete
+  //   filterLembur(_currentSearch);
+  //   return result['message'];
+  // }
 
   // Approve lembur
   Future<String?> approveLembur(int id, String currentSearch) async {
@@ -158,9 +159,9 @@ class LemburProvider extends ChangeNotifier {
     return message;
   }
 
-  // Decline lembur
-  Future<String?> declineLembur(int id, String currentSearch) async {
-    final message = await LemburService.declineLembur(id);
+  /// Decline lembur
+  Future<String?> declineLembur(int id, String catatan_penolakan) async {
+    final message = await LemburService.declineLembur(id, catatan_penolakan);
     await fetchLembur(forceRefresh: true); // Refresh list setelah decline
     filterLembur(_currentSearch);
     return message;
@@ -188,26 +189,27 @@ class LemburProvider extends ChangeNotifier {
     }
   }
 
-  /// Decline cuti (tetap bisa pakai onDecline callback)
-  Future<void> decline(Future<void> Function()? onDecline, {int? id}) async {
+  /// Decline dengan callback (opsional dari UI)
+  Future<void> decline(Future<void> Function()? onDecline,
+      {int? id, String? catatan_penolakan}) async {
     if (onDecline != null) await onDecline();
 
-    if (id != null) {
-      await LemburService.declineLembur(id);
+    if (id != null && catatan_penolakan != null) {
+      await LemburService.declineLembur(id, catatan_penolakan);
       await fetchLembur(forceRefresh: true);
       if (filteredLemburList.isNotEmpty) filterLembur('');
     }
   }
 
-  /// Delete cuti (tetap bisa pakai onDelete callback)
-  void delete(VoidCallback? onDelete, {int? id}) {
-    if (onDelete != null) onDelete();
+  // /// Delete cuti (tetap bisa pakai onDelete callback)
+  // void delete(VoidCallback? onDelete, {int? id}) {
+  //   if (onDelete != null) onDelete();
 
-    if (id != null) {
-      LemburService.deleteLembur(id).then((_) async {
-        await fetchLembur(forceRefresh: true);
-        if (filteredLemburList.isNotEmpty) filterLembur('');
-      });
-    }
-  }
+  //   if (id != null) {
+  //     LemburService.deleteLembur(id).then((_) async {
+  //       await fetchLembur(forceRefresh: true);
+  //       if (filteredLemburList.isNotEmpty) filterLembur('');
+  //     });
+  //   }
+  // }
 }

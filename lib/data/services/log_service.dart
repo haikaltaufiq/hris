@@ -31,39 +31,5 @@ class ActivityLogService {
     }
   }
 
-  // Ambil daftar bulan yang memiliki log
-  static Future<List<Map<String, dynamic>>> fetchAvailableMonths() async {
-    final token = await getToken();
-    final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/log/months'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final List dataList = json.decode(response.body);
-      return dataList.map((e) => e as Map<String, dynamic>).toList();
-    } else {
-      throw Exception('Gagal memuat daftar bulan log');
-    }
-  }
-
-  static Future<void> resetByMonth(int bulan, int tahun) async {
-    final token = await getToken();
-    final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/log-aktivitas/reset'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: json.encode({'bulan': bulan, 'tahun': tahun}),
-    );
-
-    if (response.statusCode != 200) {
-      throw Exception('Gagal reset log: ${response.body}');
-    }
-  }
+  
 }

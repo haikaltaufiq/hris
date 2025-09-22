@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -39,7 +38,7 @@ class SubtitleDescription extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: width * 0.14),
             child: Text(
-              'The HRIS application is designed to simplify the management of attendance, leave, overtime, and employee tasks efficiently and centrally. Featuring a modern interface and intuitive navigation, HRIS streamlines HR administration processes all at your fingertips.',
+              'The HRIS application is designed to simplify the management efficiently and centrally. Featuring a modern interface and intuitive navigation, HRIS streamlines HR administration processes all at your fingertips.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: GoogleFonts.poppins().fontFamily,

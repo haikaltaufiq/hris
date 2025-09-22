@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 
 class CustomDataTableWeb extends StatelessWidget {
   final List<String> headers;
@@ -126,13 +127,18 @@ class CustomDataTableWeb extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  status,
-                  style: TextStyle(
-                    color: statusColor,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: GoogleFonts.poppins().fontFamily,
-                    fontSize: 14,
+                Flexible(
+                  child: Text(
+                    status,
+                    style: TextStyle(
+                      color: statusColor,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      fontSize: 14,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
                   ),
                 ),
               ],
@@ -194,13 +200,18 @@ class CustomDataTableWeb extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      Text(
-                        value,
-                        style: TextStyle(
-                          color: color,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
+                      Flexible(
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            color: color,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
                         ),
                       ),
                       const SizedBox(width: 4),
@@ -247,13 +258,18 @@ class CustomDataTableWeb extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 6),
-                  Text(
-                    value,
-                    style: TextStyle(
-                      color: color,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
+                  Flexible(
+                    child: Text(
+                      value,
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        fontFamily: GoogleFonts.poppins().fontFamily,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
                     ),
                   ),
                 ],
@@ -445,7 +461,8 @@ class CustomDataTableWeb extends StatelessWidget {
                     // Action buttons - fixed width container
                     if (onView != null || onEdit != null || onDelete != null)
                       SizedBox(
-                        width: 120, // Reduced width for better spacing
+                        width: context.isMobile ? 160 : 120,
+                        // Reduced width for better spacing
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Row(

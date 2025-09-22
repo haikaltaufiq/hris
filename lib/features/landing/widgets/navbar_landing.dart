@@ -8,10 +8,12 @@ import '../../../core/utils/device_size.dart';
 
 class LandingNavbar extends StatelessWidget {
   final ScrollController scrollController;
+  final Map<String, GlobalKey> sectionKeys;
 
   const LandingNavbar({
     super.key,
     required this.scrollController,
+    required this.sectionKeys,
   });
 
   @override
@@ -49,48 +51,56 @@ class LandingNavbar extends StatelessWidget {
   }
 
   Widget _buildLogo(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 32,
-          height: 32,
-          decoration: BoxDecoration(
-            color: AppColors.blue,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Center(
-            child: FaIcon(
-              FontAwesomeIcons.building,
-              size: 20,
-              color: Colors.white,
+    return GestureDetector(
+      onTap: () => _scrollToSection('home'),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: context.isMobile ? 28 : 32,
+            height: context.isMobile ? 28 : 32,
+            decoration: BoxDecoration(
+              color: AppColors.blue,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Center(
+              child: FaIcon(
+                FontAwesomeIcons.building,
+                size: context.isMobile ? 16 : 20,
+                color: Colors.white,
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Text(
-          'HRIS',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
-            color: Colors.black,
-          ),
-        ),
-      ],
+          const SizedBox(width: 12),
+          if (!context.isMobile || MediaQuery.of(context).size.width > 235)
+            Text(
+              'Human Resource',
+              style: TextStyle(
+                fontSize: context.isMobile ? 16 : 20,
+                fontWeight: FontWeight.w900,
+                color: Colors.black,
+                letterSpacing: -0.5,
+              ),
+            ),
+        ],
+      ),
     );
   }
 
   Widget _buildNavigation(BuildContext context, AppLocalizations l10n) {
-    if (context.isMobile) {
+    if (context.isTablet || context.isMobile) {
       return IconButton(
         onPressed: () => _showMobileMenu(context, l10n),
-        icon: Icon(
+        icon: const Icon(
           Icons.menu,
           color: Colors.black,
         ),
+        tooltip: 'Menu',
       );
     }
 
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ..._buildNavItems(context),
         const SizedBox(width: 24),
@@ -101,24 +111,24 @@ class LandingNavbar extends StatelessWidget {
 
   List<Widget> _buildNavItems(BuildContext context) {
     final items = [
-      {'name': 'Home', 'offset': 0.0},
-      {'name': 'About', 'offset': 690.0},
-      {'name': 'Features', 'offset': 1530.0},
-      {'name': 'Contact', 'offset': 2000.0},
+      {'name': 'Home', 'key': 'home'},
+      {'name': 'About', 'key': 'about'},
+      {'name': 'Features', 'key': 'features'},
+      {'name': 'Contact', 'key': 'contact'},
     ];
 
     return items
         .map((item) => Padding(
               padding: const EdgeInsets.only(right: 32),
               child: InkWell(
-                onTap: () => _scrollToSection(item['offset'] as double),
+                onTap: () => _scrollToSection(item['key'] as String),
                 borderRadius: BorderRadius.circular(4),
                 child: Padding(
                   padding:
                       const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                   child: Text(
                     item['name'] as String,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Colors.black,
@@ -138,7 +148,10 @@ class LandingNavbar extends StatelessWidget {
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.blue,
         foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: EdgeInsets.symmetric(
+          horizontal: context.isMobile ? 16 : 24,
+          vertical: context.isMobile ? 12 : 16,
+        ),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -146,8 +159,8 @@ class LandingNavbar extends StatelessWidget {
       ),
       child: Text(
         l10n.loginButton,
-        style: const TextStyle(
-          fontSize: 14,
+        style: TextStyle(
+          fontSize: context.isMobile ? 12 : 14,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -157,27 +170,51 @@ class LandingNavbar extends StatelessWidget {
   void _showMobileMenu(BuildContext context, AppLocalizations l10n) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => Container(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 24,
+              right: 24,
+              top: 16,
+              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
             ),
-            const SizedBox(height: 24),
-            ..._buildMobileNavItems(context),
-            const SizedBox(width: double.infinity, height: 16),
-            _buildLoginButton(context, l10n),
-          ],
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Handle bar
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Navigation items
+                ..._buildMobileNavItems(context),
+
+                const SizedBox(height: 24),
+
+                // Login button
+                SizedBox(
+                  width: double.infinity,
+                  child: _buildMobileLoginButton(context, l10n),
+                ),
+
+                // Extra spacing for better UX
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -185,35 +222,102 @@ class LandingNavbar extends StatelessWidget {
 
   List<Widget> _buildMobileNavItems(BuildContext context) {
     final items = [
-      {'name': 'Home', 'offset': 0.0},
-      {'name': 'About', 'offset': 800.0},
-      {'name': 'Features', 'offset': 1200.0},
-      {'name': 'Contact', 'offset': 2000.0},
+      {'name': 'Home', 'key': 'home', 'icon': Icons.home_outlined},
+      {'name': 'About', 'key': 'about', 'icon': Icons.info_outline},
+      {'name': 'Features', 'key': 'features', 'icon': Icons.star_outline},
+      {
+        'name': 'Contact',
+        'key': 'contact',
+        'icon': Icons.contact_mail_outlined
+      },
     ];
 
     return items
-        .map((item) => ListTile(
-              title: Text(
-                item['name'] as String,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
-                  color: Theme.of(context).textTheme.bodyLarge?.color,
+        .map((item) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.grey[50],
+              ),
+              child: ListTile(
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                leading: Icon(
+                  item['icon'] as IconData,
+                  color: AppColors.blue,
+                  size: 22,
+                ),
+                title: Text(
+                  item['name'] as String,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.black87,
+                  ),
+                ),
+                trailing: const Icon(
+                  Icons.arrow_forward_ios,
+                  size: 16,
+                  color: Colors.grey,
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    _scrollToSection(item['key'] as String);
+                  });
+                },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              onTap: () {
-                Navigator.pop(context);
-                _scrollToSection(item['offset'] as double);
-              },
             ))
         .toList();
   }
 
-  void _scrollToSection(double offset) {
-    scrollController.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeInOut,
+  Widget _buildMobileLoginButton(BuildContext context, AppLocalizations l10n) {
+    return ElevatedButton(
+      onPressed: () {
+        Navigator.pop(context);
+        Navigator.pushNamed(context, AppRoutes.login);
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.blue,
+        foregroundColor: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        elevation: 0,
+        minimumSize: const Size(double.infinity, 52),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.login, size: 20),
+          const SizedBox(width: 8),
+          Text(
+            l10n.loginButton,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
     );
+  }
+
+  void _scrollToSection(String sectionKey) {
+    final key = sectionKeys[sectionKey];
+    if (key?.currentContext != null) {
+      Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+        alignment: 0.0, // Scroll to top of the section
+      );
+    }
   }
 }

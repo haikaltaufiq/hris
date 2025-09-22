@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:hr/core/helpers/video_file_helper.dart';
+import 'package:hr/core/theme/app_colors.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPreviewScreen extends StatefulWidget {
@@ -45,7 +46,9 @@ class _VideoPreviewScreenState extends State<VideoPreviewScreen> {
                 aspectRatio: _videoController!.value.aspectRatio,
                 child: VideoPlayer(_videoController!),
               )
-            : const CircularProgressIndicator(),
+            : CircularProgressIndicator(
+                color: AppColors.putih,
+              ),
       ),
     );
   }

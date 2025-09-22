@@ -10,6 +10,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -31,7 +32,6 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   @override
   void initState() {
     super.initState();
-
     // Load cache immediately (synchronous)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<CutiProvider>();
@@ -44,28 +44,28 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
     await context.read<CutiProvider>().fetchCuti(forceRefresh: true);
   }
 
-  Future<void> _deleteCuti(CutiModel cuti) async {
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus cuti ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
-      confirmColor: AppColors.red,
-    );
+  // Future<void> _deleteCuti(CutiModel cuti) async {
+  //   final confirmed = await showConfirmationDialog(
+  //     context,
+  //     title: "Konfirmasi Hapus",
+  //     content: "Apakah Anda yakin ingin menghapus cuti ini?",
+  //     confirmText: "Hapus",
+  //     cancelText: "Batal",
+  //     confirmColor: AppColors.red,
+  //   );
 
-    if (confirmed) {
-      final message =
-          await context.read<CutiProvider>().deleteCuti(cuti.id, "");
-      searchController.clear();
+  //   if (confirmed) {
+  //     final message =
+  //         await context.read<CutiProvider>().deleteCuti(cuti.id, "");
+  //     searchController.clear();
 
-      NotificationHelper.showTopNotification(
-        context,
-        message,
-        isSuccess: message != "",
-      );
-    }
-  }
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       message,
+  //       isSuccess: message != "",
+  //     );
+  //   }
+  // }
 
   Future<void> _approveCuti(CutiModel cuti) async {
     final confirmed = await showConfirmationDialog(
@@ -101,6 +101,70 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
   }
 
   Future<void> _declineCuti(CutiModel cuti) async {
+    final catatanPenolakanController = TextEditingController();
+    String? catatan_penolakan;
+
+    // Step 1: Dialog isi alasan
+    final isiAlasan = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: AppColors.primary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          title: Text(
+            "Alasan Penolakan",
+            style: GoogleFonts.poppins(
+              color: AppColors.putih,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width *
+                (context.isMobile
+                    ? 0.9
+                    : 0.4), // mobile lebih lebar, desktop ideal
+            child: TextFormField(
+              controller: catatanPenolakanController,
+              style: TextStyle(color: AppColors.putih),
+              decoration: InputDecoration(
+                hintText: "Tuliskan alasan penolakan...",
+                hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.6)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide:
+                      BorderSide(color: AppColors.putih.withOpacity(0.4)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.secondary),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text("Batal",
+                  style: GoogleFonts.poppins(color: AppColors.putih)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (catatanPenolakanController.text.trim().isNotEmpty) {
+                  catatan_penolakan = catatanPenolakanController.text.trim();
+                  Navigator.pop(context, true);
+                }
+              },
+              child: Text("Lanjut",
+                  style: GoogleFonts.poppins(color: AppColors.red)),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (isiAlasan != true || catatan_penolakan == null) return;
+
+    // Step 2: Konfirmasi submit
     final confirmed = await showConfirmationDialog(
       context,
       title: "Konfirmasi Penolakan",
@@ -112,7 +176,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
 
     if (confirmed) {
       final message =
-          await context.read<CutiProvider>().declineCuti(cuti.id, "");
+          await context.read<CutiProvider>().declineCuti(cuti.id, catatan_penolakan!);
+
       searchController.clear();
 
       NotificationHelper.showTopNotification(
@@ -154,6 +219,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
       body: Stack(
         children: [
           RefreshIndicator(
+            color: AppColors.putih,
+            backgroundColor: AppColors.bg,
             onRefresh: _refreshData,
             child: Padding(
               padding: const EdgeInsets.only(
@@ -231,7 +298,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                             cuti: cuti,
                             onApprove: () => _approveCuti(cuti),
                             onDecline: () => _declineCuti(cuti),
-                            onDelete: () => _deleteCuti(cuti),
+                            // onDelete: () => _deleteCuti(cuti),
                           );
                         },
                       ),
@@ -240,17 +307,10 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                     // FeatureGuard untuk User - melihat cuti sendiri saja
                     FeatureGuard(
                       requiredFeature: 'lihat_cuti_sendiri',
-                      child: ListView.builder(
-                        itemCount: displayedList.length,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemBuilder: (context, index) {
-                          return UserCutiTabel(
-                            cutiList: displayedList,
-                            onDelete: (CutiModel cuti) {
-                              _deleteCuti(cuti);
-                            },
-                          );
+                      child: UserCutiTabel(
+                        cutiList: displayedList,
+                        onDelete: (CutiModel cuti) {
+                          // _deleteCuti(cuti);
                         },
                       ),
                     ),

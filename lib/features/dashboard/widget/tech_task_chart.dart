@@ -13,52 +13,14 @@ class TechTaskChart extends StatefulWidget {
 
 class _TechTaskChartState extends State<TechTaskChart>
     with TickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
-
   int touchedIndex = -1;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
-    );
-
-    _animationController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return AnimatedBuilder(
-      animation: _animationController,
-      builder: (context, child) {
-        return Transform.translate(
-          offset: Offset(0, _slideAnimation.value),
-          child: Opacity(
-            opacity: _fadeAnimation.value,
-            child: isMobile ? _buildMobileLayout() : _buildDesktopLayout(),
-          ),
-        );
-      },
+    return Container(
+      child: isMobile ? _buildMobileLayout() : _buildDesktopLayout(),
     );
   }
 
@@ -141,14 +103,15 @@ class _TechTaskChartState extends State<TechTaskChart>
       height: height,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.primary,
-            AppColors.primary.withOpacity(0.8),
-          ],
-        ),
+        color: AppColors.primary,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05), // tipis banget
+            blurRadius: 4, // kecil, biar soft
+            spreadRadius: 0,
+            offset: Offset(0, 1), // cuma bawah dikit
+          ),
+        ],
         borderRadius: BorderRadius.circular(20),
       ),
       child: child,

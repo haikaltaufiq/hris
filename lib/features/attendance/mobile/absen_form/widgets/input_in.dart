@@ -220,7 +220,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 showDialog(
                                   context: context,
                                   barrierDismissible: false,
-                                  builder: (context) => const Center(
+                                  builder: (context) => Center(
                                     child: CircularProgressIndicator(
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                           Colors.white),
@@ -309,7 +309,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                   HapticFeedback.selectionClick();
                                   showModalBottomSheet(
                                     context: context,
-                                    backgroundColor: Colors.transparent,
+                                    backgroundColor: AppColors.bg,
                                     isScrollControlled: true,
                                     builder: (_) => DraggableScrollableSheet(
                                       initialChildSize: 0.9,
@@ -319,7 +319,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                       builder: (context, scrollController) {
                                         return Container(
                                           decoration: BoxDecoration(
-                                            color: Colors.white,
+                                            color: AppColors.primary,
                                             borderRadius:
                                                 const BorderRadius.vertical(
                                                     top: Radius.circular(20)),
@@ -350,13 +350,14 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                                               10),
                                                     ),
                                                   ),
-                                                  const Text(
+                                                  Text(
                                                     "Lokasi Absen",
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
                                                       fontSize: 18,
+                                                      color: AppColors.putih,
                                                     ),
                                                   ),
                                                   const SizedBox(height: 10),
