@@ -19,10 +19,12 @@ class DepartmentViewModel extends ChangeNotifier {
   List<DepartemenModel> get filteredList => _filteredList;
 
   bool get isLoading => _isLoading;
-  
+
   final _departemenBox = Hive.box('department');
   bool _hasCache = false;
   bool get hasCache => _hasCache;
+
+  int get totalDepartment => _departemenList.length;
 
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {

@@ -115,18 +115,31 @@ class _TugasMobileState extends State<TugasMobile> {
                       ),
                     )
                   else
-                    ListView.builder(
-                      itemCount: displayedTugas.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final tugas = displayedTugas[index];
-                        return TugasUserTabel(
-                          tugasList: [tugas],
-                          onActionDone: () => searchController.clear(),
-                        );
-                      },
-                    ),
+                    FeatureAccess.has("tambah_lampiran_tugas")
+                        ? ListView.builder(
+                            itemCount: displayedTugas.length,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final tugas = displayedTugas[index];
+                              return TugasUserTabel(
+                                tugasList: [tugas],
+                                onActionDone: () => searchController.clear(),
+                              );
+                            },
+                          )
+                        : ListView.builder(
+                            itemCount: displayedTugas.length,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemBuilder: (context, index) {
+                              final tugas = displayedTugas[index];
+                              return TugasTabel(
+                                tugasList: [tugas],
+                                onActionDone: () => searchController.clear(),
+                              );
+                            },
+                          )
                 ],
               ),
             ),

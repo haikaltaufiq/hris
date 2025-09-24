@@ -55,6 +55,7 @@ class TugasUserTabel extends StatelessWidget {
         ),
       ),
     );
+
     onActionDone?.call();
   }
 
@@ -171,6 +172,11 @@ class TugasUserTabel extends StatelessWidget {
       headers: headers,
       rows: rows,
       statusColumnIndexes: const [7],
+      onCellTap: (row, col) {
+        if (col == 8) {
+          _editTugas(context, row);
+        }
+      },
       onView: (row) => _showDetailDialog(context, tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
       onTapLampiran: (row) {},

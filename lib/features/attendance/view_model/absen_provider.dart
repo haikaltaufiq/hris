@@ -29,6 +29,17 @@ class AbsenProvider extends ChangeNotifier {
   bool _hasCache = false;
   bool get hasCache => _hasCache;
 
+  bool _hasCheckedInToday = false;
+
+  bool get hasCheckedInToday => _hasCheckedInToday;
+
+  int get jumlahHadir => _absensi.map((a) => a.userId).toSet().length;
+
+  double attendanceRate(int totalUsers) {
+    if (totalUsers == 0) return 0;
+    return (jumlahHadir / totalUsers) * 100;
+  }
+
   // ================= SERVICE WRAPPER ================= //
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
@@ -71,6 +82,13 @@ class AbsenProvider extends ChangeNotifier {
       _absensi = apiData;
       filteredAbsensi.clear();
       _errorMessage = null;
+
+      //   cek absen hari ini
+      final today = DateTime.now();
+      final todayStr = "${today.year.toString().padLeft(4, '0')}-"
+          "${today.month.toString().padLeft(2, '0')}-"
+          "${today.day.toString().padLeft(2, '0')}";
+      _hasCheckedInToday = _absensi.any((a) => a.checkinDate == todayStr);
 
       // Save to cache
       await _absenBox.put(

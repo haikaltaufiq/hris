@@ -6,14 +6,14 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:intl/intl.dart'; // untuk format tanggal
 
-class AbsenExcelExport extends StatefulWidget {
-  const AbsenExcelExport({super.key});
+class ExcelExport extends StatefulWidget {
+  const ExcelExport({super.key});
 
   @override
-  State<AbsenExcelExport> createState() => _AbsenExcelExportState();
+  State<ExcelExport> createState() => _ExcelExportState();
 }
 
-class _AbsenExcelExportState extends State<AbsenExcelExport> {
+class _ExcelExportState extends State<ExcelExport> {
   DateTime? _startDate;
   DateTime? _endDate;
 

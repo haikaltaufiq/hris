@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
+import 'package:hr/features/department/view_model/department_viewmodels.dart';
+import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WebCard extends StatefulWidget {
@@ -112,27 +117,32 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
 
   /// Bagian Stats Column biar rapih
   Widget _statSection() {
+    final totalUser = context.read<UserProvider>().totalUsers.toString();
+    final totalDepartment =
+        context.read<DepartmentViewModel>().totalDepartment.toString();
+    final totalTask = context.read<TugasProvider>().totalTugas.toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _statCard(
           title: "Departments",
-          value: "8",
+          value: totalDepartment,
           subtitle: "Active divisions",
           icon: Icons.business_outlined,
         ),
         const SizedBox(height: 10),
         _statCard(
           title: "Employees",
-          value: "247",
-          subtitle: "+12 this month",
+          value: totalUser,
+          subtitle: "Total Employees",
           icon: Icons.people_outline,
           isGrowth: true,
         ),
         const SizedBox(height: 10),
         _statCard(
           title: "Active Tasks",
-          value: "31",
+          value: totalTask,
           subtitle: "Due this week",
           icon: Icons.assignment_outlined,
         ),
@@ -343,102 +353,118 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
 
   /// Overview Card
   Widget _overviewCard() {
-    return Container(
-        height: 320,
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppColors.primary,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Monthly Overview",
-              style: TextStyle(
-                color: AppColors.putih,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 20),
+    return Consumer2<AbsenProvider, UserProvider>(
+      builder: (context, absenProv, userProv, child) {
+        final totalUser = userProv.totalUsers;
+        final totalTugasSelesai =
+            context.read<TugasProvider>().totalTugasSelesai.toDouble();
 
-            // Progress items dibungkus biar gak nabrak
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _progress("Attendance Rate", 0.94, const Color(0xFF4EDD53)),
-                  const SizedBox(height: 16),
-                  _progress("Project Completion", 0.78, Colors.orange),
-                  const SizedBox(height: 16),
-                  _progress("Performance Score", 0.86,
-                      const Color.fromARGB(255, 62, 168, 255)),
-                ],
-              ),
-            ),
+        // Hitung rate dengan aman
+        final rate = (totalUser > 0)
+            ? absenProv.jumlahHadir / totalUser // 0..1
+            : 0.0;
 
-            const SizedBox(height: 30),
-
-            // Footer card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(10),
+        return Container(
+          height: 320,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "This Week",
-                        style: TextStyle(
-                          color: AppColors.putih.withOpacity(0.7),
-                          fontSize: 10, // lebih kecil
-                          fontWeight: FontWeight.w500,
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Monthly Overview",
+                style: TextStyle(
+                  color: AppColors.putih,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Progress items
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    _progress("Project Completion", totalTugasSelesai,
+                        const Color(0xFF4EDD53)),
+                    const SizedBox(height: 16),
+                    _progress("Attendance Rate", rate, Colors.orange),
+                    const SizedBox(height: 16),
+                    _progress("Performance Score", 0.86,
+                        const Color.fromARGB(255, 62, 168, 255)),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 30),
+
+              // Footer card
+              Container(
+                width: double.infinity,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "This Week",
+                          style: TextStyle(
+                            color: AppColors.putih.withOpacity(0.7),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "98.2%",
-                        style: TextStyle(
-                          color: AppColors.putih,
-                          fontSize: 16, // tadinya 20, gue kecilin
-                          fontWeight: FontWeight.w800,
+                        const SizedBox(height: 2),
+                        Text(
+                          "${rate.toStringAsFixed(1)}%",
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                          ),
                         ),
+                      ],
+                    ),
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(6),
                       ),
-                    ],
-                  ),
-                  Container(
-                    width: 28, // lebih kecil dari 36
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(6),
+                      child: Icon(
+                        Icons.check_circle_outline,
+                        color: Colors.green[400],
+                        size: 14,
+                      ),
                     ),
-                    child: Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green[400],
-                      size: 14, // kecilin juga biar proporsional
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            )
-          ],
-        ));
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _progress(String title, double progress, Color color) {
@@ -457,7 +483,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
               ),
             ),
             Text(
-              "${(progress * 100).toInt()}%",
+              "${(progress * 100).toStringAsFixed(1)}%",
               style: TextStyle(
                 color: AppColors.putih,
                 fontSize: 12,

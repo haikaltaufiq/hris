@@ -18,6 +18,14 @@ class TugasProvider extends ChangeNotifier {
   bool _hasCache = false;
   bool get hasCache => _hasCache;
 
+  int get totalTugas => _tugasList
+      .where((tugas) => tugas.status.toLowerCase() != 'selesai')
+      .length;
+
+  int get totalTugasSelesai => _tugasList
+      .where((tugas) => tugas.status.toLowerCase() == 'selesai')
+      .length;
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

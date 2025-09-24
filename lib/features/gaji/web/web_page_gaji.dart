@@ -7,6 +7,7 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/features/gaji/widget/excel_export.dart';
 import 'package:hr/features/gaji/gaji_provider.dart';
 import 'package:hr/features/gaji/widget/gaji_card.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +52,7 @@ class _WebPageGajiState extends State<WebPageGaji> {
               onChanged: (val) => provider.setSearchQuery(val),
               onFilter1Tap: () => provider.setSorting("gaji_bersih", true),
             ),
-
+            ExcelExport(),
             // --- Konten data gaji ---
             if (provider.isLoading && provider.displayedList.isEmpty)
               _buildLoading()

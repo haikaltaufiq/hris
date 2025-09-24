@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/jam_kantor.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class DashboardCardUser extends StatefulWidget {
   const DashboardCardUser({super.key});
@@ -216,11 +219,18 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AbsenMasukPage(),
-                            ),
-                          );
+                          final absenProvider = context.read<AbsenProvider>();
+                          if (!absenProvider.hasCheckedInToday) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const AbsenMasukPage(),
+                              ),
+                            );
+                          } else {
+                            NotificationHelper.showTopNotification(
+                                context, "Anda Sudah Check-in hari ini",
+                                isSuccess: false);
+                          }
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Row(
@@ -262,11 +272,18 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                       color: Colors.transparent,
                       child: InkWell(
                         onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => const AbsenKeluarPage(),
-                            ),
-                          );
+                          final absenProvider = context.read<AbsenProvider>();
+                          if (absenProvider.hasCheckedInToday) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const AbsenKeluarPage(),
+                              ),
+                            );
+                          } else {
+                            NotificationHelper.showTopNotification(
+                                context, "Anda Belum Check-in hari ini",
+                                isSuccess: false);
+                          }
                         },
                         borderRadius: BorderRadius.circular(12),
                         child: Row(

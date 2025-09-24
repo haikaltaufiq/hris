@@ -5,11 +5,11 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
-import 'package:hr/features/attendance/widget/absen_excel_export.dart';
 import 'package:hr/features/attendance/widget/absen_tabel.dart';
 import 'package:provider/provider.dart';
 
@@ -66,9 +66,6 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     },
                     onFilter1Tap: () {},
                   ),
-                  FeatureGuard(
-                      requiredFeature: 'lihat_semua_absensi',
-                      child: AbsenExcelExport()),
                   if (provider.isLoading && displayedAbsensi.isEmpty)
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 0.6,
@@ -235,16 +232,25 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     color: Colors.transparent,
                                     child: InkWell(
                                       onTap: () async {
-                                        Navigator.of(context).pop();
-                                        final result =
-                                            await Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const AbsenMasukPage(),
-                                          ),
-                                        );
-                                        if (result == true) {
-                                          await _refreshData();
+                                        final absenProvider =
+                                            context.read<AbsenProvider>();
+                                        if (!absenProvider.hasCheckedInToday) {
+                                          Navigator.of(context).pop();
+                                          final result =
+                                              await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const AbsenMasukPage(),
+                                            ),
+                                          );
+                                          if (result == true) {
+                                            await _refreshData();
+                                          }
+                                        } else {
+                                          NotificationHelper.showTopNotification(
+                                              context,
+                                              "Anda Sudah Check-in hari ini",
+                                              isSuccess: false);
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(16),
@@ -338,16 +344,25 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     color: Colors.transparent,
                                     child: InkWell(
                                       onTap: () async {
-                                        Navigator.of(context).pop();
-                                        final result =
-                                            await Navigator.of(context).push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const AbsenKeluarPage(),
-                                          ),
-                                        );
-                                        if (result == true) {
-                                          await _refreshData();
+                                        final absenProvider =
+                                            context.read<AbsenProvider>();
+                                        if (absenProvider.hasCheckedInToday) {
+                                          Navigator.of(context).pop();
+                                          final result =
+                                              await Navigator.of(context).push(
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const AbsenKeluarPage(),
+                                            ),
+                                          );
+                                          if (result == true) {
+                                            await _refreshData();
+                                          }
+                                        } else {
+                                          NotificationHelper.showTopNotification(
+                                              context,
+                                              "Anda Belum Check-in hari ini",
+                                              isSuccess: false);
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(16),

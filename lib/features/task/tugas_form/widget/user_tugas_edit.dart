@@ -188,7 +188,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
               CustomInputField(
                 label: "Judul Tugas",
                 controller: _judulTugasController,
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah judul",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -199,7 +203,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: "--:--",
                 controller: _jamMulaiController,
                 suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah Jam",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -209,7 +217,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: "dd / mm / yyyy",
                 controller: _tanggalMulaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah tanggal",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -219,7 +231,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: "dd / mm / yyyy",
                 controller: _tanggalSelesaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah tanggal",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -227,7 +243,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
               CustomInputField(
                 label: "Lokasi",
                 controller: _lokasiController,
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah lokasi",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -235,7 +255,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
               ),
               CustomInputField(
                 label: "Note",
-                onTapIcon: () {},
                 controller: _noteController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
@@ -244,6 +263,20 @@ class _UserEditTugasState extends State<UserEditTugas> {
               ),
               CustomInputField(
                 label: "Lampiran",
+                suffixIcon: Container(
+                  margin: EdgeInsets.all(10),
+                  width: 100,
+                  decoration: BoxDecoration(
+                      color: AppColors.secondary,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      border: Border.all(width: 1, color: AppColors.putih)),
+                  child: Center(
+                    child: Text(
+                      "Choose File",
+                      style: TextStyle(color: AppColors.putih),
+                    ),
+                  ),
+                ),
                 onTapIcon: () async {
                   try {
                     FilePickerResult? result =
