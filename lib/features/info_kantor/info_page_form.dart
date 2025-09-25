@@ -1,6 +1,5 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -242,7 +241,7 @@ class _InfoPageState extends State<InfoPage>
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
-            return Container(
+            return SizedBox(
               height: MediaQuery.of(context).size.height * 0.5,
               child: Column(
                 children: [
@@ -290,81 +289,79 @@ class _InfoPageState extends State<InfoPage>
                   Expanded(
                     child: isKeterlambatan
                         ? // Custom minute picker untuk minimal keterlambatan
-                        Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                // Digit pertama (0-9)
-                                Container(
-                                  width: 80,
-                                  child: NumberPicker(
-                                    minValue: 0,
-                                    maxValue: 9,
-                                    value: _selectedFirstDigit,
-                                    zeroPad: true,
-                                    infiniteLoop: true,
-                                    itemWidth: 55,
-                                    itemHeight: 50,
-                                    onChanged: (value) {
-                                      setModalState(() {
-                                        _selectedFirstDigit = value;
-                                      });
-                                    },
-                                    textStyle: TextStyle(
-                                        color: AppColors.putih.withOpacity(0.5),
-                                        fontSize: 20),
-                                    selectedTextStyle: TextStyle(
-                                      color: AppColors.putih,
-                                      fontSize: 24,
-                                      fontFamily:
-                                          GoogleFonts.poppins().fontFamily,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        top: BorderSide(color: AppColors.putih),
-                                        bottom:
-                                            BorderSide(color: AppColors.putih),
-                                      ),
+                        Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              // Digit pertama (0-9)
+                              SizedBox(
+                                width: 80,
+                                child: NumberPicker(
+                                  minValue: 0,
+                                  maxValue: 9,
+                                  value: _selectedFirstDigit,
+                                  zeroPad: true,
+                                  infiniteLoop: true,
+                                  itemWidth: 55,
+                                  itemHeight: 50,
+                                  onChanged: (value) {
+                                    setModalState(() {
+                                      _selectedFirstDigit = value;
+                                    });
+                                  },
+                                  textStyle: TextStyle(
+                                      color: AppColors.putih.withOpacity(0.5),
+                                      fontSize: 20),
+                                  selectedTextStyle: TextStyle(
+                                    color: AppColors.putih,
+                                    fontSize: 24,
+                                    fontFamily:
+                                        GoogleFonts.poppins().fontFamily,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(color: AppColors.putih),
+                                      bottom:
+                                          BorderSide(color: AppColors.putih),
                                     ),
                                   ),
                                 ),
+                              ),
 
-                                // Digit kedua (0-9)
-                                Container(
-                                  width: 80,
-                                  child: NumberPicker(
-                                    minValue: 0,
-                                    maxValue: 9,
-                                    value: _selectedSecondDigit,
-                                    zeroPad: true,
-                                    infiniteLoop: true,
-                                    itemWidth: 55,
-                                    itemHeight: 50,
-                                    onChanged: (value) {
-                                      setModalState(() {
-                                        _selectedSecondDigit = value;
-                                      });
-                                    },
-                                    textStyle: TextStyle(
-                                        color: AppColors.putih.withOpacity(0.5),
-                                        fontSize: 20),
-                                    selectedTextStyle: TextStyle(
-                                      color: AppColors.putih,
-                                      fontSize: 24,
-                                      fontFamily:
-                                          GoogleFonts.poppins().fontFamily,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        top: BorderSide(color: AppColors.putih),
-                                        bottom:
-                                            BorderSide(color: AppColors.putih),
-                                      ),
+                              // Digit kedua (0-9)
+                              SizedBox(
+                                width: 80,
+                                child: NumberPicker(
+                                  minValue: 0,
+                                  maxValue: 9,
+                                  value: _selectedSecondDigit,
+                                  zeroPad: true,
+                                  infiniteLoop: true,
+                                  itemWidth: 55,
+                                  itemHeight: 50,
+                                  onChanged: (value) {
+                                    setModalState(() {
+                                      _selectedSecondDigit = value;
+                                    });
+                                  },
+                                  textStyle: TextStyle(
+                                      color: AppColors.putih.withOpacity(0.5),
+                                      fontSize: 20),
+                                  selectedTextStyle: TextStyle(
+                                    color: AppColors.putih,
+                                    fontSize: 24,
+                                    fontFamily:
+                                        GoogleFonts.poppins().fontFamily,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      top: BorderSide(color: AppColors.putih),
+                                      bottom:
+                                          BorderSide(color: AppColors.putih),
                                     ),
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           )
                         : // Time picker untuk jam masuk
                         NumberPickerWidget(
@@ -679,8 +676,9 @@ class _InfoPageState extends State<InfoPage>
             validator: (v) {
               if (v == null || v.isEmpty) return "Wajib diisi";
               final value = int.tryParse(v);
-              if (value == null || value <= 0)
+              if (value == null || value <= 0) {
                 return "Harus berupa angka positif";
+              }
               return null;
             },
           ),
@@ -700,8 +698,9 @@ class _InfoPageState extends State<InfoPage>
                     if (v == null || v.isEmpty) return "Wajib diisi";
                     final value = double.tryParse(v);
                     if (value == null) return "Format tidak valid";
-                    if (value < -90 || value > 90)
+                    if (value < -90 || value > 90) {
                       return "Nilai harus -90 hingga 90";
+                    }
                     return null;
                   },
                 ),
@@ -717,8 +716,9 @@ class _InfoPageState extends State<InfoPage>
                     if (v == null || v.isEmpty) return "Wajib diisi";
                     final value = double.tryParse(v);
                     if (value == null) return "Format tidak valid";
-                    if (value < -180 || value > 180)
+                    if (value < -180 || value > 180) {
                       return "Nilai harus -180 hingga 180";
+                    }
                     return null;
                   },
                 ),
@@ -736,8 +736,9 @@ class _InfoPageState extends State<InfoPage>
             validator: (v) {
               if (v == null || v.isEmpty) return "Wajib diisi";
               final value = int.tryParse(v);
-              if (value == null || value <= 0)
+              if (value == null || value <= 0) {
                 return "Harus berupa angka positif";
+              }
               return null;
             },
           ),

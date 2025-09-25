@@ -38,6 +38,7 @@ dependencies:
   open_file: ^3.3.2
   open_filex: ^4.3.4
   flutter_native_splash: ^2.4.6
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

@@ -102,7 +102,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
 
   Future<void> _declineCuti(CutiModel cuti) async {
     final catatanPenolakanController = TextEditingController();
-    String? catatan_penolakan;
+    String? catatanPenolakan;
 
     // Step 1: Dialog isi alasan
     final isiAlasan = await showDialog<bool>(
@@ -150,7 +150,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
             TextButton(
               onPressed: () {
                 if (catatanPenolakanController.text.trim().isNotEmpty) {
-                  catatan_penolakan = catatanPenolakanController.text.trim();
+                  catatanPenolakan = catatanPenolakanController.text.trim();
                   Navigator.pop(context, true);
                 }
               },
@@ -162,7 +162,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
       },
     );
 
-    if (isiAlasan != true || catatan_penolakan == null) return;
+    if (isiAlasan != true || catatanPenolakan == null) return;
 
     // Step 2: Konfirmasi submit
     final confirmed = await showConfirmationDialog(
@@ -176,7 +176,7 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
 
     if (confirmed) {
       final message =
-          await context.read<CutiProvider>().declineCuti(cuti.id, catatan_penolakan!);
+          await context.read<CutiProvider>().declineCuti(cuti.id, catatanPenolakan!);
 
       searchController.clear();
 

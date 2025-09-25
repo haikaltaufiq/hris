@@ -54,17 +54,23 @@ class AbsenProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_absensi.length} items');
+          if (kDebugMode) {
+            print('✅ Cache loaded: ${_absensi.length} items');
+          }
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      if (kDebugMode) {
+        print('❌ Error loading cache: $e');
+      }
     }
   }
 
   /// Fetch daftar absensi
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
-    print('🔄 fetchAbsen called - forceRefresh: $forceRefresh');
+    if (kDebugMode) {
+      print('🔄 fetchAbsen called - forceRefresh: $forceRefresh');
+    }
 
     // Load cache first if not force refresh
     if (!forceRefresh && _absensi.isEmpty) {
@@ -75,9 +81,13 @@ class AbsenProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      if (kDebugMode) {
+        print('🌐 Calling API...');
+      }
       final apiData = await AbsenService.fetchAbsensi();
-      print('✅ API success: ${apiData.length} items');
+      if (kDebugMode) {
+        print('✅ API success: ${apiData.length} items');
+      }
 
       _absensi = apiData;
       filteredAbsensi.clear();
@@ -95,7 +105,9 @@ class AbsenProvider extends ChangeNotifier {
         'absen_list',
         _absensi.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      if (kDebugMode) {
+        print('💾 Cache saved');
+      }
 
       _hasCache = true;
     } catch (e) {

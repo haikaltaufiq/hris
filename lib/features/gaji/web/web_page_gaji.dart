@@ -52,7 +52,12 @@ class _WebPageGajiState extends State<WebPageGaji> {
               onChanged: (val) => provider.setSearchQuery(val),
               onFilter1Tap: () => provider.setSorting("gaji_bersih", true),
             ),
-            ExcelExport(),
+            Padding(
+              padding: EdgeInsets.only(
+                  right: context.isMobile ? 0 : 16.0,
+                  left: context.isMobile ? 0 : 16.0),
+              child: ExcelExport(),
+            ),
             // --- Konten data gaji ---
             if (provider.isLoading && provider.displayedList.isEmpty)
               _buildLoading()
@@ -65,7 +70,6 @@ class _WebPageGajiState extends State<WebPageGaji> {
                 padding: EdgeInsets.only(
                   right: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
                   left: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
-                  top: MediaQuery.of(context).size.width < 600 ? 0.0 : 18.0,
                 ),
                 child: Column(
                   children: provider.displayedList
