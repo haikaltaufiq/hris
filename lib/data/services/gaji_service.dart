@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/gaji_model.dart';
+// import 'package:hr/data/services/helper/gaji_helper_web.dart';
+import 'helper/gaji_helper_stub.dart'
+    if (dart.library.html) 'helper/gaji_helper_web.dart';
+
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'dart:html' as html; // hanya untuk web
-// import 'gaji_model.dart';
 
 class GajiService {
   static Future<String?> getToken() async {
@@ -88,44 +90,45 @@ class GajiService {
     }
   }
 
-
-  // Export gaji ke Excel dan simpan di storage
+  // Export gaji (download xlsx)
+// Export gaji (download xlsx)
   static Future<void> exportGaji({required int bulan, required int tahun}) async {
     final token = await getToken();
     if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
-    final uri = Uri.parse('${ApiConfig.baseUrl}/api/gaji/export?bulan=$bulan&tahun=$tahun');
-    final response = await http.get(uri, headers: {
-      'Authorization': 'Bearer $token',
-      'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    });
+    final uri = Uri.parse(
+      '${ApiConfig.baseUrl}/api/gaji/export?bulan=$bulan&tahun=$tahun',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+    );
 
     if (response.statusCode == 200) {
       final fileName = 'Laporan_HR_${bulan}_$tahun.xlsx';
 
       if (kIsWeb) {
-        // 👉 Untuk Web → buat link download
-        final blob = html.Blob([response.bodyBytes]);
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        // final anchor = html.AnchorElement(href: url)
-        //   ..setAttribute("download", fileName)
-        //   ..click();
-        html.Url.revokeObjectUrl(url);
+        // 👉 pakai helper khusus web (Blob + AnchorElement)
+        GajiWebHelper.downloadFile(response.bodyBytes, fileName);
       } else {
-        // 👉 Untuk Android/iOS/Desktop → simpan file lokal
+        // 👉 Android / iOS / Desktop
         final dir = await getTemporaryDirectory();
         final filePath = '${dir.path}/$fileName';
-        final file = File(filePath);
 
+        final file = File(filePath);
         await file.writeAsBytes(response.bodyBytes);
 
+        // otomatis buka pakai aplikasi default (Excel/Sheets)
         await OpenFilex.open(file.path);
       }
     } else {
       throw Exception('Gagal export gaji: ${response.statusCode}');
     }
   }
-
 }
