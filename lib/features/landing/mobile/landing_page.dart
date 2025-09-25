@@ -31,7 +31,7 @@ class LandingPageMobile extends StatelessWidget {
                 Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    SubtitleDescription(startFrom: screenHeight * 0.59),
+                    SubtitleDescription(),
                     SizedBox(height: 10),
                     GetStartedButton(topMargin: screenHeight * 0.88),
                     SizedBox(height: 10),

@@ -230,7 +230,8 @@ class _CutiInputState extends State<CutiInput> {
                         if (result['success'] == true) {
                           if (context.mounted) {
                             NotificationHelper.showTopNotification(
-                                context, 'Cuti berhasil diajukan');
+                                context, 'Cuti berhasil diajukan',
+                                isSuccess: true);
                             Navigator.of(context).pop(true);
                           }
                         } else {

@@ -225,4 +225,26 @@ class AbsenProvider extends ChangeNotifier {
   void _clearError() {
     _errorMessage = null;
   }
+
+  List<AbsenModel> get todayAbsensi {
+    final today = DateTime.now();
+    final todayStr = "${today.year.toString().padLeft(4, '0')}-"
+        "${today.month.toString().padLeft(2, '0')}-"
+        "${today.day.toString().padLeft(2, '0')}";
+
+    return _absensi.where((a) => a.checkinDate == todayStr).toList();
+  }
+
+  /// Jumlah karyawan yang absen hari ini
+  int get todayJumlahHadir => todayAbsensi.length;
+
+  /// Jumlah poin kehadiran hari ini (misal "Hadir" = 1, "Terlambat" = 0.5)
+  double get todayAttendancePoints {
+    double total = 0;
+    for (var absen in todayAbsensi) {
+      if (absen.status == 'Hadir') total += 1;
+      if (absen.status == 'Terlambat') total += 0.5;
+    }
+    return total;
+  }
 }

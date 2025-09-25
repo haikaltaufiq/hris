@@ -104,12 +104,12 @@ class ResponsiveNavBar extends StatefulWidget {
     NavItemWithFeature(
       label: "Info Kantor",
       icon: FontAwesomeIcons.circleInfo,
-      requiredFeature: "log_aktifitas",
+      requiredFeature: "kantor",
     ),
     NavItemWithFeature(
       label: "Danger Zone",
       icon: FontAwesomeIcons.triangleExclamation,
-      requiredFeature: "log_aktifitas",
+      requiredFeature: "denger",
     ),
   ];
 

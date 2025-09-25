@@ -1,4 +1,4 @@
-# 👥 HR - Human Resource Information System
+# 👥 HRIS - Human Resource Information System
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.0.0-green.svg)](https://github.com/username/hr/releases)
@@ -28,6 +28,7 @@
 ## 🛠️ Tech Stack
 
 **Frontend:**
+
 - [Flutter](https://flutter.dev/) - Cross-platform mobile framework
 - [Dart](https://dart.dev/) - Programming language
 - [Provider](https://pub.dev/packages/provider) - State management
@@ -37,15 +38,13 @@
 - [Geolocator](https://pub.dev/packages/geolocator) - GPS tracking
 
 **Backend:**
+
 - [Node.js](https://nodejs.org/) - Server runtime
-- [Express.js](https://expressjs.com/) - Web framework
 - [JWT](https://jwt.io/) - Authentication
-- [Multer](https://github.com/expressjs/multer) - File upload
 
 **Database:**
+
 - [MySQL](https://www.mysql.com/) - Primary database
-- [Firebase](https://firebase.google.com/) - Real-time notifications
-- [SQLite](https://sqlite.org/) - Offline storage
 
 ## 🔧 Configuration
 
@@ -55,12 +54,12 @@ Buat file `.env` di root directory:
 
 ## 📊 Performance
 
-| Feature | Benchmark |
-|---------|-----------|
-| App Launch | < 2 seconds |
-| Navigation | < 500ms |
-| API Response | < 1 second |
-| Memory Usage | < 100MB |
+| Feature      | Benchmark   |
+| ------------ | ----------- |
+| App Launch   | < 2 seconds |
+| Navigation   | < 500ms     |
+| API Response | < 1 second  |
+| Memory Usage | < 100MB     |
 
 ## 🧪 Testing
 
@@ -78,17 +77,20 @@ flutter test --coverage
 ## 📦 Build & Deploy
 
 ### Android
+
 ```bash
 flutter build apk --release
 flutter build appbundle --release
 ```
 
 ### iOS
+
 ```bash
 flutter build ios --release
 ```
 
 ### Web
+
 ```bash
 flutter build web --release
 ```
@@ -99,8 +101,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👥 Authors
 
-- **Haikal** - *Initial work* - [Haikal Taufiq](https://github.com/HaikalTaufiq)
-- **Grey** - *Initial work* - [Grey](https://github.com/Greyari)
+- **Haikal** - _Initial work_ - [Haikal Taufiq](https://github.com/HaikalTaufiq)
+- **Grey** - _Initial work_ - [Grey](https://github.com/Greyari)
 
 ## 🙏 Acknowledgments
 

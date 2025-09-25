@@ -26,6 +26,8 @@ class _PengaturanPageState extends State<PengaturanPage>
   @override
   void initState() {
     super.initState();
+
+    // Set default
     isSwitched = widget.isDarkMode;
 
     _animationController = AnimationController(

@@ -202,4 +202,20 @@ class TugasProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
+
+  int get todayActiveTask {
+    final today = DateTime.now();
+
+    return _tugasList.where((tugas) {
+      try {
+        final selesai = DateTime.parse(tugas.tanggalSelesai);
+        // bandingkan hanya tanggal, abaikan jam
+        return selesai.year == today.year &&
+            selesai.month == today.month &&
+            selesai.day == today.day;
+      } catch (e) {
+        return false;
+      }
+    }).length;
+  }
 }

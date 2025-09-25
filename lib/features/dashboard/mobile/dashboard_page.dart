@@ -128,8 +128,11 @@ class _DashboardMobileState extends State<DashboardMobile> {
               height: 12,
             ),
             const AttendanceChart(),
-            const TechTaskChart(),
             const StatusTaskChart(),
+            const TechTaskChart(),
+            SizedBox(
+              height: 12,
+            ),
           ],
         ),
       ),

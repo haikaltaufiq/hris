@@ -183,40 +183,42 @@ class AttendanceChart extends StatelessWidget {
       builder: (context, absenProvider, userProvider, child) {
         // Jika masih loading dan belum ada cache
         if (absenProvider.isLoading && !absenProvider.hasCache) {
-          return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Monthly Attendance',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: AppColors.putih,
-                    fontFamily: GoogleFonts.poppins().fontFamily,
-                    fontWeight: FontWeight.bold,
+          return _HoverCard(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 1),
                   ),
-                ),
-                const SizedBox(height: 40),
-                const CircularProgressIndicator(color: Colors.white),
-                const SizedBox(height: 20),
-                Text(
-                  'Loading attendance data...',
-                  style: TextStyle(color: AppColors.putih, fontSize: 14),
-                ),
-                const SizedBox(height: 40),
-              ],
+                ],
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Monthly Attendance',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: AppColors.putih,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+                  const CircularProgressIndicator(color: Colors.white),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Loading attendance data...',
+                    style: TextStyle(color: AppColors.putih, fontSize: 14),
+                  ),
+                  const SizedBox(height: 40),
+                ],
+              ),
             ),
           );
         }
@@ -224,41 +226,43 @@ class AttendanceChart extends StatelessWidget {
         // Jika ada error dan tidak ada data
         if (absenProvider.errorMessage != null &&
             absenProvider.absensi.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 1),
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  'Monthly Attendance',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: AppColors.putih,
-                    fontFamily: GoogleFonts.poppins().fontFamily,
-                    fontWeight: FontWeight.bold,
+          return _HoverCard(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 1),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Icon(Icons.error_outline, color: AppColors.putih, size: 48),
-                const SizedBox(height: 16),
-                Text(
-                  'Failed to load attendance data',
-                  style: TextStyle(color: AppColors.putih, fontSize: 14),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-              ],
+                ],
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    'Monthly Attendance',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: AppColors.putih,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Icon(Icons.error_outline, color: AppColors.putih, size: 48),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Failed to load attendance data',
+                    style: TextStyle(color: AppColors.putih, fontSize: 14),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           );
         }
@@ -272,109 +276,70 @@ class AttendanceChart extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            /// CHART
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Monthly Attendance',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: AppColors.putih,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (absenProvider.isLoading)
-                        SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
+            /// CHART dengan hover effect
+            _HoverCard(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Monthly Attendance',
+                          style: TextStyle(
+                            fontSize: 18,
                             color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 220,
-                    child: BarChart(
-                      BarChartData(
-                        alignment: BarChartAlignment.spaceAround,
-                        maxY: maxY,
-                        barTouchData: BarTouchData(
-                          enabled: true,
-                          touchTooltipData: BarTouchTooltipData(
-                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                              String status;
-                              switch (rodIndex) {
-                                case 0:
-                                  status = 'Present';
-                                  break;
-                                case 1:
-                                  status = 'Late';
-                                  break;
-                                case 2:
-                                  status = 'Absent';
-                                  break;
-                                default:
-                                  status = '';
-                              }
-
-                              // Get month name for tooltip
-                              final now = DateTime.now();
-                              final last12Months = <String>[];
-                              for (int i = 11; i >= 0; i--) {
-                                final date =
-                                    DateTime(now.year, now.month - i, 1);
-                                final monthName = _getMonthName(date.month);
-                                last12Months.add(monthName);
-                              }
-
-                              final monthName = last12Months[groupIndex];
-
-                              return BarTooltipItem(
-                                '$monthName\n$status: ${rod.toY.round()}',
-                                const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        titlesData: FlTitlesData(
-                          leftTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              reservedSize: 28,
-                              interval: 1,
-                              getTitlesWidget: (value, meta) => Text(
-                                value.toInt().toString(),
-                                style: GoogleFonts.poppins(
-                                    color: AppColors.putih, fontSize: 10),
-                              ),
+                        if (absenProvider.isLoading)
+                          SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.putih,
                             ),
                           ),
-                          bottomTitles: AxisTitles(
-                            sideTitles: SideTitles(
-                              showTitles: true,
-                              interval: 1,
-                              getTitlesWidget: (value, meta) {
-                                // Generate 12 bulan terakhir
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 220,
+                      child: BarChart(
+                        BarChartData(
+                          alignment: BarChartAlignment.spaceAround,
+                          maxY: maxY,
+                          barTouchData: BarTouchData(
+                            enabled: true,
+                            touchTooltipData: BarTouchTooltipData(
+                              getTooltipItem:
+                                  (group, groupIndex, rod, rodIndex) {
+                                String status;
+                                switch (rodIndex) {
+                                  case 0:
+                                    status = 'Present';
+                                    break;
+                                  case 1:
+                                    status = 'Late';
+                                    break;
+                                  case 2:
+                                    status = 'Absent';
+                                    break;
+                                  default:
+                                    status = '';
+                                }
+
+                                // Get month name for tooltip
                                 final now = DateTime.now();
                                 final last12Months = <String>[];
-
                                 for (int i = 11; i >= 0; i--) {
                                   final date =
                                       DateTime(now.year, now.month - i, 1);
@@ -382,48 +347,92 @@ class AttendanceChart extends StatelessWidget {
                                   last12Months.add(monthName);
                                 }
 
-                                final index = value.toInt();
-                                if (index >= 0 && index < last12Months.length) {
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      last12Months[index],
-                                      style: TextStyle(
-                                          color: AppColors.putih, fontSize: 10),
-                                    ),
-                                  );
-                                }
-                                return const SizedBox();
+                                final monthName = last12Months[groupIndex];
+
+                                return BarTooltipItem(
+                                  '$monthName\n$status: ${rod.toY.round()}',
+                                  const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                );
                               },
                             ),
                           ),
-                          rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
-                          topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                          titlesData: FlTitlesData(
+                            leftTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                reservedSize: 28,
+                                interval: 1,
+                                getTitlesWidget: (value, meta) => Text(
+                                  value.toInt().toString(),
+                                  style: GoogleFonts.poppins(
+                                      color: AppColors.putih, fontSize: 10),
+                                ),
+                              ),
+                            ),
+                            bottomTitles: AxisTitles(
+                              sideTitles: SideTitles(
+                                showTitles: true,
+                                interval: 1,
+                                getTitlesWidget: (value, meta) {
+                                  // Generate 12 bulan terakhir
+                                  final now = DateTime.now();
+                                  final last12Months = <String>[];
+
+                                  for (int i = 11; i >= 0; i--) {
+                                    final date =
+                                        DateTime(now.year, now.month - i, 1);
+                                    final monthName = _getMonthName(date.month);
+                                    last12Months.add(monthName);
+                                  }
+
+                                  final index = value.toInt();
+                                  if (index >= 0 &&
+                                      index < last12Months.length) {
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 8),
+                                      child: Text(
+                                        last12Months[index],
+                                        style: TextStyle(
+                                            color: AppColors.putih,
+                                            fontSize: 10),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox();
+                                },
+                              ),
+                            ),
+                            rightTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                            topTitles: AxisTitles(
+                                sideTitles: SideTitles(showTitles: false)),
+                          ),
+                          borderData: FlBorderData(
+                            show: false,
+                          ),
+                          barGroups: barGroups,
                         ),
-                        borderData: FlBorderData(
-                          show: false,
-                        ),
-                        barGroups: barGroups,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 16),
 
-                  /// LEGEND
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: const [
-                      _LegendItem(color: Colors.green, label: 'Present'),
-                      _LegendItem(color: Colors.orange, label: 'Late'),
-                      _LegendItem(color: Colors.red, label: 'Absent'),
-                    ],
-                  ),
+                    /// LEGEND
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: const [
+                        _LegendItem(color: Colors.green, label: 'Present'),
+                        _LegendItem(color: Colors.orange, label: 'Late'),
+                        _LegendItem(color: Colors.red, label: 'Absent'),
+                      ],
+                    ),
 
-                  // Info tambahan
-                  const SizedBox(height: 12),
-                ],
+                    // Info tambahan
+                    const SizedBox(height: 12),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 14),
@@ -451,6 +460,39 @@ class _LegendItem extends StatelessWidget {
         const SizedBox(width: 6),
         Text(label, style: TextStyle(color: AppColors.putih, fontSize: 12)),
       ],
+    );
+  }
+}
+
+/// Widget untuk menangani hover effect dengan animasi subtle
+class _HoverCard extends StatefulWidget {
+  final Widget child;
+
+  const _HoverCard({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  State<_HoverCard> createState() => _HoverCardState();
+}
+
+class _HoverCardState extends State<_HoverCard> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        transform: _hovering
+            ? (Matrix4.identity()..translate(0, -4, 0)) // Naik 4px saat hover
+            : Matrix4.identity(),
+        child: widget.child,
+      ),
     );
   }
 }

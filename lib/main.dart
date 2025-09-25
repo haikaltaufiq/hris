@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -8,6 +10,7 @@ import 'package:hr/core/utils/local_notification.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
+import 'package:hr/features/dashboard/chart_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/gaji/gaji_provider.dart';
 import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
@@ -26,7 +29,9 @@ Future<void> main() async {
 
   // Init local notification
   await NotificationService.instance.init();
+  final themeProvider = ThemeProvider();
 
+  // default hanya sekali
   // Init Hive
   await Hive.initFlutter();
   await Hive.openBox('user');
@@ -44,7 +49,7 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => TugasProvider()),
@@ -57,13 +62,13 @@ Future<void> main() async {
         ChangeNotifierProvider(create: (_) => GajiProvider()),
         ChangeNotifierProvider(create: (_) => PengingatViewModel()),
         ChangeNotifierProvider(create: (_) => PeranViewModel()),
+        ChangeNotifierProvider(create: (_) => TechTaskStatusProvider()),
       ],
       child: const PrecacheWrapper(),
     ),
   );
 }
 
-/// Wrapper khusus buat preload asset image biar gak kedip
 class PrecacheWrapper extends StatefulWidget {
   const PrecacheWrapper({super.key});
 
@@ -74,24 +79,57 @@ class PrecacheWrapper extends StatefulWidget {
 class _PrecacheWrapperState extends State<PrecacheWrapper> {
   bool _ready = false;
 
+  final List<String> _imagesToCache = [
+    'assets/images/dahua.webp',
+  ];
+
+  final List<TextStyle> _fontsToCache = [
+    GoogleFonts.poppins(),
+    GoogleFonts.roboto(),
+  ];
+
+  Future<void> _precacheFonts() async {
+    for (final style in _fontsToCache) {
+      final painter = TextPainter(
+        text: TextSpan(text: "Precache", style: style),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      painter.paint(Canvas(PictureRecorder()), Offset.zero);
+    }
+  }
+
+  Future<void> _precacheAssets(BuildContext context) async {
+    final imageFutures =
+        _imagesToCache.map((path) => precacheImage(AssetImage(path), context));
+    await Future.wait([...imageFutures, _precacheFonts()]);
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Precache background image
-    precacheImage(const AssetImage('assets/images/dahua.webp'), context)
-        .then((_) {
-      if (mounted) {
-        setState(() => _ready = true);
-      }
-    });
+
+    if (context.isNativeMobile) {
+      _precacheAssets(context).then((_) {
+        if (mounted) setState(() => _ready = true);
+      });
+    } else {
+      // langsung ready kalau bukan native mobile
+      _ready = true;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (!_ready) {
-      // tampilkan blank background biar gak flicker
-      return const ColoredBox(color: Colors.black);
+    // kalau bukan native mobile → langsung render MyApp
+    if (!context.isNativeMobile) {
+      return const MyApp();
     }
+
+    // native mobile, tunggu precache selesai
+    if (!_ready) {
+      return const SizedBox.shrink(); // transparan, no blank hitam
+    }
+
     return const MyApp();
   }
 }
@@ -131,6 +169,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = context.watch<ThemeProvider>();
     final languageProvider = context.watch<LanguageProvider>();
     final isNativeMobile = context.isNativeMobile;
+
     return FutureBuilder<String>(
       future: _getInitialRoute(isNativeMobile),
       builder: (context, snapshot) {

@@ -17,305 +17,308 @@ class StatusTaskChart extends StatelessWidget {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Weekly Task Status',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: AppColors.putih,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (tugasProvider.tugasList.isNotEmpty) ...[
-                        const SizedBox(height: 8),
+            _HoverCard(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
                         Text(
-                          'Total: ${tugasProvider.tugasList.length} tugas',
+                          'Weekly Task Status',
                           style: TextStyle(
-                            color: AppColors.putih.withOpacity(0.7),
-                            fontSize: 11,
+                            fontSize: 18,
+                            color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
+                        if (tugasProvider.tugasList.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Total: ${tugasProvider.tugasList.length} tugas',
+                            style: TextStyle(
+                              color: AppColors.putih.withOpacity(0.7),
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 220,
-                    child: chartData.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.analytics_outlined,
-                                  color: AppColors.putih.withOpacity(0.5),
-                                  size: 40,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  tugasProvider.isLoading
-                                      ? 'Loading data...'
-                                      : 'No task data available',
-                                  style: TextStyle(
-                                    color: AppColors.putih.withOpacity(0.7),
-                                    fontSize: 14,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 220,
+                      child: chartData.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.analytics_outlined,
+                                    color: AppColors.putih.withOpacity(0.5),
+                                    size: 40,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    tugasProvider.isLoading
+                                        ? 'Loading data...'
+                                        : 'No task data available',
+                                    style: TextStyle(
+                                      color: AppColors.putih.withOpacity(0.7),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : LineChart(
+                              LineChartData(
+                                minX: 0,
+                                maxX: 6,
+                                minY: 0,
+                                maxY: _getMaxY(chartData),
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawVerticalLine: false,
+                                  horizontalInterval: 1,
+                                  getDrawingHorizontalLine: (value) => FlLine(
+                                    color: AppColors.putih.withOpacity(0.1),
+                                    strokeWidth: 1,
                                   ),
                                 ),
-                              ],
-                            ),
-                          )
-                        : LineChart(
-                            LineChartData(
-                              minX: 0,
-                              maxX: 6,
-                              minY: 0,
-                              maxY: _getMaxY(chartData),
-                              gridData: FlGridData(
-                                show: true,
-                                drawVerticalLine: false,
-                                horizontalInterval: 1,
-                                getDrawingHorizontalLine: (value) => FlLine(
-                                  color: AppColors.putih.withOpacity(0.1),
-                                  strokeWidth: 1,
-                                ),
-                              ),
-                              titlesData: FlTitlesData(
-                                leftTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    reservedSize: 28,
-                                    interval: 1,
-                                    getTitlesWidget: (value, meta) => Text(
-                                      value.toInt().toString(),
-                                      style: GoogleFonts.poppins(
-                                        color: AppColors.putih,
-                                        fontSize: 10,
+                                titlesData: FlTitlesData(
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      reservedSize: 28,
+                                      interval: 1,
+                                      getTitlesWidget: (value, meta) => Text(
+                                        value.toInt().toString(),
+                                        style: GoogleFonts.poppins(
+                                          color: AppColors.putih,
+                                          fontSize: 10,
+                                        ),
                                       ),
                                     ),
                                   ),
-                                ),
-                                bottomTitles: AxisTitles(
-                                  sideTitles: SideTitles(
-                                    showTitles: true,
-                                    interval: 1,
-                                    getTitlesWidget: (value, meta) {
-                                      const labels = [
-                                        'Mon',
-                                        'Tue',
-                                        'Wed',
-                                        'Thu',
-                                        'Fri',
-                                        'Sat',
-                                        'Sun'
-                                      ];
-                                      final index = value.toInt();
-                                      if (index >= 0 && index < labels.length) {
-                                        return Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 8.0),
-                                          child: Text(
-                                            labels[index],
-                                            style: TextStyle(
-                                              color: AppColors.putih,
-                                              fontSize: 10,
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      interval: 1,
+                                      getTitlesWidget: (value, meta) {
+                                        const labels = [
+                                          'Mon',
+                                          'Tue',
+                                          'Wed',
+                                          'Thu',
+                                          'Fri',
+                                          'Sat',
+                                          'Sun'
+                                        ];
+                                        final index = value.toInt();
+                                        if (index >= 0 &&
+                                            index < labels.length) {
+                                          return Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 8.0),
+                                            child: Text(
+                                              labels[index],
+                                              style: TextStyle(
+                                                color: AppColors.putih,
+                                                fontSize: 10,
+                                              ),
                                             ),
+                                          );
+                                        }
+                                        return const Text('');
+                                      },
+                                    ),
+                                  ),
+                                  rightTitles: const AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                  topTitles: const AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                ),
+                                borderData: FlBorderData(
+                                  show: true,
+                                  border: Border.all(
+                                    color: AppColors.putih.withOpacity(0.3),
+                                    width: 1,
+                                  ),
+                                ),
+                                lineBarsData: [
+                                  // Line untuk status "Selesai"
+                                  LineChartBarData(
+                                    isCurved: true,
+                                    color: Colors.green,
+                                    barWidth: 3,
+                                    dotData: FlDotData(
+                                      show: true,
+                                      getDotPainter:
+                                          (spot, percent, barData, index) =>
+                                              FlDotCirclePainter(
+                                        radius: 4,
+                                        color: Colors.green,
+                                        strokeWidth: 2,
+                                        strokeColor: Colors.white,
+                                      ),
+                                    ),
+                                    belowBarData: BarAreaData(
+                                      show: true,
+                                      color: Colors.green.withOpacity(0.1),
+                                    ),
+                                    spots: chartData
+                                        .map((data) => FlSpot(
+                                            data.dayIndex.toDouble(),
+                                            data.selesai.toDouble()))
+                                        .toList(),
+                                  ),
+                                  // Line untuk status "Menunggu Admin"
+                                  LineChartBarData(
+                                    isCurved: true,
+                                    color: Colors.orange,
+                                    barWidth: 3,
+                                    dotData: FlDotData(
+                                      show: true,
+                                      getDotPainter:
+                                          (spot, percent, barData, index) =>
+                                              FlDotCirclePainter(
+                                        radius: 4,
+                                        color: Colors.deepOrange,
+                                        strokeWidth: 2,
+                                        strokeColor: Colors.white,
+                                      ),
+                                    ),
+                                    belowBarData: BarAreaData(show: false),
+                                    spots: chartData
+                                        .map((data) => FlSpot(
+                                            data.dayIndex.toDouble(),
+                                            data.proses.toDouble()))
+                                        .toList(),
+                                  ),
+                                  // Line untuk status "Proses"
+                                  LineChartBarData(
+                                    isCurved: true,
+                                    color: Colors.blue,
+                                    barWidth: 3,
+                                    dotData: FlDotData(
+                                      show: true,
+                                      getDotPainter:
+                                          (spot, percent, barData, index) =>
+                                              FlDotCirclePainter(
+                                        radius: 4,
+                                        color: Colors.blue,
+                                        strokeWidth: 2,
+                                        strokeColor: Colors.white,
+                                      ),
+                                    ),
+                                    belowBarData: BarAreaData(show: false),
+                                    spots: chartData
+                                        .map((data) => FlSpot(
+                                            data.dayIndex.toDouble(),
+                                            data.menungguAdmin.toDouble()))
+                                        .toList(),
+                                  ),
+                                ],
+                                lineTouchData: LineTouchData(
+                                  enabled: true,
+                                  touchTooltipData: LineTouchTooltipData(
+                                    tooltipRoundedRadius: 8,
+                                    tooltipPadding: const EdgeInsets.all(8),
+                                    getTooltipItems: (touchedSpots) {
+                                      return touchedSpots.map((spot) {
+                                        String status = '';
+                                        Color color = Colors.white;
+
+                                        switch (spot.barIndex) {
+                                          case 0:
+                                            status = 'Selesai';
+                                            color = Colors.green;
+                                            break;
+                                          case 1:
+                                            status = 'Menunggu Admin';
+                                            color = Colors.blue;
+                                            break;
+                                          case 2:
+                                            status = 'Proses';
+                                            color = Colors.deepOrange;
+                                            break;
+                                        }
+
+                                        final dayIndex = spot.x.toInt();
+                                        const days = [
+                                          'Mon',
+                                          'Tue',
+                                          'Wed',
+                                          'Thu',
+                                          'Fri',
+                                          'Sat',
+                                          'Sun'
+                                        ];
+                                        final day = dayIndex < days.length
+                                            ? days[dayIndex]
+                                            : '';
+
+                                        return LineTooltipItem(
+                                          '$day\n$status: ${spot.y.toInt()}',
+                                          TextStyle(
+                                            color: color,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12,
                                           ),
                                         );
-                                      }
-                                      return const Text('');
+                                      }).toList();
                                     },
                                   ),
                                 ),
-                                rightTitles: const AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                                topTitles: const AxisTitles(
-                                  sideTitles: SideTitles(showTitles: false),
-                                ),
-                              ),
-                              borderData: FlBorderData(
-                                show: true,
-                                border: Border.all(
-                                  color: AppColors.putih.withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              lineBarsData: [
-                                // Line untuk status "Selesai"
-                                LineChartBarData(
-                                  isCurved: true,
-                                  color: Colors.green,
-                                  barWidth: 3,
-                                  dotData: FlDotData(
-                                    show: true,
-                                    getDotPainter:
-                                        (spot, percent, barData, index) =>
-                                            FlDotCirclePainter(
-                                      radius: 4,
-                                      color: Colors.green,
-                                      strokeWidth: 2,
-                                      strokeColor: Colors.white,
-                                    ),
-                                  ),
-                                  belowBarData: BarAreaData(
-                                    show: true,
-                                    color: Colors.green.withOpacity(0.1),
-                                  ),
-                                  spots: chartData
-                                      .map((data) => FlSpot(
-                                          data.dayIndex.toDouble(),
-                                          data.selesai.toDouble()))
-                                      .toList(),
-                                ),
-                                // Line untuk status "Menunggu Admin"
-                                LineChartBarData(
-                                  isCurved: true,
-                                  color: Colors.orange,
-                                  barWidth: 3,
-                                  dotData: FlDotData(
-                                    show: true,
-                                    getDotPainter:
-                                        (spot, percent, barData, index) =>
-                                            FlDotCirclePainter(
-                                      radius: 4,
-                                      color: Colors.deepOrange,
-                                      strokeWidth: 2,
-                                      strokeColor: Colors.white,
-                                    ),
-                                  ),
-                                  belowBarData: BarAreaData(show: false),
-                                  spots: chartData
-                                      .map((data) => FlSpot(
-                                          data.dayIndex.toDouble(),
-                                          data.proses.toDouble()))
-                                      .toList(),
-                                ),
-                                // Line untuk status "Proses"
-                                LineChartBarData(
-                                  isCurved: true,
-                                  color: Colors.blue,
-                                  barWidth: 3,
-                                  dotData: FlDotData(
-                                    show: true,
-                                    getDotPainter:
-                                        (spot, percent, barData, index) =>
-                                            FlDotCirclePainter(
-                                      radius: 4,
-                                      color: Colors.blue,
-                                      strokeWidth: 2,
-                                      strokeColor: Colors.white,
-                                    ),
-                                  ),
-                                  belowBarData: BarAreaData(show: false),
-                                  spots: chartData
-                                      .map((data) => FlSpot(
-                                          data.dayIndex.toDouble(),
-                                          data.menungguAdmin.toDouble()))
-                                      .toList(),
-                                ),
-                              ],
-                              lineTouchData: LineTouchData(
-                                enabled: true,
-                                touchTooltipData: LineTouchTooltipData(
-                                  tooltipRoundedRadius: 8,
-                                  tooltipPadding: const EdgeInsets.all(8),
-                                  getTooltipItems: (touchedSpots) {
-                                    return touchedSpots.map((spot) {
-                                      String status = '';
-                                      Color color = Colors.white;
-
-                                      switch (spot.barIndex) {
-                                        case 0:
-                                          status = 'Selesai';
-                                          color = Colors.green;
-                                          break;
-                                        case 1:
-                                          status = 'Menunggu Admin';
-                                          color = Colors.blue;
-                                          break;
-                                        case 2:
-                                          status = 'Proses';
-                                          color = Colors.deepOrange;
-                                          break;
-                                      }
-
-                                      final dayIndex = spot.x.toInt();
-                                      const days = [
-                                        'Mon',
-                                        'Tue',
-                                        'Wed',
-                                        'Thu',
-                                        'Fri',
-                                        'Sat',
-                                        'Sun'
-                                      ];
-                                      final day = dayIndex < days.length
-                                          ? days[dayIndex]
-                                          : '';
-
-                                      return LineTooltipItem(
-                                        '$day\n$status: ${spot.y.toInt()}',
-                                        TextStyle(
-                                          color: color,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      );
-                                    }).toList();
-                                  },
-                                ),
                               ),
                             ),
-                          ),
-                  ),
-                  const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 16),
 
-                  // Legend dengan total count
-                  Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _LegendItemWithCount(
-                            color: Colors.green,
-                            label: 'Selesai',
-                            count: _getTotalCount(chartData, 'selesai'),
-                          ),
-                          _LegendItemWithCount(
-                            color: Colors.blue,
-                            label: 'Menunggu Admin',
-                            count: _getTotalCount(chartData, 'menunggu'),
-                          ),
-                          _LegendItemWithCount(
-                            color: Colors.deepOrange,
-                            label: 'Proses',
-                            count: _getTotalCount(chartData, 'proses'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
+                    // Legend dengan total count
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _LegendItemWithCount(
+                              color: Colors.green,
+                              label: 'Selesai',
+                              count: _getTotalCount(chartData, 'selesai'),
+                            ),
+                            _LegendItemWithCount(
+                              color: Colors.blue,
+                              label: 'Menunggu Admin',
+                              count: _getTotalCount(chartData, 'menunggu'),
+                            ),
+                            _LegendItemWithCount(
+                              color: Colors.deepOrange,
+                              label: 'Proses',
+                              count: _getTotalCount(chartData, 'proses'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 12),
@@ -508,6 +511,39 @@ class _LegendItemWithCount extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Widget untuk menangani hover effect dengan animasi subtle
+class _HoverCard extends StatefulWidget {
+  final Widget child;
+
+  const _HoverCard({
+    Key? key,
+    required this.child,
+  }) : super(key: key);
+
+  @override
+  State<_HoverCard> createState() => _HoverCardState();
+}
+
+class _HoverCardState extends State<_HoverCard> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        transform: _hovering
+            ? (Matrix4.identity()..translate(0, -4, 0)) // Naik 4px saat hover
+            : Matrix4.identity(),
+        child: widget.child,
+      ),
     );
   }
 }

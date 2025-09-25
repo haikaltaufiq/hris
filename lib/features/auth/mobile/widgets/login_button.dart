@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
+import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 
 class LoginButton extends StatefulWidget {
   final TextEditingController emailController;
@@ -48,7 +50,9 @@ class _LoginButtonState extends State<LoginButton> {
       final result = await auth.login(email, password);
 
       if (result['success'] == true) {
-        await FeatureAccess.init(); 
+        await FeatureAccess.init();
+        final themeProvider = context.read<ThemeProvider>();
+        themeProvider.setDarkMode(true);
         NotificationHelper.showTopNotification(
           context,
           result['message'] ?? "Login berhasil",
