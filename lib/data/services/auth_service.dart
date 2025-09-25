@@ -207,6 +207,39 @@ class AuthService {
     }
   }
 
+  // ganti password
+  Future<Map<String, dynamic>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/api/change-password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'old_password': oldPassword,
+        'new_password': newPassword,
+        'new_password_confirmation': newPassword,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return {'success': true, 'message': data['message']};
+    } else {
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Gagal ganti password',
+        'errors': data['errors'] ?? {}
+      };
+    }
+  }
 
   // Logout hapus token di backend & clear prefs
   Future<Map<String, dynamic>> logout() async {

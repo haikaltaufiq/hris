@@ -575,43 +575,46 @@ class _ProfilePageState extends State<ProfilePage> {
                     onPressed: () async {
                       final oldPassword = oldPasswordController.text.trim();
                       final newPassword = newPasswordController.text.trim();
-                      final confirmPassword =
-                          confirmPasswordController.text.trim();
+                      final confirmPassword = confirmPasswordController.text.trim();
 
-                      if (oldPassword.isEmpty ||
-                          newPassword.isEmpty ||
-                          confirmPassword.isEmpty) {
+                      if (oldPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
                         NotificationHelper.showTopNotification(
-                            context, 'Semua field wajib diisi',
-                            isSuccess: false);
+                          context, 
+                          'Semua field wajib diisi',
+                          isSuccess: false
+                        );
                         return;
                       }
 
                       if (newPassword != confirmPassword) {
                         NotificationHelper.showTopNotification(
-                            context, 'Password baru tidak sama',
-                            isSuccess: false);
+                          context, 
+                          'Password baru tidak sama',
+                          isSuccess: false
+                        );
                         return;
                       }
 
-                      // final result = await _authService.updatePassword(
-                      //     oldPassword, newPassword);
+                      // Panggil AuthService
+                      final result = await _authService.changePassword(
+                        oldPassword: oldPassword,
+                        newPassword: newPassword,
+                      );
 
-                      // if (result['success'] == true) {
-                      //   Navigator.pop(context);
-
-                      //   NotificationHelper.showTopNotification(
-                      //     context,
-                      //     result['message'],
-                      //     isSuccess: true,
-                      //   );
-                      // } else {
-                      //   NotificationHelper.showTopNotification(
-                      //     context,
-                      //     result['message'],
-                      //     isSuccess: false,
-                      //   );
-                      // }
+                      if (result['success'] == true) {
+                        Navigator.pop(context);
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: true,
+                        );
+                      } else {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: false,
+                        );
+                      }
                     },
                     child: Text('Simpan',
                         style: GoogleFonts.poppins(
