@@ -210,7 +210,7 @@ class TugasService {
     };
   }
 
-  /// Upload bukti video untuk tugas
+  /// Upload bukti/lampiran untuk tugas
   static Future<Map<String, dynamic>> uploadFileTugas({
     required int id,
     File? file,
@@ -232,22 +232,21 @@ class TugasService {
       });
 
       if (kIsWeb) {
-        if (fileBytes == null || fileName == null)
+        if (fileBytes == null || fileName == null) {
           throw Exception("fileBytes & fileName wajib di Web");
-
+        }
         request.files.add(
           http.MultipartFile.fromBytes(
-            'lampiran', // field umum
+            'lampiran', // atau 'file' sesuai backend
             fileBytes,
             filename: fileName,
           ),
         );
       } else {
         if (file == null) throw Exception("File wajib di Android/iOS");
-
         request.files.add(
           await http.MultipartFile.fromPath(
-            'lampiran',
+            'lampiran', // atau 'file' sesuai backend
             file.path,
           ),
         );
@@ -256,15 +255,51 @@ class TugasService {
       var streamedResponse = await request.send();
       var responseBody = await streamedResponse.stream.bytesToString();
 
-      final decoded = json.decode(responseBody);
+      Map<String, dynamic>? decoded;
+      try {
+        decoded = json.decode(responseBody);
+      } catch (_) {
+        decoded = null;
+      }
 
       return {
-        'success': streamedResponse.statusCode == 200,
-        'message': decoded['message'] ?? 'Gagal upload file',
+        'success': streamedResponse.statusCode >= 200 &&
+            streamedResponse.statusCode < 300,
+        'message': decoded?['message'] ?? 'Gagal upload file',
         'data': decoded,
       };
     } catch (e) {
       return {'success': false, 'message': 'Terjadi error: $e'};
     }
+  }
+
+
+  /// Update status tugas
+  static Future<Map<String, dynamic>> updateStatus({
+    required int id,
+    required String status,
+  }) async {
+    final token = await _getToken();
+    if (token == null) throw Exception('Token tidak ditemukan');
+
+    final response = await http.put(
+      Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id/status'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({'status': status}),
+    );
+
+    print("UPDATE STATUS CODE: ${response.statusCode}");
+    print("UPDATE STATUS BODY: ${response.body}");
+
+    final body = json.decode(response.body);
+
+    return {
+      'success': response.statusCode == 200,
+      'message': body['message'] ?? 'Gagal update status',
+    };
   }
 }

@@ -1,3 +1,3 @@
 class ApiConfig {
-  static const String baseUrl = "https://hris-bakcend.up.railway.app";
+  static const String baseUrl = "http://192.168.20.215:8000";
 }

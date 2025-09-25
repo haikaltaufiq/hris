@@ -117,7 +117,7 @@ class GajiProvider extends ChangeNotifier {
           valueA = a.nama.toLowerCase();
           valueB = b.nama.toLowerCase();
           break;
-        case 'gaji_pokok':
+        case 'gaji_per_hari':
           valueA = a.gajiPokok;
           valueB = b.gajiPokok;
           break;

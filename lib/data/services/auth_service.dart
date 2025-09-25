@@ -64,6 +64,7 @@ class AuthService {
           'device_model': deviceInfo["device_model"] ?? 'unknown_model',
           'device_manufacturer': deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
           'device_version': deviceInfo["device_version"] ?? 'unknown_version',
+          'platform': kIsWeb ? 'web' : 'apk',
         }),
       ).timeout(const Duration(seconds: 120));
 
@@ -82,7 +83,7 @@ class AuthService {
         await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
         await prefs.setString('jenis_kelamin', user.jenisKelamin);
         await prefs.setString('status_pernikahan', user.statusPernikahan);
-        await prefs.setDouble('gaji_pokok', double.tryParse(user.gajiPokok ?? '0') ?? 0);
+        await prefs.setDouble('gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
         await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
         await prefs.setString('departemen', user.departemen.namaDepartemen);
         await prefs.setString('peran', user.peran.namaPeran);
@@ -269,7 +270,7 @@ class AuthService {
       'bpjs_ketenagakerjaan': prefs.getString('bpjs_ketenagakerjaan'),
       'jenis_kelamin': prefs.getString('jenis_kelamin'),
       'status_pernikahan': prefs.getString('status_pernikahan'),
-      'gaji_pokok': prefs.getDouble('gaji_pokok'),
+      'gaji_per_hari': prefs.getDouble('gaji_per_hari'),
       'jabatan': prefs.getString('jabatan'),
       'departemen': prefs.getString('departemen'),
       'peran': prefs.getString('peran'),

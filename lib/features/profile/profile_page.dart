@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
       peran = userData['peran'] as String?;
       departemen = userData['departemen'] as String?;
       jabatan = userData['jabatan'] as String?;
-      gajiPokok = userData['gaji_pokok'] as double?;
+      gajiPokok = userData['gaji_per_hari'] as double?;
       npwp = userData['npwp'] as String?;
       bpjsKesehatan = userData['bpjs_kesehatan'] as String?;
       bpjsKetenagakerjaan = userData['bpjs_ketenagakerjaan'] as String?;
@@ -279,7 +279,7 @@ class _ProfilePageState extends State<ProfilePage> {
       {'icon': FontAwesomeIcons.idBadge, 'label': 'Jabatan', 'value': jabatan},
       {
         'icon': FontAwesomeIcons.moneyBill,
-        'label': 'Gaji Pokok',
+        'label': 'Gaji Per Hari',
         'value': gajiPokok != null ? gajiPokok!.toStringAsFixed(2) : '-'
       },
       {'icon': FontAwesomeIcons.fileInvoice, 'label': 'NPWP', 'value': npwp},

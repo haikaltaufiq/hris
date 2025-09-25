@@ -83,50 +83,26 @@ class _UserEditTugasState extends State<UserEditTugas> {
     }
 
     try {
-      final tugasProvider = context.read<TugasProvider>();
-
-      // Update data teks dulu
-      final resultUpdate = await tugasProvider.updateTugas(
+      final resultUpload = await TugasService.uploadFileTugas(
         id: widget.tugas.id,
-        judul: _judulTugasController.text,
-        jamMulai: _jamMulaiController.text,
-        tanggalMulai: _tanggalMulaiController.text,
-        tanggalSelesai: _tanggalSelesaiController.text,
-        lokasi: _lokasiController.text,
-        note: _noteController.text,
+        file: kIsWeb ? null : _selectedFile,
+        fileBytes: kIsWeb ? _selectedBytes : null,
+        fileName: kIsWeb ? _selectedFileName : null,
       );
 
-      if (resultUpdate['success'] == true) {
-        // Lanjut upload video
-        final resultUpload = await TugasService.uploadFileTugas(
-          id: widget.tugas.id,
-          file: kIsWeb ? null : _selectedFile,
-          fileBytes: kIsWeb ? _selectedBytes : null,
-          fileName: kIsWeb ? _selectedFileName : null,
+      final bool isSuccess = resultUpload['success'] == true;
+      final String message = resultUpload['message'] ?? '';
+
+      if (mounted) {
+        NotificationHelper.showTopNotification(
+          context,
+          message,
+          isSuccess: isSuccess,
         );
+      }
 
-        final bool isSuccess = resultUpload['success'] == true;
-        final String message = resultUpload['message'] ?? '';
-
-        if (mounted) {
-          NotificationHelper.showTopNotification(
-            context,
-            message,
-            isSuccess: isSuccess,
-          );
-        }
-
-        if (isSuccess && mounted) {
-          Navigator.pop(context, true);
-        }
-      } else {
-        if (mounted) {
-          NotificationHelper.showTopNotification(
-            context,
-            resultUpdate['message'] ?? 'Gagal update tugas',
-            isSuccess: false,
-          );
-        }
+      if (isSuccess && mounted) {
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {

@@ -203,6 +203,20 @@ class TugasProvider extends ChangeNotifier {
     }
   }
 
+  Future<String?> updateTugasStatus(int id, String status) async {
+    try {
+      final result = await TugasService.updateStatus(id: id, status: status);
+      if (result['success'] == true) {
+        await fetchTugas(forceRefresh: true);
+        return result['message'];
+      } else {
+        return result['message'];
+      }
+    } catch (e) {
+      return "Terjadi error: $e";
+    }
+  }
+
   int get todayActiveTask {
     final today = DateTime.now();
 
