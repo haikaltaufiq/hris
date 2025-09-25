@@ -115,28 +115,46 @@ class _WebTabelLogState extends State<WebTabelLog> {
 
   Color getActionColor(String action) {
     if (action.toLowerCase().contains('menambah') ||
-        action.toLowerCase().contains('tambah')) return Colors.blue;
+        action.toLowerCase().contains('tambah')) {
+      return Colors.blue;
+    }
     if (action.toLowerCase().contains('mengubah') ||
         action.toLowerCase().contains('ubah') ||
         action.toLowerCase().contains('edit') ||
-        action.toLowerCase().contains('update')) return Colors.orange;
+        action.toLowerCase().contains('update')) {
+      return Colors.orange;
+    }
     if (action.toLowerCase().contains('menolak') ||
         action.toLowerCase().contains('tolak') ||
-        action.toLowerCase().contains('reject')) return Colors.red;
+        action.toLowerCase().contains('reject')) {
+      return Colors.red;
+    }
     if (action.toLowerCase().contains('menyetujui') ||
         action.toLowerCase().contains('setuju') ||
-        action.toLowerCase().contains('approve')) return Colors.green;
+        action.toLowerCase().contains('approve')) {
+      return Colors.green;
+    }
     if (action.toLowerCase().contains('mengajukan') ||
         action.toLowerCase().contains('ajukan') ||
-        action.toLowerCase().contains('submit')) return Colors.purple;
+        action.toLowerCase().contains('submit')) {
+      return Colors.purple;
+    }
     if (action.toLowerCase().contains('check in') ||
-        action.toLowerCase().contains('checkin')) return Colors.teal;
+        action.toLowerCase().contains('checkin')) {
+      return Colors.teal;
+    }
     if (action.toLowerCase().contains('check out') ||
-        action.toLowerCase().contains('checkout')) return Colors.indigo;
+        action.toLowerCase().contains('checkout')) {
+      return Colors.indigo;
+    }
     if (action.toLowerCase().contains('upload') ||
-        action.toLowerCase().contains('lampiran')) return Colors.cyan;
+        action.toLowerCase().contains('lampiran')) {
+      return Colors.cyan;
+    }
     if (action.toLowerCase().contains('hapus') ||
-        action.toLowerCase().contains('delete')) return Colors.red.shade700;
+        action.toLowerCase().contains('delete')) {
+      return Colors.red.shade700;
+    }
     return Colors.grey;
   }
 

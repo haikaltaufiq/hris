@@ -149,7 +149,7 @@ class HeroSection extends StatelessWidget {
 
   // Image placeholder - siap untuk gambar nanti
   Widget _buildImagePlaceholder(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: context.isMobile
           ? 250

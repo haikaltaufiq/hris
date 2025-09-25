@@ -111,7 +111,7 @@ class GajiService {
     );
 
     if (response.statusCode == 200) {
-      final fileName = 'Laporan_HR_${bulan}_${tahun}.xlsx';
+      final fileName = 'Laporan_HR_${bulan}_$tahun.xlsx';
 
       if (kIsWeb) {
         // 👉 pakai helper khusus web (Blob + AnchorElement)

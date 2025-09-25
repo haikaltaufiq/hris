@@ -286,7 +286,18 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           rows: rows,
           dropdownStatusColumnIndexes: [7],
           statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
-          onStatusChanged: (rowIndex, newStatus) {},
+          onStatusChanged: (rowIndex, newStatus) async {
+            final tugas = tugasList[rowIndex];
+            final message = await context
+                .read<TugasProvider>()
+                .updateTugasStatus(tugas.id, newStatus);
+
+            NotificationHelper.showTopNotification(
+              context,
+              message ?? 'Gagal update status',
+              isSuccess: message != null,
+            );
+          },
           onView: (row) => _showDetailDialog(context, tugasList[row]),
           onEdit: (row) => _editTugas(context, row),
           onDelete: (row) => _deleteTugas(context, tugasList[row]),

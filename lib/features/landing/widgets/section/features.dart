@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -284,11 +282,10 @@ class _HoverCard extends StatefulWidget {
   final double borderRadius;
 
   const _HoverCard({
-    Key? key,
     required this.child,
     this.padding = const EdgeInsets.all(24),
     this.borderRadius = 16,
-  }) : super(key: key);
+  });
 
   @override
   State<_HoverCard> createState() => _HoverCardState();

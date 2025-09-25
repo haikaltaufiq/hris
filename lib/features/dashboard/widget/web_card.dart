@@ -516,9 +516,8 @@ class _HoverCard extends StatefulWidget {
   final Widget child;
 
   const _HoverCard({
-    Key? key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<_HoverCard> createState() => _HoverCardState();

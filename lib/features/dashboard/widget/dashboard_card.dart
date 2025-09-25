@@ -9,7 +9,7 @@ import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:provider/provider.dart';
 
 class DashboardCard extends StatefulWidget {
-  DashboardCard({super.key});
+  const DashboardCard({super.key});
 
   @override
   State<DashboardCard> createState() => _DashboardCardState();

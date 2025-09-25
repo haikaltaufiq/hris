@@ -275,12 +275,11 @@ class _HoverCard extends StatefulWidget {
   final Color color;
 
   const _HoverCard({
-    Key? key,
     required this.child,
     this.padding = const EdgeInsets.all(24),
     this.borderRadius = 16,
     required this.color,
-  }) : super(key: key);
+  });
 
   @override
   State<_HoverCard> createState() => _HoverCardState();

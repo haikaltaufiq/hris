@@ -461,7 +461,7 @@ class TaskChartData {
 
   @override
   String toString() {
-    return 'TaskChartData(dayIndex: $dayIndex, selesai: $selesai, menungguAdmin: $menungguAdmin, proses: $proses)';
+    return 'TaskChartData(dayIndex: $dayIndex, selesai: $selesai, menunggu_admin: $menungguAdmin, proses: $proses)';
   }
 }
 
@@ -520,9 +520,8 @@ class _HoverCard extends StatefulWidget {
   final Widget child;
 
   const _HoverCard({
-    Key? key,
     required this.child,
-  }) : super(key: key);
+  });
 
   @override
   State<_HoverCard> createState() => _HoverCardState();
