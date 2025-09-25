@@ -24,7 +24,7 @@ class KaryawanTabelWeb extends StatelessWidget {
       "Peran",
       "Jabatan",
       "Departemen",
-      "Gaji Pokok",
+      "Gaji Per Hari",
       "Jenis Kelamin",
       "Status Nikah",
       "NPWP",

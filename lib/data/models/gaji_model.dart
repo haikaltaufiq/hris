@@ -24,27 +24,26 @@ class GajiUser {
     final user = json['user'] as Map<String, dynamic>?;
 
     return GajiUser(
-        id: user?['id'] ?? 0,
-        nama: user?['nama'] ?? "",
-        gajiPokok:
-            double.tryParse(json['gaji_pokok']?.toString() ?? "0") ?? 0.0,
-        totalLembur: (json['total_lembur'] as num?)?.toDouble() ?? 0.0,
-        totalPotongan: (json['total_potongan'] as num?)?.toDouble() ?? 0.0,
-        gajiBersih: (json['gaji_bersih'] as num?)?.toDouble() ?? 0.0,
-        potongan: (json['potongan'] as List<dynamic>?)
-                ?.map((e) => PotonganGajiModel.fromJson(e))
-                .toList() ??
-            [],
-        status: json['status']);
+      id: json['id'] ?? 0, // GANTI DARI user['id'] KE json['id']
+      nama: user?['nama'] ?? "",
+      gajiPokok: double.tryParse(json['gaji_per_hari']?.toString() ?? "0") ?? 0.0,
+      totalLembur: (json['total_lembur'] as num?)?.toDouble() ?? 0.0,
+      totalPotongan: (json['total_potongan'] as num?)?.toDouble() ?? 0.0,
+      gajiBersih: (json['gaji_bersih'] as num?)?.toDouble() ?? 0.0,
+      potongan: (json['potongan'] as List<dynamic>?)
+              ?.map((e) => PotonganGajiModel.fromJson(e))
+              .toList() ?? [],
+      status: json['status'] ?? "Belum Dibayar",
+    );
   }
 
   Map<String, dynamic> toJson() {
     return {
+      'id': id, // ID gaji
       'user': {
-        'id': id,
         'nama': nama,
       },
-      'gaji_pokok': gajiPokok,
+      'gaji_per_hari': gajiPokok,
       'total_lembur': totalLembur,
       'total_potongan': totalPotongan,
       'gaji_bersih': gajiBersih,

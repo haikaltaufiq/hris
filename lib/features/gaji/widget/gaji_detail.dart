@@ -25,7 +25,7 @@ class GajiDetail extends StatelessWidget {
                   fontSize: 16,
                   color: AppColors.putih)),
           const SizedBox(height: 12),
-          _buildRow("Gaji Pokok", formatCurrency(gaji.gajiPokok), Colors.blue,
+          _buildRow("Gaji Per Hari", formatCurrency(gaji.gajiPokok), Colors.blue,
               Icons.account_balance_wallet),
           _buildRow("Total Lembur", formatCurrency(gaji.totalLembur),
               Colors.orange, Icons.access_time),
