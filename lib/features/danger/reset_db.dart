@@ -98,6 +98,7 @@ class ResetDb extends StatelessWidget {
     // mapping title ke jenis
     String? jenis;
     if (title == "Cuti") jenis = "cuti";
+    if (title == "Gaji") jenis = "gaji";
     if (title == "Absen") jenis = "absensi";
     if (title == "Lembur") jenis = "lembur";
     if (title == "Tugas") jenis = "tugas";
