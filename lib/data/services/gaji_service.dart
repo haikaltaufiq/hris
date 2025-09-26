@@ -1,9 +1,16 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/gaji_model.dart';
+// import 'package:hr/data/services/helper/gaji_helper_web.dart';
+import 'helper/gaji_helper_stub.dart'
+    if (dart.library.html) 'helper/gaji_helper_web.dart';
+
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-// import 'gaji_model.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class GajiService {
   static Future<String?> getToken() async {
@@ -59,6 +66,69 @@ class GajiService {
       final body = json.decode(response.body);
       throw Exception(
           "Gagal update status: ${body['message'] ?? response.body}");
+    }
+  }
+
+  // Fetch available periods (bulan & tahun)
+  static Future<List<Map<String, dynamic>>> getAvailablePeriods() async {
+    final token = await getToken();
+    if (token == null) throw Exception("Token tidak ditemukan");
+
+    final uri = Uri.parse("${ApiConfig.baseUrl}/api/gaji/periods");
+    final response = await http.get(uri, headers: {
+      "Authorization": "Bearer $token",
+    });
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => {
+        "bulan": e["bulan"],
+        "tahun": e["tahun"],
+      }).toList();
+    } else {
+      throw Exception("Gagal mengambil periode gaji");
+    }
+  }
+
+  // Export gaji (download xlsx)
+// Export gaji (download xlsx)
+  static Future<void> exportGaji({required int bulan, required int tahun}) async {
+    final token = await getToken();
+    if (token == null) {
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    }
+
+    final uri = Uri.parse(
+      '${ApiConfig.baseUrl}/api/gaji/export?bulan=$bulan&tahun=$tahun',
+    );
+
+    final response = await http.get(
+      uri,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final fileName = 'Laporan_HR_${bulan}_$tahun.xlsx';
+
+      if (kIsWeb) {
+        // 👉 pakai helper khusus web (Blob + AnchorElement)
+        GajiWebHelper.downloadFile(response.bodyBytes, fileName);
+      } else {
+        // 👉 Android / iOS / Desktop
+        final dir = await getTemporaryDirectory();
+        final filePath = '${dir.path}/$fileName';
+
+        final file = File(filePath);
+        await file.writeAsBytes(response.bodyBytes);
+
+        // otomatis buka pakai aplikasi default (Excel/Sheets)
+        await OpenFilex.open(file.path);
+      }
+    } else {
+      throw Exception('Gagal export gaji: ${response.statusCode}');
     }
   }
 }

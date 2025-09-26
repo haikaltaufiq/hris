@@ -13,7 +13,7 @@ class LemburProvider extends ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   List<LemburModel> filteredLemburList = [];
-  String _currentSearch = '';
+  final String _currentSearch = '';
 
   final _lemburBox = Hive.box('lembur');
   bool _hasCache = false;
@@ -160,8 +160,8 @@ class LemburProvider extends ChangeNotifier {
   }
 
   /// Decline lembur
-  Future<String?> declineLembur(int id, String catatan_penolakan) async {
-    final message = await LemburService.declineLembur(id, catatan_penolakan);
+  Future<String?> declineLembur(int id, String catatanPenolakan) async {
+    final message = await LemburService.declineLembur(id, catatanPenolakan);
     await fetchLembur(forceRefresh: true); // Refresh list setelah decline
     filterLembur(_currentSearch);
     return message;

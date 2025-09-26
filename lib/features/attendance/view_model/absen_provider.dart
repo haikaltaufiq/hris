@@ -29,6 +29,17 @@ class AbsenProvider extends ChangeNotifier {
   bool _hasCache = false;
   bool get hasCache => _hasCache;
 
+  bool _hasCheckedInToday = false;
+
+  bool get hasCheckedInToday => _hasCheckedInToday;
+
+  int get jumlahHadir => _absensi.map((a) => a.userId).toSet().length;
+
+  double attendanceRate(int totalUsers) {
+    if (totalUsers == 0) return 0;
+    return (jumlahHadir / totalUsers) * 100;
+  }
+
   // ================= SERVICE WRAPPER ================= //
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
@@ -43,17 +54,23 @@ class AbsenProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_absensi.length} items');
+          if (kDebugMode) {
+            print('✅ Cache loaded: ${_absensi.length} items');
+          }
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      if (kDebugMode) {
+        print('❌ Error loading cache: $e');
+      }
     }
   }
 
   /// Fetch daftar absensi
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
-    print('🔄 fetchAbsen called - forceRefresh: $forceRefresh');
+    if (kDebugMode) {
+      print('🔄 fetchAbsen called - forceRefresh: $forceRefresh');
+    }
 
     // Load cache first if not force refresh
     if (!forceRefresh && _absensi.isEmpty) {
@@ -64,20 +81,33 @@ class AbsenProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      if (kDebugMode) {
+        print('🌐 Calling API...');
+      }
       final apiData = await AbsenService.fetchAbsensi();
-      print('✅ API success: ${apiData.length} items');
+      if (kDebugMode) {
+        print('✅ API success: ${apiData.length} items');
+      }
 
       _absensi = apiData;
       filteredAbsensi.clear();
       _errorMessage = null;
+
+      //   cek absen hari ini
+      final today = DateTime.now();
+      final todayStr = "${today.year.toString().padLeft(4, '0')}-"
+          "${today.month.toString().padLeft(2, '0')}-"
+          "${today.day.toString().padLeft(2, '0')}";
+      _hasCheckedInToday = _absensi.any((a) => a.checkinDate == todayStr);
 
       // Save to cache
       await _absenBox.put(
         'absen_list',
         _absensi.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      if (kDebugMode) {
+        print('💾 Cache saved');
+      }
 
       _hasCache = true;
     } catch (e) {
@@ -206,5 +236,27 @@ class AbsenProvider extends ChangeNotifier {
 
   void _clearError() {
     _errorMessage = null;
+  }
+
+  List<AbsenModel> get todayAbsensi {
+    final today = DateTime.now();
+    final todayStr = "${today.year.toString().padLeft(4, '0')}-"
+        "${today.month.toString().padLeft(2, '0')}-"
+        "${today.day.toString().padLeft(2, '0')}";
+
+    return _absensi.where((a) => a.checkinDate == todayStr).toList();
+  }
+
+  /// Jumlah karyawan yang absen hari ini
+  int get todayJumlahHadir => todayAbsensi.length;
+
+  /// Jumlah poin kehadiran hari ini (misal "Hadir" = 1, "Terlambat" = 0.5)
+  double get todayAttendancePoints {
+    double total = 0;
+    for (var absen in todayAbsensi) {
+      if (absen.status == 'Hadir') total += 1;
+      if (absen.status == 'Terlambat') total += 0.5;
+    }
+    return total;
   }
 }

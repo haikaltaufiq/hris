@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -155,21 +157,24 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             "Logout",
                             Icons.logout,
                             () async {
-                              _hideDropdownImmediate();
-
                               Future.microtask(() async {
                                 final auth = AuthService();
                                 await auth.logout();
 
                                 if (!mounted) return;
+                                _hideDropdownImmediate();
 
-                                Navigator.pushAndRemoveUntil(
-                                  rootContext, // pakai context utama, bukan overlay
-                                  MaterialPageRoute(
-                                    builder: (_) => const LandingPageMobile(),
-                                  ),
-                                  (route) => false,
-                                );
+                                final nextPage = context.isNativeMobile
+                                    ? const LandingPageMobile()
+                                    : const LandingPage();
+
+                                if (rootContext != null) {
+                                  Navigator.pushAndRemoveUntil(
+                                    rootContext,
+                                    MaterialPageRoute(builder: (_) => nextPage),
+                                    (route) => false,
+                                  );
+                                }
                               });
                             },
                           ),

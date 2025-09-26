@@ -3,7 +3,6 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
-import 'package:hr/features/attendance/widget/absen_excel_export.dart';
 import 'package:hr/features/attendance/widget/absen_web_tabel.dart';
 import 'package:provider/provider.dart';
 
@@ -47,7 +46,6 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
             onFilter1Tap: () {},
           ),
           const SizedBox(height: 5),
-          const AbsenExcelExport(),
           if (absenProvider.isLoading && absen.isEmpty)
             SizedBox(
               height: MediaQuery.of(context).size.height * 0.6,

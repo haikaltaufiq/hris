@@ -7,6 +7,7 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/features/gaji/widget/excel_export.dart';
 import 'package:hr/features/gaji/gaji_provider.dart';
 import 'package:hr/features/gaji/widget/gaji_card.dart';
 import 'package:provider/provider.dart';
@@ -51,7 +52,12 @@ class _WebPageGajiState extends State<WebPageGaji> {
               onChanged: (val) => provider.setSearchQuery(val),
               onFilter1Tap: () => provider.setSorting("gaji_bersih", true),
             ),
-
+            Padding(
+              padding: EdgeInsets.only(
+                  right: context.isMobile ? 0 : 16.0,
+                  left: context.isMobile ? 0 : 16.0),
+              child: ExcelExport(),
+            ),
             // --- Konten data gaji ---
             if (provider.isLoading && provider.displayedList.isEmpty)
               _buildLoading()
@@ -64,7 +70,6 @@ class _WebPageGajiState extends State<WebPageGaji> {
                 padding: EdgeInsets.only(
                   right: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
                   left: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
-                  top: MediaQuery.of(context).size.width < 600 ? 0.0 : 18.0,
                 ),
                 child: Column(
                   children: provider.displayedList

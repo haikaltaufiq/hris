@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
+import 'package:hr/features/department/view_model/department_viewmodels.dart';
+import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WebCard extends StatefulWidget {
@@ -11,8 +16,6 @@ class WebCard extends StatefulWidget {
 
 class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
-  late Animation<double> _slideAnimation;
 
   String _nama = '';
   String _peran = '';
@@ -24,14 +27,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-
-    _slideAnimation = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
 
     _animationController.forward();
@@ -56,55 +51,48 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     return AnimatedBuilder(
         animation: _animationController,
         builder: (context, child) {
-          return Transform.translate(
-            offset: Offset(0, _slideAnimation.value),
-            child: Opacity(
-              opacity: _fadeAnimation.value,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isNarrow = constraints.maxWidth < 800;
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isNarrow = constraints.maxWidth < 800;
 
-                    return isNarrow
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              _welcomeCard(),
-                              const SizedBox(height: 10),
-                              _statSection(),
-                              const SizedBox(height: 10),
-                              _overviewCard(),
-                            ],
-                          )
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Welcome Card
-                              Flexible(
-                                flex: 2,
-                                child: _welcomeCard(),
-                              ),
-                              const SizedBox(width: 10),
+                return isNarrow
+                    ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _welcomeCard(),
+                          const SizedBox(height: 10),
+                          _statSection(),
+                          const SizedBox(height: 10),
+                          _overviewCard(),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Welcome Card
+                          Flexible(
+                            flex: 2,
+                            child: _welcomeCard(),
+                          ),
+                          const SizedBox(width: 10),
 
-                              // Stats
-                              Flexible(
-                                flex: 3,
-                                child: _statSection(),
-                              ),
-                              const SizedBox(width: 10),
+                          // Stats
+                          Flexible(
+                            flex: 3,
+                            child: _statSection(),
+                          ),
+                          const SizedBox(width: 10),
 
-                              // Overview
-                              Flexible(
-                                flex: 2,
-                                child: _overviewCard(),
-                              ),
-                            ],
-                          );
-                  },
-                ),
-              ),
+                          // Overview
+                          Flexible(
+                            flex: 2,
+                            child: _overviewCard(),
+                          ),
+                        ],
+                      );
+              },
             ),
           );
         });
@@ -112,27 +100,32 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
 
   /// Bagian Stats Column biar rapih
   Widget _statSection() {
+    final totalUser = context.read<UserProvider>().totalUsers.toString();
+    final totalDepartment =
+        context.read<DepartmentViewModel>().totalDepartment.toString();
+    final totalTask = context.read<TugasProvider>().totalTugas.toString();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         _statCard(
           title: "Departments",
-          value: "8",
+          value: totalDepartment,
           subtitle: "Active divisions",
           icon: Icons.business_outlined,
         ),
         const SizedBox(height: 10),
         _statCard(
           title: "Employees",
-          value: "247",
-          subtitle: "+12 this month",
+          value: totalUser,
+          subtitle: "Total Employees",
           icon: Icons.people_outline,
           isGrowth: true,
         ),
         const SizedBox(height: 10),
         _statCard(
           title: "Active Tasks",
-          value: "31",
+          value: totalTask,
           subtitle: "Due this week",
           icon: Icons.assignment_outlined,
         ),
@@ -140,210 +133,10 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Welcome Card
+  /// Welcome Card dengan hover effect
   Widget _welcomeCard() {
-    return Container(
-      height: 320,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome Text
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Welcome Back,",
-                style: TextStyle(
-                  color: AppColors.putih.withOpacity(0.8),
-                  fontSize: 20,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              Text(
-                _nama,
-                style: TextStyle(
-                  color: AppColors.putih,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ),
-              Text(
-                _peran,
-                style: TextStyle(
-                  color: AppColors.putih.withOpacity(0.5),
-                  fontSize: 16,
-                  fontWeight: FontWeight.w200,
-                  height: 1.1,
-                  letterSpacing: -1.0,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 22,
-          ),
-          // Today's Cards Row
-          Row(
-            children: [
-              Expanded(
-                child: _todayCard(
-                  title: "Today's Attendance",
-                  value: "120 / 247",
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _todayCard(
-                  title: "User Online",
-                  value: "12 / 247",
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Reusable Today Card
-  Widget _todayCard({required String title, required String value}) {
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    final cardHeight = screenHeight * 0.2; // responsive height
-
-    return Container(
-      height: cardHeight,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.amber[700],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const Spacer(),
-          // make value responsive with Flexible + FittedBox
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.bottomLeft,
-              child: Text(
-                value,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize:
-                      34, // tetap pake style asli, FittedBox yg nge-handle
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Stat Card
-  Widget _statCard({
-    required String title,
-    required String value,
-    required String subtitle,
-    required IconData icon,
-    bool isGrowth = false,
-  }) {
-    return Container(
-      height: 100,
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(7),
-                decoration: BoxDecoration(
-                  color: AppColors.secondary,
-                  borderRadius: BorderRadius.circular(7),
-                ),
-                child: Icon(icon, color: AppColors.putih, size: 18),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                value,
-                style: TextStyle(
-                  color: AppColors.putih,
-                  fontSize: 26,
-                  fontWeight: FontWeight.w800,
-                  height: 1,
-                ),
-              ),
-            ],
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  color: AppColors.putih.withOpacity(0.7),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: AppColors.putih.withOpacity(0.5),
-                  fontSize: 9,
-                  fontWeight: FontWeight.w400,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Overview Card
-  Widget _overviewCard() {
-    return Container(
+    return _HoverCard(
+      child: Container(
         height: 320,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -360,85 +153,322 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Welcome Text
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Welcome Back,",
+                  style: TextStyle(
+                    color: AppColors.putih.withOpacity(0.8),
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  _nama,
+                  style: TextStyle(
+                    color: AppColors.putih,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                Text(
+                  _peran,
+                  style: TextStyle(
+                    color: AppColors.putih.withOpacity(0.5),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 22,
+            ),
+            // Today's Cards Row
+            Consumer3<AbsenProvider, UserProvider, TugasProvider>(
+              builder: (context, absenProv, userProv, tugasProv, child) {
+                final hadirHariIni = absenProv.todayJumlahHadir;
+                final totalUser = userProv.totalUsers;
+
+                final taskDeadline = tugasProv.todayActiveTask;
+                final totalTask = tugasProv.totalTugas;
+
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _todayCard(
+                        title: "Today's Attendance",
+                        value: "$hadirHariIni / $totalUser",
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _todayCard(
+                        title: "Today's Task Deadlines ",
+                        value: "$taskDeadline / $totalTask",
+                      ),
+                    ),
+                  ],
+                );
+              },
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Reusable Today Card dengan hover effect
+  Widget _todayCard({required String title, required String value}) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final cardHeight = screenHeight * 0.2; // responsive height
+
+    return _HoverCard(
+      child: Container(
+        height: cardHeight,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.secondary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Text(
-              "Monthly Overview",
+              title,
               style: TextStyle(
                 color: AppColors.putih,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Progress items dibungkus biar gak nabrak
+            const Spacer(),
+            // make value responsive with Flexible + FittedBox
             Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  _progress("Attendance Rate", 0.94, const Color(0xFF4EDD53)),
-                  const SizedBox(height: 16),
-                  _progress("Project Completion", 0.78, Colors.orange),
-                  const SizedBox(height: 16),
-                  _progress("Performance Score", 0.86,
-                      const Color.fromARGB(255, 62, 168, 255)),
-                ],
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: AppColors.putih.withOpacity(0.6),
+                    fontSize:
+                        34, // tetap pake style asli, FittedBox yg nge-handle
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            const SizedBox(height: 30),
+  /// Stat Card dengan hover effect
+  Widget _statCard({
+    required String title,
+    required String value,
+    required String subtitle,
+    required IconData icon,
+    bool isGrowth = false,
+  }) {
+    return _HoverCard(
+      child: Container(
+        height: 100,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    borderRadius: BorderRadius.circular(7),
+                  ),
+                  child: Icon(icon, color: AppColors.putih, size: 18),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: AppColors.putih,
+                    fontSize: 26,
+                    fontWeight: FontWeight.w800,
+                    height: 1,
+                  ),
+                ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: AppColors.putih.withOpacity(0.7),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(
+                    color: AppColors.putih.withOpacity(0.5),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w400,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
-            // Footer card
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+  /// Overview Card dengan hover effect
+  Widget _overviewCard() {
+    return Consumer2<AbsenProvider, UserProvider>(
+      builder: (context, absenProv, userProv, child) {
+        final totalUser = userProv.totalUsers;
+        final totalTugasSelesai =
+            context.read<TugasProvider>().totalTugasSelesai.toDouble();
+        final totalTugas = context.read<TugasProvider>().totalTugas.toDouble();
+        // Hitung rate dengan aman
+        final rate = (totalUser > 0)
+            ? absenProv.jumlahHadir / totalUser // 0..1
+            : 0.0;
+
+        // Project completion 0..1
+        final projectRate =
+            (totalTugas > 0) ? totalTugasSelesai / totalTugas : 0.0;
+
+        // Performance = 50% attendance + 50% project completion
+        final performance = ((rate * 0.5) + (projectRate * 0.5));
+        final overallProgress = (rate + projectRate + performance) / 3.0;
+        return _HoverCard(
+          child: Container(
+            height: 320,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Monthly Overview",
+                  style: TextStyle(
+                    color: AppColors.putih,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // Progress items
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     children: [
-                      Text(
-                        "This Week",
-                        style: TextStyle(
-                          color: AppColors.putih.withOpacity(0.7),
-                          fontSize: 10, // lebih kecil
-                          fontWeight: FontWeight.w500,
-                        ),
+                      _progress("Project Completion", projectRate,
+                          const Color(0xFF4EDD53)),
+                      const SizedBox(height: 16),
+                      _progress("Attendance Rate", rate, Colors.orange),
+                      const SizedBox(height: 16),
+                      _progress("Performance Score", performance,
+                          const Color.fromARGB(255, 62, 168, 255)),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 30),
+
+                // Footer card
+                Container(
+                  width: double.infinity,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Overall",
+                            style: TextStyle(
+                              color: AppColors.putih.withOpacity(0.7),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            "${(overallProgress * 100).toStringAsFixed(1)}%",
+                            style: TextStyle(
+                              color: AppColors.putih,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        "98.2%",
-                        style: TextStyle(
-                          color: AppColors.putih,
-                          fontSize: 16, // tadinya 20, gue kecilin
-                          fontWeight: FontWeight.w800,
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Icon(
+                          Icons.check_circle_outline,
+                          color: Colors.green[400],
+                          size: 14,
                         ),
                       ),
                     ],
                   ),
-                  Container(
-                    width: 28, // lebih kecil dari 36
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.green.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Icon(
-                      Icons.check_circle_outline,
-                      color: Colors.green[400],
-                      size: 14, // kecilin juga biar proporsional
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ],
-        ));
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   Widget _progress(String title, double progress, Color color) {
@@ -457,7 +487,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
               ),
             ),
             Text(
-              "${(progress * 100).toInt()}%",
+              "${(progress * 100).toStringAsFixed(1)}%",
               style: TextStyle(
                 color: AppColors.putih,
                 fontSize: 12,
@@ -477,6 +507,38 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Widget untuk menangani hover effect dengan animasi subtle
+class _HoverCard extends StatefulWidget {
+  final Widget child;
+
+  const _HoverCard({
+    required this.child,
+  });
+
+  @override
+  State<_HoverCard> createState() => _HoverCardState();
+}
+
+class _HoverCardState extends State<_HoverCard> {
+  bool _hovering = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovering = true),
+      onExit: (_) => setState(() => _hovering = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        transform: _hovering
+            ? (Matrix4.identity()..translate(0, -4, 0)) // Naik 4px saat hover
+            : Matrix4.identity(),
+        child: widget.child,
+      ),
     );
   }
 }

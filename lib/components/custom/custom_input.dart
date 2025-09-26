@@ -14,6 +14,7 @@ class CustomInputField extends StatelessWidget {
   final bool? readOnly;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
+  
   const CustomInputField({
     super.key,
     required this.label,

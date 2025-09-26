@@ -4,7 +4,7 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
-import 'package:hr/features/task/tugas_form/form_user_edit.dart';
+import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/widgets/video.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -61,7 +61,7 @@ class _TugasTabelState extends State<TugasTabel> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => FormUserEdit(
+        builder: (_) => TugasEditForm(
           tugas: widget.tugasList[row],
         ),
       ),
@@ -264,7 +264,17 @@ class _TugasTabelState extends State<TugasTabel> {
           rows: rows,
           dropdownStatusColumnIndexes: [7],
           statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
-          onStatusChanged: (rowIndex, newStatus) {},
+          onStatusChanged: (rowIndex, newStatus) async {
+            final tugas = tugasList[rowIndex];
+            final message = await context.read<TugasProvider>()
+                .updateTugasStatus(tugas.id, newStatus);
+
+            NotificationHelper.showTopNotification(
+              context,
+              message ?? 'Gagal update status',
+              isSuccess: message != null,
+            );
+          },
           onView: (row) => _showDetailDialog(context, tugasList[row]),
           onEdit: (row) => _editTugas(context, row),
           onDelete: (row) => _deleteTugas(context, tugasList[row]),

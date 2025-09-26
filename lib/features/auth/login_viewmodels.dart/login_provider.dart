@@ -38,6 +38,8 @@ class UserProvider extends ChangeNotifier {
   final _userbox = Hive.box('user');
   bool _hasCache = false;
   bool get hasCache => _hasCache;
+
+  int get totalUsers => _users.length;
   // ===== User setter =====
 
   void setUser(UserModel user) {

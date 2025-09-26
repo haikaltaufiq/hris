@@ -52,7 +52,7 @@ class _ProfilePageState extends State<ProfilePage> {
       peran = userData['peran'] as String?;
       departemen = userData['departemen'] as String?;
       jabatan = userData['jabatan'] as String?;
-      gajiPokok = userData['gaji_pokok'] as double?;
+      gajiPokok = userData['gaji_per_hari'] as double?;
       npwp = userData['npwp'] as String?;
       bpjsKesehatan = userData['bpjs_kesehatan'] as String?;
       bpjsKetenagakerjaan = userData['bpjs_ketenagakerjaan'] as String?;
@@ -254,12 +254,15 @@ class _ProfilePageState extends State<ProfilePage> {
         'icon': FontAwesomeIcons.envelope,
         'label': 'Email',
         'value': email,
-        'isEditable': true
+        'isEditable': true,
+        'editType': 'email',
       },
       {
         'icon': FontAwesomeIcons.key,
-        'label': 'Change Password',
+        'label': 'Password',
         'value': 'Change Password',
+        'isEditable': true,
+        'editType': 'password',
       },
       {
         'icon': FontAwesomeIcons.building,
@@ -279,7 +282,7 @@ class _ProfilePageState extends State<ProfilePage> {
       {'icon': FontAwesomeIcons.idBadge, 'label': 'Jabatan', 'value': jabatan},
       {
         'icon': FontAwesomeIcons.moneyBill,
-        'label': 'Gaji Pokok',
+        'label': 'Gaji Per Hari',
         'value': gajiPokok != null ? gajiPokok!.toStringAsFixed(2) : '-'
       },
       {'icon': FontAwesomeIcons.fileInvoice, 'label': 'NPWP', 'value': npwp},
@@ -346,7 +349,14 @@ class _ProfilePageState extends State<ProfilePage> {
         trailing: isEditable
             ? IconButton(
                 icon: FaIcon(FontAwesomeIcons.pen, color: AppColors.putih),
-                onPressed: () => _showEditEmailBottomSheet(),
+                onPressed: () {
+                  final type = item['editType'] as String? ?? '';
+                  if (type == 'email') {
+                    _showEditEmailBottomSheet();
+                  } else if (type == 'password') {
+                    _showEditPasswordBottomSheet();
+                  }
+                },
               )
             : null,
       ),
@@ -463,6 +473,158 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 24),
             ],
+          ),
+        );
+      },
+      backgroundColor: AppColors.primary,
+    );
+  }
+
+  void _showEditPasswordBottomSheet() {
+    final oldPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 24,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Edit Password',
+                  style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.putih),
+                ),
+                const SizedBox(height: 16),
+                // Password lama
+                TextField(
+                  controller: oldPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password Lama',
+                    labelStyle: GoogleFonts.poppins(
+                        color: AppColors.putih.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: AppColors.primary.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                  ),
+                  style: GoogleFonts.poppins(color: AppColors.putih),
+                ),
+                const SizedBox(height: 16),
+                // Password baru
+                TextField(
+                  controller: newPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password Baru',
+                    labelStyle: GoogleFonts.poppins(
+                        color: AppColors.putih.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: AppColors.primary.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                  ),
+                  style: GoogleFonts.poppins(color: AppColors.putih),
+                ),
+                const SizedBox(height: 16),
+                // Konfirmasi password baru
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Konfirmasi Password Baru',
+                    labelStyle: GoogleFonts.poppins(
+                        color: AppColors.putih.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: AppColors.primary.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none),
+                  ),
+                  style: GoogleFonts.poppins(color: AppColors.putih),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final oldPassword = oldPasswordController.text.trim();
+                      final newPassword = newPasswordController.text.trim();
+                      final confirmPassword = confirmPasswordController.text.trim();
+
+                      if (oldPassword.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
+                        NotificationHelper.showTopNotification(
+                          context, 
+                          'Semua field wajib diisi',
+                          isSuccess: false
+                        );
+                        return;
+                      }
+
+                      if (newPassword != confirmPassword) {
+                        NotificationHelper.showTopNotification(
+                          context, 
+                          'Password baru tidak sama',
+                          isSuccess: false
+                        );
+                        return;
+                      }
+
+                      // Panggil AuthService
+                      final result = await _authService.changePassword(
+                        oldPassword: oldPassword,
+                        newPassword: newPassword,
+                      );
+
+                      if (result['success'] == true) {
+                        Navigator.pop(context);
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: true,
+                        );
+                      } else {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: false,
+                        );
+                      }
+                    },
+                    child: Text('Simpan',
+                        style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.putih)),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
           ),
         );
       },

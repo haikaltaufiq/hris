@@ -18,7 +18,7 @@ class _OnBoardingState extends State<OnBoarding> {
 
   final List<Map<String, String>> _pages = [
     {
-      "title": "Welcome to HRIS",
+      "title": "Human Resource",
       "subtitle":
           "Kelola absensi, cuti, gaji, dan semua kebutuhan HR jadi lebih mudah.",
       "image": "assets/images/hris.png",

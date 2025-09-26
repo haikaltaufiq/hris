@@ -2,25 +2,39 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/dashboard/widget/hover_tooltip.dart';
+import 'package:hr/features/department/view_model/department_viewmodels.dart';
+import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:provider/provider.dart';
 
-class DashboardCard extends StatelessWidget {
+class DashboardCard extends StatefulWidget {
   const DashboardCard({super.key});
 
-  final List<Map<String, dynamic>> rawCardData = const [
+  @override
+  State<DashboardCard> createState() => _DashboardCardState();
+}
+
+class _DashboardCardState extends State<DashboardCard> {
+  late final totalUser = context.read<UserProvider>().totalUsers.toString();
+  late final totalDepartment =
+      context.read<DepartmentViewModel>().totalDepartment.toString();
+  late final totalTask = context.read<TugasProvider>().totalTugas.toString();
+
+  late List<Map<String, dynamic>> rawCardData = [
     {
       'title': 'Employee Total',
-      'value': '30',
+      'value': totalUser,
       'icon': '3',
     },
     {
       'title': 'Departments',
-      'value': '5',
+      'value': totalDepartment,
       'icon': '2',
     },
     {
       'title': 'Active Projects',
-      'value': '12',
+      'value': totalTask,
       'icon': '1',
     },
   ];

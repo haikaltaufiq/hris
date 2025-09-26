@@ -18,6 +18,14 @@ class TugasProvider extends ChangeNotifier {
   bool _hasCache = false;
   bool get hasCache => _hasCache;
 
+  int get totalTugas => _tugasList
+      .where((tugas) => tugas.status.toLowerCase() != 'selesai')
+      .length;
+
+  int get totalTugasSelesai => _tugasList
+      .where((tugas) => tugas.status.toLowerCase() == 'selesai')
+      .length;
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -193,5 +201,35 @@ class TugasProvider extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  Future<String?> updateTugasStatus(int id, String status) async {
+    try {
+      final result = await TugasService.updateStatus(id: id, status: status);
+      if (result['success'] == true) {
+        await fetchTugas(forceRefresh: true);
+        return result['message'];
+      } else {
+        return result['message'];
+      }
+    } catch (e) {
+      return "Terjadi error: $e";
+    }
+  }
+
+  int get todayActiveTask {
+    final today = DateTime.now();
+
+    return _tugasList.where((tugas) {
+      try {
+        final selesai = DateTime.parse(tugas.tanggalSelesai);
+        // bandingkan hanya tanggal, abaikan jam
+        return selesai.year == today.year &&
+            selesai.month == today.month &&
+            selesai.day == today.day;
+      } catch (e) {
+        return false;
+      }
+    }).length;
   }
 }

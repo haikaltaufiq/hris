@@ -118,6 +118,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
   // 🎯 PAKETAN FITUR
   final Map<String, List<String>> _fiturPackages = {
     'Super Admin': [
+      'web',
       'lihat_lembur', //lembur
       'lihat_semua_lembur',
       'approve_lembur',
@@ -144,9 +145,12 @@ class _PeranFormPageState extends State<PeranFormPage> {
       'lihat_semua_absensi',
       'log_aktifitas',
       'pengaturan',
+      'denger',
+      'ubah_status_tugas',
       'pengingat',
     ],
     'Admin Office': [
+      'web',
       'lihat_lembur',
       'lihat_semua_lembur',
       'approve_lembur',
@@ -161,6 +165,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
       'lihat_semua_tugas',
       'tambah_tugas',
       'edit_tugas',
+      'ubah_status_tugas',
       'hapus_tugas',
       'gaji',
       'absensi',
@@ -169,6 +174,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
       'pengingat',
     ],
     'Technical': [
+      'apk',
       'lihat_lembur',
       'lihat_lembur_sendiri',
       'tambah_lembur',

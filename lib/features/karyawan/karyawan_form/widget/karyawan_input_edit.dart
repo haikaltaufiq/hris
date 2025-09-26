@@ -259,7 +259,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
           "peran_id": _peranId,
           "jabatan_id": _jabatanId,
           "departemen_id": _departemenId,
-          "gaji_pokok": int.parse(_gajiController.text.trim()),
+          "gaji_per_hari": int.parse(_gajiController.text.trim()),
           "npwp": _npwpController.text.trim(),
           "bpjs_kesehatan": _bpjsKesController.text.trim(),
           "bpjs_ketenagakerjaan": _bpjsKetController.text.trim(),
@@ -469,8 +469,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomInputField(
               controller: _gajiController,
-              label: "Gaji Pokok *",
-              hint: "Masukkan gaji pokok",
+              label: "Gaji Per Hari *",
+              hint: "Masukkan gaji per hari",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,

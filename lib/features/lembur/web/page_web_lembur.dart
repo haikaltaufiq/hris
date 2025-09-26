@@ -93,7 +93,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
 
   Future<void> _declineLembur(LemburModel lembur) async {
     final catatanPenolakanController = TextEditingController();
-    String? catatan_penolakan;
+    String? catatanPenolakan;
 
     // Step 1: Dialog isi alasan
     final isiAlasan = await showDialog<bool>(
@@ -141,7 +141,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
             TextButton(
               onPressed: () {
                 if (catatanPenolakanController.text.trim().isNotEmpty) {
-                  catatan_penolakan = catatanPenolakanController.text.trim();
+                  catatanPenolakan = catatanPenolakanController.text.trim();
                   Navigator.pop(context, true);
                 }
               },
@@ -153,7 +153,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
       },
     );
 
-    if (isiAlasan != true || catatan_penolakan == null) return;
+    if (isiAlasan != true || catatanPenolakan == null) return;
 
     final confirmed = await showConfirmationDialog(
       context,
@@ -165,8 +165,9 @@ class _LemburWebPageState extends State<LemburWebPage> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<LemburProvider>().declineLembur(lembur.id, catatan_penolakan!);
+      final message = await context
+          .read<LemburProvider>()
+          .declineLembur(lembur.id, catatanPenolakan!);
       searchController.clear();
 
       NotificationHelper.showTopNotification(
@@ -196,6 +197,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
     });
   }
 
+  @override
   Widget build(BuildContext context) {
     final lemburProvider = context.watch<LemburProvider>();
     final displayedList = searchController.text.isEmpty

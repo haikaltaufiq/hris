@@ -83,50 +83,26 @@ class _UserEditTugasState extends State<UserEditTugas> {
     }
 
     try {
-      final tugasProvider = context.read<TugasProvider>();
-
-      // Update data teks dulu
-      final resultUpdate = await tugasProvider.updateTugas(
+      final resultUpload = await TugasService.uploadFileTugas(
         id: widget.tugas.id,
-        judul: _judulTugasController.text,
-        jamMulai: _jamMulaiController.text,
-        tanggalMulai: _tanggalMulaiController.text,
-        tanggalSelesai: _tanggalSelesaiController.text,
-        lokasi: _lokasiController.text,
-        note: _noteController.text,
+        file: kIsWeb ? null : _selectedFile,
+        fileBytes: kIsWeb ? _selectedBytes : null,
+        fileName: kIsWeb ? _selectedFileName : null,
       );
 
-      if (resultUpdate['success'] == true) {
-        // Lanjut upload video
-        final resultUpload = await TugasService.uploadFileTugas(
-          id: widget.tugas.id,
-          file: kIsWeb ? null : _selectedFile,
-          fileBytes: kIsWeb ? _selectedBytes : null,
-          fileName: kIsWeb ? _selectedFileName : null,
+      final bool isSuccess = resultUpload['success'] == true;
+      final String message = resultUpload['message'] ?? '';
+
+      if (mounted) {
+        NotificationHelper.showTopNotification(
+          context,
+          message,
+          isSuccess: isSuccess,
         );
+      }
 
-        final bool isSuccess = resultUpload['success'] == true;
-        final String message = resultUpload['message'] ?? '';
-
-        if (mounted) {
-          NotificationHelper.showTopNotification(
-            context,
-            message,
-            isSuccess: isSuccess,
-          );
-        }
-
-        if (isSuccess && mounted) {
-          Navigator.pop(context, true);
-        }
-      } else {
-        if (mounted) {
-          NotificationHelper.showTopNotification(
-            context,
-            resultUpdate['message'] ?? 'Gagal update tugas',
-            isSuccess: false,
-          );
-        }
+      if (isSuccess && mounted) {
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
@@ -188,7 +164,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
               CustomInputField(
                 label: "Judul Tugas",
                 controller: _judulTugasController,
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah judul",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -199,7 +179,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: "--:--",
                 controller: _jamMulaiController,
                 suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah Jam",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -209,7 +193,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: "dd / mm / yyyy",
                 controller: _tanggalMulaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah tanggal",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -219,7 +207,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: "dd / mm / yyyy",
                 controller: _tanggalSelesaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah tanggal",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -227,7 +219,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
               CustomInputField(
                 label: "Lokasi",
                 controller: _lokasiController,
-                onTapIcon: () {},
+                onTapIcon: () {
+                  NotificationHelper.showTopNotification(
+                      context, "Anda tidak dapat mengubah lokasi",
+                      isSuccess: false);
+                },
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -235,7 +231,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
               ),
               CustomInputField(
                 label: "Note",
-                onTapIcon: () {},
                 controller: _noteController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
@@ -244,6 +239,20 @@ class _UserEditTugasState extends State<UserEditTugas> {
               ),
               CustomInputField(
                 label: "Lampiran",
+                suffixIcon: Container(
+                  margin: EdgeInsets.all(10),
+                  width: 100,
+                  decoration: BoxDecoration(
+                      color: AppColors.secondary,
+                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      border: Border.all(width: 1, color: AppColors.putih)),
+                  child: Center(
+                    child: Text(
+                      "Choose File",
+                      style: TextStyle(color: AppColors.putih),
+                    ),
+                  ),
+                ),
                 onTapIcon: () async {
                   try {
                     FilePickerResult? result =

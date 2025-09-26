@@ -208,7 +208,7 @@ class CutiService {
   }
 
   // Decline cuti
-  static Future<String?> declineCuti(int id, String catatan_penolakan) async {
+  static Future<String?> declineCuti(int id, String catatanPenolakan) async {
     final token = await _getToken();
     if (token == null)
       throw Exception('Token tidak ditemukan. Harap login ulang.');
@@ -221,7 +221,7 @@ class CutiService {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'catatan_penolakan': catatan_penolakan,
+        'catatan_penolakan': catatanPenolakan,
       }),
     );
 

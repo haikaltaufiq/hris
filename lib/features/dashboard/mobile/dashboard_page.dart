@@ -41,7 +41,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
             ),
             FeatureGuard(
               requiredFeature: 'karyawan',
-              child: const DashboardCard(),
+              child: DashboardCard(),
             ),
             FeatureGuard(
               requiredFeature: 'lihat_absensi_sendiri',
@@ -128,8 +128,11 @@ class _DashboardMobileState extends State<DashboardMobile> {
               height: 12,
             ),
             const AttendanceChart(),
-            const TechTaskChart(),
             const StatusTaskChart(),
+            const TechTaskChart(),
+            SizedBox(
+              height: 12,
+            ),
           ],
         ),
       ),

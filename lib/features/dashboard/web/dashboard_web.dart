@@ -18,15 +18,19 @@ class _DashboardWebState extends State<DashboardWeb> {
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(
+          right: 16,
+          left: 16,
+        ),
         children: [
           // DashboardCard(),
           WebCard(),
           // DashboardCardUser(),
-          TechTaskChart(),
           Padding(
-            padding:
-                const EdgeInsets.only(right: 20.0, left: 20.0, bottom: 16.0),
+            padding: const EdgeInsets.only(
+              right: 20.0,
+              left: 20.0,
+            ),
             child: Row(
               children: [
                 Expanded(child: AttendanceChart()),
@@ -34,7 +38,12 @@ class _DashboardWebState extends State<DashboardWeb> {
                 Expanded(child: StatusTaskChart()),
               ],
             ),
-          )
+          ),
+          Padding(
+            padding:
+                const EdgeInsets.only(right: 18.0, left: 18.0, bottom: 18.0),
+            child: TechTaskChart(),
+          ),
         ],
       ),
     );
