@@ -3,12 +3,8 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/services/auth_service.dart';
-import 'package:hr/features/attendance/view_model/absen_provider.dart';
-import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
-import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
-import 'package:provider/provider.dart';
 import '../../../core/utils/device_size.dart';
 
 class Login extends StatefulWidget {
@@ -391,19 +387,11 @@ class _LoginState extends State<Login> {
             final auth = AuthService();
             final result = await auth.login(email, password);
 
+            setState(() {
+              _isLoading = false;
+            });
+
             if (result['success']) {
-              // Fetch semua data setelah login
-              final tugasProvider = context.read<TugasProvider>();
-              tugasProvider.loadCacheFirst();
-              await tugasProvider.fetchTugas();
-
-              final userProvider = context.read<UserProvider>();
-              userProvider.loadCacheFirst();
-              await userProvider.fetchUsers();
-
-              final absenProvider = context.read<AbsenProvider>();
-              absenProvider.loadCacheFirst();
-              await absenProvider.fetchAbsensi();
               await FeatureAccess.init();
 
               NotificationHelper.showTopNotification(
@@ -411,7 +399,6 @@ class _LoginState extends State<Login> {
                 result['message'],
                 isSuccess: true,
               );
-
               Navigator.pushNamed(context, AppRoutes.dashboard);
             } else {
               NotificationHelper.showTopNotification(
@@ -419,9 +406,6 @@ class _LoginState extends State<Login> {
                 result['message'] ?? 'Invalid email or password',
                 isSuccess: false,
               );
-              setState(() {
-                _isLoading = false;
-              });
             }
           }
         },
