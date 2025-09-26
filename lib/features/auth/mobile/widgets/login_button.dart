@@ -6,6 +6,9 @@ import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
+import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
@@ -50,9 +53,21 @@ class _LoginButtonState extends State<LoginButton> {
       final result = await auth.login(email, password);
 
       if (result['success'] == true) {
+        final tugasProvider = context.read<TugasProvider>();
+        tugasProvider.loadCacheFirst();
+        await tugasProvider.fetchTugas();
+
+        final userProvider = context.read<UserProvider>();
+        userProvider.loadCacheFirst();
+        await userProvider.fetchUsers();
+
+        final absenProvider = context.read<AbsenProvider>();
+        absenProvider.loadCacheFirst();
+        await absenProvider.fetchAbsensi();
         await FeatureAccess.init();
         final themeProvider = context.read<ThemeProvider>();
         themeProvider.setDarkMode(true);
+        
         NotificationHelper.showTopNotification(
           context,
           result['message'] ?? "Login berhasil",
