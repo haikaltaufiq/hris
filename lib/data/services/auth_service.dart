@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
 
 class AuthService {
-
   // helper ambil device info lengkap
   Future<Map<String, String>> _getDeviceInfo() async {
     final deviceInfo = DeviceInfoPlugin();
@@ -46,27 +45,31 @@ class AuthService {
       };
     }
   }
-  
+
   // login dengan email, password, dan device_id
   Future<Map<String, dynamic>> login(String email, String password) async {
     final deviceInfo = await _getDeviceInfo();
 
     try {
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/login'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-          'device_id': deviceInfo["device_id"] ?? 'unknown_device',
-          'device_model': deviceInfo["device_model"] ?? 'unknown_model',
-          'device_manufacturer': deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
-          'device_version': deviceInfo["device_version"] ?? 'unknown_version',
-          'platform': kIsWeb ? 'web' : 'apk',
-        }),
-      ).timeout(const Duration(seconds: 120));
+      final response = await http
+          .post(
+            Uri.parse('${ApiConfig.baseUrl}/api/login'),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'email': email,
+              'password': password,
+              'device_id': deviceInfo["device_id"] ?? 'unknown_device',
+              'device_model': deviceInfo["device_model"] ?? 'unknown_model',
+              'device_manufacturer':
+                  deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
+              'device_version':
+                  deviceInfo["device_version"] ?? 'unknown_version',
+              'platform': kIsWeb ? 'web' : 'apk',
+            }),
+          )
+          .timeout(const Duration(seconds: 120));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -80,14 +83,17 @@ class AuthService {
         await prefs.setString('email', user.email);
         await prefs.setString('npwp', user.npwp ?? '');
         await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-        await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+        await prefs.setString(
+            'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
         await prefs.setString('jenis_kelamin', user.jenisKelamin);
         await prefs.setString('status_pernikahan', user.statusPernikahan);
-        await prefs.setDouble('gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
+        await prefs.setDouble(
+            'gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
         await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
         await prefs.setString('departemen', user.departemen.namaDepartemen);
         await prefs.setString('peran', user.peran.namaPeran);
-        await prefs.setString('fitur', jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
+        await prefs.setString('fitur',
+            jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
         return {
@@ -103,6 +109,7 @@ class AuthService {
         return {
           'success': false,
           'message': errorData['message'] ?? 'Login gagal',
+          'errors': errorData['errors'] ?? {},
         };
       }
     } catch (e) {
@@ -207,6 +214,39 @@ class AuthService {
     }
   }
 
+  // ganti password
+  Future<Map<String, dynamic>> changePassword({
+    required String oldPassword,
+    required String newPassword,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    final response = await http.post(
+      Uri.parse('${ApiConfig.baseUrl}/api/change-password'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode({
+        'old_password': oldPassword,
+        'new_password': newPassword,
+        'new_password_confirmation': newPassword,
+      }),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (response.statusCode == 200) {
+      return {'success': true, 'message': data['message']};
+    } else {
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Gagal ganti password',
+        'errors': data['errors'] ?? {}
+      };
+    }
+  }
 
   // Logout hapus token di backend & clear prefs
   Future<Map<String, dynamic>> logout() async {

@@ -63,7 +63,16 @@ class _LoginButtonState extends State<LoginButton> {
         }
       } else {
         final errorMessage = _mapErrorMessage(result['message']);
-        widget.onError(errorMessage);
+        // kalau backend kirim errors, gabungkan jadi string
+        if (result['errors'] != null && result['errors'] is Map) {
+          final errors = (result['errors'] as Map)
+              .values
+              .expand((e) => e) // biasanya list string
+              .join("\n");
+          widget.onError(errors.isNotEmpty ? errors : errorMessage);
+        } else {
+          widget.onError(errorMessage);
+        }
       }
     } on FormatException {
       widget.onError("Terjadi kesalahan pada server. Coba lagi nanti.");
