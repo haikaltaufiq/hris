@@ -322,7 +322,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  _nama,
+                  _nama.length > 9 ? _nama.substring(0, 10) : _nama,
                   style: TextStyle(
                     fontSize: 24,
                     fontFamily: GoogleFonts.poppins().fontFamily,

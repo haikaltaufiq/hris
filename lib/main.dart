@@ -6,7 +6,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/core/utils/local_notification.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -28,7 +27,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Init local notification
-  await NotificationService.instance.init();
   final themeProvider = ThemeProvider();
 
   // default hanya sekali
