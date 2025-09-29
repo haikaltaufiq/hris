@@ -3,7 +3,6 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/routes/app_routes.dart';
 
@@ -81,9 +80,8 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
       return;
     }
 
-    final controller = VideoPlayerController.network(
-      "${ApiConfig.baseUrl}/storage/$videoPath",
-    );
+    // Hanya gunakan videoPath langsung
+    final controller = VideoPlayerController.network(videoPath);
 
     showGeneralDialog(
       context: context,
