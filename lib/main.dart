@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:hr/core/helpers/feature_guard.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -6,7 +7,6 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/core/utils/local_notification.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -27,8 +27,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Init local notification
-  await NotificationService.instance.init();
+  await FeatureAccess.init();
   final themeProvider = ThemeProvider();
 
   // default hanya sekali
@@ -150,6 +149,7 @@ class MyApp extends StatelessWidget {
 
       //  Udah login → dashboard
       if (token != null && token.isNotEmpty) {
+        await FeatureAccess.init();
         return AppRoutes.dashboardMobile;
       }
 
@@ -158,6 +158,7 @@ class MyApp extends StatelessWidget {
     } else {
       //  Web/Desktop: langsung landing/dashboard, skip onboarding
       if (token != null && token.isNotEmpty) {
+        await FeatureAccess.init();
         return AppRoutes.dashboard;
       }
       return AppRoutes.landingPage;
