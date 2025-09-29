@@ -1,5 +1,5 @@
 import 'dart:ui';
-
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -25,8 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Init local notification
+  await FeatureAccess.init();
   final themeProvider = ThemeProvider();
 
   // default hanya sekali
