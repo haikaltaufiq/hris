@@ -149,7 +149,6 @@ class MyApp extends StatelessWidget {
 
       //  Udah login → dashboard
       if (token != null && token.isNotEmpty) {
-        await FeatureAccess.init();
         return AppRoutes.dashboardMobile;
       }
 
@@ -158,7 +157,6 @@ class MyApp extends StatelessWidget {
     } else {
       //  Web/Desktop: langsung landing/dashboard, skip onboarding
       if (token != null && token.isNotEmpty) {
-        await FeatureAccess.init();
         return AppRoutes.dashboard;
       }
       return AppRoutes.landingPage;
