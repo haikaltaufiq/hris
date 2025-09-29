@@ -33,6 +33,26 @@ class FeatureAccess {
     }
   }
 
+  // lebih aman
+  static void setFeatures(List<dynamic>? fiturFromBackend) {
+    if (fiturFromBackend == null) {
+      _fitur = [];
+      return;
+    }
+
+    _fitur = fiturFromBackend
+        .map((f) => (f is Map && f['nama_fitur'] != null)
+            ? f['nama_fitur'].toString()
+            : null)
+        .whereType<String>()
+        .toList();
+
+    // simpan juga ke shared preferences
+    SharedPreferences.getInstance().then((prefs) {
+      prefs.setString('fitur', jsonEncode(fiturFromBackend));
+    });
+  }
+
   static bool has(String requiredFeature) {
     return _fitur.contains(requiredFeature);
   }

@@ -392,7 +392,7 @@ class _LoginState extends State<Login> {
             });
 
             if (result['success']) {
-              await FeatureAccess.init();
+              FeatureAccess.setFeatures(result['fitur']);
 
               NotificationHelper.showTopNotification(
                 context,

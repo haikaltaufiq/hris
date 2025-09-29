@@ -48,7 +48,8 @@ class _LoginButtonState extends State<LoginButton> {
       final result = await auth.login(email, password);
 
       if (result['success'] == true) {
-        await FeatureAccess.init();
+        FeatureAccess.setFeatures(result['fitur']);
+
         NotificationHelper.showTopNotification(
           context,
           result['message'] ?? "Login berhasil",
