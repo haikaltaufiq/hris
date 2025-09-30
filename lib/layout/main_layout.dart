@@ -65,6 +65,10 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.peranForm: 23,
     AppRoutes.tugasForm: 24,
     AppRoutes.karyawanForm: 25,
+    AppRoutes.checkin: 26,
+    AppRoutes.checkout: 27,
+    AppRoutes.cutiForm: 28,
+    AppRoutes.lemburForm: 29,
   };
 
   // Map index ke route
@@ -95,6 +99,10 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.peranForm,
     AppRoutes.tugasForm,
     AppRoutes.karyawanForm,
+    AppRoutes.checkin,
+    AppRoutes.checkout,
+    AppRoutes.cutiForm,
+    AppRoutes.lemburForm,
   ];
 
   @override
@@ -443,6 +451,10 @@ class _MainLayoutState extends State<MainLayout>
       AppRoutes.reminderAdd,
       AppRoutes.reminderEdit,
       AppRoutes.peranForm,
+      AppRoutes.checkin,
+      AppRoutes.checkout,
+      AppRoutes.cutiForm,
+      AppRoutes.lemburForm,
     ].contains(widget.currentRoute);
 
     return Container(
@@ -607,6 +619,14 @@ class _MainLayoutState extends State<MainLayout>
         return 'Info Kantor';
       case AppRoutes.danger:
         return 'Danger Zone';
+      case AppRoutes.checkin:
+        return 'Absen Masuk';
+      case AppRoutes.checkout:
+        return 'Absen Keluar';
+      case AppRoutes.cutiForm:
+        return 'Pengajuan Cuti';
+      case AppRoutes.lemburForm:
+        return 'Pengajuan Lembur';
       default:
         return 'HRIS System';
     }

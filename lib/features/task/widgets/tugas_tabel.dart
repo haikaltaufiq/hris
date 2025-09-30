@@ -221,9 +221,10 @@ class _TugasTabelState extends State<TugasTabel> {
     );
   }
 
+//
   @override
   Widget build(BuildContext context) {
-    widget.tugasList.map((tugas) {
+    final rows = widget.tugasList.map((tugas) {
       return [
         tugas.user?.nama ?? '-',
         tugas.shortTugas,
@@ -236,47 +237,30 @@ class _TugasTabelState extends State<TugasTabel> {
         tugas.lampiran != null ? "Lihat Lampiran" : "-"
       ];
     }).toList();
-    return Consumer<TugasProvider>(
-      builder: (context, tugasProvider, _) {
-        final tugasList = tugasProvider.tugasList; // ambil dari provider
-        final rows = tugasList.map((tugas) {
-          return [
-            tugas.user?.nama ?? '-',
-            tugas.shortTugas,
-            parseTime(tugas.jamMulai),
-            parseDate(tugas.tanggalMulai),
-            parseDate(tugas.tanggalSelesai),
-            tugas.lokasi,
-            tugas.note,
-            tugas.status,
-            tugas.lampiran != null ? "Lihat Lampiran" : "-"
-          ];
-        }).toList();
 
-        return CustomDataTableWidget(
-          headers: headers,
-          rows: rows,
-          dropdownStatusColumnIndexes: [7],
-          statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
-          onStatusChanged: (rowIndex, newStatus) async {
-            final tugas = tugasList[rowIndex];
-            final message = await context
-                .read<TugasProvider>()
-                .updateTugasStatus(tugas.id, newStatus);
+    return CustomDataTableWidget(
+      headers: headers,
+      rows: rows,
+      dropdownStatusColumnIndexes: [7],
+      statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
+      onStatusChanged: (rowIndex, newStatus) async {
+        final tugas = widget.tugasList[rowIndex];
+        final message = await context
+            .read<TugasProvider>()
+            .updateTugasStatus(tugas.id, newStatus);
 
-            NotificationHelper.showTopNotification(
-              context,
-              message ?? 'Gagal update status',
-              isSuccess: message != null,
-            );
-          },
-          onView: (row) => _showDetailDialog(context, tugasList[row]),
-          onEdit: (row) => _editTugas(context, row),
-          onDelete: (row) => _deleteTugas(context, tugasList[row]),
-          onTapLampiran: (row) => _showLampiranDialog(context, tugasList[row]),
-          onCellTap: (row, col) => print('Cell tapped: Row $row, Col $col'),
+        NotificationHelper.showTopNotification(
+          context,
+          message ?? 'Gagal update status',
+          isSuccess: message != null,
         );
       },
+      onView: (row) => _showDetailDialog(context, widget.tugasList[row]),
+      onEdit: (row) => _editTugas(context, row),
+      onDelete: (row) => _deleteTugas(context, widget.tugasList[row]),
+      onTapLampiran: (row) =>
+          _showLampiranDialog(context, widget.tugasList[row]),
+      onCellTap: (row, col) => print('Cell tapped: Row $row, Col $col'),
     );
   }
 }
