@@ -9,7 +9,7 @@ import 'package:hr/features/task/widgets/video.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/helpers/notification_helper.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -91,6 +91,17 @@ class _TugasTabelState extends State<TugasTabel> {
     widget.onActionDone?.call();
   }
 
+  // lampiran tipe file
+  Future<void> _downloadFile(String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Tidak bisa membuka $url';
+    }
+  }
+
+
   // lampiran
   void _showLampiranDialog(BuildContext context, TugasModel tugas) {
     if (tugas.lampiran == null) {
@@ -144,8 +155,8 @@ class _TugasTabelState extends State<TugasTabel> {
     } else {
       return Center(
         child: ElevatedButton(
-          onPressed: () {},
-          child: Text('Download Lampiran'),
+          onPressed: () => _downloadFile(url),
+          child: const Text('Download Lampiran'),
         ),
       );
     }
