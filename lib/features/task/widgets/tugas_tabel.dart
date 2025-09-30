@@ -223,12 +223,6 @@ class _TugasTabelState extends State<TugasTabel> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.tugasList.isEmpty) {
-      return const Center(
-        child: Text('Belum ada tugas', style: TextStyle(color: Colors.white)),
-      );
-    }
-
     widget.tugasList.map((tugas) {
       return [
         tugas.user?.nama ?? '-',
@@ -266,7 +260,8 @@ class _TugasTabelState extends State<TugasTabel> {
           statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
           onStatusChanged: (rowIndex, newStatus) async {
             final tugas = tugasList[rowIndex];
-            final message = await context.read<TugasProvider>()
+            final message = await context
+                .read<TugasProvider>()
                 .updateTugasStatus(tugas.id, newStatus);
 
             NotificationHelper.showTopNotification(
