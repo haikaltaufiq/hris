@@ -5,6 +5,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/device_size.dart';
 
 class Login extends StatefulWidget {
@@ -440,33 +441,53 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildSignUpLink(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
       children: [
-        Text(
-          "Don't have an account? ",
-          style: TextStyle(
-            fontSize: 14,
-            color: Theme.of(context).textTheme.bodyMedium?.color,
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            // Handle sign up navigation
-          },
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-          child: Text(
-            'Call Admin',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.blue,
-              fontWeight: FontWeight.w600,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              "Don't have an account? ",
+              style: TextStyle(
+                fontSize: 14,
+                color: Theme.of(context).textTheme.bodyMedium?.color,
+              ),
             ),
-          ),
+            TextButton(
+              onPressed: () {
+                // Handle sign up navigation
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  final Uri telUri = Uri(
+                      scheme: 'tel',
+                      path: "0778 2140088"); // ganti nomor kantor
+                  if (await canLaunchUrl(telUri)) {
+                    await launchUrl(telUri);
+                  } else {
+                    debugPrint("Gagal membuka dialer");
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text("Tidak bisa membuka telepon")),
+                    );
+                  }
+                },
+                child: Text(
+                  'Contact Us',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: AppColors.blue,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

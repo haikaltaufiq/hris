@@ -121,6 +121,20 @@ class _DashboardMobileState extends State<DashboardMobile> {
                       Navigator.pushNamed(context, AppRoutes.danger);
                     },
                   ),
+                  DashboardMenuItem(
+                    label: "Device",
+                    icon: FontAwesomeIcons.phone,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.resetDevice);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Unlock",
+                    icon: FontAwesomeIcons.lockOpen,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.bukaAkun);
+                    },
+                  ),
                 ],
               ),
             ),
