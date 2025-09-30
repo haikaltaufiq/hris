@@ -166,7 +166,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                   ),
                 ),
                 Text(
-                  _nama,
+                  _nama.split(" ").take(2).join(" "),
                   style: TextStyle(
                     color: AppColors.putih,
                     fontSize: 26,
