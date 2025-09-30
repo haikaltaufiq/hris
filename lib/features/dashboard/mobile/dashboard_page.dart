@@ -44,7 +44,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
               child: DashboardCard(),
             ),
             FeatureGuard(
-              requiredFeature: 'lihat_absensi_sendiri',
+              requiredFeature: 'lihat_tugas_sendiri',
               child: const DashboardCardUser(),
             ),
             FeatureGuard(

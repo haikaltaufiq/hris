@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-class FeatureGuard extends StatelessWidget {
+class FeatureGuard extends StatefulWidget {
   final String requiredFeature;
   final Widget child;
 
@@ -13,9 +13,14 @@ class FeatureGuard extends StatelessWidget {
   });
 
   @override
+  State<FeatureGuard> createState() => _FeatureGuardState();
+}
+
+class _FeatureGuardState extends State<FeatureGuard> {
+  @override
   Widget build(BuildContext context) {
-    final hasAccess = FeatureAccess.has(requiredFeature);
-    return hasAccess ? child : const SizedBox.shrink();
+    final hasAccess = FeatureAccess.has(widget.requiredFeature);
+    return hasAccess ? widget.child : const SizedBox.shrink();
   }
 }
 
