@@ -17,6 +17,7 @@ import 'package:hr/features/department/department_page.dart';
 import 'package:hr/features/gaji/gaji_page.dart';
 import 'package:hr/features/info_kantor/info_kantor_page.dart';
 import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
+import 'package:hr/features/reset_device/reset_device.dart';
 import 'package:hr/on_boarding.dart';
 import 'package:hr/features/info_kantor/info_page_form.dart';
 import 'package:hr/features/jabatan/jabatan_page.dart';
@@ -81,6 +82,7 @@ class AppRoutes {
   static const String checkout = '/checkout';
   static const String cutiForm = '/cuti_form';
   static const String lemburForm = '/lembur_form';
+  static const String resetDevice = '/resetDevice';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -233,6 +235,10 @@ class AppRoutes {
       case reminderAdd:
         return _route(
             const ReminderForm().withMainLayout(reminderAdd), settings);
+
+      case resetDevice:
+        return _route(
+            const ResetDevice().withMainLayout(resetDevice), settings);
 
       case reminderEdit:
         final reminder = settings.arguments as ReminderData;

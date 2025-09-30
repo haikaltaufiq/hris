@@ -111,6 +111,11 @@ class ResponsiveNavBar extends StatefulWidget {
       icon: FontAwesomeIcons.triangleExclamation,
       requiredFeature: "denger",
     ),
+    NavItemWithFeature(
+      label: "Device Info",
+      icon: FontAwesomeIcons.phone,
+      requiredFeature: null,
+    ),
   ];
 
   // Method untuk filter menu berdasarkan fitur user
