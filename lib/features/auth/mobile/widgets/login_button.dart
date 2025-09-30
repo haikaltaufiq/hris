@@ -58,17 +58,18 @@ class _LoginButtonState extends State<LoginButton> {
           Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
         }
       } else {
-        final errorMessage = _mapErrorMessage(result['message']);
-        // kalau backend kirim errors, gabungkan jadi string
-        if (result['errors'] != null && result['errors'] is Map) {
-          final errors = (result['errors'] as Map)
-              .values
-              .expand((e) => e) // biasanya list string
-              .join("\n");
-          widget.onError(errors.isNotEmpty ? errors : errorMessage);
-        } else {
-          widget.onError(errorMessage);
-        }
+        final backendMessage = result['message'];
+
+        // Kalau backend mengirim message spesifik, pakai langsung
+        // Kalau null atau message umum terkait email/password, pakai mapping
+        final errorMessage = (backendMessage == null ||
+                backendMessage.toLowerCase().contains('password') ||
+                backendMessage.toLowerCase().contains('email') ||
+                backendMessage.toLowerCase().contains('invalid credentials'))
+            ? _mapErrorMessage(backendMessage)
+            : backendMessage;
+
+        widget.onError(errorMessage);
       }
     } on FormatException {
       widget.onError("Terjadi kesalahan pada server. Coba lagi nanti.");

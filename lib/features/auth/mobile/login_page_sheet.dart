@@ -83,20 +83,25 @@ class _LoginPageSheetState extends State<LoginPageSheet> {
                         const LoginCheckboxAndForgot(),
 
                         if (errorMessage != null) ...[
-                          Text(
-                            errorMessage!,
-                            style: const TextStyle(
-                              color: Color(0xFFFF0033), // merah neon
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              shadows: [
-                                Shadow(
-                                  blurRadius: 1.0,
-                                  color:
-                                      Color(0xFFFF0033), // efek glow merah neon
-                                  offset: Offset(0, 0),
-                                ),
-                              ],
+                          Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24.0),
+                            child: Text(
+                              textAlign: TextAlign.center,
+                              errorMessage!,
+                              style: const TextStyle(
+                                color: Color(0xFFFF0033), // merah neon
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                shadows: [
+                                  Shadow(
+                                    blurRadius: 1.0,
+                                    color: Color(
+                                        0xFFFF0033), // efek glow merah neon
+                                    offset: Offset(0, 0),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
