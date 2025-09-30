@@ -114,7 +114,12 @@ class ResponsiveNavBar extends StatefulWidget {
     NavItemWithFeature(
       label: "Device Info",
       icon: FontAwesomeIcons.phone,
-      requiredFeature: null,
+      requiredFeature: "reset_device",
+    ),
+    NavItemWithFeature(
+      label: "Buka Akun",
+      icon: FontAwesomeIcons.phone,
+      requiredFeature: "buka_akun",
     ),
   ];
 

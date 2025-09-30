@@ -8,6 +8,7 @@ import 'package:hr/features/attendance/absen_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
+import 'package:hr/features/buka_akun/buka_akun.dart';
 import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_page.dart';
 import 'package:hr/features/danger/danger_page.dart';
@@ -83,6 +84,7 @@ class AppRoutes {
   static const String cutiForm = '/cuti_form';
   static const String lemburForm = '/lembur_form';
   static const String resetDevice = '/resetDevice';
+  static const String bukaAkun = '/bukaAkun';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -149,6 +151,8 @@ class AppRoutes {
 
       case jabatan:
         return _route(const JabatanPage().withMainLayout(jabatan), settings);
+      case bukaAkun:
+        return _route(const BukaAkun().withMainLayout(bukaAkun), settings);
 
       case potonganGaji:
         return _route(

@@ -56,20 +56,21 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.infoKantor: 14,
     AppRoutes.danger: 15,
     AppRoutes.resetDevice: 16,
-    AppRoutes.mapPage: 17,
-    AppRoutes.potonganForm: 18,
-    AppRoutes.potonganEdit: 19,
-    AppRoutes.info: 20,
-    AppRoutes.taskEdit: 21,
-    AppRoutes.reminderAdd: 22,
-    AppRoutes.reminderEdit: 23,
-    AppRoutes.peranForm: 24,
-    AppRoutes.tugasForm: 25,
-    AppRoutes.karyawanForm: 26,
-    AppRoutes.checkin: 27,
-    AppRoutes.checkout: 28,
-    AppRoutes.cutiForm: 29,
-    AppRoutes.lemburForm: 30,
+    AppRoutes.bukaAkun: 17,
+    AppRoutes.mapPage: 18,
+    AppRoutes.potonganForm: 19,
+    AppRoutes.potonganEdit: 20,
+    AppRoutes.info: 21,
+    AppRoutes.taskEdit: 22,
+    AppRoutes.reminderAdd: 23,
+    AppRoutes.reminderEdit: 24,
+    AppRoutes.peranForm: 25,
+    AppRoutes.tugasForm: 26,
+    AppRoutes.karyawanForm: 27,
+    AppRoutes.checkin: 28,
+    AppRoutes.checkout: 29,
+    AppRoutes.cutiForm: 30,
+    AppRoutes.lemburForm: 31,
   };
 
   // Map index ke route
@@ -91,6 +92,7 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.infoKantor,
     AppRoutes.danger,
     AppRoutes.resetDevice,
+    AppRoutes.bukaAkun,
     AppRoutes.mapPage,
     AppRoutes.potonganForm,
     AppRoutes.potonganEdit,
@@ -631,6 +633,8 @@ class _MainLayoutState extends State<MainLayout>
         return 'Pengajuan Lembur';
       case AppRoutes.resetDevice:
         return 'Reset Device';
+      case AppRoutes.bukaAkun:
+        return 'Buka Akun';
       default:
         return 'HRIS System';
     }
