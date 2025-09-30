@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
 
-class ResetDevice extends StatefulWidget {
-  const ResetDevice({super.key});
+class BukaAkun extends StatefulWidget {
+  const BukaAkun({super.key});
 
   @override
-  State<ResetDevice> createState() => _ResetDeviceState();
+  State<BukaAkun> createState() => _BukaAkunState();
 }
 
-class _ResetDeviceState extends State<ResetDevice> {
+class _BukaAkunState extends State<BukaAkun> {
   final List<Map<String, String>> devices = [
     {'user': 'Haikal', 'device': 'Laptop Windows'},
     {'user': 'Rina', 'device': 'iPhone 14'},
