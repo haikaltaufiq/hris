@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -74,9 +75,9 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
   /// --- Video tampil di Fullscreen Dialog Stylish
   void _openVideo(String? videoPath) {
     if (videoPath == null || videoPath.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Tidak ada video")),
-      );
+      NotificationHelper.showTopNotification(context, "Tidak ada video",
+          isSuccess: false);
+
       return;
     }
 

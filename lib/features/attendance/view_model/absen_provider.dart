@@ -259,4 +259,34 @@ class AbsenProvider extends ChangeNotifier {
     }
     return total;
   }
+
+  /// Getter untuk data bulanan (Jan=0, Feb=1, …, Dec=11)
+  List<double> get monthlyAttendance {
+    // List 12 elemen, masing-masing index = bulan
+    final List<double> monthly = List.filled(12, 0);
+
+    for (final absen in _absensi) {
+      try {
+        if (absen.checkinDate != null && absen.checkinDate!.isNotEmpty) {
+          final date = DateTime.parse(absen.checkinDate!);
+          final monthIndex = date.month - 1;
+
+          // Hitung attendance rate: 1 jika hadir, 0 jika tidak hadir
+          monthly[monthIndex] += absen.isHadir ? 1 : 0;
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print('❌ Error parsing absen date: $e');
+        }
+      }
+    }
+
+    return monthly;
+  }
+}
+
+extension AbsenModelExt on AbsenModel {
+  bool get isHadir {
+    return status != null && status!.toLowerCase() == 'hadir';
+  }
 }

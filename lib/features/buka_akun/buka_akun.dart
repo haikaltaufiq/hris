@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/akun_service.dart';
@@ -30,9 +31,8 @@ class _BukaAkunState extends State<BukaAkun> {
       });
     } catch (e) {
       setState(() => loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal ambil akun: $e')),
-      );
+      NotificationHelper.showTopNotification(context, 'Gagal ambil akun: $e',
+          isSuccess: false);
     }
   }
 
@@ -40,15 +40,14 @@ class _BukaAkunState extends State<BukaAkun> {
     try {
       final success = await AkunService.unlockUser(userId);
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Akun berhasil dibuka')),
-        );
+        NotificationHelper.showTopNotification(context, 'Akun berhasil dibuka',
+            isSuccess: true);
+
         _loadUsers(); // refresh list
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal buka akun: $e')),
-      );
+      NotificationHelper.showTopNotification(context, 'Gagal buka akun: $e',
+          isSuccess: false);
     }
   }
 

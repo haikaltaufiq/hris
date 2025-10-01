@@ -3,6 +3,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
@@ -153,9 +154,8 @@ class _AbsenTabelState extends State<AbsenTabel> {
   /// --- Video tampil di Fullscreen Dialog Stylish
   void _openVideo(String? videoPath) {
     if (videoPath == null || videoPath.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Tidak ada video")),
-      );
+      NotificationHelper.showTopNotification(context, "Tidak ada video",
+          isSuccess: false);
       return;
     }
 

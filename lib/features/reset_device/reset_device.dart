@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/device_service.dart';
@@ -30,9 +31,9 @@ class _ResetDeviceState extends State<ResetDevice> {
       });
     } catch (e) {
       setState(() => loading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal ambil device: $e')),
-      );
+
+      NotificationHelper.showTopNotification(context, 'Gagal ambil device: $e',
+          isSuccess: false);
     }
   }
 
@@ -40,15 +41,15 @@ class _ResetDeviceState extends State<ResetDevice> {
     try {
       final success = await DeviceService.resetDevice(userId);
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Device berhasil direset')),
-        );
+        NotificationHelper.showTopNotification(
+            context, 'Device berhasil direset',
+            isSuccess: true);
+
         _loadDevices(); // refresh data
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal reset: $e')),
-      );
+      NotificationHelper.showTopNotification(context, 'Gagal reset: $e',
+          isSuccess: false);
     }
   }
 

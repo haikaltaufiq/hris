@@ -17,6 +17,7 @@ class TugasProvider extends ChangeNotifier {
   final _tugasBox = Hive.box('tugas');
   bool _hasCache = false;
   bool get hasCache => _hasCache;
+  int get totalAllTugas => _tugasList.length;
 
   int get totalTugas => _tugasList
       .where((tugas) => tugas.status.toLowerCase() != 'selesai')
@@ -231,5 +232,43 @@ class TugasProvider extends ChangeNotifier {
         return false;
       }
     }).length;
+  }
+
+  /// Menghitung jumlah tugas per bulan berdasarkan status
+  Map<String, List<double>> getMonthlyData() {
+    // Inisialisasi 12 bulan (index 0 = Jan, 11 = Dec)
+    List<double> target = List.filled(12, 0);
+    List<double> attendanceRate = List.filled(12, 0);
+    List<double> projectCompletion = List.filled(12, 0);
+
+    for (final tugas in _tugasList) {
+      try {
+        DateTime? date = DateTime.tryParse(tugas.tanggalMulai);
+        if (date == null) continue;
+
+        int monthIndex = date.month - 1;
+
+        // Semua tugas dihitung sebagai target
+        target[monthIndex] += 1;
+
+        // Status selesai = projectCompletion
+        if (tugas.status.toLowerCase() == 'selesai') {
+          projectCompletion[monthIndex] += 1;
+        }
+
+        // Status lain dianggap menunggu/admin = attendanceRate
+        else {
+          attendanceRate[monthIndex] += 1;
+        }
+      } catch (e) {
+        print('Error parsing tugas tanggalMulai: $e');
+      }
+    }
+
+    return {
+      'target': target,
+      'attendanceRate': attendanceRate,
+      'projectCompletion': projectCompletion,
+    };
   }
 }

@@ -28,8 +28,17 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-
+    _loadData();
     _animationController.forward();
+  }
+
+  Future<void> _loadData() async {
+    await Future.microtask(() {
+      context.read<AbsenProvider>().fetchAbsensi();
+      context.read<TugasProvider>().fetchTugas();
+      context.read<UserProvider>().fetchUsers();
+      context.read<DepartmentViewModel>().fetchDepartemen();
+    });
   }
 
   @override
@@ -49,91 +58,81 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-        animation: _animationController,
-        builder: (context, child) {
-          return Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final isNarrow = constraints.maxWidth < 800;
+      animation: _animationController,
+      builder: (context, child) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isNarrow = constraints.maxWidth < 800;
 
-                return isNarrow
-                    ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _welcomeCard(),
-                          const SizedBox(height: 10),
-                          _statSection(),
-                          const SizedBox(height: 10),
-                          _overviewCard(),
-                        ],
-                      )
-                    : Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Welcome Card
-                          Flexible(
-                            flex: 2,
-                            child: _welcomeCard(),
-                          ),
-                          const SizedBox(width: 10),
-
-                          // Stats
-                          Flexible(
-                            flex: 3,
-                            child: _statSection(),
-                          ),
-                          const SizedBox(width: 10),
-
-                          // Overview
-                          Flexible(
-                            flex: 2,
-                            child: _overviewCard(),
-                          ),
-                        ],
-                      );
-              },
-            ),
-          );
-        });
-  }
-
-  /// Bagian Stats Column biar rapih
-  Widget _statSection() {
-    final totalUser = context.read<UserProvider>().totalUsers.toString();
-    final totalDepartment =
-        context.read<DepartmentViewModel>().totalDepartment.toString();
-    final totalTask = context.read<TugasProvider>().totalTugas.toString();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _statCard(
-          title: "Departments",
-          value: totalDepartment,
-          subtitle: "Active divisions",
-          icon: Icons.business_outlined,
-        ),
-        const SizedBox(height: 10),
-        _statCard(
-          title: "Employees",
-          value: totalUser,
-          subtitle: "Total Employees",
-          icon: Icons.people_outline,
-          isGrowth: true,
-        ),
-        const SizedBox(height: 10),
-        _statCard(
-          title: "Active Tasks",
-          value: totalTask,
-          subtitle: "Due this week",
-          icon: Icons.assignment_outlined,
-        ),
-      ],
+              return isNarrow
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        _welcomeCard(),
+                        const SizedBox(height: 10),
+                        _statSection(),
+                        const SizedBox(height: 10),
+                        _overviewCard(),
+                      ],
+                    )
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Flexible(flex: 2, child: _welcomeCard()),
+                        const SizedBox(width: 10),
+                        Flexible(flex: 3, child: _statSection()),
+                        const SizedBox(width: 10),
+                        Flexible(flex: 2, child: _overviewCard()),
+                      ],
+                    );
+            },
+          ),
+        );
+      },
     );
   }
 
-  /// Welcome Card dengan hover effect
+  /// Bagian Stats Column
+  Widget _statSection() {
+    return Consumer3<UserProvider, DepartmentViewModel, TugasProvider>(
+      builder: (context, userProv, deptProv, tugasProv, child) {
+        final totalUser = userProv.totalUsers.toString();
+        final totalDepartment = deptProv.totalDepartment.toString();
+        final totalTask = tugasProv.totalTugas.toString();
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _statCard(
+              title: "Departments",
+              value: totalDepartment,
+              subtitle: "Active divisions",
+              icon: Icons.business_outlined,
+            ),
+            const SizedBox(height: 10),
+            _statCard(
+              title: "Employees",
+              value: totalUser,
+              subtitle: "Total Employees",
+              icon: Icons.people_outline,
+              isGrowth: true,
+            ),
+            const SizedBox(height: 10),
+            _statCard(
+              title: "Active Tasks",
+              value: totalTask,
+              subtitle: "Due this week",
+              icon: Icons.assignment_outlined,
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Welcome Card
   Widget _welcomeCard() {
     return _HoverCard(
       child: Container(
@@ -153,7 +152,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Welcome Text
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -183,15 +181,11 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            SizedBox(
-              height: 22,
-            ),
-            // Today's Cards Row
+            const SizedBox(height: 22),
             Consumer3<AbsenProvider, UserProvider, TugasProvider>(
               builder: (context, absenProv, userProv, tugasProv, child) {
                 final hadirHariIni = absenProv.todayJumlahHadir;
                 final totalUser = userProv.totalUsers;
-
                 final taskDeadline = tugasProv.todayActiveTask;
                 final totalTask = tugasProv.totalTugas;
 
@@ -220,10 +214,9 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Reusable Today Card dengan hover effect
   Widget _todayCard({required String title, required String value}) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final cardHeight = screenHeight * 0.2; // responsive height
+    final cardHeight = screenHeight * 0.2;
 
     return _HoverCard(
       child: Container(
@@ -245,7 +238,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
               ),
             ),
             const Spacer(),
-            // make value responsive with Flexible + FittedBox
             Flexible(
               child: FittedBox(
                 fit: BoxFit.scaleDown,
@@ -254,8 +246,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                   value,
                   style: TextStyle(
                     color: AppColors.putih.withOpacity(0.6),
-                    fontSize:
-                        34, // tetap pake style asli, FittedBox yg nge-handle
+                    fontSize: 34,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -267,7 +258,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Stat Card dengan hover effect
   Widget _statCard({
     required String title,
     required String value,
@@ -346,26 +336,66 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Overview Card dengan hover effect
   Widget _overviewCard() {
-    return Consumer2<AbsenProvider, UserProvider>(
-      builder: (context, absenProv, userProv, child) {
-        final totalUser = userProv.totalUsers;
-        final totalTugasSelesai =
-            context.read<TugasProvider>().totalTugasSelesai.toDouble();
-        final totalTugas = context.read<TugasProvider>().totalTugas.toDouble();
-        // Hitung rate dengan aman
-        final rate = (totalUser > 0)
-            ? absenProv.jumlahHadir / totalUser // 0..1
-            : 0.0;
+    return Consumer2<AbsenProvider, TugasProvider>(
+      builder: (context, absenProv, tugasProv, child) {
+        // Loading / empty handling
+        if (tugasProv.isLoading) {
+          return Container(
+            height: 320,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            ),
+          );
+        }
 
-        // Project completion 0..1
+        if (tugasProv.tugasList.isEmpty) {
+          return Container(
+            height: 320,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: const Center(
+              child: Text(
+                "No tasks available",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+        }
+
+        final totalUser = context.read<UserProvider>().totalUsers;
+        final totalTugasSelesai = tugasProv.totalTugasSelesai.toDouble();
+        final totalTugas =
+            tugasProv.totalAllTugas.toDouble(); // pake totalAllTugas
+
+        final rate = (totalUser > 0) ? absenProv.jumlahHadir / totalUser : 0.0;
         final projectRate =
             (totalTugas > 0) ? totalTugasSelesai / totalTugas : 0.0;
-
-        // Performance = 50% attendance + 50% project completion
         final performance = ((rate * 0.5) + (projectRate * 0.5));
         final overallProgress = (rate + projectRate + performance) / 3.0;
+
         return _HoverCard(
           child: Container(
             height: 320,
@@ -381,90 +411,93 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Monthly Overview",
-                  style: TextStyle(
-                    color: AppColors.putih,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                const SizedBox(height: 20),
-
-                // Progress items
-                Flexible(
-                  child: ListView(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+            child: tugasProv.isLoading && absenProv.isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      color: AppColors.putih,
+                    ),
+                  )
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _progress("Project Completion", projectRate,
-                          const Color(0xFF4EDD53)),
-                      const SizedBox(height: 16),
-                      _progress("Attendance Rate", rate, Colors.orange),
-                      const SizedBox(height: 16),
-                      _progress("Performance Score", performance,
-                          const Color.fromARGB(255, 62, 168, 255)),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                // Footer card
-                Container(
-                  width: double.infinity,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Overall",
-                            style: TextStyle(
-                              color: AppColors.putih.withOpacity(0.7),
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            "${(overallProgress * 100).toStringAsFixed(1)}%",
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        "Monthly Overview",
+                        style: TextStyle(
+                          color: AppColors.putih,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
+                      const SizedBox(height: 20),
+                      // Progress items
+                      Flexible(
+                        child: ListView(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            _progress("Project Completion", projectRate,
+                                const Color(0xFF4EDD53)),
+                            const SizedBox(height: 16),
+                            _progress("Attendance Rate", rate, Colors.orange),
+                            const SizedBox(height: 16),
+                            _progress("Performance Score", performance,
+                                const Color.fromARGB(255, 62, 168, 255)),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+                      // Footer card
                       Container(
-                        width: 28,
-                        height: 28,
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
-                          borderRadius: BorderRadius.circular(6),
+                          color: AppColors.secondary,
+                          borderRadius: BorderRadius.circular(10),
                         ),
-                        child: Icon(
-                          Icons.check_circle_outline,
-                          color: Colors.green[400],
-                          size: 14,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Overall",
+                                  style: TextStyle(
+                                    color: AppColors.putih.withOpacity(0.7),
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  "${(overallProgress * 100).toStringAsFixed(1)}%",
+                                  style: TextStyle(
+                                    color: AppColors.putih,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                              child: Icon(
+                                Icons.check_circle_outline,
+                                color: Colors.green[400],
+                                size: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
           ),
         );
       },
@@ -511,13 +544,10 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   }
 }
 
-/// Widget untuk menangani hover effect dengan animasi subtle
+/// Hover effect card
 class _HoverCard extends StatefulWidget {
   final Widget child;
-
-  const _HoverCard({
-    required this.child,
-  });
+  const _HoverCard({required this.child});
 
   @override
   State<_HoverCard> createState() => _HoverCardState();
@@ -535,7 +565,7 @@ class _HoverCardState extends State<_HoverCard> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
         transform: _hovering
-            ? (Matrix4.identity()..translate(0, -4, 0)) // Naik 4px saat hover
+            ? (Matrix4.identity()..translate(0, -4, 0))
             : Matrix4.identity(),
         child: widget.child,
       ),

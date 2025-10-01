@@ -252,12 +252,13 @@ class StatusTaskChart extends StatelessWidget {
                                             color = Colors.green;
                                             break;
                                           case 1:
-                                            status = 'Menunggu Admin';
-                                            color = Colors.blue;
-                                            break;
-                                          case 2:
                                             status = 'Proses';
                                             color = Colors.deepOrange;
+
+                                            break;
+                                          case 2:
+                                            status = 'Menunggu Admin';
+                                            color = Colors.blue;
                                             break;
                                         }
 

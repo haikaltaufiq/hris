@@ -247,20 +247,15 @@ class ResetDb extends StatelessWidget {
                                             tahun: selectedTahun!,
                                             jenis: jenis,
                                           );
-
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    "$jenis bulan $selectedBulan tahun $selectedTahun berhasil direset")),
-                                          );
+                                          NotificationHelper.showTopNotification(
+                                              context,
+                                              "$jenis bulan $selectedBulan tahun $selectedTahun berhasil direset",
+                                              isSuccess: true);
                                         } catch (e) {
-                                          ScaffoldMessenger.of(context)
-                                              .showSnackBar(
-                                            SnackBar(
-                                                content: Text(
-                                                    "Gagal reset $jenis: $e")),
-                                          );
+                                          NotificationHelper
+                                              .showTopNotification(context,
+                                                  "Gagal reset $jenis: $e",
+                                                  isSuccess: false);
                                         }
 
                                         Navigator.pop(context);

@@ -471,10 +471,9 @@ class _LoginState extends State<Login> {
                     await launchUrl(telUri);
                   } else {
                     debugPrint("Gagal membuka dialer");
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text("Tidak bisa membuka telepon")),
-                    );
+                    NotificationHelper.showTopNotification(
+                        context, "Tidak bisa membuka telepon",
+                        isSuccess: false);
                   }
                 },
                 child: Text(
