@@ -283,7 +283,7 @@ class _ProfilePageState extends State<ProfilePage> {
       {
         'icon': FontAwesomeIcons.moneyBill,
         'label': 'Gaji Per Hari',
-        'value': gajiPokok != null ? gajiPokok!.toStringAsFixed(2) : '-'
+        'value': gajiPokok != null ? gajiPokok!.toInt().toString() : '-'
       },
       {'icon': FontAwesomeIcons.fileInvoice, 'label': 'NPWP', 'value': npwp},
       {

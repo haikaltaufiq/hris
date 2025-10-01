@@ -36,7 +36,7 @@ class UserModel {
       id: json['id'] ?? 0,
       nama: json['nama'] ?? '',
       email: json['email'] ?? '',
-      gajiPokok: json['gaji_per_hari'],
+      gajiPokok: json['gaji_per_hari']?.toString(),
       npwp: json['npwp'],
       bpjsKesehatan: json['bpjs_kesehatan'],
       bpjsKetenagakerjaan: json['bpjs_ketenagakerjaan'],
