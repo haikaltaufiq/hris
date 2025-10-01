@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/const/app_size.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -512,13 +513,17 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       Navigator.pushNamed(context, AppRoutes.pengaturan);
                     } else if (value == 'logout') {
                       debugPrint("Logout diklik");
+
+                      // panggil API logout dulu
+                      final result = await AuthService().logout();
+                      debugPrint("Logout result: $result");
+
+                      // lalu clear prefs
                       final prefs = await SharedPreferences.getInstance();
-                      await prefs
-                          .clear(); // hapus semua, termasuk token & fitur
+                      await prefs.clear();
 
                       if (mounted) {
                         Navigator.pushAndRemoveUntil(
-                          // ignore: use_build_context_synchronously
                           context,
                           MaterialPageRoute(builder: (_) => const LoginPage()),
                           (route) => false,

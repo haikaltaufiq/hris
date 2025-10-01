@@ -253,6 +253,8 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
+    debugPrint("Token sebelum logout: $token"); // <--- debug
+
     if (token == null) {
       await prefs.clear();
       return {'success': true, 'message': 'Sudah logout (local only)'};
@@ -266,6 +268,8 @@ class AuthService {
           'Authorization': 'Bearer $token',
         },
       );
+
+      debugPrint("Logout response: ${response.statusCode} - ${response.body}");
 
       await prefs.clear();
 
