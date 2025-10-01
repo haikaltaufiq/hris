@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/header.dart';
-import 'package:hr/components/search_bar/search_bar.dart';
+
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/danger/reset_db.dart';
@@ -27,10 +27,6 @@ class _DangerPageState extends State<DangerPage> {
               alignment: Alignment.bottomLeft,
               child: Header(title: "Danger"),
             ),
-          SearchingBar(
-            controller: searchController,
-            onFilter1Tap: () {},
-          ),
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: context.isMobile ? 4.0 : 30.0,

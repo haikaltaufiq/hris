@@ -241,13 +241,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.tugasList.isEmpty) {
-      return const Center(
-        child: Text('Belum ada tugas', style: TextStyle(color: Colors.white)),
-      );
-    }
-
-    widget.tugasList.map((tugas) {
+    final rows = widget.tugasList.map((tugas) {
       return [
         tugas.user?.nama ?? '-',
         tugas.shortTugas,
@@ -262,53 +256,34 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         tugas.lampiran != null ? "Lihat Lampiran" : "-"
       ];
     }).toList();
-    return Consumer<TugasProvider>(
-      builder: (context, tugasProvider, _) {
-        final tugasList = tugasProvider.tugasList; // ambil dari provider
-        final rows = tugasList.map((tugas) {
-          return [
-            tugas.user?.nama ?? '-',
-            tugas.shortTugas,
-            parseTime(tugas.jamMulai),
-            parseDate(tugas.tanggalMulai),
-            parseDate(tugas.tanggalSelesai),
-            (tugas.lokasi != null && tugas.lokasi.isNotEmpty)
-                ? "See Location"
-                : "-",
-            tugas.note,
-            tugas.status,
-            tugas.lampiran != null ? "Lihat Lampiran" : "-"
-          ];
-        }).toList();
 
-        return CustomDataTableWeb(
-          headers: headers,
-          rows: rows,
-          dropdownStatusColumnIndexes: [7],
-          statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
-          onStatusChanged: (rowIndex, newStatus) async {
-            final tugas = tugasList[rowIndex];
-            final message = await context
-                .read<TugasProvider>()
-                .updateTugasStatus(tugas.id, newStatus);
+    return CustomDataTableWeb(
+      headers: headers,
+      rows: rows,
+      dropdownStatusColumnIndexes: [7],
+      statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
+      onStatusChanged: (rowIndex, newStatus) async {
+        final tugas = widget.tugasList[rowIndex];
+        final message = await context
+            .read<TugasProvider>()
+            .updateTugasStatus(tugas.id, newStatus);
 
-            NotificationHelper.showTopNotification(
-              context,
-              message ?? 'Gagal update status',
-              isSuccess: message != null,
-            );
-          },
-          onView: (row) => _showDetailDialog(context, tugasList[row]),
-          onEdit: (row) => _editTugas(context, row),
-          onDelete: (row) => _deleteTugas(context, tugasList[row]),
-          onTapLampiran: (row) => _showLampiranDialog(context, tugasList[row]),
-          onCellTap: (row, col) {
-            final tugas = tugasList[row];
-            if (col == 5 && tugas.lokasi != null && tugas.lokasi.isNotEmpty) {
-              _openMap(tugas.lokasi);
-            }
-          },
+        NotificationHelper.showTopNotification(
+          context,
+          message ?? 'Gagal update status',
+          isSuccess: message != null,
         );
+      },
+      onView: (row) => _showDetailDialog(context, widget.tugasList[row]),
+      onEdit: (row) => _editTugas(context, row),
+      onDelete: (row) => _deleteTugas(context, widget.tugasList[row]),
+      onTapLampiran: (row) =>
+          _showLampiranDialog(context, widget.tugasList[row]),
+      onCellTap: (row, col) {
+        final tugas = widget.tugasList[row];
+        if (col == 5 && tugas.lokasi != null && tugas.lokasi.isNotEmpty) {
+          _openMap(tugas.lokasi);
+        }
       },
     );
   }

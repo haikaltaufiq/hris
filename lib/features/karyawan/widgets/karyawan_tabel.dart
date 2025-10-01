@@ -15,6 +15,14 @@ class KaryawanTabel extends StatelessWidget {
 
   const KaryawanTabel({super.key, required this.users});
 
+  String getFirstTwoWords(String? name) {
+    if (name == null || name.isEmpty) return '-';
+    final words = name.split(' ');
+    if (words.length <= 2)
+      return name; // kalau kurang dari 2 kata, tampilkan semua
+    return '${words[0]} ${words[1]}';
+  }
+
   @override
   Widget build(BuildContext context) {
     // Headers sesuai field

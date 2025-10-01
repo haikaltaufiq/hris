@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:hr/features/lembur/web/web_tabel.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
 class LemburWebPage extends StatefulWidget {
@@ -205,68 +208,92 @@ class _LemburWebPageState extends State<LemburWebPage> {
         : lemburProvider.filteredLemburList;
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
+      body: Stack(
         children: [
-          SearchingBar(
-            controller: searchController,
-            onChanged: (value) {
-              lemburProvider.filterLembur(value);
-            },
-            onFilter1Tap: _toggleSort,
-          ),
-          if (lemburProvider.isLoading && displayedList.isEmpty)
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: const Center(child: LoadingWidget()),
-            )
-          else if (lemburProvider.errorMessage != null)
-            Center(child: Text('Error: ${lemburProvider.errorMessage}'))
-          else if (lemburProvider.lemburList.isEmpty &&
-              !lemburProvider.isLoading)
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.hourglass_empty,
-                      size: 64,
-                      color: AppColors.putih.withOpacity(0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Belum ada pengajuan',
-                      style: TextStyle(
-                        color: AppColors.putih,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap tombol + untuk menambah pengajuan baru',
-                      style: TextStyle(
-                        color: AppColors.putih.withOpacity(0.7),
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+          ListView(
+            padding: EdgeInsets.all(16.0),
+            children: [
+              SearchingBar(
+                controller: searchController,
+                onChanged: (value) {
+                  lemburProvider.filterLembur(value);
+                },
+                onFilter1Tap: _toggleSort,
               ),
-            )
-          else if (displayedList.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: WebTabelLembur(
-                lemburList: displayedList,
-                // onDelete: _deleteLembur,
-                onApprove: (lembur) => _approveLembur(lembur),
-                onDecline: (lembur) => _declineLembur(lembur),
+              if (lemburProvider.isLoading && displayedList.isEmpty)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: const Center(child: LoadingWidget()),
+                )
+              else if (lemburProvider.errorMessage != null)
+                Center(child: Text('Error: ${lemburProvider.errorMessage}'))
+              else if (lemburProvider.lemburList.isEmpty &&
+                  !lemburProvider.isLoading)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.hourglass_empty,
+                          size: 64,
+                          color: AppColors.putih.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Belum ada pengajuan',
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap tombol + untuk menambah pengajuan baru',
+                          style: TextStyle(
+                            color: AppColors.putih.withOpacity(0.7),
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (displayedList.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: WebTabelLembur(
+                    lemburList: displayedList,
+                    // onDelete: _deleteLembur,
+                    onApprove: (lembur) => _approveLembur(lembur),
+                    onDecline: (lembur) => _declineLembur(lembur),
+                  ),
+                ),
+            ],
+          ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FeatureGuard(
+              requiredFeature: 'tambah_lembur',
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result =
+                      await Navigator.pushNamed(context, AppRoutes.lemburForm);
+
+                  if (result == true) {
+                    setState(() {});
+                  }
+                },
+                backgroundColor: AppColors.secondary,
+                shape: const CircleBorder(),
+                child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
               ),
             ),
+          ),
         ],
       ),
     );

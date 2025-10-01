@@ -1,16 +1,19 @@
 // ignore_for_file: non_constant_identifier_names, annotate_overrides, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
 import 'package:hr/features/cuti/web/web_tabel_cuti.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
 class CutiWebPage extends StatefulWidget {
@@ -166,8 +169,9 @@ class _CutiWebPageState extends State<CutiWebPage> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<CutiProvider>().declineCuti(cuti.id, catatan_penolakan!);
+      final message = await context
+          .read<CutiProvider>()
+          .declineCuti(cuti.id, catatan_penolakan!);
 
       searchController.clear();
 
@@ -205,67 +209,92 @@ class _CutiWebPageState extends State<CutiWebPage> {
         : cutiProvider.filteredCutiList;
     return Scaffold(
       backgroundColor: AppColors.bg,
-      body: ListView(
-        padding: EdgeInsets.all(16.0),
+      body: Stack(
         children: [
-          SearchingBar(
-            controller: searchController,
-            onChanged: (value) {
-              cutiProvider.filterCuti(value);
-            },
-            onFilter1Tap: _toggleSort,
-          ),
-          if (cutiProvider.isLoading && displayedList.isEmpty)
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: const Center(child: LoadingWidget()),
-            )
-          else if (cutiProvider.errorMessage != null)
-            Center(child: Text('Error: ${cutiProvider.errorMessage}'))
-          else if (cutiProvider.cutiList.isEmpty && !cutiProvider.isLoading)
-            SizedBox(
-              height: MediaQuery.of(context).size.height * 0.6,
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.hourglass_empty,
-                      size: 64,
-                      color: AppColors.putih.withOpacity(0.5),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Belum ada pengajuan',
-                      style: TextStyle(
-                        color: AppColors.putih,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap tombol + untuk menambah pengajuan baru',
-                      style: TextStyle(
-                        color: AppColors.putih.withOpacity(0.7),
-                        fontSize: 14,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+          ListView(
+            padding: EdgeInsets.all(16.0),
+            children: [
+              SearchingBar(
+                controller: searchController,
+                onChanged: (value) {
+                  cutiProvider.filterCuti(value);
+                },
+                onFilter1Tap: _toggleSort,
               ),
-            )
-          else if (displayedList.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: WebTabelCuti(
-                cutiList: displayedList,
-                // onDelete: _deleteCuti,
-                onApprove: (cuti) => _approveCuti(cuti),
-                onDecline: (cuti) => _declineCuti(cuti),
+              if (cutiProvider.isLoading && displayedList.isEmpty)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: const Center(child: LoadingWidget()),
+                )
+              else if (cutiProvider.errorMessage != null)
+                Center(child: Text('Error: ${cutiProvider.errorMessage}'))
+              else if (cutiProvider.cutiList.isEmpty && !cutiProvider.isLoading)
+                SizedBox(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.hourglass_empty,
+                          size: 64,
+                          color: AppColors.putih.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Belum ada pengajuan',
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Tap tombol + untuk menambah pengajuan baru',
+                          style: TextStyle(
+                            color: AppColors.putih.withOpacity(0.7),
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              else if (displayedList.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: WebTabelCuti(
+                    cutiList: displayedList,
+                    // onDelete: _deleteCuti,
+                    onApprove: (cuti) => _approveCuti(cuti),
+                    onDecline: (cuti) => _declineCuti(cuti),
+                  ),
+                ),
+            ],
+          ),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FeatureGuard(
+              requiredFeature:
+                  'tambah_cuti', // Tambahkan jika diperlukan role-based access
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result =
+                      await Navigator.pushNamed(context, AppRoutes.cutiForm);
+
+                  if (result == true) {
+                    await context.read<CutiProvider>().fetchCuti();
+                  }
+                },
+                backgroundColor: AppColors.secondary,
+                shape: const CircleBorder(),
+                child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
               ),
             ),
+          ),
         ],
       ),
     );

@@ -275,6 +275,13 @@ class CustomDataTableWidget extends StatelessWidget {
     );
   }
 
+  String firstTwoWords(String? text) {
+    if (text == null || text.isEmpty) return '';
+    final words = text.split(' ');
+    if (words.length <= 2) return text;
+    return '${words[0]} ${words[1]}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -320,7 +327,7 @@ class CustomDataTableWidget extends StatelessWidget {
                           ),
                           const SizedBox(width: 14),
                           Text(
-                            row[0],
+                            firstTwoWords(row[0]),
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,

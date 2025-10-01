@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class LoginInputField extends StatelessWidget {
+class LoginInputField extends StatefulWidget {
   final String label;
   final String hintText;
   final bool isPassword;
@@ -16,6 +16,25 @@ class LoginInputField extends StatelessWidget {
   });
 
   @override
+  State<LoginInputField> createState() => _LoginInputFieldState();
+}
+
+class _LoginInputFieldState extends State<LoginInputField> {
+  late bool _obscureText;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscureText = widget.isPassword;
+  }
+
+  void _toggleVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Column(
@@ -24,7 +43,7 @@ class LoginInputField extends StatelessWidget {
         SizedBox(
           width: screenWidth * 0.75,
           child: Text(
-            label,
+            widget.label,
             style: TextStyle(
               fontFamily: GoogleFonts.poppins().fontFamily,
               fontSize: 15,
@@ -48,11 +67,10 @@ class LoginInputField extends StatelessWidget {
               ),
             ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+          child: Center(
             child: TextField(
-              controller: controller,
-              obscureText: isPassword,
+              controller: widget.controller,
+              obscureText: _obscureText,
               style: TextStyle(
                 fontFamily: GoogleFonts.poppins().fontFamily,
                 fontSize: 14,
@@ -60,12 +78,40 @@ class LoginInputField extends StatelessWidget {
               ),
               decoration: InputDecoration(
                 border: InputBorder.none,
-                hintText: hintText,
+                hintText: widget.hintText,
                 hintStyle: TextStyle(
                   fontFamily: GoogleFonts.poppins().fontFamily,
                   fontSize: 14,
                   color: const Color.fromARGB(183, 224, 224, 224),
                 ),
+                suffixIcon: widget.isPassword
+                    ? IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          color: Colors.grey[400],
+                        ),
+                        onPressed: _toggleVisibility,
+                        splashRadius: 20,
+                      )
+                    : null,
+                // Key fix: isDense removes internal padding
+                isDense: true,
+                // Padding yang presisi untuk center sempurna
+                contentPadding: const EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 19,
+                  bottom: 19,
+                ),
+                // Ensure suffix icon is centered properly
+                suffixIconConstraints: widget.isPassword
+                    ? const BoxConstraints(
+                        minWidth: 58,
+                        minHeight: 58,
+                      )
+                    : null,
               ),
             ),
           ),

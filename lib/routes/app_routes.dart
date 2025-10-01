@@ -5,7 +5,11 @@ import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
+import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
+import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
+import 'package:hr/features/buka_akun/buka_akun.dart';
+import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_page.dart';
 import 'package:hr/features/danger/danger_page.dart';
 import 'package:hr/features/dashboard/dashboard_page.dart';
@@ -13,6 +17,8 @@ import 'package:hr/features/dashboard/mobile/dashboard_page.dart';
 import 'package:hr/features/department/department_page.dart';
 import 'package:hr/features/gaji/gaji_page.dart';
 import 'package:hr/features/info_kantor/info_kantor_page.dart';
+import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
+import 'package:hr/features/reset_device/reset_device.dart';
 import 'package:hr/on_boarding.dart';
 import 'package:hr/features/info_kantor/info_page_form.dart';
 import 'package:hr/features/jabatan/jabatan_page.dart';
@@ -73,6 +79,12 @@ class AppRoutes {
   static const String peranForm = '/peran_form';
   static const String infoKantor = '/info_kantor';
   static const String danger = '/danger';
+  static const String checkin = '/checkin';
+  static const String checkout = '/checkout';
+  static const String cutiForm = '/cuti_form';
+  static const String lemburForm = '/lembur_form';
+  static const String resetDevice = '/resetDevice';
+  static const String bukaAkun = '/bukaAkun';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -139,6 +151,8 @@ class AppRoutes {
 
       case jabatan:
         return _route(const JabatanPage().withMainLayout(jabatan), settings);
+      case bukaAkun:
+        return _route(const BukaAkun().withMainLayout(bukaAkun), settings);
 
       case potonganGaji:
         return _route(
@@ -207,12 +221,28 @@ class AppRoutes {
           settings,
         );
 
+      case checkin:
+        return _route(const AbsenMasukPage().withMainLayout(checkin), settings);
+      case checkout:
+        return _route(
+            const AbsenKeluarPage().withMainLayout(checkout), settings);
+
+      case cutiForm:
+        return _route(const CutiForm().withMainLayout(cutiForm), settings);
+
+      case lemburForm:
+        return _route(const LemburForm().withMainLayout(lemburForm), settings);
+
       case profile:
         return _route(const ProfilePage().withMainLayout(profile), settings);
 
       case reminderAdd:
         return _route(
             const ReminderForm().withMainLayout(reminderAdd), settings);
+
+      case resetDevice:
+        return _route(
+            const ResetDevice().withMainLayout(resetDevice), settings);
 
       case reminderEdit:
         final reminder = settings.arguments as ReminderData;
