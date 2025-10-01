@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/navbar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/auth/login_page.dart';
@@ -255,13 +256,15 @@ class _MainLayoutState extends State<MainLayout>
                               debugPrint("Logout result: $result");
 
                               // lalu clear local storage
-                              final prefs = await SharedPreferences.getInstance();
+                              final prefs =
+                                  await SharedPreferences.getInstance();
                               await prefs.clear();
 
                               if (mounted) {
                                 Navigator.pushAndRemoveUntil(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                                  MaterialPageRoute(
+                                      builder: (_) => const LoginPage()),
                                   (route) => false,
                                 );
                               }
@@ -575,69 +578,73 @@ class _MainLayoutState extends State<MainLayout>
       case AppRoutes.dashboardMobile:
         return 'Dashboard';
       case AppRoutes.attendance:
-        return 'Attendance';
+        return context.isIndonesian ? 'Kehadiran' : 'Attendance';
       case AppRoutes.task:
-        return 'Task Management';
+        return context.isIndonesian ? 'Manajemen Tugas' : 'Task Management';
       case AppRoutes.overTime:
-        return 'Over Time';
+        return context.isIndonesian ? 'Lembur' : 'Over Time';
       case AppRoutes.leave:
-        return 'Leave Proposal';
+        return context.isIndonesian ? 'Pengajuan Cuti' : 'Leave Proposal';
       case AppRoutes.employee:
-        return 'Employee Management';
+        return context.isIndonesian
+            ? 'Manajemen Karyawan'
+            : 'Employee Management';
       case AppRoutes.payroll:
-        return 'Payroll';
+        return context.isIndonesian ? 'Penggajian' : 'Payroll';
       case AppRoutes.department:
-        return 'Department';
+        return context.isIndonesian ? 'Departemen' : 'Department';
       case AppRoutes.jabatan:
-        return 'Position';
+        return context.isIndonesian ? 'Jabatan' : 'Position';
       case AppRoutes.peran:
-        return 'Management Access';
+        return context.isIndonesian ? 'Manajemen Akses' : 'Management Access';
       case AppRoutes.potonganGaji:
-        return 'Salary Deduction';
+        return context.isIndonesian ? 'Potongan Gaji' : 'Salary Deduction';
       case AppRoutes.info:
-        return 'Company Information';
+        return context.isIndonesian
+            ? 'Informasi Perusahaan'
+            : 'Company Information';
       case AppRoutes.pengaturan:
-        return 'Settings';
+        return context.isIndonesian ? 'Pengaturan' : 'Settings';
       case AppRoutes.logActivity:
-        return 'Log Activity';
+        return context.isIndonesian ? 'Log Aktivitas' : 'Log Activity';
       case AppRoutes.profile:
-        return 'Profile';
+        return context.isIndonesian ? 'Profil' : 'Profile';
       case AppRoutes.tugasForm:
-        return 'Add Task';
+        return context.isIndonesian ? 'Tambah Tugas' : 'Add Task';
       case AppRoutes.karyawanForm:
-        return 'Add Employee';
+        return context.isIndonesian ? 'Tambah Karyawan' : 'Add Employee';
       case AppRoutes.mapPage:
-        return 'See Location';
+        return context.isIndonesian ? 'Lihat Lokasi' : 'See Location';
       case AppRoutes.potonganForm:
-        return 'Potongan Form';
+        return context.isIndonesian ? 'Form Potongan' : 'Potongan Form';
       case AppRoutes.potonganEdit:
-        return 'Potongan Edit';
+        return context.isIndonesian ? 'Edit Potongan' : 'Potongan Edit';
       case AppRoutes.reminder:
-        return 'Reminder Page';
+        return context.isIndonesian ? 'Pengingat' : 'Reminder Page';
       case AppRoutes.taskEdit:
-        return 'Edit Task';
+        return context.isIndonesian ? 'Edit Tugas' : 'Edit Task';
       case AppRoutes.reminderAdd:
-        return 'Add Reminder';
+        return context.isIndonesian ? 'Tambah Pengingat' : 'Add Reminder';
       case AppRoutes.reminderEdit:
-        return 'Edit Reminder';
+        return context.isIndonesian ? 'Edit Pengingat' : 'Edit Reminder';
       case AppRoutes.peranForm:
-        return 'Peran Form';
+        return context.isIndonesian ? 'Form Peran' : 'Peran Form';
       case AppRoutes.infoKantor:
-        return 'Info Kantor';
+        return context.isIndonesian ? 'Info Kantor' : 'Info Kantor';
       case AppRoutes.danger:
-        return 'Danger Zone';
+        return context.isIndonesian ? 'Zona Bahaya' : 'Danger Zone';
       case AppRoutes.checkin:
-        return 'Absen Masuk';
+        return context.isIndonesian ? 'Absen Masuk' : 'Check-in';
       case AppRoutes.checkout:
-        return 'Absen Keluar';
+        return context.isIndonesian ? 'Absen Keluar' : 'Check-out';
       case AppRoutes.cutiForm:
-        return 'Pengajuan Cuti';
+        return context.isIndonesian ? 'Pengajuan Cuti' : 'Leave Form';
       case AppRoutes.lemburForm:
-        return 'Pengajuan Lembur';
+        return context.isIndonesian ? 'Pengajuan Lembur' : 'Overtime Form';
       case AppRoutes.resetDevice:
-        return 'Reset Device';
+        return context.isIndonesian ? 'Reset Perangkat' : 'Reset Device';
       case AppRoutes.bukaAkun:
-        return 'Buka Akun';
+        return context.isIndonesian ? 'Buka Akun' : 'Open Account';
       default:
         return 'HRIS System';
     }

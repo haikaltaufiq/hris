@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -39,7 +40,9 @@ class StatusTaskChart extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Weekly Task Status',
+                          context.isIndonesian
+                              ? 'Status Tugas Mingguan'
+                              : 'Weekly Task Status',
                           style: TextStyle(
                             fontSize: 18,
                             color: AppColors.putih,
@@ -50,7 +53,9 @@ class StatusTaskChart extends StatelessWidget {
                         if (tugasProvider.tugasList.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(
-                            'Total: ${tugasProvider.tugasList.length} tugas',
+                            context.isIndonesian
+                                ? 'Total: ${tugasProvider.tugasList.length} Tugas'
+                                : 'Total: ${tugasProvider.tugasList.length} Task',
                             style: TextStyle(
                               color: AppColors.putih.withOpacity(0.7),
                               fontSize: 11,
@@ -301,17 +306,19 @@ class StatusTaskChart extends StatelessWidget {
                           children: [
                             _LegendItemWithCount(
                               color: Colors.green,
-                              label: 'Selesai',
+                              label: context.isIndonesian ? 'Selesai' : 'Done',
                               count: _getTotalCount(chartData, 'selesai'),
                             ),
                             _LegendItemWithCount(
                               color: Colors.blue,
-                              label: 'Menunggu Admin',
+                              label: context.isIndonesian
+                                  ? 'Menunggu Admin'
+                                  : 'Waiting Admin',
                               count: _getTotalCount(chartData, 'menunggu'),
                             ),
                             _LegendItemWithCount(
                               color: Colors.deepOrange,
-                              label: 'Proses',
+                              label: context.isIndonesian ? 'Proses' : 'Proses',
                               count: _getTotalCount(chartData, 'proses'),
                             ),
                           ],

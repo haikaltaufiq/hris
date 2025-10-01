@@ -3,11 +3,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:provider/provider.dart';
 
 class PengaturanPage extends StatefulWidget {
   final bool isDarkMode;
   final VoidCallback toggleTheme;
+
   const PengaturanPage({
     super.key,
     required this.isDarkMode,
@@ -19,122 +22,115 @@ class PengaturanPage extends StatefulWidget {
 }
 
 class _PengaturanPageState extends State<PengaturanPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late bool isSwitched;
-  late AnimationController _animationController;
-  late Animation<double> _animation;
+  late AnimationController _themeAnimationController;
+  late Animation<double> _themeAnimation;
+  late AnimationController _langAnimationController;
+
   @override
   void initState() {
     super.initState();
 
-    // Set default
+    // Theme
     isSwitched = widget.isDarkMode;
-
-    _animationController = AnimationController(
+    _themeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    _themeAnimation = CurvedAnimation(
+        parent: _themeAnimationController, curve: Curves.easeInOut);
 
-    _animation = CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
+    if (isSwitched) {
+      _themeAnimationController.value = 1.0;
+    }
+
+    // Language
+    _langAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
     );
+  }
 
-    // Set initial animation value after everything is initialized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (isSwitched) {
-        _animationController.value = 1.0;
-      } else {
-        _animationController.value = 0.0;
-      }
-    });
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final langProvider = Provider.of<LanguageProvider>(context);
+    _langAnimationController.value = langProvider.isIndonesian ? 1.0 : 0.0;
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _themeAnimationController.dispose();
+    _langAnimationController.dispose();
     super.dispose();
   }
 
-  @override
-  void didUpdateWidget(covariant PengaturanPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isDarkMode != widget.isDarkMode) {
-      setState(() {
-        isSwitched = widget.isDarkMode;
-      });
-    }
-  }
-
-  void _toggleSwitch(bool value) {
+  void _toggleTheme() {
     setState(() {
-      isSwitched = value;
+      isSwitched = !isSwitched;
     });
 
-    if (value) {
-      _animationController.forward();
+    if (isSwitched) {
+      _themeAnimationController.forward();
     } else {
-      _animationController.reverse();
+      _themeAnimationController.reverse();
     }
 
     widget.toggleTheme();
   }
 
+  void _toggleLanguage() {
+    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final newValue = !langProvider.isIndonesian;
+
+    if (newValue) {
+      _langAnimationController.forward();
+    } else {
+      _langAnimationController.reverse();
+    }
+
+    langProvider.toggleLanguage(newValue);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final langProvider = Provider.of<LanguageProvider>(context);
+    final isIndonesian = langProvider.isIndonesian;
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         children: [
           const SizedBox(height: 8),
+          if (context.isMobile) const Header(title: "Pengaturan"),
 
-          if (context.isMobile)
-            Header(
-              title: "Pengaturan",
-            ),
-
-          // //Company Card
-          // FeatureGuard(
-          //   requiredFeature: 'kantor',
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(4.0),
-          //     child: CompanyCard(),
-          //   ),
-          // ),
-          // const SizedBox(height: 14),
-
-          // Theme Selection Card
+          // Theme Card
           Card(
             color: AppColors.primary,
             elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Appearance',
-                    style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.putih,
-                    ),
-                  ),
+                  Text(isIndonesian ? 'Penampilan' : 'Appearance',
+                      style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.putih)),
                   const SizedBox(height: 8),
                   Text(
-                    'Choose your preferred theme',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: AppColors.putih.withOpacity(0.7),
-                    ),
-                  ),
+                      isIndonesian
+                          ? "Pilih preferensi anda"
+                          : 'Choose your preferred theme',
+                      style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: AppColors.putih.withOpacity(0.7))),
                   const SizedBox(height: 24),
-
-                  // Custom Theme Switch
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -142,33 +138,30 @@ class _PengaturanPageState extends State<PengaturanPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Dark Mode',
-                              style: GoogleFonts.poppins(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.putih,
-                              ),
-                            ),
+                            Text(isIndonesian ? "Tema" : 'Theme',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.putih)),
                             const SizedBox(height: 4),
                             Text(
-                              isSwitched
-                                  ? 'Dark theme enabled'
-                                  : 'Light theme enabled',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: AppColors.putih.withOpacity(0.6),
-                              ),
-                            ),
+                                isSwitched
+                                    ? isIndonesian
+                                        ? 'Tema gelap diterapkan'
+                                        : 'Dark theme enabled'
+                                    : isIndonesian
+                                        ? 'Tema terang diterapkan'
+                                        : 'Light theme enabled',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: AppColors.putih.withOpacity(0.6))),
                           ],
                         ),
                       ),
-
-                      // Cool Animated Switch
                       GestureDetector(
-                        onTap: () => _toggleSwitch(!isSwitched),
+                        onTap: _toggleTheme,
                         child: AnimatedBuilder(
-                          animation: _animation,
+                          animation: _themeAnimation,
                           builder: (context, child) {
                             return Container(
                               width: 60,
@@ -176,43 +169,32 @@ class _PengaturanPageState extends State<PengaturanPage>
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: Color.lerp(
-                                  AppColors.secondary.withOpacity(0.3),
-                                  AppColors.secondary,
-                                  _animation.value,
-                                ),
+                                    AppColors.secondary.withOpacity(0.3),
+                                    AppColors.secondary,
+                                    _themeAnimation.value),
                               ),
                               child: Stack(
                                 children: [
-                                  // Track background with icons
                                   Positioned.fill(
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
-                                        // Sun icon (left side)
                                         Opacity(
-                                          opacity: 1 - _animation.value,
-                                          child: Icon(
-                                            FontAwesomeIcons.sun,
-                                            size: 14,
-                                            color: AppColors.putih
-                                                .withOpacity(0.6),
-                                          ),
-                                        ),
-                                        // Moon icon (right side)
+                                            opacity: 1 - _themeAnimation.value,
+                                            child: Icon(FontAwesomeIcons.sun,
+                                                size: 14,
+                                                color: AppColors.putih
+                                                    .withOpacity(0.6))),
                                         Opacity(
-                                          opacity: _animation.value,
-                                          child: Icon(
-                                            FontAwesomeIcons.moon,
-                                            size: 12,
-                                            color: AppColors.putih
-                                                .withOpacity(0.8),
-                                          ),
-                                        ),
+                                            opacity: _themeAnimation.value,
+                                            child: Icon(FontAwesomeIcons.moon,
+                                                size: 12,
+                                                color: AppColors.putih
+                                                    .withOpacity(0.8))),
                                       ],
                                     ),
                                   ),
-                                  // Animated thumb
                                   AnimatedPositioned(
                                     duration: const Duration(milliseconds: 300),
                                     curve: Curves.easeInOut,
@@ -226,11 +208,10 @@ class _PengaturanPageState extends State<PengaturanPage>
                                         color: AppColors.putih,
                                         boxShadow: [
                                           BoxShadow(
-                                            color:
-                                                Colors.black.withOpacity(0.2),
-                                            blurRadius: 4,
-                                            offset: const Offset(0, 2),
-                                          ),
+                                              color:
+                                                  Colors.black.withOpacity(0.2),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2)),
                                         ],
                                       ),
                                       child: Icon(
@@ -252,112 +233,117 @@ class _PengaturanPageState extends State<PengaturanPage>
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 14),
-
-          // Theme Preview Card
-          Card(
-            color: AppColors.primary,
-            elevation: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+                  SizedBox(
+                    height: 20,
+                  ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          FontAwesomeIcons.eye,
-                          size: 16,
-                          color: AppColors.putih,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(isIndonesian ? 'Bahasa' : 'Language',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.putih)),
+                            const SizedBox(height: 4),
+                            Text(
+                                isIndonesian
+                                    ? 'Bahasa Indonesia aktif'
+                                    : 'English enabled',
+                                style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: AppColors.putih.withOpacity(0.6))),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'Preview',
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.putih,
+                      GestureDetector(
+                        onTap: _toggleLanguage,
+                        child: AnimatedBuilder(
+                          animation: _langAnimationController,
+                          builder: (context, child) {
+                            return Container(
+                              width: 60,
+                              height: 32,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(16),
+                                color: Color.lerp(
+                                    AppColors.secondary.withOpacity(0.3),
+                                    AppColors.secondary,
+                                    _langAnimationController.value),
+                              ),
+                              child: Stack(
+                                children: [
+                                  Positioned.fill(
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Opacity(
+                                            opacity: 1 -
+                                                _langAnimationController.value,
+                                            child: const Text('EN',
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white))),
+                                        Opacity(
+                                            opacity:
+                                                _langAnimationController.value,
+                                            child: const Text('ID',
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Colors.white))),
+                                      ],
+                                    ),
+                                  ),
+                                  AnimatedPositioned(
+                                    duration: const Duration(milliseconds: 300),
+                                    curve: Curves.easeInOut,
+                                    left: isIndonesian ? 32 : 4,
+                                    top: 4,
+                                    child: Container(
+                                      width: 24,
+                                      height: 24,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: AppColors.putih,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.2),
+                                              blurRadius: 4,
+                                              offset: const Offset(0, 2)),
+                                        ],
+                                      ),
+                                      child: Center(
+                                        child: Text(isIndonesian ? 'ID' : 'EN',
+                                            style: GoogleFonts.poppins(
+                                                fontSize: 9,
+                                                fontWeight: FontWeight.bold,
+                                                color: isIndonesian
+                                                    ? Colors.red.shade600
+                                                    : Colors.blue.shade700)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          },
                         ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-
-                  // Mini preview
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.putih.withOpacity(0.1),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          isSwitched
-                              ? FontAwesomeIcons.moon
-                              : FontAwesomeIcons.sun,
-                          color: AppColors.putih.withOpacity(0.8),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isSwitched ? 'Dark Theme' : 'Light Theme',
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w500,
-                                color: AppColors.putih,
-                              ),
-                            ),
-                            Text(
-                              isSwitched
-                                  ? 'Easy on the eyes'
-                                  : 'Bright and clear',
-                              style: GoogleFonts.poppins(
-                                fontSize: 12,
-                                color: AppColors.putih.withOpacity(0.6),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
                 ],
               ),
             ),
           ),
 
           const SizedBox(height: 14),
-
-          // FeatureGuard(
-          //   requiredFeature: 'kantor',
-          //   child: Padding(
-          //     padding: const EdgeInsets.all(4.0),
-          //     child: ResetDb(),
-          //   ),
-          // ),
         ],
       ),
     );

@@ -1,23 +1,22 @@
-// language_provider.dart
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LanguageProvider extends ChangeNotifier {
-  Locale _locale = const Locale('en');
+  bool _isIndonesian = true;
 
-  Locale get locale => _locale;
+  bool get isIndonesian => _isIndonesian;
+  bool get isEnglish => !_isIndonesian;
 
-  void toggleLanguage() {
-    if (_locale.languageCode == 'en') {
-      _locale = const Locale('id');
-    } else {
-      _locale = const Locale('en');
-    }
+  void toggleLanguage(bool value) {
+    _isIndonesian = value;
     notifyListeners();
   }
 
-  // opsional: set language langsung
-  void setLanguage(String code) {
-    _locale = Locale(code);
-    notifyListeners();
-  }
+  void toggleEnglish() => toggleLanguage(isEnglish);
+  void toggleIndonesian() => toggleLanguage(isIndonesian);
+}
+
+extension LanguageContext on BuildContext {
+  bool get isIndonesian => watch<LanguageProvider>().isIndonesian;
+  bool get isEnglish => watch<LanguageProvider>().isEnglish;
 }

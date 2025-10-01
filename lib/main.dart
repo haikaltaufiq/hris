@@ -165,7 +165,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    final languageProvider = context.watch<LanguageProvider>();
+    context.watch<LanguageProvider>();
     final isNativeMobile = context.isNativeMobile;
 
     return FutureBuilder<String>(
@@ -181,7 +181,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             textTheme: GoogleFonts.poppinsTextTheme(),
           ),
-          locale: languageProvider.locale,
+          // locale: languageProvider.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
           initialRoute: snapshot.data,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
@@ -106,24 +107,28 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _statCard(
-              title: "Departments",
+              title: context.isIndonesian ? "Departemen" : "Departments",
               value: totalDepartment,
-              subtitle: "Active divisions",
+              subtitle:
+                  context.isIndonesian ? "Divisi Aktif" : "Active divisions",
               icon: Icons.business_outlined,
             ),
             const SizedBox(height: 10),
             _statCard(
-              title: "Employees",
+              title: context.isIndonesian ? "Pegawai" : "Employees",
               value: totalUser,
-              subtitle: "Total Employees",
+              subtitle:
+                  context.isIndonesian ? "Jumlah Pegawai" : "Total Employees",
               icon: Icons.people_outline,
               isGrowth: true,
             ),
             const SizedBox(height: 10),
             _statCard(
-              title: "Active Tasks",
+              title: context.isIndonesian ? "Tugas Aktif" : "Active Tasks",
               value: totalTask,
-              subtitle: "Due this week",
+              subtitle: context.isIndonesian
+                  ? "Deadline minggu ini"
+                  : "Due this week",
               icon: Icons.assignment_outlined,
             ),
           ],
@@ -156,7 +161,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Welcome Back,",
+                  context.isIndonesian ? "Selamat Datang" : "Welcome Back,",
                   style: TextStyle(
                     color: AppColors.putih.withOpacity(0.8),
                     fontSize: 20,
@@ -193,14 +198,18 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                   children: [
                     Expanded(
                       child: _todayCard(
-                        title: "Today's Attendance",
+                        title: context.isIndonesian
+                            ? "Kehadiran Hari ini"
+                            : "Today's Attendance",
                         value: "$hadirHariIni / $totalUser",
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: _todayCard(
-                        title: "Today's Task Deadlines ",
+                        title: context.isIndonesian
+                            ? "Tugas Deadline Hari ini"
+                            : "Today's Task Deadlines ",
                         value: "$taskDeadline / $totalTask",
                       ),
                     ),
@@ -361,30 +370,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
           );
         }
 
-        if (tugasProv.tugasList.isEmpty) {
-          return Container(
-            height: 320,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: Text(
-                "No tasks available",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          );
-        }
-
         final totalUser = context.read<UserProvider>().totalUsers;
         final totalTugasSelesai = tugasProv.totalTugasSelesai.toDouble();
         final totalTugas =
@@ -421,7 +406,9 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Monthly Overview",
+                        context.isIndonesian
+                            ? "Gambaran Bulanan"
+                            : "Monthly Overview",
                         style: TextStyle(
                           color: AppColors.putih,
                           fontSize: 16,
@@ -435,12 +422,25 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           children: [
-                            _progress("Project Completion", projectRate,
+                            _progress(
+                                context.isIndonesian
+                                    ? "Tugas Diselesaikan"
+                                    : "Project Completion",
+                                projectRate,
                                 const Color(0xFF4EDD53)),
                             const SizedBox(height: 16),
-                            _progress("Attendance Rate", rate, Colors.orange),
+                            _progress(
+                                context.isIndonesian
+                                    ? "Rate Kehadiran"
+                                    : "Attendance Rate",
+                                rate,
+                                Colors.orange),
                             const SizedBox(height: 16),
-                            _progress("Performance Score", performance,
+                            _progress(
+                                context.isIndonesian
+                                    ? "Skor Performa"
+                                    : "Performance Score",
+                                performance,
                                 const Color.fromARGB(255, 62, 168, 255)),
                           ],
                         ),
@@ -462,7 +462,9 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  "Overall",
+                                  context.isIndonesian
+                                      ? "Keseluruhan"
+                                      : "Overall",
                                   style: TextStyle(
                                     color: AppColors.putih.withOpacity(0.7),
                                     fontSize: 10,

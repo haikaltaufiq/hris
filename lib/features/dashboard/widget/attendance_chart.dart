@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,11 @@ class AttendanceChart extends StatelessWidget {
   const AttendanceChart({super.key});
 
   get totalEmployees => UserProvider().totalUsers;
+
+  // Konstanta untuk height yang konsisten
+  static const double _chartContentHeight = 220.0;
+  static const double _legendHeight = 40.0;
+  static const double _headerHeight = 50.0;
 
   // Fungsi untuk menghitung data attendance bulanan
   Map<String, Map<String, int>> _calculateMonthlyData(
@@ -199,24 +205,46 @@ class AttendanceChart extends StatelessWidget {
                 ],
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Monthly Attendance',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppColors.putih,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      fontWeight: FontWeight.bold,
+                  // Header section
+                  SizedBox(
+                    height: _headerHeight,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        context.isIndonesian
+                            ? 'Kehadiran Bulanan'
+                            : 'Monthly Attendance',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: AppColors.putih,
+                          fontFamily: GoogleFonts.poppins().fontFamily,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  const CircularProgressIndicator(color: Colors.white),
-                  const SizedBox(height: 20),
-                  Text(
-                    'Loading attendance data...',
-                    style: TextStyle(color: AppColors.putih, fontSize: 14),
+                  // Chart content section
+                  SizedBox(
+                    height: _chartContentHeight,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const CircularProgressIndicator(color: Colors.white),
+                          const SizedBox(height: 20),
+                          Text(
+                            'Loading attendance data...',
+                            style:
+                                TextStyle(color: AppColors.putih, fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 40),
+                  // Legend section (empty placeholder untuk konsistensi)
+                  SizedBox(height: _legendHeight),
                 ],
               ),
             ),
@@ -242,25 +270,48 @@ class AttendanceChart extends StatelessWidget {
                 ],
               ),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Monthly Attendance',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: AppColors.putih,
-                      fontFamily: GoogleFonts.poppins().fontFamily,
-                      fontWeight: FontWeight.bold,
+                  // Header section
+                  SizedBox(
+                    height: _headerHeight,
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        context.isIndonesian
+                            ? 'Kehadiran Bulanan'
+                            : 'Monthly Attendance',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: AppColors.putih,
+                          fontFamily: GoogleFonts.poppins().fontFamily,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Icon(Icons.error_outline, color: AppColors.putih, size: 48),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Failed to load attendance data',
-                    style: TextStyle(color: AppColors.putih, fontSize: 14),
-                    textAlign: TextAlign.center,
+                  // Chart content section
+                  SizedBox(
+                    height: _chartContentHeight,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.error_outline,
+                              color: AppColors.putih, size: 48),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Failed to load attendance data',
+                            style:
+                                TextStyle(color: AppColors.putih, fontSize: 14),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 20),
+                  // Legend section (empty placeholder untuk konsistensi)
+                  SizedBox(height: _legendHeight),
                 ],
               ),
             ),
@@ -287,32 +338,38 @@ class AttendanceChart extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Monthly Attendance',
-                          style: TextStyle(
-                            fontSize: 18,
-                            color: AppColors.putih,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        if (absenProvider.isLoading)
-                          SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                    // Header section
+                    SizedBox(
+                      height: _headerHeight,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            context.isIndonesian
+                                ? 'Kehadiran Bulanan'
+                                : 'Monthly Attendance',
+                            style: TextStyle(
+                              fontSize: 18,
                               color: AppColors.putih,
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                      ],
+                          if (absenProvider.isLoading)
+                            SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColors.putih,
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    // Chart content section
                     SizedBox(
-                      height: 220,
+                      height: _chartContentHeight,
                       child: BarChart(
                         BarChartData(
                           alignment: BarChartAlignment.spaceAround,
@@ -417,20 +474,33 @@ class AttendanceChart extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    /// LEGEND
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const [
-                        _LegendItem(color: Colors.green, label: 'Present'),
-                        _LegendItem(color: Colors.orange, label: 'Late'),
-                        _LegendItem(color: Colors.red, label: 'Absent'),
-                      ],
+                    // Legend section
+                    SizedBox(
+                      height: _legendHeight,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _LegendItem(
+                                  color: Colors.green,
+                                  label: context.isIndonesian
+                                      ? 'Hadir'
+                                      : 'Present'),
+                              _LegendItem(
+                                  color: Colors.orange,
+                                  label:
+                                      context.isIndonesian ? 'Telat' : 'Late'),
+                              _LegendItem(
+                                  color: Colors.red,
+                                  label:
+                                      context.isIndonesian ? 'Alfa' : 'Absent'),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-
-                    // Info tambahan
-                    const SizedBox(height: 12),
                   ],
                 ),
               ),

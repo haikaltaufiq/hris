@@ -3,10 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/const/app_size.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ResponsiveNavBar extends StatefulWidget {
@@ -24,115 +26,121 @@ class ResponsiveNavBar extends StatefulWidget {
   });
 
   // Definisi semua menu dengan fitur yang diperlukan
-  static const List<NavItemWithFeature> _allNavItems = [
-    NavItemWithFeature(
-      label: "Dashboard",
-      icon: FontAwesomeIcons.house,
-      selectedIcon: FontAwesomeIcons.houseChimney,
-      requiredFeature: null, // Dashboard selalu ditampilkan
-    ),
-    NavItemWithFeature(
-      label: "Attendance",
-      icon: FontAwesomeIcons.calendarCheck,
-      selectedIcon: FontAwesomeIcons.solidCalendarCheck,
-      requiredFeature: "absensi",
-    ),
-    NavItemWithFeature(
-      label: "Task",
-      icon: FontAwesomeIcons.listCheck,
-      requiredFeature: "lihat_tugas",
-    ),
-    NavItemWithFeature(
-      label: "Over Time",
-      icon: FontAwesomeIcons.clock,
-      selectedIcon: FontAwesomeIcons.solidClock,
-      requiredFeature: "lihat_lembur",
-    ),
-    NavItemWithFeature(
-      label: "Leave",
-      icon: FontAwesomeIcons.calendarMinus,
-      selectedIcon: FontAwesomeIcons.solidCalendarMinus,
-      requiredFeature: "lihat_cuti",
-    ),
-    NavItemWithFeature(
-      label: "Employees",
-      icon: FontAwesomeIcons.users,
-      requiredFeature: "karyawan",
-    ),
-    NavItemWithFeature(
-      label: "Payroll",
-      icon: FontAwesomeIcons.moneyBill,
-      requiredFeature: "gaji",
-    ),
-    NavItemWithFeature(
-      label: "Department",
-      icon: FontAwesomeIcons.building,
-      selectedIcon: FontAwesomeIcons.solidBuilding,
-      requiredFeature: "departemen",
-    ),
-    NavItemWithFeature(
-      label: "Position",
-      icon: FontAwesomeIcons.idBadge,
-      selectedIcon: FontAwesomeIcons.solidIdBadge,
-      requiredFeature: "jabatan",
-    ),
-    NavItemWithFeature(
-      label: "Access Rights",
-      icon: FontAwesomeIcons.userShield,
-      requiredFeature: "peran",
-    ),
-    NavItemWithFeature(
-      label: "Salary Deduction",
-      icon: FontAwesomeIcons.calculator,
-      requiredFeature: "potongan_gaji",
-    ),
-    NavItemWithFeature(
-      label: "Log Activity",
-      icon: FontAwesomeIcons.history,
-      requiredFeature: "log_aktifitas",
-    ),
-    NavItemWithFeature(
-      label: "Reminder",
-      icon: FontAwesomeIcons.alarmClock,
-      selectedIcon: FontAwesomeIcons.solidAlarmClock,
-      requiredFeature: "pengingat",
-    ),
-    NavItemWithFeature(
-      label: "Settings",
-      icon: FontAwesomeIcons.gear,
-      requiredFeature: null,
-    ),
-    NavItemWithFeature(
-      label: "Info Kantor",
-      icon: FontAwesomeIcons.circleInfo,
-      requiredFeature: "kantor",
-    ),
-    NavItemWithFeature(
-      label: "Danger Zone",
-      icon: FontAwesomeIcons.triangleExclamation,
-      requiredFeature: "denger",
-    ),
-    NavItemWithFeature(
-      label: "Reset Device",
-      icon: FontAwesomeIcons.trashRestore,
-      requiredFeature: "reset_device",
-    ),
-    NavItemWithFeature(
-      label: "Buka Akun",
-      icon: FontAwesomeIcons.unlock,
-      requiredFeature: "buka_akun",
-    ),
-  ];
+  List<NavItemWithFeature> getAllNavItems(BuildContext context) {
+    final langProvider = Provider.of<LanguageProvider>(context);
+    bool isIndonesian = langProvider.isIndonesian;
+    return [
+      NavItemWithFeature(
+        label: "Dashboard",
+        icon: FontAwesomeIcons.house,
+        selectedIcon: FontAwesomeIcons.houseChimney,
+        requiredFeature: null, // Dashboard selalu ditampilkan
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? "Kehadiran" : "Attendance",
+        icon: FontAwesomeIcons.calendarCheck,
+        selectedIcon: FontAwesomeIcons.solidCalendarCheck,
+        requiredFeature: "absensi",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? "Tugas" : "Task",
+        icon: FontAwesomeIcons.listCheck,
+        requiredFeature: "lihat_tugas",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Lembur' : "Over Time",
+        icon: FontAwesomeIcons.clock,
+        selectedIcon: FontAwesomeIcons.solidClock,
+        requiredFeature: "lihat_lembur",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Cuti' : "Leave",
+        icon: FontAwesomeIcons.calendarMinus,
+        selectedIcon: FontAwesomeIcons.solidCalendarMinus,
+        requiredFeature: "lihat_cuti",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Pegawai' : "Employees",
+        icon: FontAwesomeIcons.users,
+        requiredFeature: "karyawan",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Penggajian' : "Payroll",
+        icon: FontAwesomeIcons.moneyBill,
+        requiredFeature: "gaji",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Departemen' : "Department",
+        icon: FontAwesomeIcons.building,
+        selectedIcon: FontAwesomeIcons.solidBuilding,
+        requiredFeature: "departemen",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Jabatan' : "Position",
+        icon: FontAwesomeIcons.idBadge,
+        selectedIcon: FontAwesomeIcons.solidIdBadge,
+        requiredFeature: "jabatan",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Hak Akses' : "Access Rights",
+        icon: FontAwesomeIcons.userShield,
+        requiredFeature: "peran",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Potongan Gaji' : "Salary Deduction",
+        icon: FontAwesomeIcons.calculator,
+        requiredFeature: "potongan_gaji",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Log Aktifitas' : "Log Activity",
+        icon: FontAwesomeIcons.history,
+        requiredFeature: "log_aktifitas",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Pengingat' : "Reminder",
+        icon: FontAwesomeIcons.alarmClock,
+        selectedIcon: FontAwesomeIcons.solidAlarmClock,
+        requiredFeature: "pengingat",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Pengaturan' : "Settings",
+        icon: FontAwesomeIcons.gear,
+        requiredFeature: null,
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? "Info Kantor" : "Company info",
+        icon: FontAwesomeIcons.circleInfo,
+        requiredFeature: "kantor",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Berbahaya' : "Danger Zone",
+        icon: FontAwesomeIcons.triangleExclamation,
+        requiredFeature: "denger",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Reset Perangkat' : "Reset Device",
+        icon: FontAwesomeIcons.trashRestore,
+        requiredFeature: "reset_device",
+      ),
+      NavItemWithFeature(
+        label: isIndonesian ? 'Buka Akun' : "Unlock Account",
+        icon: FontAwesomeIcons.unlock,
+        requiredFeature: "buka_akun",
+      ),
+    ];
+  }
 
   // Method untuk filter menu berdasarkan fitur user
-  List<NavItem> get _filteredNavItems {
-    return _allNavItems
+  List<NavItem> getFilteredNavItems(
+      BuildContext context, List<String> userFitur) {
+    final allItems = getAllNavItems(context);
+
+    return allItems
         .where((item) =>
-            item.requiredFeature == null || // Menu tanpa requirement
-            userFitur.contains(
-                item.requiredFeature)) // Menu yang fiturnya dimiliki user
+            item.requiredFeature == null ||
+            userFitur.contains(item.requiredFeature))
         .map((item) => NavItem(
-              originalIndex: _allNavItems.indexOf(item),
+              originalIndex: allItems.indexOf(item),
               label: item.label,
               icon: item.icon,
               selectedIcon: item.selectedIcon,
@@ -141,8 +149,9 @@ class ResponsiveNavBar extends StatefulWidget {
   }
 
   // Method untuk mobile navigation (ambil maksimal 5 item pertama)
-  List<NavItem> get _mobileNavItems {
-    final filtered = _filteredNavItems;
+  List<NavItem> getMobileNavItems(
+      BuildContext context, List<String> userFitur) {
+    final filtered = getFilteredNavItems(context, userFitur);
     return filtered.length > 5 ? filtered.sublist(0, 5) : filtered;
   }
 
@@ -303,7 +312,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   }
 
   Widget _buildMobileBottomNav(BuildContext context) {
-    final mobileItems = widget._mobileNavItems;
+    final mobileItems = widget.getMobileNavItems(context, widget.userFitur);
 
     return Container(
       decoration: BoxDecoration(
@@ -371,7 +380,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
     final double screenWidth = MediaQuery.of(context).size.width;
     final double collapsedWidth = 70;
     final double expandedWidth = screenWidth < 1024 ? 220 : 220;
-    final filteredItems = widget._filteredNavItems;
+    final filteredItems = widget.getFilteredNavItems(context, widget.userFitur);
 
     return AnimatedBuilder(
       animation: _slideAnimation,
