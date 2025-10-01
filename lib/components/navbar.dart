@@ -112,14 +112,14 @@ class ResponsiveNavBar extends StatefulWidget {
       requiredFeature: "denger",
     ),
     NavItemWithFeature(
-      label: "Device Info",
-      icon: FontAwesomeIcons.phone,
+      label: "Reset Device",
+      icon: FontAwesomeIcons.trashRestore,
       requiredFeature: "reset_device",
     ),
     NavItemWithFeature(
       label: "Buka Akun",
-      icon: FontAwesomeIcons.phone,
-      requiredFeature: "bukan_akun",
+      icon: FontAwesomeIcons.unlock,
+      requiredFeature: "buka_akun",
     ),
   ];
 
@@ -151,7 +151,7 @@ class ResponsiveNavBar extends StatefulWidget {
 
 class _ResponsiveNavBarState extends State<ResponsiveNavBar>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
-  static ScrollController? _scrollController;
+  ScrollController? _scrollController;
   static double _lastScrollPosition = 0.0;
   static final PageStorageBucket _bucket = PageStorageBucket();
   static const String _scrollStorageKey = 'sidebar_scroll_position';
@@ -276,6 +276,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
     _slideController.dispose();
     _fadeController.dispose();
     _scrollController?.removeListener(_saveScrollPosition);
+    _scrollController?.dispose();
     super.dispose();
   }
 

@@ -122,8 +122,8 @@ class _DashboardMobileState extends State<DashboardMobile> {
                     },
                   ),
                   DashboardMenuItem(
-                    label: "Device",
-                    icon: FontAwesomeIcons.phone,
+                    label: "Reset Device",
+                    icon: FontAwesomeIcons.trashRestore,
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.resetDevice);
                     },

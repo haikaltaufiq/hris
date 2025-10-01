@@ -81,7 +81,7 @@ class _CutiInputState extends State<CutiInput> {
           CustomDropDownField(
             label: 'Tipe Cuti',
             hint: '',
-            items: ['Tahunan', 'Sakit', 'Unpaid', 'Izin'],
+            items: ['Tahunan', 'Sakit', 'Izin'],
             labelStyle: labelStyle,
             textStyle: textStyle,
             dropdownColor: AppColors.secondary,
