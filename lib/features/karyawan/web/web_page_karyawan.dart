@@ -52,7 +52,7 @@ class _WebPageKaryawanState extends State<WebPageKaryawan> {
                   },
                   onFilter1Tap: () => print("Filter1 Halaman A"),
                 ),
-                if (isLoading && users.isEmpty)
+                if (isLoading)
                   Center(
                     child: LoadingWidget(),
                   )
