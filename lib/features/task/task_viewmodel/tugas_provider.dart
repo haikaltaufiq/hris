@@ -32,7 +32,6 @@ class TugasProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load cache immediately (synchronous)
   void loadCacheFirst() {
     try {
       final hasCache = _tugasBox.containsKey('tugas_list');
@@ -44,7 +43,7 @@ class TugasProvider extends ChangeNotifier {
                   TugasModel.fromJson(Map<String, dynamic>.from(json)))
               .toList();
           _hasCache = true;
-          notifyListeners(); // Update UI immediately
+          notifyListeners();
           print('✅ Cache loaded: ${_tugasList.length} items');
         }
       }
@@ -53,96 +52,80 @@ class TugasProvider extends ChangeNotifier {
     }
   }
 
-  // Fetch data tugas
-// Fetch semua tugas
   Future<void> fetchTugas({bool forceRefresh = false}) async {
-    print('🔄 fetchTugas called - forceRefresh: $forceRefresh');
-
-    // Load cache first if not force refresh
-    if (!forceRefresh && _tugasList.isEmpty) {
-      loadCacheFirst();
-    }
-
-    _isLoading = true;
-    notifyListeners();
-
+    if (!forceRefresh && _tugasList.isEmpty) loadCacheFirst();
+    _setLoading(true);
     try {
-      print('🌐 Calling API...');
       final apiData = await TugasService.fetchTugas();
-      print('✅ API success: ${apiData.length} items');
-
+      tugasList.clear();
       _tugasList = apiData;
       filteredTugasList.clear();
       _errorMessage = null;
 
-      // Save to cache
       await _tugasBox.put(
         'tugas_list',
         _tugasList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
-
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
       _errorMessage = e.toString();
-
-      // If no data and cache exists, load cache
-      if (_tugasList.isEmpty) {
-        loadCacheFirst();
-      }
+      if (_tugasList.isEmpty) loadCacheFirst();
     }
-
-    _isLoading = false;
-    notifyListeners();
-    print('🏁 fetchLembur completed - items: ${_tugasList.length}');
+    _setLoading(false);
   }
 
-  /// Searching fitur untuk Tugas
   void filterTugas(String query) {
     if (query.isEmpty) {
       filteredTugasList.clear();
     } else {
       final lowerQuery = query.toLowerCase();
       filteredTugasList = _tugasList.where((tugas) {
-        final namaKaryawan = (tugas.user?.nama ?? '').toLowerCase();
-        return (tugas.namaTugas.toLowerCase().contains(lowerQuery)) ||
+        final namaTugas = tugas.namaTugas.toLowerCase();
+        final status = tugas.status.toLowerCase();
+        final tanggalMulai = tugas.tanggalMulai.toLowerCase();
+        final tanggalSelesai = tugas.tanggalSelesai.toLowerCase();
+        final note = tugas.note?.toLowerCase() ?? '';
+        final namaKaryawan = tugas.user?.nama.toLowerCase() ?? '';
+
+        return namaTugas.contains(lowerQuery) ||
             namaKaryawan.contains(lowerQuery) ||
-            (tugas.lokasi.toLowerCase().contains(lowerQuery)) ||
-            (tugas.note.toLowerCase().contains(lowerQuery)) ||
-            (tugas.status.toLowerCase().contains(lowerQuery)) ||
-            (tugas.tanggalMulai.toLowerCase().contains(lowerQuery)) ||
-            (tugas.tanggalSelesai.toLowerCase().contains(lowerQuery)) ||
-            (tugas.jamMulai.toLowerCase().contains(lowerQuery));
+            note.contains(lowerQuery) ||
+            status.contains(lowerQuery) ||
+            tanggalMulai.contains(lowerQuery) ||
+            tanggalSelesai.contains(lowerQuery);
       }).toList();
     }
     notifyListeners();
   }
 
+  // Create tugas dengan koordinat
   Future<Map<String, dynamic>> createTugas({
     required String judul,
-    required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
+    required double tugasLat,
+    required double tugasLng,
     int? person,
-    required String lokasi,
+    double? lampiranLat,
+    double? lampiranLng,
     required String note,
+    required int radius, // Tambah ini
   }) async {
     _setLoading(true);
     try {
       final result = await TugasService.createTugas(
         judul: judul,
-        jamMulai: jamMulai,
         tanggalMulai: tanggalMulai,
         tanggalSelesai: tanggalSelesai,
+        tugasLat: tugasLat,
+        tugasLng: tugasLng,
         person: person,
-        lokasi: lokasi,
+        lampiranLat: lampiranLat,
+        lampiranLng: lampiranLng,
         note: note,
+        radius: radius.toString(),
       );
-      _isLoading = false;
-      if (result['success'] == true) {
-        await fetchTugas(forceRefresh: true);
-      }
+      if (result['success'] == true) await fetchTugas(forceRefresh: true);
       return result;
     } catch (e) {
       debugPrint("Error create tugas: $e");
@@ -152,33 +135,36 @@ class TugasProvider extends ChangeNotifier {
     }
   }
 
-  // Update tugas
+  // Update tugas dengan koordinat
   Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
-    required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
+    required double tugasLat,
+    required double tugasLng,
     int? person,
-    int? departmentId,
-    required String lokasi,
+    double? lampiranLat,
+    double? lampiranLng,
     required String note,
+    required int radius, // Tambah ini
   }) async {
     _setLoading(true);
     try {
       final result = await TugasService.updateTugas(
         id: id,
         judul: judul,
-        jamMulai: jamMulai,
         tanggalMulai: tanggalMulai,
         tanggalSelesai: tanggalSelesai,
+        tugasLat: tugasLat,
+        tugasLng: tugasLng,
         person: person,
-        lokasi: lokasi,
+        lampiranLat: lampiranLat,
+        lampiranLng: lampiranLng,
         note: note,
+        radius: radius.toString(),
       );
-      if (result['success'] == true) {
-        await fetchTugas(forceRefresh: true);
-      }
+      if (result['success'] == true) await fetchTugas(forceRefresh: true);
       return result;
     } catch (e) {
       debugPrint("Error update tugas: $e");
@@ -189,7 +175,7 @@ class TugasProvider extends ChangeNotifier {
   }
 
   // Hapus tugas
-  Future<String?> deleteTugas(int id, String currentSearch) async {
+  Future<String?> deleteTugas(int id) async {
     _setLoading(true);
     try {
       final result = await TugasService.deleteTugas(id);
@@ -204,27 +190,23 @@ class TugasProvider extends ChangeNotifier {
     }
   }
 
+  // Update status tetap sama
   Future<String?> updateTugasStatus(int id, String status) async {
     try {
       final result = await TugasService.updateStatus(id: id, status: status);
-      if (result['success'] == true) {
-        await fetchTugas(forceRefresh: true);
-        return result['message'];
-      } else {
-        return result['message'];
-      }
+      if (result['success'] == true) await fetchTugas(forceRefresh: true);
+      return result['message'];
     } catch (e) {
       return "Terjadi error: $e";
     }
   }
 
+  // Lain-lain tetap sama
   int get todayActiveTask {
     final today = DateTime.now();
-
     return _tugasList.where((tugas) {
       try {
         final selesai = DateTime.parse(tugas.tanggalSelesai);
-        // bandingkan hanya tanggal, abaikan jam
         return selesai.year == today.year &&
             selesai.month == today.month &&
             selesai.day == today.day;
@@ -234,9 +216,7 @@ class TugasProvider extends ChangeNotifier {
     }).length;
   }
 
-  /// Menghitung jumlah tugas per bulan berdasarkan status
   Map<String, List<double>> getMonthlyData() {
-    // Inisialisasi 12 bulan (index 0 = Jan, 11 = Dec)
     List<double> target = List.filled(12, 0);
     List<double> attendanceRate = List.filled(12, 0);
     List<double> projectCompletion = List.filled(12, 0);
@@ -245,21 +225,12 @@ class TugasProvider extends ChangeNotifier {
       try {
         DateTime? date = DateTime.tryParse(tugas.tanggalMulai);
         if (date == null) continue;
-
         int monthIndex = date.month - 1;
-
-        // Semua tugas dihitung sebagai target
         target[monthIndex] += 1;
-
-        // Status selesai = projectCompletion
-        if (tugas.status.toLowerCase() == 'selesai') {
+        if (tugas.status.toLowerCase() == 'selesai')
           projectCompletion[monthIndex] += 1;
-        }
-
-        // Status lain dianggap menunggu/admin = attendanceRate
-        else {
+        else
           attendanceRate[monthIndex] += 1;
-        }
       } catch (e) {
         print('Error parsing tugas tanggalMulai: $e');
       }

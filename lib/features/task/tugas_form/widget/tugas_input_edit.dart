@@ -5,7 +5,6 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
-import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -30,16 +29,13 @@ class TugasInputEdit extends StatefulWidget {
 
 class _TugasInputEditState extends State<TugasInputEdit> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController =
-      TextEditingController();
-  final TextEditingController _jamMulaiController = TextEditingController();
+  final TextEditingController _tanggalSelesaiController = TextEditingController();
+  final TextEditingController _radiusController = TextEditingController();
   final TextEditingController _latitudeController = TextEditingController();
   final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
 
-  int _selectedMinute = 0;
-  int _selectedHour = 0;
   UserModel? _selectedUser;
   List<UserModel> _userList = [];
   bool _isLoadingUser = true;
@@ -49,14 +45,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     super.initState();
     // Isi controller dari data awal
     _judulTugasController.text = widget.tugas.namaTugas;
-    // Jam dari API (HH:mm:ss) → Form (HH:mm)
-    if (widget.tugas.jamMulai.isNotEmpty) {
-      final parts = widget.tugas.jamMulai.split(':');
-      if (parts.length >= 2) {
-        _jamMulaiController.text =
-            "${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}";
-      }
-    }
+    _radiusController.text = widget.tugas.radius.toString();
+
     // Tanggal dari API (yyyy-MM-dd) → Form (dd / MM / yyyy)
     if (widget.tugas.tanggalMulai.isNotEmpty) {
       final parts = widget.tugas.tanggalMulai.split('-');
@@ -72,14 +62,11 @@ class _TugasInputEditState extends State<TugasInputEdit> {
             "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
       }
     }
-    if (widget.tugas.lokasi.isNotEmpty) {
-      final parts = widget.tugas.lokasi.split(',');
-      if (parts.length == 2) {
-        _latitudeController.text = parts[0].trim();
-        _longitudeController.text = parts[1].trim();
-      }
+    if (widget.tugas.tugasLat != null && widget.tugas.tugasLng != null) {
+      _latitudeController.text = widget.tugas.tugasLat!.toString();
+      _longitudeController.text = widget.tugas.tugasLng!.toString();
     }
-    _noteController.text = widget.tugas.note;
+    _noteController.text = widget.tugas.note ?? '';
 
     // user yang sudah ada
     _selectedUser = widget.tugas.user;
@@ -102,102 +89,6 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         setState(() => _isLoadingUser = false);
       }
     }
-  }
-
-  void _onTapIconTime(TextEditingController controller) async {
-    showModalBottomSheet(
-      backgroundColor: AppColors.primary,
-      useRootNavigator: true,
-      context: context,
-      clipBehavior: Clip.antiAlias,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Column(
-              children: [
-                const SizedBox(height: 10),
-                ListTile(
-                  title: Center(
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 3,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary,
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(30)),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          context.isIndonesian ? 'Pilih Waktu' : 'Choose Time',
-                          style: TextStyle(
-                            color: AppColors.putih,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          context.isIndonesian ? 'Mulai Tugas' : 'Start Task',
-                          style: TextStyle(
-                            color: AppColors.putih,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                NumberPickerWidget(
-                  hour: _selectedHour,
-                  minute: _selectedMinute,
-                  onHourChanged: (value) {
-                    setModalState(() {
-                      _selectedHour = value;
-                    });
-                  },
-                  onMinuteChanged: (value) {
-                    setModalState(() {
-                      _selectedMinute = value;
-                    });
-                  },
-                ),
-                FloatingActionButton.extended(
-                  backgroundColor: AppColors.secondary,
-                  onPressed: () {
-                    final formattedHour =
-                        _selectedHour.toString().padLeft(2, '0');
-                    final formattedMinute =
-                        _selectedMinute.toString().padLeft(2, '0');
-                    final formattedTime = "$formattedHour:$formattedMinute";
-                    controller.text = formattedTime;
-                    Navigator.pop(context);
-                  },
-                  label: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 18),
-                    child: Text(
-                      context.isIndonesian ? 'Simpan' : 'Save',
-                      style: TextStyle(
-                        fontFamily: GoogleFonts.poppins().fontFamily,
-                        color: AppColors.putih,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
   }
 
   void _onTapIconDate(TextEditingController controller) async {
@@ -254,11 +145,13 @@ class _TugasInputEditState extends State<TugasInputEdit> {
   }
 
   void _lihatMap() {
+    final isIndonesian = context.read<LanguageProvider>().isIndonesian;
+
     if (!_isValidCoordinate(
         _latitudeController.text, _longitudeController.text)) {
       NotificationHelper.showTopNotification(
         context,
-        context.isIndonesian
+        isIndonesian
             ? "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)"
             : "Invalid coordinates. Please enter a latitude (-90 to 90) and longitude (-180 to 180).",
         isSuccess: false,
@@ -370,49 +263,60 @@ class _TugasInputEditState extends State<TugasInputEdit> {
   }
 
   Future<void> _handleSubmit() async {
+    final isIndonesian = context.read<LanguageProvider>().isIndonesian;
+
     if (_judulTugasController.text.isEmpty ||
-        _jamMulaiController.text.isEmpty ||
         _tanggalMulaiController.text.isEmpty ||
         _tanggalSelesaiController.text.isEmpty ||
         _latitudeController.text.isEmpty ||
         _longitudeController.text.isEmpty ||
         _selectedUser == null) {
-      if (mounted) {
-        NotificationHelper.showTopNotification(
-          context,
-          context.isIndonesian
-              ? "Harap isi semua data"
-              : "Please Fill all the data",
-          isSuccess: false,
-        );
-      }
+      NotificationHelper.showTopNotification(
+        context,
+        isIndonesian ? "Harap isi semua data" : "Please Fill all the data",
+        isSuccess: false,
+      );
       return;
     }
-// Validasi koordinat
+
+    // Validasi koordinat
     if (!_isValidCoordinate(
         _latitudeController.text.trim(), _longitudeController.text.trim())) {
       NotificationHelper.showTopNotification(
         context,
-        context.isIndonesian
+        isIndonesian
             ? 'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat'
             : "Invalid coordinates. Use the 'Share Location' button to get the coordinates.",
         isSuccess: false,
       );
       return;
     }
+
     try {
       final tugasProvider = context.read<TugasProvider>();
+      final latitude = double.tryParse(_latitudeController.text.trim());
+      final longitude = double.tryParse(_longitudeController.text.trim());
+      final radius = int.tryParse(_radiusController.text.trim()) ?? 100;
+      
+      if (latitude == null || longitude == null) {
+        NotificationHelper.showTopNotification(
+          context,
+          isIndonesian ? 'Koordinat tidak valid' : "Invalid coordinates",
+          isSuccess: false,
+        );
+        return;
+      }
 
       final result = await tugasProvider.updateTugas(
         id: widget.tugas.id,
-        judul: _judulTugasController.text,
-        jamMulai: _jamMulaiController.text,
-        tanggalMulai: _tanggalMulaiController.text,
-        tanggalSelesai: _tanggalSelesaiController.text,
+        judul: _judulTugasController.text.trim(),
+        tanggalMulai: _tanggalMulaiController.text.trim(),
+        tanggalSelesai: _tanggalSelesaiController.text.trim(),
+        tugasLat: latitude,
+        tugasLng: longitude,
         person: _selectedUser?.id,
-        lokasi:
-            "${_latitudeController.text.trim()},${_longitudeController.text.trim()}",
-        note: _noteController.text,
+        note: _noteController.text.trim(),
+        radius: radius,
       );
 
       if (!mounted) return;
@@ -433,19 +337,21 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
-          context.isIndonesian ? 'Terjadi kesalahan: $e' : 'Something Wrong $e',
+          isIndonesian
+              ? 'Terjadi kesalahan: $e'
+              : 'Something Wrong: $e',
           isSuccess: false,
         );
       }
     }
   }
 
+
   @override
   void dispose() {
     _judulTugasController.dispose();
     _tanggalMulaiController.dispose();
     _tanggalSelesaiController.dispose();
-    _jamMulaiController.dispose();
     _noteController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
@@ -494,16 +400,6 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 textStyle: textStyle,
                 inputStyle: inputStyle,
                 hint: '',
-              ),
-              CustomInputField(
-                label: context.isIndonesian ? "Jam Mulai" : "Start Time",
-                hint: "--:--",
-                controller: _jamMulaiController,
-                suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-                onTapIcon: () => _onTapIconTime(_jamMulaiController),
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
               ),
               CustomInputField(
                 label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
@@ -562,6 +458,18 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 textStyle: textStyle,
                 inputStyle: inputStyle,
                 hint: '',
+              ),
+
+              const SizedBox(height: 10),
+
+              CustomInputField(
+                label: context.isIndonesian ? 'Radius (meter)' : 'Radius (meter)',
+                hint: 'Masukkan radius tugas',
+                controller: _radiusController,
+                labelStyle: labelStyle,
+                textStyle: textStyle,
+                inputStyle: inputStyle,
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
               ),
 
               Row(

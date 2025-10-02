@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
+import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/widgets/video.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -34,6 +37,96 @@ class _TugasTabelState extends State<TugasTabel> {
       return DateFormat('HH:mm').format(DateFormat('HH:mm:ss').parse(time));
     } catch (_) {
       return '';
+    }
+  }
+
+  /// --- Lokasi tampil di BottomSheet dengan mini Map
+  void _openMap(String latlongStr) {
+    try {
+      final parts = latlongStr.split(',');
+      final lat = double.parse(parts[0].trim());
+      final lng = double.parse(parts[1].trim());
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: AppColors.bg,
+        isScrollControlled: true,
+        builder: (_) => DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 1.0,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.bg,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: const Offset(0, -3),
+                  )
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Konten bisa discroll
+                  Column(
+                    children: [
+                      // Handle bar
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        height: 5,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      Text(
+                        "Lokasi Absen",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: AppColors.putih,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Map full tinggi fix
+                      Expanded(
+                        child: MapPageModal(target: LatLng(lat, lng)),
+                      ),
+
+                      const SizedBox(height: 200), // dummy biar bisa full drag
+                    ],
+                  ),
+
+                  // Card info nempel di bawah
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: LocationInfoCard(
+                        target: LatLng(lat, lng),
+                        mapController: MapController(),
+                        onConfirm: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    } catch (_) {
+      debugPrint("Format latlong salah: $latlongStr");
     }
   }
 
@@ -69,8 +162,7 @@ class _TugasTabelState extends State<TugasTabel> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<TugasProvider>().deleteTugas(tugas.id, "");
+      final message = await context.read<TugasProvider>().deleteTugas(tugas.id);
       NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menghapus tugas',
@@ -184,24 +276,46 @@ class _TugasTabelState extends State<TugasTabel> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DetailItem(label: 'Kepada', value: tugas.user?.nama ?? '-'),
-            SizedBox(height: 5),
-            DetailItem(label: 'Judul', value: tugas.namaTugas),
-            SizedBox(height: 5),
-            DetailItem(label: 'Jam Mulai', value: parseTime(tugas.jamMulai)),
+            DetailItem(
+              label: 'Kepada',
+              value: tugas.user?.nama ?? '-',
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Tanggal Mulai', value: parseDate(tugas.tanggalMulai)),
+              label: 'Judul',
+              value: tugas.namaTugas,
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Batas Submit', value: parseDate(tugas.tanggalSelesai)),
-            SizedBox(height: 5),
-            DetailItem(label: 'Lokasi', value: tugas.lokasi),
-            SizedBox(height: 5),
-            DetailItem(label: 'Note', value: tugas.note),
+              label: 'Tanggal Mulai',
+              value: parseDate(tugas.tanggalMulai),
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Status', value: tugas.status, color: statusColor),
+              label: 'Batas Submit',
+              value: parseDate(tugas.tanggalSelesai),
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Radius',
+              value: parseDate(tugas.radius as String?),
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Note',
+              value: tugas.note ?? '-',
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Status',
+              value: tugas.status,
+              color: statusColor,
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Terlambat/Tepat Waktu',
+              value: tugas.displayTerlambat,
+            ),
           ],
         ),
         actions: [
@@ -227,37 +341,43 @@ class _TugasTabelState extends State<TugasTabel> {
         ? [
             "Kepada",
             "Judul",
-            "Jam Mulai",
             "Tgl Mulai",
             "Batas Submit",
-            "Lokasi",
-            "Catatan",
+            "Radius Lokasi",
+            "Lokasi Tugas",
+            "Lokasi Lampiran",
             "Status",
+            "Catatan",
             "Lampiran",
+            "Ketepatan"
           ]
         : [
             "To",
             "Title",
-            "Start Time",
             "Start Date",
             "Deadline",
-            "Location",
-            "Note",
+            "Location Radius",
+            "Task Location",
+            "Attachment Location",
             "Status",
+            "Note",
             "Attachment",
+            "Punctuality"
           ];
 
     final rows = widget.tugasList.map((tugas) {
       return [
-        tugas.user?.nama ?? '-',
+        tugas.displayUser,
         tugas.shortTugas,
-        parseTime(tugas.jamMulai),
         parseDate(tugas.tanggalMulai),
         parseDate(tugas.tanggalSelesai),
-        tugas.lokasi,
-        tugas.note,
+        "${tugas.radius} M",
+        tugas.displayLokasiTugas,
+        tugas.displayLokasiLampiran,
         tugas.status,
-        tugas.lampiran != null ? "Lihat Lampiran" : "-"
+        tugas.displayNote,
+        tugas.displayLampiran,
+        tugas.lampiran != null ? tugas.displayTerlambat : '-',
       ];
     }).toList();
 
@@ -283,7 +403,17 @@ class _TugasTabelState extends State<TugasTabel> {
       onDelete: (row) => _deleteTugas(context, widget.tugasList[row]),
       onTapLampiran: (row) =>
           _showLampiranDialog(context, widget.tugasList[row]),
-      onCellTap: (row, col) => print('Cell tapped: Row $row, Col $col'),
+      onCellTap: (row, col) {
+        final tugas = widget.tugasList[row];
+        if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
+          _openMap("${tugas.tugasLat},${tugas.tugasLng}");
+        }
+        if (col == 6 &&
+            tugas.lampiranLat != null &&
+            tugas.lampiranLng != null) {
+          _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");
+        }
+      },
     );
   }
 }
