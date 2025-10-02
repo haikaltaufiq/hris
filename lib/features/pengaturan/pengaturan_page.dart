@@ -5,7 +5,6 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
-import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,8 +18,6 @@ class PengaturanPage extends StatefulWidget {
 
 class _PengaturanPageState extends State<PengaturanPage>
     with TickerProviderStateMixin {
-  bool isSwitched = false; // untuk switch theme
-
   late AnimationController _themeAnimationController;
   late AnimationController _langAnimationController;
 
@@ -31,53 +28,55 @@ class _PengaturanPageState extends State<PengaturanPage>
   void initState() {
     super.initState();
     _service = PengaturanService();
+
     _themeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
     _langAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
 
-    _initTokenAndLoad();
+    // Init provider values first
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+      final langProvider =
+          Provider.of<LanguageProvider>(context, listen: false);
+
+      _themeAnimationController.value = themeProvider.isDarkMode ? 1.0 : 0.0;
+      _langAnimationController.value = langProvider.isIndonesian ? 1.0 : 0.0;
+
+      _initTokenAndLoad(themeProvider, langProvider);
+    });
   }
 
-  Future<void> _initTokenAndLoad() async {
+  Future<void> _initTokenAndLoad(
+      ThemeProvider themeProvider, LanguageProvider langProvider) async {
     final prefs = await SharedPreferences.getInstance();
     token = prefs.getString('token') ?? '';
 
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+    if (token.isEmpty) return;
 
-    if (token.isNotEmpty) {
-      try {
-        final pengaturan = await _service.getPengaturan(token);
-        final tema = pengaturan['tema'] ?? 'terang';
-        final bahasa = pengaturan['bahasa'] ?? 'indonesia';
+    try {
+      final pengaturan = await _service.getPengaturan(token);
+      final tema = pengaturan['tema'] ?? 'terang';
+      final bahasa = pengaturan['bahasa'] ?? 'indonesia';
 
-        setState(() {
-          isSwitched = tema == 'gelap';
-          _themeAnimationController.value = isSwitched ? 1.0 : 0.0;
+      final isDark = tema == 'gelap';
+      final isID = bahasa == 'indonesia';
 
-          langProvider.toggleLanguage(bahasa == 'indonesia');
-          _langAnimationController.value =
-              langProvider.isIndonesian ? 1.0 : 0.0;
-        });
+      // Sinkron ke provider global
+      themeProvider.setDarkMode(isDark);
+      langProvider.toggleLanguage(isID);
 
-        // Sinkron ke provider global
-        themeProvider.setDarkMode(isSwitched);
-      } catch (e) {
-        print('Gagal load pengaturan: $e');
-      }
-    } else {}
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final langProvider = Provider.of<LanguageProvider>(context);
-    _langAnimationController.value = langProvider.isIndonesian ? 1.0 : 0.0;
+      // Update animasi switch
+      _themeAnimationController.value = isDark ? 1.0 : 0.0;
+      _langAnimationController.value = isID ? 1.0 : 0.0;
+    } catch (e) {
+      print('Gagal load pengaturan: $e');
+    }
   }
 
   @override
@@ -88,20 +87,23 @@ class _PengaturanPageState extends State<PengaturanPage>
   }
 
   void _toggleTheme() async {
-    setState(() => isSwitched = !isSwitched);
-    isSwitched
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final newDark = !themeProvider.isDarkMode;
+
+    themeProvider.setDarkMode(newDark);
+
+    // Update animasi
+    newDark
         ? _themeAnimationController.forward()
         : _themeAnimationController.reverse();
 
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    themeProvider.setDarkMode(isSwitched);
-
+    // Update backend
     try {
       final langProvider =
           Provider.of<LanguageProvider>(context, listen: false);
       await _service.updatePengaturan(
         token: token,
-        tema: isSwitched ? 'gelap' : 'terang',
+        tema: newDark ? 'gelap' : 'terang',
         bahasa: langProvider.isIndonesian ? 'indonesia' : 'inggris',
       );
     } catch (e) {
@@ -112,22 +114,21 @@ class _PengaturanPageState extends State<PengaturanPage>
   void _toggleLanguage() async {
     final langProvider = Provider.of<LanguageProvider>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final newValue = !langProvider.isIndonesian;
+    final newLang = !langProvider.isIndonesian;
 
-    // update provider global
-    langProvider.toggleLanguage(newValue);
+    langProvider.toggleLanguage(newLang);
 
-    // update animasi switch
-    newValue
+    // Update animasi switch
+    newLang
         ? _langAnimationController.forward()
         : _langAnimationController.reverse();
 
-    // update backend
+    // Update backend
     try {
       await _service.updatePengaturan(
         token: token,
         tema: themeProvider.isDarkMode ? 'gelap' : 'terang',
-        bahasa: newValue ? 'indonesia' : 'inggris',
+        bahasa: newLang ? 'indonesia' : 'inggris',
       );
     } catch (e) {
       print('Gagal update bahasa: $e');
@@ -136,7 +137,10 @@ class _PengaturanPageState extends State<PengaturanPage>
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final langProvider = Provider.of<LanguageProvider>(context);
+
+    final isDark = themeProvider.isDarkMode;
     final isIndonesian = langProvider.isIndonesian;
 
     return Scaffold(
@@ -145,8 +149,8 @@ class _PengaturanPageState extends State<PengaturanPage>
         padding: const EdgeInsets.all(16),
         children: [
           const SizedBox(height: 8),
-          if (context.isMobile)
-            Header(title: context.isIndonesian ? "Pengaturan" : "Settings"),
+          if (MediaQuery.of(context).size.width < 600)
+            Header(title: isIndonesian ? "Pengaturan" : "Settings"),
 
           // Theme Card
           Card(
@@ -187,7 +191,7 @@ class _PengaturanPageState extends State<PengaturanPage>
                                     color: AppColors.putih)),
                             const SizedBox(height: 4),
                             Text(
-                                isSwitched
+                                isDark
                                     ? isIndonesian
                                         ? 'Tema gelap diterapkan'
                                         : 'Dark theme enabled'
@@ -242,7 +246,7 @@ class _PengaturanPageState extends State<PengaturanPage>
                                   AnimatedPositioned(
                                     duration: const Duration(milliseconds: 300),
                                     curve: Curves.easeInOut,
-                                    left: isSwitched ? 32 : 4,
+                                    left: isDark ? 32 : 4,
                                     top: 4,
                                     child: Container(
                                       width: 24,
@@ -259,11 +263,11 @@ class _PengaturanPageState extends State<PengaturanPage>
                                         ],
                                       ),
                                       child: Icon(
-                                        isSwitched
+                                        isDark
                                             ? FontAwesomeIcons.moon
                                             : FontAwesomeIcons.sun,
                                         size: 12,
-                                        color: isSwitched
+                                        color: isDark
                                             ? const Color(0xFF4A5568)
                                             : Colors.orange.shade600,
                                       ),
