@@ -2,10 +2,14 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
+import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 
 class LoginButton extends StatefulWidget {
   final TextEditingController emailController;
@@ -47,8 +51,24 @@ class _LoginButtonState extends State<LoginButton> {
       final auth = AuthService();
       final result = await auth.login(email, password);
 
-      if (result['success'] == true) {
+      if (result['success'] == true && result['token'] != null) {
+        final token = result['token'];
         await FeatureAccess.init();
+
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        final langProvider =
+            Provider.of<LanguageProvider>(context, listen: false);
+        final pengaturanService = PengaturanService();
+
+        try {
+          final pengaturan = await pengaturanService.getPengaturan(token);
+          themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
+          langProvider.toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+        } catch (e) {
+          print('Gagal fetch pengaturan: $e');
+        }
+
         NotificationHelper.showTopNotification(
           context,
           result['message'] ?? "Login berhasil",
