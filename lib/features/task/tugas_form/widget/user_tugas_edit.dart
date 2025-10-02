@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
 
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +14,6 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
-
 import 'package:provider/provider.dart';
 
 class UserEditTugas extends StatefulWidget {
@@ -26,9 +26,7 @@ class UserEditTugas extends StatefulWidget {
 
 class _UserEditTugasState extends State<UserEditTugas> {
   final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController =
-      TextEditingController();
-  final TextEditingController _jamMulaiController = TextEditingController();
+  final TextEditingController _tanggalSelesaiController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
@@ -42,37 +40,32 @@ class _UserEditTugasState extends State<UserEditTugas> {
   @override
   void initState() {
     super.initState();
-    // Isi controller dari data awal
     _judulTugasController.text = widget.tugas.namaTugas;
-    // Jam dari API (HH:mm:ss) → Form (HH:mm)
-    if (widget.tugas.jamMulai.isNotEmpty) {
-      final parts = widget.tugas.jamMulai.split(':');
-      if (parts.length >= 2) {
-        _jamMulaiController.text =
-            "${parts[0].padLeft(2, '0')}:${parts[1].padLeft(2, '0')}";
-      }
-    }
+    _lokasiController.text = widget.tugas.displayLokasiTugas;
+
+    _noteController.text = widget.tugas.note ?? '';
+
     // Tanggal dari API (yyyy-MM-dd) → Form (dd / MM / yyyy)
-    if (widget.tugas.tanggalMulai.isNotEmpty) {
+    if (widget.tugas.tanggalMulai != null &&
+        widget.tugas.tanggalMulai.isNotEmpty) {
       final parts = widget.tugas.tanggalMulai.split('-');
       if (parts.length == 3) {
         _tanggalMulaiController.text =
             "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
       }
     }
-    if (widget.tugas.tanggalSelesai.isNotEmpty) {
+    if (widget.tugas.tanggalSelesai != null &&
+        widget.tugas.tanggalSelesai.isNotEmpty) {
       final parts = widget.tugas.tanggalSelesai.split('-');
       if (parts.length == 3) {
         _tanggalSelesaiController.text =
             "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
       }
     }
-    _lokasiController.text = widget.tugas.lokasi;
-    _noteController.text = widget.tugas.note;
   }
 
   Future<void> _handleSubmit() async {
-    if (!kIsWeb && _selectedFile == null || kIsWeb && _selectedBytes == null) {
+    if ((!kIsWeb && _selectedFile == null) || (kIsWeb && _selectedBytes == null)) {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
@@ -111,7 +104,9 @@ class _UserEditTugasState extends State<UserEditTugas> {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
-          context.isIndonesian ? 'Terjadi kesalahan: $e' : 'Something Wrong $e',
+          context.isIndonesian
+              ? 'Terjadi kesalahan: $e'
+              : 'Something Wrong $e',
           isSuccess: false,
         );
       }
@@ -123,9 +118,9 @@ class _UserEditTugasState extends State<UserEditTugas> {
     _judulTugasController.dispose();
     _tanggalMulaiController.dispose();
     _tanggalSelesaiController.dispose();
-    _jamMulaiController.dispose();
     _noteController.dispose();
     _lokasiController.dispose();
+    _lampiranTugasController.dispose();
     super.dispose();
   }
 
@@ -179,23 +174,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 textStyle: textStyle,
                 inputStyle: inputStyle,
                 hint: '',
-              ),
-              CustomInputField(
-                label: context.isIndonesian ? "Jam Mulai" : "Start Time",
-                hint: "--:--",
-                controller: _jamMulaiController,
-                suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-                onTapIcon: () {
-                  NotificationHelper.showTopNotification(
-                      context,
-                      context.isIndonesian
-                          ? "Anda tidak dapat mengubah Jam"
-                          : "You can't change the time",
-                      isSuccess: false);
-                },
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
               ),
               CustomInputField(
                 label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
@@ -257,11 +235,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
               CustomInputField(
                 label: context.isIndonesian ? "Lampiran" : "Attachment",
                 suffixIcon: Container(
-                  margin: EdgeInsets.all(10),
+                  margin: const EdgeInsets.all(10),
                   width: 100,
                   decoration: BoxDecoration(
                       color: AppColors.secondary,
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
+                      borderRadius: const BorderRadius.all(Radius.circular(8)),
                       border: Border.all(width: 1, color: AppColors.putih)),
                   child: Center(
                     child: Text(
@@ -273,18 +251,19 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 onTapIcon: () async {
                   try {
                     FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(
-                      type: FileType.any,
-                    );
+                        await FilePicker.platform.pickFiles(type: FileType.any);
 
                     if (result != null && result.files.isNotEmpty) {
                       if (kIsWeb) {
-                        setState(() {
-                          _selectedBytes = result.files.first.bytes;
-                          _selectedFileName = result.files.first.name;
-                          _lampiranTugasController.text =
-                              result.files.first.name;
-                        });
+                        final bytes = result.files.first.bytes;
+                        if (bytes != null) {
+                          setState(() {
+                            _selectedBytes = bytes;
+                            _selectedFileName = result.files.first.name;
+                            _lampiranTugasController.text =
+                                result.files.first.name;
+                          });
+                        }
                       } else {
                         final filePath = result.files.single.path;
                         if (filePath != null) {
@@ -316,7 +295,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
                     ? 'Upload File Lampiran'
                     : "Upload Attachment File",
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 10),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -331,7 +310,11 @@ class _UserEditTugasState extends State<UserEditTugas> {
                         const Color(0xFF1F1F1F).withOpacity(0.6),
                   ),
                   child: isLoading
-                      ? const SizedBox(child: CircularProgressIndicator())
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
                       : Text(
                           'Submit',
                           style: GoogleFonts.poppins(

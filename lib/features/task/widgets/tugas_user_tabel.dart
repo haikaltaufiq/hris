@@ -11,12 +11,14 @@ import 'package:google_fonts/google_fonts.dart';
 class TugasUserTabel extends StatelessWidget {
   final List<TugasModel> tugasList;
   final VoidCallback? onActionDone;
+
   const TugasUserTabel({
     super.key,
     required this.tugasList,
-    required this.onActionDone,
+    this.onActionDone,
   });
 
+  // Format HH:mm
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
     try {
@@ -26,6 +28,7 @@ class TugasUserTabel extends StatelessWidget {
     }
   }
 
+  // Format dd/MM/yyyy
   String parseDate(String? date) {
     if (date == null || date.isEmpty) return '';
     try {
@@ -35,6 +38,7 @@ class TugasUserTabel extends StatelessWidget {
     }
   }
 
+  // Edit tugas
   Future<void> _editTugas(BuildContext context, int row) async {
     Navigator.push(
       context,
@@ -48,6 +52,7 @@ class TugasUserTabel extends StatelessWidget {
     onActionDone?.call();
   }
 
+  // Detail dialog
   void _showDetailDialog(BuildContext context, TugasModel tugas) {
     Color statusColor;
     switch (tugas.status.toLowerCase()) {
@@ -80,39 +85,37 @@ class TugasUserTabel extends StatelessWidget {
           ),
         ),
         content: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.6, // dialog lebih lebar
-          height:
-              MediaQuery.of(context).size.height * 0.5, // tinggi lebih besar
+          width: MediaQuery.of(context).size.width * 0.6,
+          height: MediaQuery.of(context).size.height * 0.5,
           child: ListView.separated(
             shrinkWrap: true,
             itemCount: 8,
-            separatorBuilder: (_, __) =>
-                const SizedBox(height: 12), // jarak antar item
+            separatorBuilder: (_, __) => const SizedBox(height: 12),
             itemBuilder: (context, index) {
               switch (index) {
                 case 0:
                   return DetailItem(
-                      label: 'Kepada', value: tugas.user?.nama ?? '-');
+                      label: 'Kepada', value: tugas.displayUser);
                 case 1:
                   return DetailItem(label: 'Judul', value: tugas.namaTugas);
                 case 2:
                   return DetailItem(
-                      label: 'Jam Mulai', value: parseTime(tugas.jamMulai));
-                case 3:
-                  return DetailItem(
                       label: 'Tanggal Mulai',
                       value: parseDate(tugas.tanggalMulai));
-                case 4:
+                case 3:
                   return DetailItem(
                       label: 'Batas Submit',
                       value: parseDate(tugas.tanggalSelesai));
+                case 4:
+                  return DetailItem(label: 'Lokasi', value: tugas.displayLokasiTugas);
                 case 5:
-                  return DetailItem(label: 'Lokasi', value: tugas.lokasi);
+                  return DetailItem(label: 'Note', value: tugas.displayNote);
                 case 6:
-                  return DetailItem(label: 'Note', value: tugas.note);
-                case 7:
                   return DetailItem(
                       label: 'Status', value: tugas.status, color: statusColor);
+                case 7:
+                  return DetailItem(
+                      label: 'Lampiran', value: tugas.displayLampiran);
                 default:
                   return const SizedBox();
               }
@@ -141,7 +144,6 @@ class TugasUserTabel extends StatelessWidget {
         ? [
             "Kepada",
             "Judul",
-            "Jam Mulai",
             "Tgl Mulai",
             "Batas Submit",
             "Lokasi",
@@ -152,7 +154,6 @@ class TugasUserTabel extends StatelessWidget {
         : [
             "To",
             "Title",
-            "Start Time",
             "Start Date",
             "Deadline",
             "Location",
@@ -167,32 +168,32 @@ class TugasUserTabel extends StatelessWidget {
       );
     }
 
+    // Build rows
     final rows = tugasList.map((tugas) {
       return [
-        tugas.user?.nama ?? '-',
+        tugas.displayUser,
         tugas.shortTugas,
-        parseTime(tugas.jamMulai),
         parseDate(tugas.tanggalMulai),
         parseDate(tugas.tanggalSelesai),
-        tugas.lokasi,
-        tugas.note,
+        tugas.displayLokasiTugas,
+        tugas.displayNote,
         tugas.status,
-        "Upload Tugas ",
+        tugas.displayLampiran,
       ];
     }).toList();
 
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
-      statusColumnIndexes: const [7],
+      statusColumnIndexes: const [6], // status di kolom ke-6
       onCellTap: (row, col) {
-        if (col == 8) {
+        if (col == 7) { // Lampiran di kolom terakhir
           _editTugas(context, row);
         }
       },
       onView: (row) => _showDetailDialog(context, tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
-      onTapLampiran: (row) => _editTugas(context, row),
+      onTapLampiran: (row) => _editTugas(context, tugasList[row] as int),
     );
   }
 }

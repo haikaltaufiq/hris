@@ -70,7 +70,7 @@ class _TugasTabelState extends State<TugasTabel> {
 
     if (confirmed) {
       final message =
-          await context.read<TugasProvider>().deleteTugas(tugas.id, "");
+          await context.read<TugasProvider>().deleteTugas(tugas.id);
       NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menghapus tugas',
@@ -184,24 +184,46 @@ class _TugasTabelState extends State<TugasTabel> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DetailItem(label: 'Kepada', value: tugas.user?.nama ?? '-'),
-            SizedBox(height: 5),
-            DetailItem(label: 'Judul', value: tugas.namaTugas),
-            SizedBox(height: 5),
-            DetailItem(label: 'Jam Mulai', value: parseTime(tugas.jamMulai)),
+            DetailItem(
+              label: 'Kepada',
+              value: tugas.user?.nama ?? '-',
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Tanggal Mulai', value: parseDate(tugas.tanggalMulai)),
+              label: 'Judul',
+              value: tugas.namaTugas,
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Batas Submit', value: parseDate(tugas.tanggalSelesai)),
-            SizedBox(height: 5),
-            DetailItem(label: 'Lokasi', value: tugas.lokasi),
-            SizedBox(height: 5),
-            DetailItem(label: 'Note', value: tugas.note),
+              label: 'Tanggal Mulai',
+              value: parseDate(tugas.tanggalMulai),
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Status', value: tugas.status, color: statusColor),
+              label: 'Batas Submit',
+              value: parseDate(tugas.tanggalSelesai),
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Radius',
+              value: parseDate(tugas.radius as String?),
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Note',
+              value: tugas.note ?? '-',
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Status',
+              value: tugas.status,
+              color: statusColor,
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Terlambat/Tepat Waktu',
+              value: tugas.displayTerlambat,
+            ),
           ],
         ),
         actions: [
@@ -227,10 +249,10 @@ class _TugasTabelState extends State<TugasTabel> {
         ? [
             "Kepada",
             "Judul",
-            "Jam Mulai",
             "Tgl Mulai",
             "Batas Submit",
             "Lokasi",
+            "Radius",
             "Catatan",
             "Status",
             "Lampiran",
@@ -242,6 +264,7 @@ class _TugasTabelState extends State<TugasTabel> {
             "Start Date",
             "Deadline",
             "Location",
+            "Radius",
             "Note",
             "Status",
             "Attachment",
@@ -249,15 +272,16 @@ class _TugasTabelState extends State<TugasTabel> {
 
     final rows = widget.tugasList.map((tugas) {
       return [
-        tugas.user?.nama ?? '-',
+        tugas.displayUser,
         tugas.shortTugas,
-        parseTime(tugas.jamMulai),
         parseDate(tugas.tanggalMulai),
         parseDate(tugas.tanggalSelesai),
-        tugas.lokasi,
-        tugas.note,
+        tugas.displayLokasiTugas,
+        tugas.displayLokasiLampiran,
+        tugas.displayNote,
         tugas.status,
-        tugas.lampiran != null ? "Lihat Lampiran" : "-"
+        tugas.lampiran != null ? "Lihat Lampiran" : "-",
+        tugas.displayTerlambat,
       ];
     }).toList();
 
