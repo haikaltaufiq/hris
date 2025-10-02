@@ -29,9 +29,9 @@ class DepartmentViewModel extends ChangeNotifier {
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
     try {
-      final hasCache = _departemenBox.containsKey('departemen_list');
+      final hasCache = _departemenBox.containsKey('department_list');
       if (hasCache) {
-        final cached = _departemenBox.get('departemen_list') as List;
+        final cached = _departemenBox.get('department_list') as List;
         if (cached.isNotEmpty) {
           _departemenList = cached
               .map((json) =>
@@ -70,7 +70,7 @@ class DepartmentViewModel extends ChangeNotifier {
 
       // Save to cache
       await _departemenBox.put(
-        'departemen_list',
+        'department_list',
         _departemenList.map((c) => c.toJson()).toList(),
       );
       print('💾 Cache saved');
