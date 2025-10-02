@@ -77,8 +77,8 @@ class LandingFooter extends StatelessWidget {
         Expanded(
           child: _buildFooterColumn(
             context,
-            'Legal',
-            ['Privacy Policy', 'Terms of Service', 'Cookies'],
+            'Contact Us',
+            ['hris.ksi@kreatifsystem.com', '0778 214 0088'],
           ),
         ),
       ],
