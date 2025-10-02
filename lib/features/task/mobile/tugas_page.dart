@@ -6,6 +6,7 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
 import 'package:hr/features/task/widgets/tugas_tabel.dart';
@@ -64,7 +65,7 @@ class _TugasMobileState extends State<TugasMobile> {
               onRefresh: _refreshData,
               child: ListView(
                 children: [
-                  const Header(title: "Daftar Tugas"),
+                  Header(title: context.isIndonesian ? "Daftar Tugas" : "Task"),
                   SearchingBar(
                     controller: searchController,
                     onChanged: provider.filterTugas,
@@ -94,7 +95,9 @@ class _TugasMobileState extends State<TugasMobile> {
                                 color: AppColors.putih.withOpacity(0.5)),
                             const SizedBox(height: 16),
                             Text(
-                              'Belum ada tugas',
+                              context.isIndonesian
+                                  ? 'Belum ada tugas'
+                                  : "No task available",
                               style: GoogleFonts.poppins(
                                 color: AppColors.putih,
                                 fontSize: 16,
@@ -103,7 +106,9 @@ class _TugasMobileState extends State<TugasMobile> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tap tombol + untuk menambah tugas baru',
+                              context.isIndonesian
+                                  ? 'Tap tombol + untuk menambah tugas baru'
+                                  : 'Click + button to add new task',
                               style: GoogleFonts.poppins(
                                 color: AppColors.putih.withOpacity(0.7),
                                 fontSize: 14,

@@ -28,7 +28,7 @@ class TugasTabelWeb extends StatefulWidget {
 }
 
 class _TugasTabelWebState extends State<TugasTabelWeb> {
-  final List<String> headers = const [
+  final List<String> headers = [
     "Kepada",
     "Judul",
     "Jam Mulai",

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/tugas_form/widget/tugas_input_edit.dart';
@@ -22,7 +23,7 @@ class _TugasEditFormState extends State<TugasEditForm> {
       appBar: context.isMobile
           ? AppBar(
               title: Text(
-                'Edit Tugas',
+                context.isIndonesian ? 'Perbarui Tugas' : 'Edit Task',
                 style: TextStyle(
                   color: AppColors.putih,
                   fontSize: 22,

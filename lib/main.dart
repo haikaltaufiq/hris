@@ -26,7 +26,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FeatureAccess.init();
-
   final themeProvider = ThemeProvider();
 
   // default hanya sekali
@@ -191,3 +190,4 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+

@@ -224,8 +224,9 @@ class _MainLayoutState extends State<MainLayout>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDropdownItem("Profile", Icons.person_outline,
-                              () {
+                          _buildDropdownItem(
+                              context.isIndonesian ? "Profil" : "Profile",
+                              Icons.person_outline, () {
                             _hideDropdownImmediate();
                             Navigator.pushNamed(context, AppRoutes.profile);
                           }),
@@ -236,7 +237,8 @@ class _MainLayoutState extends State<MainLayout>
                             color: Colors.grey.withOpacity(0.1),
                           ),
                           _buildDropdownItem(
-                              "Settings", Icons.settings_outlined, () {
+                              context.isIndonesian ? "Pengaturan" : "Settings",
+                              Icons.settings_outlined, () {
                             _hideDropdownImmediate();
                             Navigator.pushNamed(context, AppRoutes.pengaturan);
                           }),
@@ -246,11 +248,9 @@ class _MainLayoutState extends State<MainLayout>
                             color: Colors.grey.withOpacity(0.1),
                           ),
                           _buildDropdownItem(
-                            "Logout",
+                            context.isIndonesian ? "Keluar" : "Logout",
                             Icons.logout,
                             () async {
-                              _hideDropdownImmediate();
-
                               // panggil service logout dulu biar API /api/logout terpanggil
                               final result = await AuthService().logout();
                               debugPrint("Logout result: $result");
@@ -267,6 +267,7 @@ class _MainLayoutState extends State<MainLayout>
                                       builder: (_) => const LoginPage()),
                                   (route) => false,
                                 );
+                                _hideDropdownImmediate();
                               }
                             },
                           ),

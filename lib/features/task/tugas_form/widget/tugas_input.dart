@@ -8,6 +8,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/user_service.dart';
@@ -65,7 +66,9 @@ class _TugasInputState extends State<TugasInput> {
         });
         NotificationHelper.showTopNotification(
           context,
-          'Gagal memuat data user: $e',
+          context.isIndonesian
+              ? 'Gagal memuat data user: $e'
+              : 'Failed read data User $e',
           isSuccess: false,
         );
       }
@@ -94,7 +97,9 @@ class _TugasInputState extends State<TugasInput> {
         _latitudeController.text, _longitudeController.text)) {
       NotificationHelper.showTopNotification(
         context,
-        "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)",
+        context.isIndonesian
+            ? "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)"
+            : "Invalid coordinates. Please enter a latitude (-90 to 90) and longitude (-180 to 180).",
         isSuccess: false,
       );
       return;
@@ -142,8 +147,10 @@ class _TugasInputState extends State<TugasInput> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        const Text(
-                          "Lokasi Tugas",
+                        Text(
+                          context.isIndonesian
+                              ? "Lokasi Tugas"
+                              : "Task Location",
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -193,7 +200,9 @@ class _TugasInputState extends State<TugasInput> {
       print("Error showing map: $e");
       NotificationHelper.showTopNotification(
         context,
-        "Gagal membuka map: ${e.toString()}",
+        context.isIndonesian
+            ? "Gagal membuka map: ${e.toString()}"
+            : "Failed to open the map ${e.toString()}",
         isSuccess: false,
       );
     }
@@ -230,7 +239,7 @@ class _TugasInputState extends State<TugasInput> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Pilih Waktu',
+                          context.isIndonesian ? 'Pilih Waktu' : 'Choose Time',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontFamily: GoogleFonts.poppins().fontFamily,
@@ -239,7 +248,7 @@ class _TugasInputState extends State<TugasInput> {
                           ),
                         ),
                         Text(
-                          'Mulai Tugas',
+                          context.isIndonesian ? 'Mulai Tugas' : 'Start Task',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontFamily: GoogleFonts.poppins().fontFamily,
@@ -280,7 +289,7 @@ class _TugasInputState extends State<TugasInput> {
                   label: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 18),
                     child: Text(
-                      'Save',
+                      context.isIndonesian ? 'Simpan' : 'Save',
                       style: TextStyle(
                         fontFamily: GoogleFonts.poppins().fontFamily,
                         color: AppColors.putih,
@@ -384,8 +393,10 @@ class _TugasInputState extends State<TugasInput> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomInputField(
-            hint: "Masukkan judul tugas",
-            label: "Judul Tugas",
+            hint: context.isIndonesian
+                ? "Masukkan judul tugas"
+                : "Input task title",
+            label: context.isIndonesian ? "Judul Tugas" : "Title",
             controller: _judulTugasController,
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -393,7 +404,7 @@ class _TugasInputState extends State<TugasInput> {
           ),
 
           CustomInputField(
-            label: "Jam Mulai",
+            label: context.isIndonesian ? "Jam Mulai" : "Start Time",
             hint: "--:--",
             controller: _jamMulaiController,
             suffixIcon: context.isMobile
@@ -441,7 +452,7 @@ class _TugasInputState extends State<TugasInput> {
           ),
 
           CustomInputField(
-            label: "Tanggal Mulai",
+            label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalMulaiController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -452,7 +463,9 @@ class _TugasInputState extends State<TugasInput> {
           ),
 
           CustomInputField(
-            label: "Batas Tanggal Penyelesaian",
+            label: context.isIndonesian
+                ? "Batas Tanggal Penyelesaian"
+                : "Deadline Task",
             hint: "dd / mm / yyyy",
             controller: _tanggalSelesaiController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -466,8 +479,8 @@ class _TugasInputState extends State<TugasInput> {
           _isLoadingUser
               ? const Center(child: CircularProgressIndicator())
               : CustomDropDownField(
-                  label: 'Karyawan',
-                  hint: 'Pilih user',
+                  label: context.isIndonesian ? 'Karyawan' : "Employee",
+                  hint: context.isIndonesian ? 'Pilih user' : "Choose user",
                   items: _userList
                       .where((u) => u.nama.isNotEmpty)
                       .map((u) => u.nama)
@@ -489,7 +502,9 @@ class _TugasInputState extends State<TugasInput> {
                   inputStyle: inputStyle,
                 ),
           CustomInputField(
-            hint: "Catatan tambahan (opsional)",
+            hint: context.isIndonesian
+                ? "Catatan tambahan (opsional)"
+                : "Additional note (optional)",
             label: "Note",
             controller: _noteController,
             labelStyle: labelStyle,
@@ -551,7 +566,9 @@ class _TugasInputState extends State<TugasInput> {
                       size: 18,
                     ),
                     label: Text(
-                      "Bagikan Lokasi",
+                      context.isIndonesian
+                          ? "Bagikan Lokasi"
+                          : "Share Location",
                       style: GoogleFonts.poppins(
                         color: AppColors.putih,
                         fontSize: 14,
@@ -584,7 +601,7 @@ class _TugasInputState extends State<TugasInput> {
                       size: 18,
                     ),
                     label: Text(
-                      "Lihat Map",
+                      context.isIndonesian ? "Lihat Map" : "See Map",
                       style: GoogleFonts.poppins(
                         color: AppColors.putih,
                         fontSize: 14,
@@ -625,7 +642,9 @@ class _TugasInputState extends State<TugasInput> {
                           _selectedUser == null) {
                         NotificationHelper.showTopNotification(
                           context,
-                          'Harap isi semua data wajib',
+                          context.isIndonesian
+                              ? 'Harap isi semua data wajib'
+                              : 'Please fill all the required data',
                           isSuccess: false,
                         );
                         return;
@@ -636,7 +655,9 @@ class _TugasInputState extends State<TugasInput> {
                           _longitudeController.text.trim())) {
                         NotificationHelper.showTopNotification(
                           context,
-                          'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat',
+                          context.isIndonesian
+                              ? 'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat'
+                              : "Invalid coordinates. Use the 'Share Location' button to get the coordinates.",
                           isSuccess: false,
                         );
                         return;
@@ -658,7 +679,9 @@ class _TugasInputState extends State<TugasInput> {
 
                         NotificationHelper.showTopNotification(
                           context,
-                          result['message'] ?? 'Terjadi kesalahan',
+                          result['message'] ?? context.isIndonesian
+                              ? 'Terjadi kesalahan'
+                              : 'Something Wrong',
                           isSuccess: result['success'] ?? false,
                         );
 
@@ -670,7 +693,9 @@ class _TugasInputState extends State<TugasInput> {
                         if (mounted) {
                           NotificationHelper.showTopNotification(
                             context,
-                            'Gagal membuat tugas: ${e.toString()}',
+                            context.isIndonesian
+                                ? 'Gagal membuat tugas: ${e.toString()}'
+                                : 'Failed to Create Task ; ${e.toString()}',
                             isSuccess: false,
                           );
                         }

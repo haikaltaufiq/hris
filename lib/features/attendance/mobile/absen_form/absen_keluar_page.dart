@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/attendance/mobile/absen_form/widgets/input_out.dart';
 
@@ -19,7 +20,7 @@ class _AbsenKeluarPageState extends State<AbsenKeluarPage> {
       appBar: context.isMobile
           ? AppBar(
               title: Text(
-                'Absen Keluar',
+                context.isIndonesian ? 'Absen Keluar' : "Check Out",
                 style: TextStyle(
                     color: AppColors.putih,
                     fontSize: 22,

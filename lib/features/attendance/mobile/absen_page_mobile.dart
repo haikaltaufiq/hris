@@ -7,6 +7,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
@@ -58,7 +59,7 @@ class _AbsenMobileState extends State<AbsenMobile> {
               onRefresh: _refreshData,
               child: ListView(
                 children: [
-                  Header(title: "Attendance Management"),
+                  Header(title: context.isIndonesian ? "Abensi" : "Attendance"),
                   SearchingBar(
                     controller: searchController,
                     onChanged: (value) {
@@ -85,7 +86,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Belum ada Absensi',
+                              context.isIndonesian
+                                  ? 'Belum ada Absensi'
+                                  : 'No Attendance available',
                               style: TextStyle(
                                 color: AppColors.putih,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -95,7 +98,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tap tombol + untuk menambah pengajuan baru',
+                              context.isIndonesian
+                                  ? 'Tap tombol + untuk menambah absensi baru'
+                                  : 'Press + button to add new attendance',
                               style: TextStyle(
                                 color: AppColors.putih.withOpacity(0.7),
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -185,7 +190,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
 
                                 // Title
                                 Text(
-                                  "Attendance Action",
+                                  context.isIndonesian
+                                      ? "Absensi"
+                                      : "Attendance Action",
                                   style: GoogleFonts.poppins(
                                     color: AppColors.putih,
                                     fontWeight: FontWeight.bold,
@@ -198,7 +205,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
 
                                 // Subtitle
                                 Text(
-                                  "Choose your attendance option",
+                                  context.isIndonesian
+                                      ? "Pilih jenis absensi anda"
+                                      : "Choose your attendance option",
                                   style: GoogleFonts.poppins(
                                     color: AppColors.putih.withOpacity(0.7),
                                     fontSize: 14,
@@ -249,7 +258,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                         } else {
                                           NotificationHelper.showTopNotification(
                                               context,
-                                              "Anda Sudah Check-in hari ini",
+                                              context.isIndonesian
+                                                  ? "Anda Sudah Check-in hari ini"
+                                                  : "You have already checked in today.",
                                               isSuccess: false);
                                         }
                                       },
@@ -284,7 +295,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "Clock In",
+                                                    context.isIndonesian
+                                                        ? "Masuk"
+                                                        : "Clock In",
                                                     style: GoogleFonts.poppins(
                                                       color: Colors.white,
                                                       fontWeight:
@@ -293,7 +306,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    "Start your workday",
+                                                    context.isIndonesian
+                                                        ? "Mulai hari kerja Anda"
+                                                        : "Start your workday",
                                                     style: GoogleFonts.poppins(
                                                       color: Colors.white
                                                           .withOpacity(0.8),
@@ -361,7 +376,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                         } else {
                                           NotificationHelper.showTopNotification(
                                               context,
-                                              "Anda Belum Check-in hari ini",
+                                              context.isIndonesian
+                                                  ? "Anda Belum Check-in hari ini"
+                                                  : "You have not checked in today",
                                               isSuccess: false);
                                         }
                                       },
@@ -396,7 +413,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "Clock Out",
+                                                    context.isIndonesian
+                                                        ? "Keluar"
+                                                        : "Clock Out",
                                                     style: GoogleFonts.poppins(
                                                       color: Colors.white,
                                                       fontWeight:
@@ -405,7 +424,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                                     ),
                                                   ),
                                                   Text(
-                                                    "End your workday",
+                                                    context.isIndonesian
+                                                        ? "Akhiri Hari kerja anda"
+                                                        : "End your workday",
                                                     style: GoogleFonts.poppins(
                                                       color: Colors.white
                                                           .withOpacity(0.8),
@@ -442,7 +463,7 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     ),
                                   ),
                                   child: Text(
-                                    "Cancel",
+                                    context.isIndonesian ? "Batal" : "Cancel",
                                     style: GoogleFonts.poppins(
                                       color: AppColors.putih.withOpacity(0.6),
                                       fontWeight: FontWeight.w500,

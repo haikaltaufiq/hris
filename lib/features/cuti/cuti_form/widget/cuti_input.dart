@@ -4,6 +4,7 @@ import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -71,7 +72,7 @@ class _CutiInputState extends State<CutiInput> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomInputField(
-            label: "Nama",
+            label: context.isIndonesian ? "Nama" : "Name",
             hint: "",
             controller: _namaController,
             labelStyle: labelStyle,
@@ -79,7 +80,7 @@ class _CutiInputState extends State<CutiInput> {
             inputStyle: inputStyle,
           ),
           CustomDropDownField(
-            label: 'Tipe Cuti',
+            label: context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
             hint: '',
             items: ['Tahunan', 'Sakit', 'Izin'],
             labelStyle: labelStyle,
@@ -97,7 +98,7 @@ class _CutiInputState extends State<CutiInput> {
             },
           ),
           CustomInputField(
-            label: "Tanggal Mulai",
+            label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalMulaiController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -144,7 +145,7 @@ class _CutiInputState extends State<CutiInput> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Tanggal Selesai",
+            label: context.isIndonesian ? "Tanggal Selesai" : "End Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalSelesaiController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -191,7 +192,7 @@ class _CutiInputState extends State<CutiInput> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Alasan",
+            label: context.isIndonesian ? "Alasan" : "Reason",
             hint: "",
             controller: _alasanController,
             labelStyle: labelStyle,
@@ -213,7 +214,9 @@ class _CutiInputState extends State<CutiInput> {
                           _alasanController.text.isEmpty) {
                         NotificationHelper.showTopNotification(
                           context,
-                          'Semua field wajib diisi!',
+                          context.isIndonesian
+                              ? 'Semua field wajib diisi!'
+                              : 'Please fill all the field',
                           isSuccess: false,
                         );
                         return; // stop submit
@@ -230,7 +233,7 @@ class _CutiInputState extends State<CutiInput> {
                         if (result['success'] == true) {
                           if (context.mounted) {
                             NotificationHelper.showTopNotification(
-                                context, 'Cuti berhasil diajukan',
+                                context,  'Cuti berhasil diajukan',
                                 isSuccess: true);
                             Navigator.of(context).pop(true);
                           }

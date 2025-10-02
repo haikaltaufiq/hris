@@ -9,6 +9,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -63,8 +64,12 @@ class _CutiWebPageState extends State<CutiWebPage> {
   Future<void> _approveCuti(CutiModel cuti) async {
     final confirmed = await showConfirmationDialog(
       context,
-      title: "Konfirmasi Persetujuan",
-      content: "Apakah Anda yakin ingin menyetujui cuti ini?",
+      title: context.isIndonesian
+          ? "Konfirmasi Persetujuan"
+          : "Approval Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin menyetujui cuti ini?"
+          : "Are you sure want to approve this leave proposal?",
       confirmText: "Setuju",
       cancelText: "Batal",
       confirmColor: AppColors.green,
@@ -108,7 +113,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Catatan Penolakan",
+            context.isIndonesian ? "Alasan Penolakan" : "Reason for Rejection",
             style: GoogleFonts.poppins(
               color: AppColors.putih,
               fontWeight: FontWeight.w600,
@@ -123,7 +128,9 @@ class _CutiWebPageState extends State<CutiWebPage> {
               controller: catatanPenolakanController,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
-                hintText: "Tuliskan alasan penolakan...",
+                hintText: context.isIndonesian
+                    ? "Tuliskan alasan penolakan..."
+                    : "Write your reason...",
                 hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.6)),
                 enabledBorder: OutlineInputBorder(
                   borderSide:
@@ -138,7 +145,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: Text("Batal",
+              child: Text(context.isIndonesian ? "Batal" : "Cancel",
                   style: GoogleFonts.poppins(color: AppColors.putih)),
             ),
             TextButton(
@@ -148,7 +155,7 @@ class _CutiWebPageState extends State<CutiWebPage> {
                   Navigator.pop(context, true);
                 }
               },
-              child: Text("Lanjut",
+              child: Text(context.isIndonesian ? "Lanjut" : "Continue",
                   style: GoogleFonts.poppins(color: AppColors.red)),
             ),
           ],
@@ -161,10 +168,14 @@ class _CutiWebPageState extends State<CutiWebPage> {
     // Step 2: Konfirmasi submit
     final confirmed = await showConfirmationDialog(
       context,
-      title: "Konfirmasi Penolakan",
-      content: "Apakah Anda yakin ingin menolak cuti ini?",
-      confirmText: "Tolak",
-      cancelText: "Batal",
+      title: context.isIndonesian
+          ? "Konfirmasi Penolakan"
+          : "Rejection Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin menolak cuti ini?"
+          : "Are you sure want to reject this leave proposal?",
+      confirmText: context.isIndonesian ? "Tolak" : "Reject",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
       confirmColor: AppColors.red,
     );
 
@@ -242,7 +253,9 @@ class _CutiWebPageState extends State<CutiWebPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Belum ada pengajuan',
+                          context.isIndonesian
+                              ? 'Belum ada pengajuan'
+                              : 'No leave proposal available',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontSize: 16,
@@ -251,7 +264,9 @@ class _CutiWebPageState extends State<CutiWebPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tap tombol + untuk menambah pengajuan baru',
+                          context.isIndonesian
+                              ? 'Tap tombol + untuk menambah pengajuan baru'
+                              : 'Press + button to add new proposal',
                           style: TextStyle(
                             color: AppColors.putih.withOpacity(0.7),
                             fontSize: 14,

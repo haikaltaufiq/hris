@@ -2,9 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/data/services/pengaturan_service.dart';
+import 'package:hr/features/auth/web/forget_page.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/device_size.dart';
 
@@ -20,7 +25,6 @@ class _LoginState extends State<Login> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  bool _rememberMe = false;
   bool _isLoading = false;
 
   @override
@@ -331,34 +335,17 @@ class _LoginState extends State<Login> {
 
   Widget _buildRememberMeAndForgotPassword(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Row(
-          children: [
-            Checkbox(
-              value: _rememberMe,
-              onChanged: (value) {
-                setState(() {
-                  _rememberMe = value ?? false;
-                });
-              },
-              activeColor: AppColors.blue,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4),
-              ),
-            ),
-            Text(
-              'Remember me',
-              style: TextStyle(
-                fontSize: 14,
-                color: Theme.of(context).textTheme.bodyMedium?.color,
-              ),
-            ),
-          ],
-        ),
         TextButton(
           onPressed: () {
-            // Handle forgot password
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    ForgetPage(), // class widget yang mau dituju
+              ),
+            );
           },
           child: Text(
             'Forgot Password?',
@@ -387,14 +374,29 @@ class _LoginState extends State<Login> {
             final password = _passwordController.text;
             final auth = AuthService();
             final result = await auth.login(email, password);
-
             setState(() {
               _isLoading = false;
             });
 
-            if (result['success']) {
+            if (result['success'] == true && result['token'] != null) {
+              final token = result['token'];
+
               FeatureAccess.setFeatures(result['fitur']);
 
+              final themeProvider =
+                  Provider.of<ThemeProvider>(context, listen: false);
+              final langProvider =
+                  Provider.of<LanguageProvider>(context, listen: false);
+              final pengaturanService = PengaturanService();
+
+              try {
+                final pengaturan = await pengaturanService.getPengaturan(token);
+                themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
+                langProvider
+                    .toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+              } catch (e) {
+                print('Gagal fetch pengaturan: $e');
+              }
               NotificationHelper.showTopNotification(
                 context,
                 result['message'],
@@ -491,33 +493,4 @@ class _LoginState extends State<Login> {
       ],
     );
   }
-
-  // void _handleLogin() async {
-  //   if (_formKey.currentState!.validate()) {
-  //     setState(() {
-  //       _isLoading = true;
-  //     });
-
-  //     // Simulate login process
-  //     await Future.delayed(const Duration(seconds: 2));
-
-  //     setState(() {
-  //       _isLoading = false;
-  //     });
-
-  //     // Handle successful login
-  //     if (mounted) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         SnackBar(
-  //           content: const Text('Login successful!'),
-  //           backgroundColor: AppColors.blue,
-  //           behavior: SnackBarBehavior.floating,
-  //         ),
-  //       );
-
-  //       // Navigate to dashboard or home page
-  //       // Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-  //     }
-  //   }
-  // }
 }

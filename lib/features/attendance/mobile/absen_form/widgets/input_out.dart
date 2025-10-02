@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/location_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
@@ -74,9 +75,10 @@ class _InputOutState extends State<InputOut> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomInputField(
-            label: "Tanggal",
+            label: context.isIndonesian ? "Tanggal" : "Date",
             hint: "dd / mm / yyyy",
             readOnly: true,
+            onTapIcon: () {},
             controller: _tanggalController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
             labelStyle: labelStyle,
@@ -84,8 +86,9 @@ class _InputOutState extends State<InputOut> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Jam Keluar",
+            label: context.isIndonesian ? "Jam Keluar" : "Out Time",
             hint: "--:--",
+            onTapIcon: () {},
             readOnly: true,
             controller: _jamSelesaiController,
             suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
@@ -130,13 +133,16 @@ class _InputOutState extends State<InputOut> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text("Lokasi", style: labelStyle),
+          child: Text(context.isIndonesian ? "Lokasi" : "Location",
+              style: labelStyle),
         ),
         TextFormField(
           controller: _lokasiController,
           style: textStyle,
           decoration: inputStyle.copyWith(
-            hintText: "Koordinat lokasi Anda",
+            hintText: context.isIndonesian
+                ? "Koordinat lokasi Anda"
+                : "Your Location coordinates",
           ),
           readOnly: true,
         ),
@@ -195,7 +201,9 @@ class _InputOutState extends State<InputOut> {
             if (position == null) {
               NotificationHelper.showTopNotification(
                 context,
-                "GPS mati atau izin ditolak",
+                context.isIndonesian
+                    ? "GPS mati atau izin ditolak"
+                    : "GPS off or permission denied",
                 isSuccess: false,
               );
               return;
@@ -220,7 +228,7 @@ class _InputOutState extends State<InputOut> {
               Icon(Icons.my_location, color: AppColors.putih, size: 18),
               const SizedBox(width: 8),
               Text(
-                "Ambil Lokasi",
+                context.isIndonesian ? "Ambil Lokasi" : "Take Location",
                 style: GoogleFonts.poppins(
                   color: AppColors.putih,
                   fontSize: 13,
@@ -252,7 +260,9 @@ class _InputOutState extends State<InputOut> {
             if (_lokasiController.text.isEmpty) {
               NotificationHelper.showTopNotification(
                 context,
-                "Ambil lokasi terlebih dahulu",
+                context.isIndonesian
+                    ? "Ambil lokasi terlebih dahulu"
+                    : "Take Location First",
                 isSuccess: false,
               );
               return;
@@ -300,8 +310,10 @@ class _InputOutState extends State<InputOut> {
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                              const Text(
-                                "Lokasi Absen",
+                              Text(
+                                context.isIndonesian
+                                    ? "Lokasi Absen"
+                                    : "Check-out Location",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -356,7 +368,7 @@ class _InputOutState extends State<InputOut> {
                   color: AppColors.putih.withOpacity(0.9), size: 18),
               const SizedBox(width: 8),
               Text(
-                "Lihat Peta",
+                context.isIndonesian ? "Lihat Peta" : "See Map",
                 style: GoogleFonts.poppins(
                   color: AppColors.putih.withOpacity(0.9),
                   fontSize: 13,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/cuti/cuti_form/widget/cuti_input.dart';
 
@@ -14,7 +15,7 @@ class CutiForm extends StatelessWidget {
       appBar: context.isMobile
           ? AppBar(
               title: Text(
-                'Pengajuan Cuti',
+                context.isIndonesian ? 'Pengajuan Cuti' : 'Leave Proposal',
                 style: TextStyle(
                     color: AppColors.putih,
                     fontSize: 22,

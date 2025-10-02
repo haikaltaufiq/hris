@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
@@ -75,7 +76,9 @@ class _UserEditTugasState extends State<UserEditTugas> {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
-          "Harap upload lampiran video",
+          context.isIndonesian
+              ? "Harap upload lampiran"
+              : "Please Upload the Attachment",
           isSuccess: false,
         );
       }
@@ -108,7 +111,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
-          'Terjadi kesalahan: $e',
+          context.isIndonesian ? 'Terjadi kesalahan: $e' : 'Something Wrong $e',
           isSuccess: false,
         );
       }
@@ -162,11 +165,14 @@ class _UserEditTugasState extends State<UserEditTugas> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomInputField(
-                label: "Judul Tugas",
+                label: context.isIndonesian ? "Judul Tugas" : "Title",
                 controller: _judulTugasController,
                 onTapIcon: () {
                   NotificationHelper.showTopNotification(
-                      context, "Anda tidak dapat mengubah judul",
+                      context,
+                      context.isIndonesian
+                          ? "Anda tidak dapat mengubah judul"
+                          : "You can't change the title",
                       isSuccess: false);
                 },
                 labelStyle: labelStyle,
@@ -175,13 +181,16 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: '',
               ),
               CustomInputField(
-                label: "Jam Mulai",
+                label: context.isIndonesian ? "Jam Mulai" : "Start Time",
                 hint: "--:--",
                 controller: _jamMulaiController,
                 suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
                 onTapIcon: () {
                   NotificationHelper.showTopNotification(
-                      context, "Anda tidak dapat mengubah Jam",
+                      context,
+                      context.isIndonesian
+                          ? "Anda tidak dapat mengubah Jam"
+                          : "You can't change the time",
                       isSuccess: false);
                 },
                 labelStyle: labelStyle,
@@ -189,13 +198,16 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 inputStyle: inputStyle,
               ),
               CustomInputField(
-                label: "Tanggal Mulai",
+                label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
                 hint: "dd / mm / yyyy",
                 controller: _tanggalMulaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
                 onTapIcon: () {
                   NotificationHelper.showTopNotification(
-                      context, "Anda tidak dapat mengubah tanggal",
+                      context,
+                      context.isIndonesian
+                          ? "Anda tidak dapat mengubah tanggal"
+                          : "You can't change the date",
                       isSuccess: false);
                 },
                 labelStyle: labelStyle,
@@ -203,13 +215,18 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 inputStyle: inputStyle,
               ),
               CustomInputField(
-                label: "Batas Tanggal Penyelesaian",
+                label: context.isIndonesian
+                    ? "Batas Tanggal Penyelesaian"
+                    : "Deadline Task",
                 hint: "dd / mm / yyyy",
                 controller: _tanggalSelesaiController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
                 onTapIcon: () {
                   NotificationHelper.showTopNotification(
-                      context, "Anda tidak dapat mengubah tanggal",
+                      context,
+                      context.isIndonesian
+                          ? "Anda tidak dapat mengubah tanggal"
+                          : "You can't change the date",
                       isSuccess: false);
                 },
                 labelStyle: labelStyle,
@@ -238,7 +255,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 hint: '',
               ),
               CustomInputField(
-                label: "Lampiran",
+                label: context.isIndonesian ? "Lampiran" : "Attachment",
                 suffixIcon: Container(
                   margin: EdgeInsets.all(10),
                   width: 100,
@@ -248,7 +265,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
                       border: Border.all(width: 1, color: AppColors.putih)),
                   child: Center(
                     child: Text(
-                      "Choose File",
+                      context.isIndonesian ? "Pilih File" : "Choose File",
                       style: TextStyle(color: AppColors.putih),
                     ),
                   ),
@@ -283,7 +300,9 @@ class _UserEditTugasState extends State<UserEditTugas> {
                     if (mounted) {
                       NotificationHelper.showTopNotification(
                         context,
-                        'Gagal pilih file: $e',
+                        context.isIndonesian
+                            ? 'Gagal pilih file: $e'
+                            : "Failed to choose file: $e",
                         isSuccess: false,
                       );
                     }
@@ -293,7 +312,9 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
-                hint: 'Upload File Lampiran',
+                hint: context.isIndonesian
+                    ? 'Upload File Lampiran'
+                    : "Upload Attachment File",
               ),
               const SizedBox(height: 5),
               SizedBox(

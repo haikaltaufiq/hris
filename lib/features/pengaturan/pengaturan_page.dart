@@ -4,18 +4,14 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PengaturanPage extends StatefulWidget {
-  final bool isDarkMode;
-  final VoidCallback toggleTheme;
-
-  const PengaturanPage({
-    super.key,
-    required this.isDarkMode,
-    required this.toggleTheme,
-  });
+  const PengaturanPage({super.key});
 
   @override
   State<PengaturanPage> createState() => _PengaturanPageState();
@@ -23,33 +19,58 @@ class PengaturanPage extends StatefulWidget {
 
 class _PengaturanPageState extends State<PengaturanPage>
     with TickerProviderStateMixin {
-  late bool isSwitched;
+  bool isSwitched = false; // untuk switch theme
+
   late AnimationController _themeAnimationController;
-  late Animation<double> _themeAnimation;
   late AnimationController _langAnimationController;
+
+  late PengaturanService _service;
+  late String token;
 
   @override
   void initState() {
     super.initState();
-
-    // Theme
-    isSwitched = widget.isDarkMode;
+    _service = PengaturanService();
     _themeAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _themeAnimation = CurvedAnimation(
-        parent: _themeAnimationController, curve: Curves.easeInOut);
-
-    if (isSwitched) {
-      _themeAnimationController.value = 1.0;
-    }
-
-    // Language
     _langAnimationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+
+    _initTokenAndLoad();
+  }
+
+  Future<void> _initTokenAndLoad() async {
+    final prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('token') ?? '';
+
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+
+    if (token.isNotEmpty) {
+      try {
+        final pengaturan = await _service.getPengaturan(token);
+        final tema = pengaturan['tema'] ?? 'terang';
+        final bahasa = pengaturan['bahasa'] ?? 'indonesia';
+
+        setState(() {
+          isSwitched = tema == 'gelap';
+          _themeAnimationController.value = isSwitched ? 1.0 : 0.0;
+
+          langProvider.toggleLanguage(bahasa == 'indonesia');
+          _langAnimationController.value =
+              langProvider.isIndonesian ? 1.0 : 0.0;
+        });
+
+        // Sinkron ke provider global
+        themeProvider.setDarkMode(isSwitched);
+      } catch (e) {
+        print('Gagal load pengaturan: $e');
+      }
+    } else {}
   }
 
   @override
@@ -66,31 +87,51 @@ class _PengaturanPageState extends State<PengaturanPage>
     super.dispose();
   }
 
-  void _toggleTheme() {
-    setState(() {
-      isSwitched = !isSwitched;
-    });
+  void _toggleTheme() async {
+    setState(() => isSwitched = !isSwitched);
+    isSwitched
+        ? _themeAnimationController.forward()
+        : _themeAnimationController.reverse();
 
-    if (isSwitched) {
-      _themeAnimationController.forward();
-    } else {
-      _themeAnimationController.reverse();
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    themeProvider.setDarkMode(isSwitched);
+
+    try {
+      final langProvider =
+          Provider.of<LanguageProvider>(context, listen: false);
+      await _service.updatePengaturan(
+        token: token,
+        tema: isSwitched ? 'gelap' : 'terang',
+        bahasa: langProvider.isIndonesian ? 'indonesia' : 'inggris',
+      );
+    } catch (e) {
+      print('Gagal update tema: $e');
     }
-
-    widget.toggleTheme();
   }
 
-  void _toggleLanguage() {
+  void _toggleLanguage() async {
     final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     final newValue = !langProvider.isIndonesian;
 
-    if (newValue) {
-      _langAnimationController.forward();
-    } else {
-      _langAnimationController.reverse();
-    }
-
+    // update provider global
     langProvider.toggleLanguage(newValue);
+
+    // update animasi switch
+    newValue
+        ? _langAnimationController.forward()
+        : _langAnimationController.reverse();
+
+    // update backend
+    try {
+      await _service.updatePengaturan(
+        token: token,
+        tema: themeProvider.isDarkMode ? 'gelap' : 'terang',
+        bahasa: newValue ? 'indonesia' : 'inggris',
+      );
+    } catch (e) {
+      print('Gagal update bahasa: $e');
+    }
   }
 
   @override
@@ -104,7 +145,8 @@ class _PengaturanPageState extends State<PengaturanPage>
         padding: const EdgeInsets.all(16),
         children: [
           const SizedBox(height: 8),
-          if (context.isMobile) const Header(title: "Pengaturan"),
+          if (context.isMobile)
+            Header(title: context.isIndonesian ? "Pengaturan" : "Settings"),
 
           // Theme Card
           Card(
@@ -161,7 +203,7 @@ class _PengaturanPageState extends State<PengaturanPage>
                       GestureDetector(
                         onTap: _toggleTheme,
                         child: AnimatedBuilder(
-                          animation: _themeAnimation,
+                          animation: _themeAnimationController,
                           builder: (context, child) {
                             return Container(
                               width: 60,
@@ -171,7 +213,7 @@ class _PengaturanPageState extends State<PengaturanPage>
                                 color: Color.lerp(
                                     AppColors.secondary.withOpacity(0.3),
                                     AppColors.secondary,
-                                    _themeAnimation.value),
+                                    _themeAnimationController.value),
                               ),
                               child: Stack(
                                 children: [
@@ -181,13 +223,15 @@ class _PengaturanPageState extends State<PengaturanPage>
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Opacity(
-                                            opacity: 1 - _themeAnimation.value,
+                                            opacity: 1 -
+                                                _themeAnimationController.value,
                                             child: Icon(FontAwesomeIcons.sun,
                                                 size: 14,
                                                 color: AppColors.putih
                                                     .withOpacity(0.6))),
                                         Opacity(
-                                            opacity: _themeAnimation.value,
+                                            opacity:
+                                                _themeAnimationController.value,
                                             child: Icon(FontAwesomeIcons.moon,
                                                 size: 12,
                                                 color: AppColors.putih
@@ -233,9 +277,7 @@ class _PengaturanPageState extends State<PengaturanPage>
                       ),
                     ],
                   ),
-                  SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -342,7 +384,6 @@ class _PengaturanPageState extends State<PengaturanPage>
               ),
             ),
           ),
-
           const SizedBox(height: 14),
         ],
       ),

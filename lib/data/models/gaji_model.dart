@@ -26,13 +26,15 @@ class GajiUser {
     return GajiUser(
       id: json['id'] ?? 0, // GANTI DARI user['id'] KE json['id']
       nama: user?['nama'] ?? "",
-      gajiPokok: double.tryParse(json['gaji_per_hari']?.toString() ?? "0") ?? 0.0,
+      gajiPokok:
+          double.tryParse(json['gaji_per_hari']?.toString() ?? "0") ?? 0.0,
       totalLembur: (json['total_lembur'] as num?)?.toDouble() ?? 0.0,
       totalPotongan: (json['total_potongan'] as num?)?.toDouble() ?? 0.0,
       gajiBersih: (json['gaji_bersih'] as num?)?.toDouble() ?? 0.0,
       potongan: (json['potongan'] as List<dynamic>?)
               ?.map((e) => PotonganGajiModel.fromJson(e))
-              .toList() ?? [],
+              .toList() ??
+          [],
       status: json['status'] ?? "Belum Dibayar",
     );
   }

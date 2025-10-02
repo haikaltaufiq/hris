@@ -13,6 +13,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/helpers/video_file_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/location_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
@@ -155,18 +156,20 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CustomInputField(
-                label: "Tanggal",
+                label: context.isIndonesian ? "Tanggal" : "Date",
                 hint: "dd / mm / yyyy",
                 readOnly: true,
+                onTapIcon: () {},
                 controller: _tanggalController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
               ),
               CustomInputField(
-                label: "Jam Masuk",
+                label: context.isIndonesian ? "Jam Masuk" : "Check-in Time",
                 hint: "--:--",
                 readOnly: true,
+                onTapIcon: () {},
                 controller: _jamMulaiController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
@@ -179,7 +182,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8.0),
                     child: Text(
-                      "Lokasi",
+                      context.isIndonesian ? "Lokasi" : "Location",
                       style: labelStyle,
                     ),
                   ),
@@ -187,7 +190,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                     controller: _lokasiController,
                     style: textStyle,
                     decoration: inputStyle.copyWith(
-                      hintText: "Koordinat lokasi Anda",
+                      hintText: context.isIndonesian
+                          ? "Koordinat lokasi Anda"
+                          : "Your Location coordinate",
                     ),
                     readOnly: true,
                   ),
@@ -237,7 +242,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 if (position == null) {
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    "GPS mati atau izin ditolak",
+                                    context.isIndonesian
+                                        ? "GPS mati atau izin ditolak"
+                                        : "GPS off or permission denied",
                                     isSuccess: false,
                                   );
                                   return;
@@ -252,7 +259,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
 
                                 NotificationHelper.showTopNotification(
                                   context,
-                                  "Lokasi berhasil didapatkan",
+                                  context.isIndonesian
+                                      ? "Lokasi berhasil didapatkan"
+                                      : "Success set the location",
                                   isSuccess: true,
                                 );
                               },
@@ -264,7 +273,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                       color: AppColors.putih, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Ambil Lokasi",
+                                    context.isIndonesian
+                                        ? "Ambil Lokasi"
+                                        : "Get Location",
                                     style: GoogleFonts.poppins(
                                       color: AppColors.putih,
                                       fontSize: 13,
@@ -296,7 +307,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 if (_lokasiController.text.isEmpty) {
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    "Ambil lokasi terlebih dahulu",
+                                    context.isIndonesian
+                                        ? "Ambil lokasi terlebih dahulu"
+                                        : "Take the location first",
                                     isSuccess: false,
                                   );
                                   return;
@@ -351,7 +364,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                                     ),
                                                   ),
                                                   Text(
-                                                    "Lokasi Absen",
+                                                    context.isIndonesian
+                                                        ? "Lokasi Absen"
+                                                        : "Attend Location",
                                                     textAlign: TextAlign.center,
                                                     style: TextStyle(
                                                       fontWeight:
@@ -402,7 +417,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 } catch (e) {
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    "Format lokasi tidak valid",
+                                    context.isIndonesian
+                                        ? "Format lokasi tidak valid"
+                                        : "Location Format is not valid",
                                     isSuccess: false,
                                   );
                                 }
@@ -416,7 +433,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                       size: 18),
                                   const SizedBox(width: 8),
                                   Text(
-                                    "Lihat Peta",
+                                    context.isIndonesian
+                                        ? "Lihat Peta"
+                                        : "See Map",
                                     style: GoogleFonts.poppins(
                                       color: AppColors.putih.withOpacity(0.9),
                                       fontSize: 13,
@@ -511,13 +530,16 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
             child: Icon(Icons.videocam, size: 40, color: Color(0xFFBFBFBF)),
           ),
           const SizedBox(height: 16),
-          Text("Belum Ada Video",
+          Text(context.isIndonesian ? "Belum Ada Video" : "No Video Available",
               style: GoogleFonts.poppins(
                   color: AppColors.putih,
                   fontSize: 16,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
-          Text("Tekan dan tahan tombol di bawah untuk merekam",
+          Text(
+              context.isIndonesian
+                  ? "Tekan dan tahan tombol di bawah untuk merekam"
+                  : "Press and hold the button to record",
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   color: AppColors.putih.withOpacity(0.7), fontSize: 12)),
@@ -547,8 +569,12 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                   const SizedBox(width: 8),
                   Text(
                       cameraManager.isRecording
-                          ? "Merekam..."
-                          : "Tahan untuk Rekam",
+                          ? context.isIndonesian
+                              ? "Merekam..."
+                              : "Recording..."
+                          : context.isIndonesian
+                              ? "Tahan untuk Rekam"
+                              : "Hold to Record",
                       style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 14,
@@ -615,13 +641,19 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
             child: Icon(Icons.check_circle, size: 40, color: Colors.green),
           ),
           const SizedBox(height: 16),
-          Text("Video Berhasil Direkam",
+          Text(
+              context.isIndonesian
+                  ? "Video Berhasil Direkam"
+                  : "Video Recorded Successfully",
               style: GoogleFonts.poppins(
                   color: AppColors.putih,
                   fontSize: 16,
                   fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
-          Text("Video siap untuk di-submit atau Anda bisa melihat hasilnya",
+          Text(
+              context.isIndonesian
+                  ? "Video siap untuk di-submit atau Anda bisa melihat hasilnya"
+                  : "Video is ready to be submitted or you can view the result.",
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   color: AppColors.putih.withOpacity(0.7), fontSize: 12)),
@@ -629,7 +661,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
           Row(
             children: [
               Expanded(
-                child: _buildButton("Lihat Hasil", AppColors.secondary,
+                child: _buildButton(
+                    context.isIndonesian ? "Lihat Hasil" : "See Result",
+                    AppColors.secondary,
                     Icons.play_circle_outline, () {
                   HapticFeedback.lightImpact();
                   Navigator.push(
@@ -642,25 +676,32 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
               const SizedBox(width: 12),
               Expanded(
                 child: _buildButton(
-                    "Rekam Ulang", Colors.red.withOpacity(0.2), Icons.refresh,
-                    () {
+                    context.isIndonesian ? "Rekam Ulang" : "Redo Recording",
+                    Colors.red.withOpacity(0.2),
+                    Icons.refresh, () {
                   HapticFeedback.selectionClick();
                   showDialog(
                     context: context,
                     builder: (context) => AlertDialog(
                       backgroundColor: AppColors.primary,
-                      title: Text("Rekam Ulang?",
+                      title: Text(
+                          context.isIndonesian
+                              ? "Rekam Ulang?"
+                              : "Redo Recording?",
                           style: GoogleFonts.poppins(
                               color: AppColors.putih,
                               fontWeight: FontWeight.bold)),
                       content: Text(
-                          "Video yang sudah direkam akan dihapus. Lanjutkan?",
+                          context.isIndonesian
+                              ? "Video yang sudah direkam akan dihapus. Lanjutkan?"
+                              : "The recorded video will be deleted. Continue?",
                           style: GoogleFonts.poppins(
                               color: AppColors.putih.withOpacity(0.8))),
                       actions: [
                         TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: Text("Batal",
+                            child: Text(
+                                context.isIndonesian ? "Batal" : "Cancel",
                                 style: GoogleFonts.poppins(
                                     color: AppColors.putih.withOpacity(0.7)))),
                         TextButton(
@@ -670,10 +711,14 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                             _inlinePlayer?.dispose();
                             _inlinePlayer = null;
                             NotificationHelper.showTopNotification(
-                                context, "Video dihapus, siap merekam ulang",
+                                context,
+                                context.isIndonesian
+                                    ? "Video dihapus, siap merekam ulang"
+                                    : "Video deleted, ready to record",
                                 isSuccess: true);
                           },
-                          child: Text("Ya, Rekam Ulang",
+                          child: Text(
+                              context.isIndonesian ? "Ya, Rekam Ulang" : "Yes",
                               style: GoogleFonts.poppins(
                                   color: Colors.red,
                                   fontWeight: FontWeight.w600)),
@@ -747,14 +792,20 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
     if (_lastVideo == null) {
       if (!mounted) return;
       NotificationHelper.showTopNotification(
-          context, "Rekam video dulu sebelum submit",
+          context,
+          context.isIndonesian
+              ? "Harap rekam video dahulu sebelum submit"
+              : "Please record video first before submit",
           isSuccess: false);
       return;
     }
     if (_lokasiController.text.isEmpty) {
       if (!mounted) return;
       NotificationHelper.showTopNotification(
-          context, "Ambil lokasi dulu sebelum submit",
+          context,
+          context.isIndonesian
+              ? "Ambil lokasi dulu sebelum submit"
+              : "Take Location first",
           isSuccess: false);
       return;
     }
@@ -776,7 +827,10 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
             maxSizeInMB: 50)) {
           Navigator.pop(context);
           NotificationHelper.showTopNotification(
-              context, "Ukuran video terlalu besar (max 50MB)",
+              context,
+              context.isIndonesian
+                  ? "Ukuran video terlalu besar (max 50MB)"
+                  : "Video size too big",
               isSuccess: false);
           return;
         }
@@ -804,7 +858,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       if (absenProvider.lastCheckinResult?['success'] == true) {
         NotificationHelper.showTopNotification(
           context,
-          absenProvider.lastCheckinResult?['message'] ?? "Check-in berhasil",
+          absenProvider.lastCheckinResult?['message'] ?? context.isIndonesian
+              ? "Check-in berhasil"
+              : "Check-in Success",
           isSuccess: true,
         );
         Navigator.of(context).pop(true);
@@ -818,7 +874,9 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       } else {
         NotificationHelper.showTopNotification(
           context,
-          absenProvider.lastCheckinResult?['message'] ?? "Check-in gagal",
+          absenProvider.lastCheckinResult?['message'] ?? context.isIndonesian
+              ? "Check-in gagal"
+              : "Check-in failed",
           isSuccess: false,
         );
       }

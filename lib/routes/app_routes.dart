@@ -213,10 +213,8 @@ class AppRoutes {
       case pengaturan:
         return _route(
           Consumer<ThemeProvider>(
-            builder: (context, themeProvider, _) => PengaturanPage(
-              isDarkMode: themeProvider.isDarkMode,
-              toggleTheme: themeProvider.toggleTheme,
-            ).withMainLayout(pengaturan),
+            builder: (context, themeProvider, _) =>
+                PengaturanPage().withMainLayout(pengaturan),
           ),
           settings,
         );
