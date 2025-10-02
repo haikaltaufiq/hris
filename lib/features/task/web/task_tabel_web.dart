@@ -67,8 +67,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<TugasProvider>().deleteTugas(tugas.id, "");
+      final message = await context.read<TugasProvider>().deleteTugas(tugas.id);
       NotificationHelper.showTopNotification(
         context,
         message ?? 'Gagal menghapus tugas',
@@ -172,26 +171,44 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DetailItem(label: 'Kepada', value: tugas.user?.nama ?? '-'),
-            SizedBox(height: 5),
-            DetailItem(label: 'Judul', value: tugas.namaTugas),
-            SizedBox(height: 5),
-            DetailItem(label: 'Jam Mulai', value: parseTime(tugas.jamMulai)),
+            DetailItem(
+              label: 'Kepada',
+              value: tugas.user?.nama ?? '-',
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Tanggal Mulai', value: parseDate(tugas.tanggalMulai)),
+              label: 'Judul',
+              value: tugas.namaTugas,
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Batas Submit', value: parseDate(tugas.tanggalSelesai)),
-            SizedBox(height: 5),
-            DetailItem(label: 'Lokasi', value: tugas.lokasi),
-            SizedBox(height: 5),
-            DetailItem(label: 'Note', value: tugas.note),
+              label: 'Tanggal Mulai',
+              value: parseDate(tugas.tanggalMulai),
+            ),
             SizedBox(height: 5),
             DetailItem(
-                label: 'Status', value: tugas.status, color: statusColor),
+              label: 'Batas Submit',
+              value: parseDate(tugas.tanggalSelesai),
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Note',
+              value: tugas.note ?? '-',
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Status',
+              value: tugas.status,
+              color: statusColor,
+            ),
+            SizedBox(height: 5),
+            DetailItem(
+              label: 'Terlambat/Tepat Waktu',
+              value: tugas.displayTerlambat,
+            ),
           ],
         ),
+
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -234,38 +251,42 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         ? [
             "Kepada",
             "Judul",
-            "Jam Mulai",
             "Tgl Mulai",
             "Batas Submit",
-            "Lokasi",
-            "Catatan",
+            "Lokasi Tugas",
+            "Radius Lokasi",
+            "Lokasi Lampiran",
             "Status",
+            "Catatan",
             "Lampiran",
+            "Terlambat/Tepat Waktu"
           ]
         : [
             "To",
             "Title",
-            "Start Time",
             "Start Date",
             "Deadline",
-            "Location",
-            "Note",
+            "Location Radius",
+            "Task Location",
+            "Attachment Location",
             "Status",
+            "Note",
             "Attachment",
+            "On Time/Late"
           ];
     final rows = widget.tugasList.map((tugas) {
       return [
-        tugas.user?.nama ?? '-',
+        tugas.displayUser,
         tugas.shortTugas,
-        parseTime(tugas.jamMulai),
         parseDate(tugas.tanggalMulai),
         parseDate(tugas.tanggalSelesai),
-        (tugas.lokasi != null && tugas.lokasi.isNotEmpty)
-            ? "See Location"
-            : "-",
-        tugas.note,
+        "${tugas.radius} M",
+        tugas.displayLokasiTugas,
+        tugas.displayLokasiLampiran,
         tugas.status,
-        tugas.lampiran != null ? "Lihat Lampiran" : "-"
+        tugas.displayNote,
+        tugas.displayLampiran,
+        tugas.displayTerlambat,
       ];
     }).toList();
 
@@ -293,8 +314,11 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           _showLampiranDialog(context, widget.tugasList[row]),
       onCellTap: (row, col) {
         final tugas = widget.tugasList[row];
-        if (col == 5 && tugas.lokasi != null && tugas.lokasi.isNotEmpty) {
-          _openMap(tugas.lokasi);
+        if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
+          _openMap("${tugas.tugasLat},${tugas.tugasLng}");
+        }
+        if (col == 6 && tugas.lampiranLat != null && tugas.lampiranLng != null) {
+          _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");
         }
       },
     );

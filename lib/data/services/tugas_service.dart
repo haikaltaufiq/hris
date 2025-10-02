@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class TugasService {
@@ -19,37 +18,17 @@ class TugasService {
   /// Format tanggal dd/MM/yyyy → yyyy-MM-dd
   static String _formatDateForApi(String input) {
     input = input.trim();
-    final parts = input.split(RegExp(r'[-/ ]+')); // pisah dengan "/" atau "-"
+    final parts = input.split(RegExp(r'[-/ ]+'));
     if (parts.length == 3) {
       return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
     }
     throw FormatException("Format tanggal tidak valid: $input");
   }
 
-  /// Format jam → HH:mm:ss
-  static String _formatTime(String time) {
-    time = time.trim();
-    try {
-      // coba format 12 jam (misal 8:30 PM)
-      final dateTime = DateFormat.jm().parseStrict(time);
-      return DateFormat('HH:mm:ss').format(dateTime);
-    } catch (_) {
-      // fallback 24 jam (misal 08:30)
-      final parts = time.split(':');
-      if (parts.length >= 2) {
-        final hour = int.parse(parts[0]);
-        final minute = int.parse(parts[1]);
-        return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}:00';
-      }
-      throw FormatException("Format waktu tidak valid: $time");
-    }
-  }
-
   /// Fetch daftar tugas
   static Future<List<TugasModel>> fetchTugas() async {
     final token = await _getToken();
-    if (token == null)
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/api/tugas'),
@@ -76,32 +55,35 @@ class TugasService {
     }
   }
 
-  /// Create tugas baru
+  /// Create tugas baru dengan koordinat
   static Future<Map<String, dynamic>> createTugas({
     required String judul,
-    required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
+    required double tugasLat,
+    required double tugasLng,
     int? person,
-    required String lokasi,
+    double? lampiranLat,
+    double? lampiranLng,
     required String note,
+    required String radius,
   }) async {
     final token = await _getToken();
-    if (token == null)
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
 
-    final Map<String, dynamic> requestBody = {
+    final requestBody = {
       'nama_tugas': judul,
-      'jam_mulai': _formatTime(jamMulai),
       'tanggal_mulai': _formatDateForApi(tanggalMulai),
       'tanggal_selesai': _formatDateForApi(tanggalSelesai),
-      'lokasi': lokasi,
+      'tugas_lat': tugasLat,
+      'tugas_lng': tugasLng,
+      'lampiran_lat': lampiranLat,
+      'lampiran_lng': lampiranLng,
       'instruksi_tugas': note,
+      'radius_meter': radius,
     };
 
-    if (person != null) {
-      requestBody['user_id'] = person;
-    }
+    if (person != null) requestBody['user_id'] = person;
 
     print("CREATE DATA KIRIM: $requestBody");
 
@@ -132,33 +114,37 @@ class TugasService {
     }
   }
 
-  /// Update tugas
+  /// Update tugas dengan koordinat
   static Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
-    required String jamMulai,
     required String tanggalMulai,
     required String tanggalSelesai,
+    required double tugasLat,
+    required double tugasLng,
     int? person,
-    required String lokasi,
+    double? lampiranLat,
+    double? lampiranLng,
     required String note,
+    required String radius,
+
   }) async {
     final token = await _getToken();
-    if (token == null)
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
 
-    final Map<String, dynamic> requestBody = {
+    final requestBody = {
       'nama_tugas': judul,
-      'jam_mulai': _formatTime(jamMulai),
       'tanggal_mulai': _formatDateForApi(tanggalMulai),
       'tanggal_selesai': _formatDateForApi(tanggalSelesai),
-      'lokasi': lokasi,
+      'tugas_lat': tugasLat,
+      'tugas_lng': tugasLng,
+      'lampiran_lat': lampiranLat,
+      'lampiran_lng': lampiranLng,
       'instruksi_tugas': note,
+      'radius_meter': radius,
     };
 
-    if (person != null) {
-      requestBody['user_id'] = person;
-    }
+    if (person != null) requestBody['user_id'] = person;
 
     print("UPDATE DATA KIRIM: $requestBody");
 
@@ -186,8 +172,7 @@ class TugasService {
   /// Delete tugas
   static Future<Map<String, dynamic>> deleteTugas(int id) async {
     final token = await _getToken();
-    if (token == null)
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
+    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
@@ -210,12 +195,14 @@ class TugasService {
     };
   }
 
-  /// Upload bukti/lampiran untuk tugas
+  /// Upload bukti/lampiran tetap sama, sudah termasuk lampiran_lat/lng
   static Future<Map<String, dynamic>> uploadFileTugas({
     required int id,
     File? file,
     Uint8List? fileBytes,
     String? fileName,
+    double? lampiranLat,
+    double? lampiranLng,
   }) async {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
@@ -231,13 +218,16 @@ class TugasService {
         'Accept': 'application/json',
       });
 
+      if (lampiranLat != null) request.fields['lampiran_lat'] = lampiranLat.toString();
+      if (lampiranLng != null) request.fields['lampiran_lng'] = lampiranLng.toString();
+
       if (kIsWeb) {
         if (fileBytes == null || fileName == null) {
           throw Exception("fileBytes & fileName wajib di Web");
         }
         request.files.add(
           http.MultipartFile.fromBytes(
-            'lampiran', // atau 'file' sesuai backend
+            'lampiran',
             fileBytes,
             filename: fileName,
           ),
@@ -246,7 +236,7 @@ class TugasService {
         if (file == null) throw Exception("File wajib di Android/iOS");
         request.files.add(
           await http.MultipartFile.fromPath(
-            'lampiran', // atau 'file' sesuai backend
+            'lampiran',
             file.path,
           ),
         );
@@ -272,7 +262,6 @@ class TugasService {
       return {'success': false, 'message': 'Terjadi error: $e'};
     }
   }
-
 
   /// Update status tugas
   static Future<Map<String, dynamic>> updateStatus({
