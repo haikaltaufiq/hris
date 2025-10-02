@@ -26,11 +26,18 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
   void initState() {
     super.initState();
     // Ambil provider sekali saat halaman pertama kali
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final vm = context.read<DepartmentViewModel>();
+
+      // Load cache first (synchronous with notifyListeners)
       vm.loadCacheFirst();
+
+      // Then fetch fresh data if needed
       if (!vm.hasCache) {
-        vm.fetchDepartemen();
+        await vm.fetchDepartemen(); // Proper await
+      } else {
+        // Ada cache, tapi tetap fetch di background tanpa loading indicator
+        vm.fetchDepartemen(forceRefresh: false);
       }
     });
   }

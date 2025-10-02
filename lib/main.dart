@@ -38,7 +38,7 @@ Future<void> main() async {
   await Hive.openBox('absen');
   await Hive.openBox('gaji');
   await Hive.openBox('potongan_gaji');
-  await Hive.openBox('department');
+  await Hive.openBox('departemen');
   await Hive.openBox('jabatan');
   await Hive.openBox('pengingat');
   await Hive.openBox('peran');
@@ -190,4 +190,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

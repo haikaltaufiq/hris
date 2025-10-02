@@ -20,7 +20,7 @@ class DepartmentViewModel extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  final _departemenBox = Hive.box('department');
+  final _departemenBox = Hive.box('departemen');
   bool _hasCache = false;
   bool get hasCache => _hasCache;
 
@@ -29,16 +29,19 @@ class DepartmentViewModel extends ChangeNotifier {
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
     try {
-      final hasCache = _departemenBox.containsKey('department_list');
+      final hasCache = _departemenBox.containsKey('departemen_list');
       if (hasCache) {
-        final cached = _departemenBox.get('department_list') as List;
+        final cached = _departemenBox.get('departemen_list') as List;
         if (cached.isNotEmpty) {
           _departemenList = cached
               .map((json) =>
                   DepartemenModel.fromJson(Map<String, dynamic>.from(json)))
               .toList();
           _hasCache = true;
-          notifyListeners(); // Update UI immediately
+
+          // 🔥 INI YANG PENTING - Trigger rebuild segera
+          notifyListeners();
+
           print('✅ Cache loaded: ${_departemenList.length} items');
         }
       }
@@ -70,7 +73,7 @@ class DepartmentViewModel extends ChangeNotifier {
 
       // Save to cache
       await _departemenBox.put(
-        'department_list',
+        'departemen_list',
         _departemenList.map((c) => c.toJson()).toList(),
       );
       print('💾 Cache saved');
@@ -84,10 +87,10 @@ class DepartmentViewModel extends ChangeNotifier {
       if (_departemenList.isEmpty) {
         loadCacheFirst();
       }
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
-
-    _isLoading = false;
-    notifyListeners();
     print('🏁 fetchDepartemen completed - items: ${_departemenList.length}');
   }
 
