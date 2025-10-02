@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/models/forget_password_model.dart';
+import 'package:hr/data/services/forget_pass.dart';
 
 class ForgetPage extends StatefulWidget {
   const ForgetPage({super.key});
@@ -11,6 +13,7 @@ class ForgetPage extends StatefulWidget {
 
 class _ForgetPageState extends State<ForgetPage> {
   final TextEditingController _emailController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -18,10 +21,37 @@ class _ForgetPageState extends State<ForgetPage> {
     super.dispose();
   }
 
+  Future<void> _submit() async {
+    final email = _emailController.text.trim();
+    if (email.isEmpty) {
+      _showSnackBar("Email wajib diisi", Colors.red);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final request = ForgetPasswordRequest(email: email);
+    final response = await ForgetPasswordService.sendResetLink(request);
+
+    _showSnackBar(response.message,
+        response.status == "success" ? Colors.green : Colors.red);
+
+    setState(() => _isLoading = false);
+  }
+
+  void _showSnackBar(String message, Color color) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: color,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final double maxWidth =
-        context.isMobile ? MediaQuery.of(context).size.width * 0.9 : 400;
+    final double maxWidth = context.isMobile ? MediaQuery.of(context).size.width * 0.9 : 400;
+
     return Scaffold(
       backgroundColor:
           context.isNativeMobile ? AppColors.bg : const Color(0xFFF7F7F7),
@@ -59,10 +89,10 @@ class _ForgetPageState extends State<ForgetPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                      // submit action
-                    },
-                    child: const Text("Submit"),
+                    onPressed: _isLoading ? null : _submit,
+                    child: _isLoading
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text("Submit"),
                   ),
                 ),
               ],
