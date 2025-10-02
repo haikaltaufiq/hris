@@ -137,9 +137,9 @@ class FeaturesSection extends StatelessWidget {
             maxWidth: isMobile ? double.infinity : 800,
           ),
           child: Text(
-            'HRIS (Human Resources Information System) adalah sistem terintegrasi '
-            'yang mengelola data karyawan, proses HR, dan operasional bisnis '
-            'secara efisien.',
+            'HRIS (Human Resources Information System) provides an integrated approach to '
+            'managing employee records, HR processes, and business operations, improving '
+            'efficiency and productivity.',
             textAlign: isMobile ? TextAlign.center : TextAlign.start,
             style: TextStyle(
               fontSize: isMobile

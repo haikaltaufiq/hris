@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/features/potongan/potongan_form/widget/potongan_edit.dart';
@@ -28,7 +29,7 @@ class _PotonganEditState extends State<PotonganEdit> {
       appBar: context.isMobile
           ? AppBar(
               title: Text(
-                'Edit Potongan',
+                context.isIndonesian ? 'Edit Potongan' : 'Deduction Edit',
                 style: TextStyle(
                   color: AppColors.putih,
                   fontSize: 22,

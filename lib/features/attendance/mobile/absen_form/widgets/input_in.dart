@@ -242,9 +242,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 if (position == null) {
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    context.isIndonesian
-                                        ? "GPS mati atau izin ditolak"
-                                        : "GPS off or permission denied",
+                                    "GPS mati atau izin ditolak",
                                     isSuccess: false,
                                   );
                                   return;
@@ -259,9 +257,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
 
                                 NotificationHelper.showTopNotification(
                                   context,
-                                  context.isIndonesian
-                                      ? "Lokasi berhasil didapatkan"
-                                      : "Success set the location",
+                                  "Lokasi berhasil didapatkan",
                                   isSuccess: true,
                                 );
                               },
@@ -307,9 +303,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 if (_lokasiController.text.isEmpty) {
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    context.isIndonesian
-                                        ? "Ambil lokasi terlebih dahulu"
-                                        : "Take the location first",
+                                    "Ambil lokasi terlebih dahulu",
                                     isSuccess: false,
                                   );
                                   return;
@@ -417,9 +411,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                 } catch (e) {
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    context.isIndonesian
-                                        ? "Format lokasi tidak valid"
-                                        : "Location Format is not valid",
+                                    "Format lokasi tidak valid",
                                     isSuccess: false,
                                   );
                                 }
@@ -711,10 +703,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                             _inlinePlayer?.dispose();
                             _inlinePlayer = null;
                             NotificationHelper.showTopNotification(
-                                context,
-                                context.isIndonesian
-                                    ? "Video dihapus, siap merekam ulang"
-                                    : "Video deleted, ready to record",
+                                context, "Video dihapus, siap merekam ulang",
                                 isSuccess: true);
                           },
                           child: Text(
@@ -792,20 +781,14 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
     if (_lastVideo == null) {
       if (!mounted) return;
       NotificationHelper.showTopNotification(
-          context,
-          context.isIndonesian
-              ? "Harap rekam video dahulu sebelum submit"
-              : "Please record video first before submit",
+          context, "Harap rekam video dahulu sebelum submit",
           isSuccess: false);
       return;
     }
     if (_lokasiController.text.isEmpty) {
       if (!mounted) return;
       NotificationHelper.showTopNotification(
-          context,
-          context.isIndonesian
-              ? "Ambil lokasi dulu sebelum submit"
-              : "Take Location first",
+          context, "Ambil lokasi dulu sebelum submit",
           isSuccess: false);
       return;
     }
@@ -827,10 +810,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
             maxSizeInMB: 50)) {
           Navigator.pop(context);
           NotificationHelper.showTopNotification(
-              context,
-              context.isIndonesian
-                  ? "Ukuran video terlalu besar (max 50MB)"
-                  : "Video size too big",
+              context, "Ukuran video terlalu besar (max 50MB)",
               isSuccess: false);
           return;
         }
@@ -858,9 +838,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       if (absenProvider.lastCheckinResult?['success'] == true) {
         NotificationHelper.showTopNotification(
           context,
-          absenProvider.lastCheckinResult?['message'] ?? context.isIndonesian
-              ? "Check-in berhasil"
-              : "Check-in Success",
+          absenProvider.lastCheckinResult?['message'] ?? "Check-in berhasil",
           isSuccess: true,
         );
         Navigator.of(context).pop(true);
@@ -874,9 +852,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       } else {
         NotificationHelper.showTopNotification(
           context,
-          absenProvider.lastCheckinResult?['message'] ?? context.isIndonesian
-              ? "Check-in gagal"
-              : "Check-in failed",
+          absenProvider.lastCheckinResult?['message'] ?? "Check-in gagal",
           isSuccess: false,
         );
       }

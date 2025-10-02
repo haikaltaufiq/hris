@@ -5,6 +5,7 @@ import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/helpers/pagination.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/features/peran/peran_viewmodel.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -28,7 +29,7 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
         backgroundColor: AppColors.secondary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
-          'Detail Peran',
+          context.isIndonesian ? 'Detail Peran' : 'Role Detail',
           style: TextStyle(
             color: AppColors.putih,
             fontFamily: GoogleFonts.poppins().fontFamily,
@@ -226,7 +227,7 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
           );
         }
 
-        final headers = ['Nama Peran'];
+        final headers = context.isIndonesian ? ['Nama Peran'] : ["Role Name"];
         final paginatedList = peranList
             .skip(currentPage * rowsPerPage)
             .take(rowsPerPage)

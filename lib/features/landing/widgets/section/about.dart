@@ -15,27 +15,27 @@ class AboutSection extends StatelessWidget {
   static final List<Map<String, dynamic>> aboutItems = [
     {
       'icon': FontAwesomeIcons.users,
-      'title': 'Manajemen Karyawan',
+      'title': 'Employe Management',
       'description':
-          'Kelola data lengkap karyawan dari rekrutmen hingga pensiun dengan sistem yang terintegrasi dan aman',
+          "Manage complete employee data from recruitment to retirement with an integrated and secure system.",
     },
     {
       'icon': FontAwesomeIcons.chartLine,
-      'title': 'Laporan & Analisis',
+      'title': 'Analyze & Report',
       'description':
-          'Dapatkan insight mendalam tentang performa karyawan dan operasional HR melalui dashboard analytics',
+          "Gain deep insights into employee performance and HR operations through an analytics dashboard.",
     },
     {
       'icon': FontAwesomeIcons.shield,
-      'title': 'Keamanan Data',
+      'title': "Data Security",
       'description':
-          'Sistem keamanan berlapis dengan enkripsi data dan kontrol akses untuk melindungi informasi sensitif',
+          "Protect sensitive information with layered security, data encryption, and access controls.",
     },
     {
       'icon': FontAwesomeIcons.cloud,
       'title': 'Cloud Based',
       'description':
-          'Akses sistem kapan saja dan dimana saja dengan infrastruktur cloud yang handal dan scalable',
+          "Access the system anytime, anywhere with reliable and scalable cloud infrastructure.",
     },
   ];
 
@@ -131,9 +131,9 @@ class AboutSection extends StatelessWidget {
             maxWidth: isMobile ? double.infinity : 800,
           ),
           child: Text(
-            'HRIS (Human Resources Information System) adalah sistem terintegrasi '
-            'yang mengelola data karyawan, proses HR, dan operasional bisnis '
-            'secara efisien untuk meningkatkan produktivitas organisasi.',
+            'HRIS (Human Resources Information System) is an integrated platform for '
+            'managing employee data, HR workflows, and business operations to drive '
+            'organizational productivity.',
             textAlign: isMobile ? TextAlign.center : TextAlign.start,
             style: TextStyle(
               fontSize: isMobile

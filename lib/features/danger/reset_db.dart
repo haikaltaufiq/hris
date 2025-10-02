@@ -4,23 +4,38 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/danger_service.dart';
 
 class ResetDb extends StatelessWidget {
   const ResetDb({super.key});
 
-  final List<Map<String, String>> resetItems = const [
-    {"title": "Gaji", "subtitle": "Reset semua data gaji karyawan."},
-    {"title": "Absen", "subtitle": "Reset seluruh catatan absensi."},
-    {"title": "Cuti", "subtitle": "Reset data cuti karyawan."},
-    {"title": "Lembur", "subtitle": "Reset catatan lembur."},
-    {"title": "Tugas", "subtitle": "Reset semua data tugas."},
-    {"title": "Log Aktivitas", "subtitle": "Reset riwayat log aktivitas."},
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Map<String, String>> resetItems = context.isIndonesian
+        ? [
+            {"title": "Gaji", "subtitle": "Reset semua data gaji karyawan."},
+            {"title": "Absen", "subtitle": "Reset seluruh catatan absensi."},
+            {"title": "Cuti", "subtitle": "Reset data cuti karyawan."},
+            {"title": "Lembur", "subtitle": "Reset catatan lembur."},
+            {"title": "Tugas", "subtitle": "Reset semua data tugas."},
+            {
+              "title": "Log Aktivitas",
+              "subtitle": "Reset riwayat log aktivitas."
+            },
+          ]
+        : [
+            {"title": "Salary", "subtitle": "Reset all salary data."},
+            {"title": "Attendance", "subtitle": "Reset all attendance data."},
+            {"title": "Leave", "subtitle": "Reset all leave proposal data."},
+            {
+              "title": "Over Time",
+              "subtitle": "Reset all overtime proposal data."
+            },
+            {"title": "Task", "subtitle": "Reset all task data."},
+            {"title": "Log Activity", "subtitle": "Reset all log activity."},
+          ];
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -31,7 +46,7 @@ class ResetDb extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Danger Zone",
+            context.isIndonesian ? "Zona Berbahaya" : "Danger Zone",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -169,7 +184,9 @@ class ResetDb extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        "Pilih Bulan ${jenis.toUpperCase()}",
+                        context.isIndonesian
+                            ? "Pilih Bulan ${jenis.toUpperCase()}"
+                            : "Choose Month ${jenis.toUpperCase()}",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -180,7 +197,7 @@ class ResetDb extends StatelessWidget {
                       DropdownButton<int>(
                         isExpanded: true,
                         value: selectedBulan,
-                        hint: Text("Bulan",
+                        hint: Text(context.isIndonesian ? "Bulan" : "Month",
                             style: TextStyle(color: AppColors.putih)),
                         dropdownColor: AppColors.bg,
                         style: TextStyle(color: AppColors.putih),
@@ -190,7 +207,9 @@ class ResetDb extends StatelessWidget {
                           final jumlah = month['jumlah'] as int;
                           return DropdownMenuItem<int>(
                             value: bulan,
-                            child: Text("Bulan $bulan - $tahun ($jumlah data)"),
+                            child: Text(context.isIndonesian
+                                ? "Bulan $bulan - $tahun ($jumlah data)"
+                                : "Month $bulan - $tahun ($jumlah data)"),
                           );
                         }).toList(),
                         onChanged: (val) {
@@ -210,7 +229,8 @@ class ResetDb extends StatelessWidget {
                                   foregroundColor: AppColors.secondary,
                                 ),
                                 onPressed: () => Navigator.pop(context),
-                                child: Text("Batal",
+                                child: Text(
+                                    context.isIndonesian ? "Batal" : "Cancel",
                                     style: TextStyle(color: AppColors.putih)),
                               ),
                             ),
@@ -232,7 +252,9 @@ class ResetDb extends StatelessWidget {
                                       final confirmed =
                                           await showConfirmationDialog(
                                         context,
-                                        title: "Konfirmasi",
+                                        title: context.isIndonesian
+                                            ? "Konfirmasi"
+                                            : "Confirmation",
                                         content:
                                             "Yakin reset $jenis bulan $selectedBulan tahun $selectedTahun?",
                                         confirmText: "Reset",

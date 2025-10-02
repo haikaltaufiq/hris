@@ -201,9 +201,7 @@ class _InputOutState extends State<InputOut> {
             if (position == null) {
               NotificationHelper.showTopNotification(
                 context,
-                context.isIndonesian
-                    ? "GPS mati atau izin ditolak"
-                    : "GPS off or permission denied",
+                "GPS mati atau izin ditolak",
                 isSuccess: false,
               );
               return;
@@ -260,9 +258,7 @@ class _InputOutState extends State<InputOut> {
             if (_lokasiController.text.isEmpty) {
               NotificationHelper.showTopNotification(
                 context,
-                context.isIndonesian
-                    ? "Ambil lokasi terlebih dahulu"
-                    : "Take Location First",
+                "Ambil lokasi terlebih dahulu",
                 isSuccess: false,
               );
               return;

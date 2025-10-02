@@ -6,6 +6,7 @@ import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/format_time.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/lembur_model.dart';
 
 class WebTabelLembur extends StatelessWidget {
@@ -25,15 +26,25 @@ class WebTabelLembur extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomDataTableWeb(
-      headers: [
-        'Nama',
-        'Tanggal Lembur',
-        'Jam Mulai',
-        'Jam Selesai',
-        'Alasan',
-        'Status',
-        'Keterangan',
-      ],
+      headers: context.isIndonesian
+          ? [
+              'Nama',
+              'Tanggal Lembur',
+              'Jam Mulai',
+              'Jam Selesai',
+              'Alasan',
+              'Status',
+              'Keterangan',
+            ]
+          : [
+              'Name',
+              'Date',
+              'Start Time',
+              'End Time',
+              'Reason',
+              'Status',
+              'Description',
+            ],
       rows: lemburList.map((c) {
         return [
           c.user['nama']?.toString() ?? '',

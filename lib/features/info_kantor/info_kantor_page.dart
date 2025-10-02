@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/info_kantor/company_card.dart';
 
@@ -23,9 +24,10 @@ class _InfoKantorPageState extends State<InfoKantorPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(children: [
           if (context.isMobile)
-            const Align(
+            Align(
               alignment: Alignment.bottomLeft,
-              child: Header(title: "Info Kantor"),
+              child: Header(
+                  title: context.isIndonesian ? "Info Kantor" : 'Company Info'),
             ),
           SearchingBar(
             controller: searchController,

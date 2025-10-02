@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
 import 'package:hr/features/potongan/web/web_tabel.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -70,7 +71,9 @@ class _WebPagePotonganState extends State<WebPagePotongan> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Belum ada Potongan',
+                          context.isIndonesian
+                              ? 'Belum ada Potongan'
+                              : 'No deduction data avalable',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontSize: 16,
@@ -79,7 +82,9 @@ class _WebPagePotonganState extends State<WebPagePotongan> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tap tombol + untuk menambah Potongan Gaji baru',
+                          context.isIndonesian
+                              ? 'Tap tombol + untuk menambah Potongan Gaji baru'
+                              : 'Press + button to add new deduction',
                           style: TextStyle(
                             color: AppColors.putih.withOpacity(0.7),
                             fontSize: 14,

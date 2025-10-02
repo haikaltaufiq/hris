@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/jabatan_model.dart';
 
 class JabatanTabel extends StatelessWidget {
@@ -48,7 +49,9 @@ class JabatanTabel extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       child: Text(
-                        'Nama Jabatan', // No ID absen
+                        context.isIndonesian
+                            ? 'Nama Jabatan'
+                            : 'Position Name', // No ID absen
                         style: TextStyle(
                             color: AppColors.putih,
                             fontWeight: FontWeight.bold,
@@ -61,7 +64,7 @@ class JabatanTabel extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 20),
                   child: Text(
-                    'Aksi', // No ID absen
+                    context.isIndonesian ? 'Aksi' : 'Action', // No ID absen
                     style: TextStyle(
                         color: AppColors.putih,
                         fontWeight: FontWeight.bold,

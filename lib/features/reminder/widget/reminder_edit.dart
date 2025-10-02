@@ -6,6 +6,7 @@ import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/peran_model.dart';
@@ -14,11 +15,8 @@ import 'package:hr/data/services/peran_service.dart';
 
 class ReminderEditInput extends StatefulWidget {
   final ReminderData reminder;
-  
-  const ReminderEditInput({
-    super.key,
-    required this.reminder
-  });
+
+  const ReminderEditInput({super.key, required this.reminder});
 
   @override
   State<ReminderEditInput> createState() => _ReminderEditInputState();
@@ -27,8 +25,8 @@ class ReminderEditInput extends StatefulWidget {
 class _ReminderEditInputState extends State<ReminderEditInput> {
   final TextEditingController _tanggalController = TextEditingController();
   final TextEditingController _reminderNameController = TextEditingController();
-  final TextEditingController _reminderDeskripsiController = TextEditingController();
-
+  final TextEditingController _reminderDeskripsiController =
+      TextEditingController();
 
   PeranModel? _selectedPeran;
   List<PeranModel> _peranList = [];
@@ -41,10 +39,11 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
     _loadPeran();
     _reminderDeskripsiController.text = widget.reminder.deskripsi;
     _reminderNameController.text = widget.reminder.judul;
-    final dateParts = widget.reminder.tanggalJatuhTempo.split(" ")[0].split("-");
-    _tanggalController.text = "${dateParts[2]} / ${dateParts[1]} / ${dateParts[0]}";
+    final dateParts =
+        widget.reminder.tanggalJatuhTempo.split(" ")[0].split("-");
+    _tanggalController.text =
+        "${dateParts[2]} / ${dateParts[1]} / ${dateParts[0]}";
   }
-
 
   Future<void> _loadPeran() async {
     try {
@@ -58,10 +57,10 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
 
         // Coba cari PIC lama sesuai id
         try {
-        _selectedPeran = _peranList.firstWhere(
-          (p) => p.namaPeran == widget.reminder.picNama,
-          orElse: () => _peranList.first,
-        );
+          _selectedPeran = _peranList.firstWhere(
+            (p) => p.namaPeran == widget.reminder.picNama,
+            orElse: () => _peranList.first,
+          );
         } catch (_) {
           // kalau tidak ketemu, biarkan null
           _selectedPeran = null;
@@ -165,7 +164,7 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
         children: [
           CustomInputField(
             hint: "",
-            label: "Reminder Name",
+            label: context.isIndonesian ? "Nama Pengingat" : "Reminder Name",
             controller: _reminderNameController,
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -173,14 +172,14 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
           ),
           CustomInputField(
             hint: "",
-            label: "Deskripsi",
+            label: context.isIndonesian ? "Deskripsi" : "Description",
             controller: _reminderDeskripsiController,
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Tanggal",
+            label: context.isIndonesian ? "Tanggal" : "Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -236,18 +235,21 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
                       try {
                         // Format ulang tanggal
                         final parts = _tanggalController.text.split(" / ");
-                        final formattedDate = "${parts[2]}-${parts[1]}-${parts[0]} 00:00:00";
+                        final formattedDate =
+                            "${parts[2]}-${parts[1]}-${parts[0]} 00:00:00";
 
                         final updatedReminder = ReminderData(
-                          id: widget.reminder.id, 
+                          id: widget.reminder.id,
                           judul: _reminderNameController.text,
-                          deskripsi: _reminderDeskripsiController.text, // bisa tambahin input deskripsi kalau perlu
+                          deskripsi: _reminderDeskripsiController
+                              .text, // bisa tambahin input deskripsi kalau perlu
                           tanggalJatuhTempo: formattedDate,
                           status: widget.reminder.status, // status lama
                           picId: _selectedPeran?.id ?? widget.reminder.picId,
                         );
 
-                        await PengingatService.updatePengingat(widget.reminder.id, updatedReminder);
+                        await PengingatService.updatePengingat(
+                            widget.reminder.id, updatedReminder);
 
                         if (mounted) {
                           NotificationHelper.showTopNotification(
@@ -269,7 +271,6 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
                         if (mounted) setState(() => isLoading = false);
                       }
                     },
-
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F1F1F),
                 padding: EdgeInsets.symmetric(

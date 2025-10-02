@@ -6,6 +6,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/gaji/widget/excel_export.dart';
 import 'package:hr/features/gaji/gaji_provider.dart';
@@ -43,9 +44,12 @@ class _WebPageGajiState extends State<WebPageGaji> {
         child: ListView(
           children: [
             if (context.isMobile)
-              const Align(
+              Align(
                 alignment: Alignment.bottomLeft,
-                child: Header(title: "Data Penggajian"),
+                child: Header(
+                    title: context.isIndonesian
+                        ? "Data Penggajian"
+                        : 'Payroll Data'),
               ),
             SearchingBar(
               controller: searchController,
@@ -105,7 +109,7 @@ class _WebPageGajiState extends State<WebPageGaji> {
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => context.read<GajiProvider>().fetchGaji(),
-                child: const Text("Coba Lagi"),
+                child: Text(context.isIndonesian ? "Coba Lagi" : 'Try Again'),
               ),
             ],
           ),
@@ -126,7 +130,9 @@ class _WebPageGajiState extends State<WebPageGaji> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Belum ada data gaji',
+                context.isIndonesian
+                    ? 'Belum ada data gaji'
+                    : "No Data available",
                 style: TextStyle(
                   color: AppColors.putih,
                   fontFamily: GoogleFonts.poppins().fontFamily,

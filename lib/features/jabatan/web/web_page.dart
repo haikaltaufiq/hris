@@ -5,6 +5,7 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
 import 'package:hr/features/jabatan/web/web_tabel_jabat.dart';
 import 'package:provider/provider.dart';
@@ -62,7 +63,8 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                 textAlign: TextAlign.center,
                 style: TextStyle(color: AppColors.putih),
                 decoration: InputDecoration(
-                  hintText: 'Nama Jabatan',
+                  hintText:
+                      context.isIndonesian ? 'Nama Jabatan' : 'Add Position',
                   hintStyle: TextStyle(
                     color: AppColors.putih,
                     fontSize: 14,
@@ -137,7 +139,10 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                   if (vm.isLoading)
                     const Center(child: LoadingWidget())
                   else if (vm.jabatanList.isEmpty)
-                    const Center(child: Text('Tidak ada data jabatan'))
+                    Center(
+                        child: Text(context.isIndonesian
+                            ? 'Tidak ada data jabatan'
+                            : 'No Position available'))
                   else
                     WebTabelJabat(
                       jabatanList: vm.jabatanList,
@@ -146,7 +151,9 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                         showDialog(
                           context: context,
                           builder: (_) => buildJabatanDialog(
-                            title: 'Edit Jabatan',
+                            title: context.isIndonesian
+                                ? 'Edit Jabatan'
+                                : 'Edit Position',
                             onSubmit: () {
                               vm.updateJabatan(context, jabatan.id,
                                   jabatanNameController.text);
@@ -181,7 +188,9 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                     showDialog(
                       context: context,
                       builder: (_) => buildJabatanDialog(
-                        title: 'Tambah Jabatan',
+                        title: context.isIndonesian
+                            ? 'Tambah Jabatan'
+                            : 'Add position',
                         onSubmit: () {
                           vm.createJabatan(context, jabatanNameController.text);
                           Navigator.pop(context);

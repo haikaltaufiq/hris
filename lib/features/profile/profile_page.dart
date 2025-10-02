@@ -7,6 +7,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 
@@ -72,7 +73,8 @@ class _ProfilePageState extends State<ProfilePage> {
               if (context.isMobile)
                 Align(
                     alignment: AlignmentGeometry.centerLeft,
-                    child: Header(title: "Profile")),
+                    child: Header(
+                        title: context.isIndonesian ? "Profil" : "Profile")),
               const SizedBox(height: 20),
               if (isLoading)
                 const Center(child: LoadingWidget())
@@ -266,34 +268,38 @@ class _ProfilePageState extends State<ProfilePage> {
       },
       {
         'icon': FontAwesomeIcons.building,
-        'label': 'Departemen',
+        'label': context.isIndonesian ? 'Departemen' : 'Departemen',
         'value': departemen
       },
       {
         'icon': FontAwesomeIcons.user,
-        'label': 'Jenis Kelamin',
+        'label': context.isIndonesian ? 'Jenis Kelamin' : 'Gender',
         'value': jenisKelamin
       },
       {
         'icon': FontAwesomeIcons.heart,
-        'label': 'Status Pernikahan',
+        'label': context.isIndonesian ? 'Status Pernikahan' : 'Marriage Status',
         'value': statusPernikahan
       },
-      {'icon': FontAwesomeIcons.idBadge, 'label': 'Jabatan', 'value': jabatan},
+      {
+        'icon': FontAwesomeIcons.idBadge,
+        'label': context.isIndonesian ? 'Jabatan' : 'Position',
+        'value': jabatan
+      },
       {
         'icon': FontAwesomeIcons.moneyBill,
-        'label': 'Gaji Per Hari',
+        'label': context.isIndonesian ? 'Gaji Per Hari' : 'Daily Salary',
         'value': gajiPokok != null ? gajiPokok!.toInt().toString() : '-'
       },
       {'icon': FontAwesomeIcons.fileInvoice, 'label': 'NPWP', 'value': npwp},
       {
         'icon': FontAwesomeIcons.hospital,
-        'label': 'BPJS Kesehatan',
+        'label': context.isIndonesian ? 'BPJS Kesehatan' : 'Health BPJS',
         'value': bpjsKesehatan
       },
       {
         'icon': FontAwesomeIcons.briefcaseMedical,
-        'label': 'BPJS Ketenagakerjaan',
+        'label': context.isIndonesian ? 'BPJS Ketenagakerjaan' : 'Work BPJS',
         'value': bpjsKetenagakerjaan
       },
     ];
@@ -395,7 +401,7 @@ class _ProfilePageState extends State<ProfilePage> {
               TextField(
                 controller: emailController,
                 decoration: InputDecoration(
-                  labelText: 'Email Baru',
+                  labelText: context.isIndonesian ? 'Email Baru' : 'New Email',
                   labelStyle: GoogleFonts.poppins(
                       color: AppColors.putih.withOpacity(0.7)),
                   filled: true,
@@ -411,7 +417,9 @@ class _ProfilePageState extends State<ProfilePage> {
                 controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'Konfirmasi Password',
+                  labelText: context.isIndonesian
+                      ? 'Konfirmasi Password'
+                      : 'Password Confirmation',
                   labelStyle: GoogleFonts.poppins(
                       color: AppColors.putih.withOpacity(0.7)),
                   filled: true,
@@ -523,7 +531,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       controller: oldPasswordController,
                       obscureText: obscureOld,
                       decoration: InputDecoration(
-                        labelText: 'Password Lama',
+                        labelText: context.isIndonesian
+                            ? 'Password Lama'
+                            : 'Old Password',
                         labelStyle: GoogleFonts.poppins(
                             color: AppColors.putih.withOpacity(0.7)),
                         filled: true,
@@ -553,7 +563,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       controller: newPasswordController,
                       obscureText: obscureNew,
                       decoration: InputDecoration(
-                        labelText: 'Password Baru',
+                        labelText: context.isIndonesian
+                            ? 'Password Baru'
+                            : ' New Password',
                         labelStyle: GoogleFonts.poppins(
                             color: AppColors.putih.withOpacity(0.7)),
                         filled: true,
@@ -583,7 +595,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       controller: confirmPasswordController,
                       obscureText: obscureConfirm,
                       decoration: InputDecoration(
-                        labelText: 'Konfirmasi Password Baru',
+                        labelText: context.isIndonesian
+                            ? 'Konfirmasi Password Baru'
+                            : 'New Password Confirmation',
                         labelStyle: GoogleFonts.poppins(
                             color: AppColors.putih.withOpacity(0.7)),
                         filled: true,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/tugas_form/form_user_edit.dart';
 import 'package:intl/intl.dart';
@@ -15,18 +16,6 @@ class TugasUserTabel extends StatelessWidget {
     required this.tugasList,
     required this.onActionDone,
   });
-
-  final List<String> headers = const [
-    "Kepada",
-    "Judul",
-    "Jam Mulai",
-    "Tanggal Mulai",
-    "Batas Submit",
-    "Lokasi",
-    "Note",
-    "Status",
-    "Lampiran",
-  ];
 
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
@@ -148,6 +137,30 @@ class TugasUserTabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> headers = context.isIndonesian
+        ? [
+            "Kepada",
+            "Judul",
+            "Jam Mulai",
+            "Tgl Mulai",
+            "Batas Submit",
+            "Lokasi",
+            "Catatan",
+            "Status",
+            "Lampiran",
+          ]
+        : [
+            "To",
+            "Title",
+            "Start Time",
+            "Start Date",
+            "Deadline",
+            "Location",
+            "Note",
+            "Status",
+            "Attachment",
+          ];
+
     if (tugasList.isEmpty) {
       return const Center(
         child: Text('Belum ada tugas', style: TextStyle(color: Colors.white)),
@@ -179,7 +192,7 @@ class TugasUserTabel extends StatelessWidget {
       },
       onView: (row) => _showDetailDialog(context, tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
-      onTapLampiran: (row) {},
+      onTapLampiran: (row) => _editTugas(context, row),
     );
   }
 }

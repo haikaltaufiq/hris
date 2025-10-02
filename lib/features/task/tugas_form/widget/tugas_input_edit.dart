@@ -570,7 +570,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                     child: CustomInputField(
                       key: const ValueKey("latitude_field"),
                       hint: "Latitude",
-                      label: "Lokasi",
+                      label: context.isIndonesian ? "Lokasi" : "Location",
                       controller: _latitudeController,
                       labelStyle: labelStyle,
                       textStyle: textStyle,

@@ -7,6 +7,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form.dart';
 import 'package:hr/features/karyawan/widgets/karyawan_tabel.dart';
@@ -59,7 +60,10 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
                   onRefresh: _refreshData,
                   child: ListView(
                     children: [
-                      const Header(title: 'Manajemen Karyawan'),
+                      Header(
+                          title: context.isIndonesian
+                              ? 'Manajemen Karyawan'
+                              : 'Employee Management'),
                       SearchingBar(
                         controller: searchController,
                         onChanged: (value) {
@@ -88,7 +92,9 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  'Belum ada Karyawan',
+                                  context.isIndonesian
+                                      ? 'Belum ada Karyawan'
+                                      : 'No Employee available',
                                   style: TextStyle(
                                     color: AppColors.putih,
                                     fontFamily:
@@ -99,7 +105,9 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Tap tombol + untuk menambah karyawan baru',
+                                  context.isIndonesian
+                                      ? 'Tap tombol + untuk menambah karyawan baru'
+                                      : 'Press + button to add new employee',
                                   style: TextStyle(
                                     color: AppColors.putih.withOpacity(0.7),
                                     fontFamily:

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/features/gaji/widget/format_currency.dart';
 import 'package:hr/features/gaji/widget/potongan.dart';
@@ -19,14 +20,17 @@ class GajiDetail extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Rincian Gaji",
+          Text(context.isIndonesian ? "Rincian Gaji" : "Salary Details",
               style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
                   color: AppColors.putih)),
           const SizedBox(height: 12),
-          _buildRow("Gaji Per Hari", formatCurrency(gaji.gajiPokok),
-              Colors.blue, Icons.account_balance_wallet),
+          _buildRow(
+              context.isIndonesian ? "Gaji Per Hari" : "Daily Salary",
+              formatCurrency(gaji.gajiPokok),
+              Colors.blue,
+              Icons.account_balance_wallet),
           const SizedBox(height: 8),
           const Divider(),
           const SizedBox(height: 8),

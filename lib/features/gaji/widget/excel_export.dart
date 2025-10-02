@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/gaji_service.dart';
 
 class ExcelExport extends StatefulWidget {
@@ -15,21 +16,6 @@ class ExcelExport extends StatefulWidget {
 class _ExcelExportState extends State<ExcelExport> {
   Map<String, dynamic>? _selectedPeriod;
   List<Map<String, dynamic>> _availablePeriods = [];
-
-  final List<String> _months = const [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember"
-  ];
 
   @override
   void initState() {
@@ -86,6 +72,36 @@ class _ExcelExportState extends State<ExcelExport> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> _months = context.isIndonesian
+        ? [
+            "Januari",
+            "Februari",
+            "Maret",
+            "April",
+            "Mei",
+            "Juni",
+            "Juli",
+            "Agustus",
+            "September",
+            "Oktober",
+            "November",
+            "Desember"
+          ]
+        : [
+            "January",
+            "February",
+            "March",
+            "April",
+            "May",
+            "June",
+            "July",
+            "August",
+            "September",
+            "October",
+            "November",
+            "December"
+          ];
+
     return Card(
       color: AppColors.primary,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -99,7 +115,9 @@ class _ExcelExportState extends State<ExcelExport> {
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
-                  "Export Gaji (Excel)",
+                  context.isIndonesian
+                      ? "Export Gaji (Excel)"
+                      : "Export Payroll (Excell)",
                   textAlign: TextAlign.start,
                   style: TextStyle(
                       fontSize: 16,
@@ -117,7 +135,7 @@ class _ExcelExportState extends State<ExcelExport> {
                     child: DropdownButtonFormField<Map<String, dynamic>>(
                       value: _selectedPeriod,
                       decoration: InputDecoration(
-                        labelText: "Periode",
+                        labelText: context.isIndonesian ? "Periode" : "Period",
                         labelStyle: TextStyle(color: AppColors.putih),
                         filled: true,
                         fillColor: AppColors.primary.withOpacity(0.5),

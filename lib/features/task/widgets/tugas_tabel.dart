@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
@@ -27,18 +28,6 @@ class TugasTabel extends StatefulWidget {
 }
 
 class _TugasTabelState extends State<TugasTabel> {
-  final List<String> headers = const [
-    "Kepada",
-    "Judul",
-    "Jam Mulai",
-    "Tanggal Mulai",
-    "Batas Submit",
-    "Lokasi",
-    "Note",
-    "Status",
-    "Lampiran"
-  ];
-
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
     try {
@@ -100,7 +89,6 @@ class _TugasTabelState extends State<TugasTabel> {
       throw 'Tidak bisa membuka $url';
     }
   }
-
 
   // lampiran
   void _showLampiranDialog(BuildContext context, TugasModel tugas) {
@@ -235,6 +223,30 @@ class _TugasTabelState extends State<TugasTabel> {
 //
   @override
   Widget build(BuildContext context) {
+    final List<String> headers = context.isIndonesian
+        ? [
+            "Kepada",
+            "Judul",
+            "Jam Mulai",
+            "Tgl Mulai",
+            "Batas Submit",
+            "Lokasi",
+            "Catatan",
+            "Status",
+            "Lampiran",
+          ]
+        : [
+            "To",
+            "Title",
+            "Start Time",
+            "Start Date",
+            "Deadline",
+            "Location",
+            "Note",
+            "Status",
+            "Attachment",
+          ];
+
     final rows = widget.tugasList.map((tugas) {
       return [
         tugas.user?.nama ?? '-',

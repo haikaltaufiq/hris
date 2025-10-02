@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/fitur_model.dart';
 import 'package:hr/data/models/peran_model.dart';
@@ -342,7 +343,9 @@ class _PeranFormPageState extends State<PeranFormPage> {
         return AlertDialog(
           backgroundColor: AppColors.bg,
           title: Text(
-            'Pilih Akses untuk ${_getFeatureDisplayName(parentFeature)}',
+            context.isIndonesian
+                ? 'Pilih Akses untuk ${_getFeatureDisplayName(parentFeature)}'
+                : 'Choose Access to ${_getFeatureDisplayName(parentFeature)}',
             style: TextStyle(color: AppColors.putih, fontSize: 18),
           ),
           content: Column(
@@ -459,7 +462,13 @@ class _PeranFormPageState extends State<PeranFormPage> {
       backgroundColor: AppColors.bg,
       appBar: context.isMobile
           ? AppBar(
-              title: Text(widget.peran == null ? 'Tambah Peran' : 'Edit Peran'),
+              title: Text(widget.peran == null
+                  ? context.isIndonesian
+                      ? 'Tambah Peran'
+                      : 'Add Role'
+                  : context.isIndonesian
+                      ? 'Edit Peran'
+                      : 'Edit Role'),
               backgroundColor: AppColors.bg,
               titleTextStyle: TextStyle(
                 color: AppColors.putih,
@@ -480,7 +489,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
                 controller: _namaController,
                 style: textStyle,
                 decoration: inputStyle.copyWith(
-                  labelText: 'Nama Peran',
+                  labelText: context.isIndonesian ? 'Nama Peran' : 'Role Name',
                   labelStyle: labelStyle,
                 ),
               ),
@@ -494,7 +503,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
               cursorColor: AppColors.putih,
               style: TextStyle(color: AppColors.putih, fontSize: 14),
               decoration: InputDecoration(
-                hintText: 'Cari fitur...',
+                hintText: context.isIndonesian ? 'Cari fitur...' : 'Search...',
                 hintStyle: TextStyle(
                     color: AppColors.putih.withOpacity(0.5), fontSize: 14),
                 prefixIcon:
@@ -528,7 +537,9 @@ class _PeranFormPageState extends State<PeranFormPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Template Fitur:',
+                    context.isIndonesian
+                        ? 'Template Fitur:'
+                        : 'Feature Femplate',
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.bold,
@@ -545,7 +556,9 @@ class _PeranFormPageState extends State<PeranFormPage> {
                               context: context,
                               builder: (_) => AlertDialog(
                                 title: Text(
-                                  'Pilih Paket',
+                                  context.isIndonesian
+                                      ? 'Pilih Paket'
+                                      : 'Choose',
                                   style: TextStyle(color: AppColors.putih),
                                 ),
                                 backgroundColor: AppColors.bg,
@@ -590,7 +603,8 @@ class _PeranFormPageState extends State<PeranFormPage> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: const Text('Pilih Paket'),
+                          child: Text(
+                              context.isIndonesian ? 'Pilih Paket' : 'Choose'),
                         );
                       } else {
                         return Wrap(
@@ -636,7 +650,9 @@ class _PeranFormPageState extends State<PeranFormPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Daftar Fitur (${_selectedFitur.length}/${_allFitur.length})',
+                    context.isIndonesian
+                        ? 'Daftar Fitur (${_selectedFitur.length}/${_allFitur.length})'
+                        : 'Features (${_selectedFitur.length}/${_allFitur.length})',
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.bold,
@@ -662,9 +678,11 @@ class _PeranFormPageState extends State<PeranFormPage> {
                 if (_allFitur.isEmpty) {
                   return const Center(child: LoadingWidget());
                 } else if (filteredFitur.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'Tidak ada fitur ditemukan',
+                      context.isIndonesian
+                          ? 'Tidak ada fitur ditemukan'
+                          : 'No Features available',
                       style: TextStyle(color: Colors.grey),
                     ),
                   );
@@ -716,7 +734,13 @@ class _PeranFormPageState extends State<PeranFormPage> {
                             strokeWidth: 2, color: Colors.white),
                       )
                     : Text(
-                        widget.peran == null ? 'Simpan Peran' : 'Update Peran',
+                        widget.peran == null
+                            ? context.isIndonesian
+                                ? 'Simpan Peran'
+                                : 'Save'
+                            : context.isIndonesian
+                                ? 'Update Peran'
+                                : 'Update',
                         style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,

@@ -214,9 +214,7 @@ class _CutiInputState extends State<CutiInput> {
                           _alasanController.text.isEmpty) {
                         NotificationHelper.showTopNotification(
                           context,
-                          context.isIndonesian
-                              ? 'Semua field wajib diisi!'
-                              : 'Please fill all the field',
+                          'Semua field wajib diisi!',
                           isSuccess: false,
                         );
                         return; // stop submit
@@ -233,7 +231,7 @@ class _CutiInputState extends State<CutiInput> {
                         if (result['success'] == true) {
                           if (context.mounted) {
                             NotificationHelper.showTopNotification(
-                                context,  'Cuti berhasil diajukan',
+                                context, 'Cuti berhasil diajukan',
                                 isSuccess: true);
                             Navigator.of(context).pop(true);
                           }

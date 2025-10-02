@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../components/custom/custom_input.dart';
@@ -58,7 +59,7 @@ class _PotonganInputState extends State<PotonganInput> {
         children: [
           CustomInputField(
             hint: "",
-            label: "Nama Potongan",
+            label: context.isIndonesian ? "Nama Potongan" : "Name",
             controller: controller,
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -66,7 +67,9 @@ class _PotonganInputState extends State<PotonganInput> {
           ),
           CustomInputField(
             hint: "",
-            label: "Jumlah Potongan ( % )",
+            label: context.isIndonesian
+                ? "Jumlah Potongan (%)"
+                : "Deduction Amount (%)",
             controller: jumlahController,
             labelStyle: labelStyle,
             textStyle: textStyle,

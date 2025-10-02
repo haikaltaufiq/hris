@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/data/services/gaji_service.dart';
 import 'package:hr/features/gaji/widget/format_currency.dart';
@@ -32,7 +33,9 @@ class GajiCard extends StatelessWidget {
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
-    final statusList = ["Belum Dibayar", "Sudah Dibayar"];
+    final statusList = context.isIndonesian
+        ? ["Belum Dibayar", "Sudah Dibayar"]
+        : ["Unpaid", "Paid"];
 
     showMenu<String>(
       context: context,
@@ -135,7 +138,9 @@ class GajiCard extends StatelessWidget {
                         )),
                     const SizedBox(height: 2),
                     Text(
-                      "Gaji Bersih: ${formatCurrency(gaji.gajiBersih)}",
+                      context.isIndonesian
+                          ? "Gaji Bersih: ${formatCurrency(gaji.gajiBersih)}"
+                          : "Net Salary: ${formatCurrency(gaji.gajiBersih)}",
                       style: TextStyle(
                         color: AppColors.putih,
                         fontSize: 12,

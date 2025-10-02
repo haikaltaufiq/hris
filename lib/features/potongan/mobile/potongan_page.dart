@@ -5,6 +5,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/potongan/potongan_form/potongan_form.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
 import 'package:hr/features/potongan/widget/potongan_tabel.dart';
@@ -57,7 +58,8 @@ class _PotonganMobileState extends State<PotonganMobile> {
               onRefresh: _refreshData,
               child: ListView(
                 children: [
-                  Header(title: "Potongan"),
+                  Header(
+                      title: context.isIndonesian ? "Potongan" : "Deduction"),
                   SearchingBar(
                     controller: searchController,
                     onChanged: (value) {
@@ -85,7 +87,9 @@ class _PotonganMobileState extends State<PotonganMobile> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Belum ada Potongan',
+                              context.isIndonesian
+                                  ? 'Belum ada Potongan'
+                                  : 'No deduction data available',
                               style: TextStyle(
                                 color: AppColors.putih,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -95,7 +99,9 @@ class _PotonganMobileState extends State<PotonganMobile> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tap tombol + untuk menambah Potongan Gaji baru',
+                              context.isIndonesian
+                                  ? 'Tap tombol + untuk menambah Potongan Gaji baru'
+                                  : ' Press + to add new deduction',
                               style: TextStyle(
                                 color: AppColors.putih.withOpacity(0.7),
                                 fontFamily: GoogleFonts.poppins().fontFamily,

@@ -4,6 +4,7 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form_edit.dart';
@@ -26,19 +27,33 @@ class KaryawanTabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Headers sesuai field
-    final headers = [
-      "Nama",
-      "Email",
-      "Peran",
-      "Jabatan",
-      "Departemen",
-      "Gaji Per Hari",
-      "Jenis Kelamin",
-      "Status Nikah",
-      "NO. NPWP",
-      "NO. BPJS TK",
-      "NO. BPJS KES",
-    ];
+    final headers = context.isIndonesian
+        ? [
+            "Nama",
+            "Email",
+            "Peran",
+            "Jabatan",
+            "Departemen",
+            "Gaji Per Hari",
+            "Jenis Kelamin",
+            "Status Nikah",
+            "NO. NPWP",
+            "NO. BPJS TK",
+            "NO. BPJS KES",
+          ]
+        : [
+            "Name",
+            "Email",
+            "Role",
+            "Position",
+            "Departemen",
+            "Daily Salary",
+            "Gender",
+            "Marriage Status",
+            "NPWP",
+            "BPJS TK",
+            "BPJS KES",
+          ];
 
     // Rows diubah jadi List<List<String>> biar compatible
     final rows = users.map((user) {

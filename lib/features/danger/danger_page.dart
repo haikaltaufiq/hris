@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/custom/header.dart';
 
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/danger/reset_db.dart';
 
@@ -23,9 +24,9 @@ class _DangerPageState extends State<DangerPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(children: [
           if (context.isMobile)
-            const Align(
+            Align(
               alignment: Alignment.bottomLeft,
-              child: Header(title: "Danger"),
+              child: Header(title: context.isIndonesian ? "Bahaya" : "Danger"),
             ),
           Padding(
             padding: EdgeInsets.symmetric(

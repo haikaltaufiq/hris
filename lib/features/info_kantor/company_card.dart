@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/kantor_service.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -111,7 +112,9 @@ class _CompanyCardState extends State<CompanyCard> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            'Pengaturan operasional kantor',
+                            context.isIndonesian
+                                ? 'Pengaturan operasional kantor'
+                                : 'Company Settings',
                             style: GoogleFonts.poppins(
                               color: AppColors.putih.withOpacity(0.65),
                               fontSize: 11,
@@ -231,20 +234,23 @@ class _CompanyCardState extends State<CompanyCard> {
                 children: [
                   _buildInfoItem(
                     icon: Icons.access_time_outlined,
-                    label: 'Jam Masuk',
+                    label: context.isIndonesian ? 'Jam Masuk' : 'Checkin Time',
                     value: kantor!.jamMasuk,
                   ),
                   const SizedBox(height: 20),
                   _buildInfoItem(
                     icon: Icons.access_time_filled_outlined,
-                    label: 'Jam Keluar',
+                    label:
+                        context.isIndonesian ? 'Jam Keluar' : 'Checkout Time',
                     value: kantor!.jamKeluar,
                   ),
                   const SizedBox(height: 20),
                   _buildInfoItem(
                     icon: Icons.timer_outlined,
-                    label: 'Toleransi',
-                    value: '${kantor!.minimalKeterlambatan} menit',
+                    label: context.isIndonesian ? 'Toleransi' : 'Tolerance',
+                    value: context.isIndonesian
+                        ? '${kantor!.minimalKeterlambatan} Menit'
+                        : '${kantor!.minimalKeterlambatan} Minute',
                   ),
                 ],
               ),
@@ -258,13 +264,14 @@ class _CompanyCardState extends State<CompanyCard> {
                 children: [
                   _buildInfoItem(
                     icon: Icons.calendar_today_outlined,
-                    label: 'Cuti Tahunan',
+                    label:
+                        context.isIndonesian ? 'Cuti Tahunan' : 'Annual Leave',
                     value: '${kantor!.jatahCutiTahunan} hari',
                   ),
                   const SizedBox(height: 20),
                   _buildInfoItem(
                     icon: Icons.location_on_outlined,
-                    label: 'Koordinat',
+                    label: context.isIndonesian ? 'Koordinat' : 'Coordinate',
                     value:
                         '${kantor!.lat.toStringAsFixed(4)}, ${kantor!.lng.toStringAsFixed(4)}',
                     isSmallText: true,
@@ -304,7 +311,9 @@ class _CompanyCardState extends State<CompanyCard> {
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
-                  'Konfigurasi berlaku untuk seluruh karyawan',
+                  context.isIndonesian
+                      ? 'Konfigurasi berlaku untuk seluruh karyawan'
+                      : 'Configuration applies to all employees',
                   style: GoogleFonts.poppins(
                     color: AppColors.putih.withOpacity(0.6),
                     fontSize: 11,
@@ -331,7 +340,9 @@ class _CompanyCardState extends State<CompanyCard> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Belum ada informasi kantor',
+            context.isIndonesian
+                ? 'Belum ada informasi kantor'
+                : 'No Company info available',
             style: GoogleFonts.poppins(
               color: AppColors.putih.withOpacity(0.7),
               fontSize: 16,
@@ -340,7 +351,9 @@ class _CompanyCardState extends State<CompanyCard> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Atur informasi kantor untuk mulai menggunakan sistem absensi',
+            context.isIndonesian
+                ? 'Atur informasi kantor untuk mulai menggunakan sistem absensi'
+                : 'Set Company info to use attendance features',
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               color: AppColors.putih.withOpacity(0.5),
@@ -355,7 +368,7 @@ class _CompanyCardState extends State<CompanyCard> {
             },
             icon: const Icon(Icons.add, size: 18),
             label: Text(
-              'Atur Sekarang',
+              context.isIndonesian ? 'Atur Sekarang' : 'Set now',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,

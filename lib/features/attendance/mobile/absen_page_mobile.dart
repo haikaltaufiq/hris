@@ -258,9 +258,7 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                         } else {
                                           NotificationHelper.showTopNotification(
                                               context,
-                                              context.isIndonesian
-                                                  ? "Anda Sudah Check-in hari ini"
-                                                  : "You have already checked in today.",
+                                              "Anda Sudah Check-in hari ini",
                                               isSuccess: false);
                                         }
                                       },
@@ -376,9 +374,7 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                         } else {
                                           NotificationHelper.showTopNotification(
                                               context,
-                                              context.isIndonesian
-                                                  ? "Anda Belum Check-in hari ini"
-                                                  : "You have not checked in today",
+                                              "Anda Belum Check-in hari ini",
                                               isSuccess: false);
                                         }
                                       },

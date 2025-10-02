@@ -7,6 +7,7 @@ import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/departemen_service.dart';
@@ -148,8 +149,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   }
 
   // ✅ Safe dropdown hint helper tuntuk yang type objek
-  String _getSafeDropdownHint<T>(
-      bool isLoading, int? selectedId, List<T> items, String Function(T) getLabel) {
+  String _getSafeDropdownHint<T>(bool isLoading, int? selectedId, List<T> items,
+      String Function(T) getLabel) {
     if (isLoading) return 'Memuat...';
     if (selectedId == null) return 'Pilih...';
 
@@ -164,8 +165,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   }
 
   // ✅ Safe dropdown hint helper tuntuk yang type string
-  String _getSafeDropdownHintMap(
-      bool isLoading, int? selectedId, List<Map<String, dynamic>> items, String key) {
+  String _getSafeDropdownHintMap(bool isLoading, int? selectedId,
+      List<Map<String, dynamic>> items, String key) {
     if (isLoading) return 'Memuat...';
     if (selectedId == null) return 'Pilih...';
 
@@ -179,7 +180,6 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
       return 'Pilih...';
     }
   }
-
 
   // ✅ Enhanced validation
   bool _validateForm() {
@@ -348,20 +348,22 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
           children: [
             CustomInputField(
               controller: _namaController,
-              label: "Nama *",
-              hint: "Masukkan nama karyawan",
+              label: context.isIndonesian ? "Nama *" : "Name *",
+              hint: context.isIndonesian
+                  ? "Masukkan nama karyawan"
+                  : "Input employees name",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
             ),
 
             CustomDropDownField(
-              label: 'Jabatan *',
+              label: context.isIndonesian ? 'Jabatan *' : 'Position *',
               hint: _getSafeDropdownHintMap(
-                  _isLoadingJabatan,
-                  _jabatanId,
-                  _jabatanList,
-                  "nama_jabatan",
+                _isLoadingJabatan,
+                _jabatanId,
+                _jabatanList,
+                "nama_jabatan",
               ),
               items: _isLoadingJabatan
                   ? []
@@ -393,14 +395,13 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             ),
 
             CustomDropDownField(
-              label: 'Peran *',
+              label: context.isIndonesian ? 'Peran *' : 'Role *',
               hint: _getSafeDropdownHint<PeranModel>(
-                  _isLoadingPeran,
-                  _peranId,
-                  _peranList,
-                  (e) => e.namaPeran, // sekarang pakai properti model
+                _isLoadingPeran,
+                _peranId,
+                _peranList,
+                (e) => e.namaPeran, // sekarang pakai properti model
               ),
-
               items: _isLoadingPeran
                   ? []
                   : _peranList
@@ -413,7 +414,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
                       if (val != null) {
                         final selected = _peranList.firstWhere(
                           (e) => e.namaPeran == val,
-                          orElse: () => PeranModel(id: 0, namaPeran: '', fitur: []),
+                          orElse: () =>
+                              PeranModel(id: 0, namaPeran: '', fitur: []),
                         );
                         if (selected.id != 0) {
                           setState(() {
@@ -433,10 +435,10 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             CustomDropDownField(
               label: 'Departemen *',
               hint: _getSafeDropdownHintMap(
-                  _isLoadingDepartemen,
-                  _departemenId,
-                  _departemenList,
-                  "nama_departemen",
+                _isLoadingDepartemen,
+                _departemenId,
+                _departemenList,
+                "nama_departemen",
               ),
               items: _isLoadingDepartemen
                   ? []
@@ -469,8 +471,11 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomInputField(
               controller: _gajiController,
-              label: "Gaji Per Hari *",
-              hint: "Masukkan gaji per hari",
+              label:
+                  context.isIndonesian ? "Gaji Per Hari *" : "Daily Salary *",
+              hint: context.isIndonesian
+                  ? "Masukkan gaji per hari"
+                  : "Input daily Salary",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
@@ -479,7 +484,9 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             CustomInputField(
               controller: _npwpController,
               label: "NPWP",
-              hint: "Masukkan NPWP (opsional)",
+              hint: context.isIndonesian
+                  ? "Masukkan NPWP (opsional)"
+                  : "Input NPWP (Optional)",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
@@ -488,7 +495,9 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             CustomInputField(
               controller: _bpjsKetController,
               label: "No. BPJS Ketenagakerjaan",
-              hint: "Masukkan nomor BPJS Ketenagakerjaan (opsional)",
+              hint: context.isIndonesian
+                  ? "Masukkan nomor BPJS Ketenagakerjaan (opsional)"
+                  : "Optional",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
@@ -497,14 +506,16 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             CustomInputField(
               controller: _bpjsKesController,
               label: "No. BPJS Kesehatan",
-              hint: "Masukkan nomor BPJS Kesehatan (opsional)",
+              hint: context.isIndonesian
+                  ? "Masukkan nomor BPJS Kesehatan (opsional)"
+                  : "Optional",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
             ),
 
             CustomDropDownField(
-              label: 'Jenis Kelamin *',
+              label: context.isIndonesian ? 'Jenis Kelamin *' : 'Gender *',
               hint: _jenisKelamin ?? 'Pilih jenis kelamin',
               items: _jenisKelaminList,
               onChanged: (val) => setState(() => _jenisKelamin = val),
@@ -517,7 +528,9 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             ),
 
             CustomDropDownField(
-              label: 'Status Pernikahan *',
+              label: context.isIndonesian
+                  ? 'Status Pernikahan *'
+                  : 'Marriage Status',
               hint: _statusPernikahan ?? 'Pilih status pernikahan',
               items: _statusList,
               onChanged: (val) => setState(() => _statusPernikahan = val),
@@ -559,7 +572,9 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            'Memperbarui...',
+                            context.isIndonesian
+                                ? 'Memperbarui...'
+                                : 'Updating...',
                             style: GoogleFonts.poppins(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -569,7 +584,9 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
                         ],
                       )
                     : Text(
-                        'Perbarui Data',
+                        context.isIndonesian
+                            ? 'Perbarui Data'
+                            : 'Updating Data',
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

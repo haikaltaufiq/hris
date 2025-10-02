@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -16,11 +17,6 @@ class PotonganTabelWeb extends StatelessWidget {
 
   const PotonganTabelWeb(
       {super.key, required this.potonganList, required this.onActionDone});
-
-  final List<String> headers = const [
-    "Nama Potongan",
-    "Nominal",
-  ];
 
   void _editPotongan(BuildContext context, PotonganGajiModel potongan) {
     Navigator.pushNamed(
@@ -73,12 +69,15 @@ class PotonganTabelWeb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (potonganList.isEmpty) {
-      return const Center(
-        child:
-            Text('Belum ada potongan', style: TextStyle(color: Colors.white)),
-      );
-    }
+    final List<String> headers = context.isIndonesian
+        ? [
+            "Nama Potongan",
+            "Nominal",
+          ]
+        : [
+            'Deduction Name',
+            'Amount',
+          ];
 
     final rows = potonganList.map((potongan) {
       return [

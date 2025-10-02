@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/location_service.dart';
 // Import sesuai dengan struktur project Anda
 // import 'package:your_app/utils/app_colors.dart';
@@ -113,7 +114,9 @@ class LocationDialogService {
 
                       // Modern Typography
                       Text(
-                        "Pilih Lokasi",
+                        context.isIndonesian
+                            ? "Pilih Lokasi"
+                            : 'Choose Location',
                         style: GoogleFonts.poppins(
                           color: AppColors.putih,
                           fontWeight: FontWeight.w700,
@@ -123,7 +126,9 @@ class LocationDialogService {
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        "Pilih salah satu metode di bawah ini",
+                        context.isIndonesian
+                            ? "Pilih salah satu metode di bawah ini"
+                            : 'Choose One of this method',
                         textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           color: AppColors.putih.withOpacity(0.75),
@@ -156,7 +161,9 @@ class LocationDialogService {
                       // GPS Button
                       _buildModernButton(
                         context: context,
-                        title: "Lokasi Saat Ini",
+                        title: context.isIndonesian
+                            ? "Lokasi Saat Ini"
+                            : "My Location",
                         icon: Icons.my_location_rounded,
                         gradient: [
                           AppColors.secondary,
@@ -184,7 +191,7 @@ class LocationDialogService {
                           backgroundColor: Colors.white.withOpacity(0.05),
                         ),
                         child: Text(
-                          "Batal",
+                          context.isIndonesian ? "Batal" : "Cancel",
                           style: GoogleFonts.poppins(
                             color: AppColors.putih.withOpacity(0.7),
                             fontWeight: FontWeight.w500,
@@ -366,7 +373,9 @@ class LocationDialogService {
                   const SizedBox(height: 20),
 
                   Text(
-                    "Masukkan Link Google Maps",
+                    context.isIndonesian
+                        ? "Masukkan Link Google Maps"
+                        : 'Input Google Maps Link',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: AppColors.putih,
@@ -377,7 +386,9 @@ class LocationDialogService {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Salin link dari Google Maps dan tempel di sini",
+                    context.isIndonesian
+                        ? "Salin link dari Google Maps dan tempel di sini"
+                        : 'Copy Google Maps Link and Paste here',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: AppColors.putih.withOpacity(0.7),
@@ -440,7 +451,7 @@ class LocationDialogService {
                             backgroundColor: Colors.white.withOpacity(0.08),
                           ),
                           child: Text(
-                            "Batal",
+                            context.isIndonesian ? "Batal" : 'Cancel',
                             style: GoogleFonts.poppins(
                               color: AppColors.putih.withOpacity(0.8),
                               fontSize: 16,
@@ -471,7 +482,9 @@ class LocationDialogService {
                             shadowColor: Colors.transparent,
                           ),
                           child: Text(
-                            "Gunakan Lokasi",
+                            context.isIndonesian
+                                ? "Gunakan Lokasi"
+                                : "Use Location",
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

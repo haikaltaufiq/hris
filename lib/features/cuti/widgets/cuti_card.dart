@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/cuti_model.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
 // import 'package:hris_project/features/dashboard/widget/dashboard_menu.dart';
@@ -57,7 +58,10 @@ class CutiCard extends StatelessWidget {
                         backgroundColor: AppColors.primary,
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12)),
-                        title: Text('Detail Cuti',
+                        title: Text(
+                            context.isIndonesian
+                                ? 'Detail Cuti'
+                                : "Leave Detail",
                             style: GoogleFonts.poppins(
                                 color: AppColors.putih,
                                 fontWeight: FontWeight.w600)),
@@ -71,24 +75,35 @@ class CutiCard extends StatelessWidget {
                                 value: cuti.status,
                                 color: cuti.statusColor),
                             DetailItem(
-                                label: 'Tipe Cuti', value: cuti.tipe_cuti),
+                                label: context.isIndonesian
+                                    ? 'Tipe Cuti'
+                                    : "Leave Type",
+                                value: cuti.tipe_cuti),
                             DetailItem(
-                                label: 'Tanggal Mulai',
+                                label: context.isIndonesian
+                                    ? 'Tanggal Mulai'
+                                    : "Start Date",
                                 value: DateHelper.format(cuti.tanggal_mulai)),
                             DetailItem(
-                                label: 'Tanggal Selesai',
+                                label: context.isIndonesian
+                                    ? 'Tanggal Selesai'
+                                    : "End Date",
                                 value: DateHelper.format(cuti.tanggal_selesai)),
-                            DetailItem(label: 'Alasan', value: cuti.alasan),
+                            DetailItem(
+                                label:
+                                    context.isIndonesian ? 'Alasan' : "Reason",
+                                value: cuti.alasan),
                           ],
                         ),
                         actions: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: Text('Tutup',
-                                style: GoogleFonts.poppins(
-                                  color: AppColors.putih,
-                                  fontSize: 16,
-                                )),
+                            child:
+                                Text(context.isIndonesian ? 'Tutup' : "Close",
+                                    style: GoogleFonts.poppins(
+                                      color: AppColors.putih,
+                                      fontSize: 16,
+                                    )),
                           ),
                         ],
                       ),
@@ -162,24 +177,24 @@ class CutiCard extends StatelessWidget {
                     if (cuti.isPending) ...[
                       // Semua role boleh Approve & Decline
                       ActionButton(
-                        label: 'Decline',
+                        label: context.isIndonesian ? 'Tolak' : 'Decline',
                         color: AppColors.red,
                         onTap: () => onDecline(),
                       ),
                       ActionButton(
-                        label: 'Approve',
+                        label: context.isIndonesian ? 'Setujui' : 'Approve',
                         color: AppColors.green,
                         onTap: () => onApprove(),
                       ),
                     ] else if (cuti.isProses) ...[
                       // Selain Admin Office → tetep Approve & Decline
                       ActionButton(
-                        label: 'Decline',
+                        label: context.isIndonesian ? "Tolak" : 'Decline',
                         color: AppColors.red,
                         onTap: () => onDecline(),
                       ),
                       ActionButton(
-                        label: 'Approve',
+                        label: context.isIndonesian ? "Setujui" : 'Approve',
                         color: AppColors.green,
                         onTap: () => onApprove(),
                       ),

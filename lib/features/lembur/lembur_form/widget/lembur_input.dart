@@ -4,6 +4,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -71,7 +72,7 @@ class _LemburInputState extends State<LemburInput> {
                         ),
                         const SizedBox(height: 10),
                         Text(
-                          'Pilih Waktu',
+                          context.isIndonesian ? 'Pilih Waktu' : 'Choose Time',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontFamily: GoogleFonts.poppins().fontFamily,
@@ -80,7 +81,9 @@ class _LemburInputState extends State<LemburInput> {
                           ),
                         ),
                         Text(
-                          'Pengajuan Lembur',
+                          context.isIndonesian
+                              ? 'Pengajuan Lembur'
+                              : 'Overtime Proposal',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontFamily: GoogleFonts.poppins().fontFamily,
@@ -184,7 +187,7 @@ class _LemburInputState extends State<LemburInput> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomInputField(
-            label: "Nama",
+            label: context.isIndonesian ? "Nama" : "Name",
             hint: "",
             controller: _namaController,
             labelStyle: labelStyle,
@@ -193,7 +196,7 @@ class _LemburInputState extends State<LemburInput> {
             readOnly: true,
           ),
           CustomInputField(
-            label: "Tanggal Lembur",
+            label: context.isIndonesian ? "Tanggal Lembur" : "Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -240,7 +243,7 @@ class _LemburInputState extends State<LemburInput> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Jam Mulai",
+            label: context.isIndonesian ? "Jam Mulai" : "Start Time",
             hint: "--:--",
             controller: _jamMulaiController,
             suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
@@ -250,7 +253,7 @@ class _LemburInputState extends State<LemburInput> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Jam Selesai",
+            label: context.isIndonesian ? "Jam Selesai" : "End Time",
             hint: "--:--",
             controller: _jamSelesaiController,
             suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
@@ -260,7 +263,7 @@ class _LemburInputState extends State<LemburInput> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Keterangan",
+            label: context.isIndonesian ? "Keterangan" : "Description",
             hint: "",
             controller: _deskripsiController,
             labelStyle: labelStyle,

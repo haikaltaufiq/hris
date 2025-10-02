@@ -5,6 +5,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/jabatan/jabatan_viewmodels.dart';
 import 'package:hr/features/jabatan/widgets/jabatan_tabel.dart';
 import 'package:provider/provider.dart';
@@ -56,7 +57,8 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
               textAlign: TextAlign.center,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
-                hintText: 'Nama Jabatan',
+                hintText:
+                    context.isIndonesian ? 'Nama Jabatan' : 'Position Name',
                 hintStyle: TextStyle(
                   color: AppColors.putih,
                   fontFamily: GoogleFonts.poppins().fontFamily,
@@ -125,7 +127,10 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
               children: [
                 ListView(
                   children: [
-                    Header(title: 'Manajemen Jabatan'),
+                    Header(
+                        title: context.isIndonesian
+                            ? 'Manajemen Jabatan'
+                            : 'Position Management'),
                     SearchingBar(
                       controller: searchController,
                       onChanged: (value) => vm.search(value),
@@ -134,7 +139,10 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
                     if (vm.isLoading)
                       const Center(child: LoadingWidget())
                     else if (vm.jabatanList.isEmpty)
-                      const Center(child: Text('Tidak ada data jabatan'))
+                      Center(
+                          child: Text(context.isIndonesian
+                              ? 'Tidak ada data jabatan'
+                              : 'No position available'))
                     else
                       JabatanTabel(
                         jabatanList: vm.jabatanList,
@@ -143,7 +151,9 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
                           showDialog(
                             context: context,
                             builder: (_) => buildJabatanDialog(
-                              title: 'Edit Jabatan',
+                              title: context.isIndonesian
+                                  ? 'Edit Jabatan'
+                                  : 'Edit position',
                               onSubmit: () {
                                 vm.updateJabatan(context, jabatan.id,
                                     jabatanNameController.text);
@@ -167,7 +177,9 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
                       showDialog(
                         context: context,
                         builder: (_) => buildJabatanDialog(
-                          title: 'Tambah Jabatan',
+                          title: context.isIndonesian
+                              ? 'Tambah Jabatan'
+                              : ' Add position',
                           onSubmit: () {
                             vm.createJabatan(
                                 context, jabatanNameController.text);

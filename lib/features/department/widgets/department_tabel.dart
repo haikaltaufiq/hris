@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/departemen_model.dart';
 
 class DepartmentTabel extends StatelessWidget {
@@ -47,7 +48,9 @@ class DepartmentTabel extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10),
                   child: Text(
-                    'Nama Department',
+                    context.isIndonesian
+                        ? 'Nama Department'
+                        : 'Department Name',
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.bold,
@@ -59,7 +62,7 @@ class DepartmentTabel extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(right: 20),
                   child: Text(
-                    'Aksi',
+                    context.isIndonesian ? 'Aksi' : 'Action',
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.bold,

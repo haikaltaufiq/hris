@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/data/services/potongan_gaji_service.dart';
 
@@ -135,7 +136,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
         children: [
           CustomInputField(
             hint: "",
-            label: "Nama Potongan",
+            label: context.isIndonesian ? "Nama Potongan" : "Name",
             controller: controller,
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -143,7 +144,9 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
           ),
           CustomInputField(
             hint: "",
-            label: "Jumlah Potongan ( % )",
+            label: context.isIndonesian
+                ? "Jumlah Potongan (%)"
+                : "Deduction Amount (%)",
             controller: jumlahController,
             labelStyle: labelStyle,
             textStyle: textStyle,

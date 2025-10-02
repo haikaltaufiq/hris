@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/widgets/video.dart';
@@ -28,18 +29,6 @@ class TugasTabelWeb extends StatefulWidget {
 }
 
 class _TugasTabelWebState extends State<TugasTabelWeb> {
-  final List<String> headers = [
-    "Kepada",
-    "Judul",
-    "Jam Mulai",
-    "Tgl Mulai",
-    "Batas Submit",
-    "Lokasi",
-    "Note",
-    "Status",
-    "Lampiran"
-  ];
-
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
     try {
@@ -241,6 +230,29 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> headers = context.isIndonesian
+        ? [
+            "Kepada",
+            "Judul",
+            "Jam Mulai",
+            "Tgl Mulai",
+            "Batas Submit",
+            "Lokasi",
+            "Catatan",
+            "Status",
+            "Lampiran",
+          ]
+        : [
+            "To",
+            "Title",
+            "Start Time",
+            "Start Date",
+            "Deadline",
+            "Location",
+            "Note",
+            "Status",
+            "Attachment",
+          ];
     final rows = widget.tugasList.map((tugas) {
       return [
         tugas.user?.nama ?? '-',

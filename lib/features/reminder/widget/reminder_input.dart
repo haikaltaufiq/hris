@@ -6,6 +6,7 @@ import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/peran_model.dart';
@@ -141,7 +142,7 @@ class _ReminderInputState extends State<ReminderInput> {
         children: [
           CustomInputField(
             hint: "",
-            label: "Reminder Name",
+            label: context.isIndonesian ? "Nama Pengingat" : "Reminder Name",
             controller: _reminderNameController,
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -149,14 +150,14 @@ class _ReminderInputState extends State<ReminderInput> {
           ),
           CustomInputField(
             hint: "",
-            label: "Deskripsi",
+            label: context.isIndonesian ? "Deskripsi" : "Description",
             controller: _reminderDeskripsiController,
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: "Tanggal",
+            label: context.isIndonesian ? "Tanggal" : "Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
@@ -171,7 +172,7 @@ class _ReminderInputState extends State<ReminderInput> {
               ? const Center(child: CircularProgressIndicator())
               : CustomDropDownField(
                   label: 'PIC',
-                  hint: 'Pilih PIC',
+                  hint: context.isIndonesian ? 'Pilih PIC' : 'Choose PIC',
                   // pastiin ini bener-bener list of string
                   items: _peranList.map((p) => p.namaPeran).toList(),
                   value: _selectedPeran?.namaPeran,

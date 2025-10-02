@@ -6,6 +6,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/services/departemen_service.dart';
@@ -228,14 +229,14 @@ class _KaryawanInputState extends State<KaryawanInput> {
         children: [
           CustomInputField(
             controller: _namaController,
-            label: "Nama",
+            label: context.isIndonesian ? "Nama" : 'Name',
             hint: "",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
           CustomDropDownField(
-            label: 'Jabatan',
+            label: context.isIndonesian ? 'Jabatan' : 'Position',
             hint: _isLoadingJabatan ? 'Memuat...' : '',
             items: _jabatanList
                 .where((e) => e["nama_jabatan"] != null)
@@ -256,7 +257,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
             inputStyle: inputStyle,
           ),
           CustomDropDownField(
-            label: 'Peran',
+            label: context.isIndonesian ? 'Peran' : 'Role',
             hint: _isLoadingPeran ? 'Memuat...' : '',
             items: _peranList
                 .where((e) => e.namaPeran.isNotEmpty)
@@ -299,7 +300,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
           ),
           CustomInputField(
             controller: _gajiController,
-            label: "Gaji Per Hari",
+            label: context.isIndonesian ? "Gaji Per Hari" : 'Daily Salary',
             hint: "",
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -338,7 +339,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
             inputStyle: inputStyle,
           ),
           CustomDropDownField(
-            label: 'Jenis Kelamin',
+            label: context.isIndonesian ? 'Jenis Kelamin' : 'Gender',
             hint: '',
             items: _jenisKelaminList,
             onChanged: (val) => _jenisKelamin = val,
@@ -350,7 +351,8 @@ class _KaryawanInputState extends State<KaryawanInput> {
             inputStyle: inputStyle,
           ),
           CustomDropDownField(
-            label: 'Status Pernikahan',
+            label:
+                context.isIndonesian ? 'Status Pernikahan' : 'Marriage Status',
             hint: '',
             items: _statusList,
             onChanged: (val) => _statusPernikahan = val,

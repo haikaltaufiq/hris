@@ -7,6 +7,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
@@ -108,7 +109,7 @@ class _LemburWebPageState extends State<LemburWebPage> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Catatan Penolakan",
+            context.isIndonesian ? "Catatan Penolakan" : "Rejection Note",
             style: GoogleFonts.poppins(
               color: AppColors.putih,
               fontWeight: FontWeight.w600,
@@ -123,7 +124,9 @@ class _LemburWebPageState extends State<LemburWebPage> {
               controller: catatanPenolakanController,
               style: TextStyle(color: AppColors.putih),
               decoration: InputDecoration(
-                hintText: "Tuliskan alasan penolakan...",
+                hintText: context.isIndonesian
+                    ? "Tuliskan alasan penolakan..."
+                    : "Write the reason of rejection",
                 hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.6)),
                 enabledBorder: OutlineInputBorder(
                   borderSide:
@@ -242,7 +245,9 @@ class _LemburWebPageState extends State<LemburWebPage> {
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'Belum ada pengajuan',
+                          context.isIndonesian
+                              ? 'Belum ada pengajuan'
+                              : "No proposal available",
                           style: TextStyle(
                             color: AppColors.putih,
                             fontSize: 16,
@@ -251,7 +256,9 @@ class _LemburWebPageState extends State<LemburWebPage> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Tap tombol + untuk menambah pengajuan baru',
+                          context.isIndonesian
+                              ? 'Tap tombol + untuk menambah pengajuan baru'
+                              : ' Press + button to add new proposal',
                           style: TextStyle(
                             color: AppColors.putih.withOpacity(0.7),
                             fontSize: 14,

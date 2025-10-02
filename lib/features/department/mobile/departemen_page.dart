@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/department/widgets/department_tabel.dart';
 import 'package:provider/provider.dart';
@@ -53,7 +54,10 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
               children: [
                 ListView(
                   children: [
-                    Header(title: 'Manajemen Departemen'),
+                    Header(
+                        title: context.isIndonesian
+                            ? 'Manajemen Departemen'
+                            : 'Department Management'),
                     SearchingBar(
                       controller: searchController,
                       onChanged: (value) => vm.searchDepartemen(value),
@@ -62,7 +66,10 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
                     if (vm.isLoading)
                       const Center(child: LoadingWidget())
                     else if (departemen.isEmpty)
-                      const Center(child: Text('Tidak ada data departemen'))
+                      Center(
+                          child: Text(context.isIndonesian
+                              ? 'Tidak ada data departemen'
+                              : 'No data available'))
                     else
                       DepartmentTabel(
                         departemenList: departemen,
@@ -119,7 +126,9 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
                         context: context,
                         builder: (_) => _buildDepartmentDialog(
                           context,
-                          title: 'Tambah Department',
+                          title: context.isIndonesian
+                              ? 'Tambah Department'
+                              : 'Add Department',
                           controller: departmentNameController,
                           onSubmit: () async {
                             final result = await vm.createDepartemen(
@@ -174,7 +183,9 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
               style: TextStyle(color: AppColors.putih),
               cursorColor: AppColors.putih,
               decoration: InputDecoration(
-                hintText: 'Nama Department',
+                hintText: context.isIndonesian
+                    ? 'Nama Department'
+                    : 'Department Name',
                 hintStyle: TextStyle(
                   color: AppColors.putih,
                   fontFamily: GoogleFonts.poppins().fontFamily,

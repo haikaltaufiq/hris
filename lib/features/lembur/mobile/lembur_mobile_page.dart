@@ -8,6 +8,7 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
@@ -113,7 +114,7 @@ class _LemburMobileState extends State<LemburMobile> {
             borderRadius: BorderRadius.circular(12),
           ),
           title: Text(
-            "Catatan Penolakan",
+            context.isIndonesian ? "Catatan Penolakan" : "Rejection Note",
             style: GoogleFonts.poppins(
               color: AppColors.putih,
               fontWeight: FontWeight.w600,
@@ -225,7 +226,10 @@ class _LemburMobileState extends State<LemburMobile> {
               ),
               child: ListView(
                 children: [
-                  const Header(title: 'Pengajuan Lembur'),
+                  Header(
+                      title: context.isIndonesian
+                          ? 'Pengajuan Lembur'
+                          : "Overtime Proposal"),
                   SearchingBar(
                     controller: searchController,
                     onChanged: (value) {
@@ -254,7 +258,9 @@ class _LemburMobileState extends State<LemburMobile> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Belum ada pengajuan',
+                              context.isIndonesian
+                                  ? 'Belum ada pengajuan'
+                                  : "No proposal available",
                               style: TextStyle(
                                 color: AppColors.putih,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -264,7 +270,9 @@ class _LemburMobileState extends State<LemburMobile> {
                             ),
                             const SizedBox(height: 8),
                             Text(
-                              'Tap tombol + untuk menambah pengajuan baru',
+                              context.isIndonesian
+                                  ? 'Tap tombol + untuk menambah pengajuan baru'
+                                  : "Press + button to add new proposal",
                               style: TextStyle(
                                 color: AppColors.putih.withOpacity(0.7),
                                 fontFamily: GoogleFonts.poppins().fontFamily,

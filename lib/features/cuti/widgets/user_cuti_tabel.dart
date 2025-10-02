@@ -4,6 +4,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/cuti_model.dart';
 
 class UserCutiTabel extends StatelessWidget {
@@ -19,15 +20,25 @@ class UserCutiTabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomDataTableWidget(
-      headers: [
-        'Nama',
-        'Tipe Cuti',
-        'Mulai Cuti',
-        'Selesai Cuti',
-        'Alasan',
-        'Status',
-        'Keterangan',
-      ],
+      headers: context.isIndonesian
+          ? [
+              'Nama',
+              'Tipe Cuti',
+              'Mulai Cuti',
+              'Selesai Cuti',
+              'Alasan',
+              'Status',
+              'Keterangan',
+            ]
+          : [
+              'Name',
+              'Leave Type',
+              'Start Leave',
+              'End Leave',
+              'Reason',
+              'Status',
+              'Description',
+            ],
       rows: cutiList.map((c) {
         final status = c.status.toString().toLowerCase();
 
@@ -64,7 +75,7 @@ class UserCutiTabel extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             title: Text(
-              'Detail Cuti',
+              context.isIndonesian ? 'Detail Cuti' : "Leave Detail",
               style: GoogleFonts.poppins(
                 color: AppColors.putih,
                 fontWeight: FontWeight.w600,
@@ -90,7 +101,7 @@ class UserCutiTabel extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Tutup',
+                child: Text(context.isIndonesian ? 'Tutup' : 'Close',
                     style: GoogleFonts.poppins(
                       color: AppColors.putih,
                       fontSize: 16,

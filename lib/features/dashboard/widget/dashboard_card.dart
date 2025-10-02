@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
@@ -20,26 +21,43 @@ class _DashboardCardState extends State<DashboardCard> {
       context.read<DepartmentViewModel>().totalDepartment.toString();
   late final totalTask = context.read<TugasProvider>().totalTugas.toString();
 
-  late List<Map<String, dynamic>> rawCardData = [
-    {
-      'title': 'Employee Total',
-      'value': totalUser,
-      'icon': '3',
-    },
-    {
-      'title': 'Departments',
-      'value': totalDepartment,
-      'icon': '2',
-    },
-    {
-      'title': 'Active Projects',
-      'value': totalTask,
-      'icon': '1',
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
+    late List<Map<String, dynamic>> rawCardData = context.isIndonesian
+        ? [
+            {
+              'title': 'Total Karyawan',
+              'value': totalUser,
+              'icon': '3',
+            },
+            {
+              'title': 'Departemen',
+              'value': totalDepartment,
+              'icon': '2',
+            },
+            {
+              'title': 'Tugas Aktif',
+              'value': totalTask,
+              'icon': '1',
+            },
+          ]
+        : [
+            {
+              'title': 'Employee Total',
+              'value': totalUser,
+              'icon': '3',
+            },
+            {
+              'title': 'Departments',
+              'value': totalDepartment,
+              'icon': '2',
+            },
+            {
+              'title': 'Active Projects',
+              'value': totalTask,
+              'icon': '1',
+            },
+          ];
     final isMobile = MediaQuery.of(context).size.width < 600;
     // generate cardData runtime
     final List<Map<String, dynamic>> cardData = rawCardData.map((data) {

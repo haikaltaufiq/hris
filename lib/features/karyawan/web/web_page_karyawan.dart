@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/karyawan/web/web_tabel_karyawan.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -69,7 +70,9 @@ class _WebPageKaryawanState extends State<WebPageKaryawan> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'Belum ada Karyawan',
+                            context.isIndonesian
+                                ? 'Belum ada Karyawan'
+                                : 'No Employee available',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -79,7 +82,9 @@ class _WebPageKaryawanState extends State<WebPageKaryawan> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Tap tombol + untuk menambah karyawan baru',
+                            context.isIndonesian
+                                ? 'Tap tombol + untuk menambah karyawan baru'
+                                : 'Press + Button to add new employee',
                             style: TextStyle(
                               color: AppColors.putih.withOpacity(0.7),
                               fontFamily: GoogleFonts.poppins().fontFamily,

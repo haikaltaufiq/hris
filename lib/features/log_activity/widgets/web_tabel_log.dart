@@ -3,6 +3,7 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/log_service.dart';
 
 class WebTabelLog extends StatefulWidget {
@@ -232,13 +233,15 @@ class _WebTabelLogState extends State<WebTabelLog> {
     }
 
     if (activityLogs.isEmpty) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.history, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text('Belum ada activity log'),
+            Text(context.isIndonesian
+                ? 'Belum ada activity log'
+                : 'No Avtivity'),
           ],
         ),
       );
@@ -261,7 +264,9 @@ class _WebTabelLogState extends State<WebTabelLog> {
                         color: AppColors.putih, size: 25),
                     const SizedBox(width: 8),
                     Text(
-                      'Total ${activityLogs.length} aktivitas dari ${grouped.length} user',
+                      context.isIndonesian
+                          ? 'Total ${activityLogs.length} aktivitas dari ${grouped.length} user'
+                          : 'Total ${activityLogs.length} activity from ${grouped.length} user',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,

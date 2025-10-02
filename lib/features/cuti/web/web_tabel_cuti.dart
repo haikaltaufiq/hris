@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/cuti_model.dart';
 
 class WebTabelCuti extends StatelessWidget {
@@ -24,15 +25,25 @@ class WebTabelCuti extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return CustomDataTableWeb(
-      headers: [
-        'Nama',
-        'Tipe Cuti',
-        'Mulai Cuti',
-        'Selesai Cuti',
-        'Alasan',
-        'Status',
-        'Keterangan',
-      ],
+      headers: context.isIndonesian
+          ? [
+              'Nama',
+              'Tipe Cuti',
+              'Mulai Cuti',
+              'Selesai Cuti',
+              'Alasan',
+              'Status',
+              'Keterangan',
+            ]
+          : [
+              'Name',
+              'Leave Type',
+              'Start Leave',
+              'End Leave',
+              'Reason',
+              'Status',
+              'Description',
+            ],
       rows: cutiList.map((c) {
         return [
           c.user['nama']?.toString() ?? '',
@@ -58,7 +69,7 @@ class WebTabelCuti extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             title: Text(
-              'Detail Cuti',
+              context.isIndonesian ? 'Detail Cuti' : "Leave Detail",
               style: GoogleFonts.poppins(
                 color: AppColors.putih,
                 fontWeight: FontWeight.w600,
@@ -68,23 +79,29 @@ class WebTabelCuti extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DetailItem(label: 'Nama', value: c.user['nama']),
+                DetailItem(
+                    label: context.isIndonesian ? 'Nama' : 'Name',
+                    value: c.user['nama']),
                 DetailItem(
                     label: 'Status', value: c.status, color: c.statusColor),
                 DetailItem(label: 'Tipe Cuti', value: c.tipe_cuti),
                 DetailItem(
-                    label: 'Tanggal Mulai',
+                    label:
+                        context.isIndonesian ? 'Tanggal Mulai' : "Start Date",
                     value: DateHelper.format(c.tanggal_mulai)),
                 DetailItem(
-                    label: 'Tanggal Selesai',
+                    label:
+                        context.isIndonesian ? 'Tanggal Selesai' : 'End Date',
                     value: DateHelper.format(c.tanggal_selesai)),
-                DetailItem(label: 'Alasan', value: c.alasan),
+                DetailItem(
+                    label: context.isIndonesian ? 'Alasan' : 'Reason',
+                    value: c.alasan),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Tutup',
+                child: Text(context.isIndonesian ? 'Tutup' : 'Close',
                     style: GoogleFonts.poppins(
                       color: AppColors.putih,
                       fontSize: 16,

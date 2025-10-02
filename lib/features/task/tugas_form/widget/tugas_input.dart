@@ -66,9 +66,7 @@ class _TugasInputState extends State<TugasInput> {
         });
         NotificationHelper.showTopNotification(
           context,
-          context.isIndonesian
-              ? 'Gagal memuat data user: $e'
-              : 'Failed read data User $e',
+          'Gagal memuat data user: $e',
           isSuccess: false,
         );
       }
@@ -97,9 +95,7 @@ class _TugasInputState extends State<TugasInput> {
         _latitudeController.text, _longitudeController.text)) {
       NotificationHelper.showTopNotification(
         context,
-        context.isIndonesian
-            ? "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)"
-            : "Invalid coordinates. Please enter a latitude (-90 to 90) and longitude (-180 to 180).",
+        "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)",
         isSuccess: false,
       );
       return;
@@ -517,7 +513,7 @@ class _TugasInputState extends State<TugasInput> {
               Expanded(
                 child: CustomInputField(
                   hint: "Latitude",
-                  label: "Lokasi",
+                  label: context.isIndonesian ? "Lokasi" : "Location",
                   controller: _latitudeController,
                   labelStyle: labelStyle,
                   textStyle: textStyle,
@@ -642,9 +638,7 @@ class _TugasInputState extends State<TugasInput> {
                           _selectedUser == null) {
                         NotificationHelper.showTopNotification(
                           context,
-                          context.isIndonesian
-                              ? 'Harap isi semua data wajib'
-                              : 'Please fill all the required data',
+                          'Harap isi semua data wajib',
                           isSuccess: false,
                         );
                         return;
@@ -655,9 +649,7 @@ class _TugasInputState extends State<TugasInput> {
                           _longitudeController.text.trim())) {
                         NotificationHelper.showTopNotification(
                           context,
-                          context.isIndonesian
-                              ? 'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat'
-                              : "Invalid coordinates. Use the 'Share Location' button to get the coordinates.",
+                          'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat',
                           isSuccess: false,
                         );
                         return;
@@ -679,9 +671,7 @@ class _TugasInputState extends State<TugasInput> {
 
                         NotificationHelper.showTopNotification(
                           context,
-                          result['message'] ?? context.isIndonesian
-                              ? 'Terjadi kesalahan'
-                              : 'Something Wrong',
+                          result['message'] ?? 'Terjadi kesalahan',
                           isSuccess: result['success'] ?? false,
                         );
 
@@ -693,9 +683,7 @@ class _TugasInputState extends State<TugasInput> {
                         if (mounted) {
                           NotificationHelper.showTopNotification(
                             context,
-                            context.isIndonesian
-                                ? 'Gagal membuat tugas: ${e.toString()}'
-                                : 'Failed to Create Task ; ${e.toString()}',
+                            'Gagal membuat tugas: ${e.toString()}',
                             isSuccess: false,
                           );
                         }

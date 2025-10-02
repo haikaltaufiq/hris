@@ -5,6 +5,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/const/app_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -92,7 +93,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
               children: [
                 // Judul
                 Text(
-                  'Judul:',
+                  context.isIndonesian ? 'Judul:' : 'Title',
                   style: TextStyle(
                     color: AppColors.putih,
                     fontWeight: FontWeight.w500,
@@ -112,7 +113,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
 
                 // Deskripsi
                 Text(
-                  'Deskripsi:',
+                  context.isIndonesian ? 'Deskripsi:' : 'Description',
                   style: TextStyle(
                     color: AppColors.putih,
                     fontWeight: FontWeight.w500,
@@ -152,7 +153,9 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                     Icon(Icons.schedule, color: Colors.orange, size: 16),
                     SizedBox(width: 8),
                     Text(
-                      'Jatuh Tempo: ${reminder.tanggalJatuhTempo}',
+                      context.isIndonesian
+                          ? 'Jatuh Tempo: ${reminder.tanggalJatuhTempo}'
+                          : 'Deadline: ${reminder.tanggalJatuhTempo}',
                       style: TextStyle(
                         color: AppColors.putih.withOpacity(0.8),
                         fontFamily: GoogleFonts.poppins().fontFamily,
@@ -191,7 +194,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Tutup',
+                context.isIndonesian ? 'Tutup' : 'Close',
                 style: TextStyle(
                   color: AppColors.green,
                   fontFamily: GoogleFonts.poppins().fontFamily,
@@ -385,7 +388,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Daftar Pengingat',
+                      context.isIndonesian ? 'Daftar Pengingat' : 'Reminder',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
@@ -442,7 +445,9 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                       SizedBox(height: 16),
                       Text(
                         viewModel.searchQuery.isEmpty
-                            ? 'Tidak ada data pengingat'
+                            ? context.isIndonesian
+                                ? 'Tidak ada data pengingat'
+                                : 'No data available'
                             : 'Tidak ada hasil untuk "${viewModel.searchQuery}"',
                         style: TextStyle(
                           color: AppColors.putih.withOpacity(0.6),
@@ -469,7 +474,9 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                       ),
                       SizedBox(height: 16),
                       Text(
-                        'Tidak ada data pengingat',
+                        context.isIndonesian
+                            ? 'Tidak ada data pengingat'
+                            : 'No reminder available',
                         style: TextStyle(
                           color: AppColors.putih.withOpacity(0.6),
                           fontFamily: GoogleFonts.poppins().fontFamily,
@@ -500,7 +507,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          'Reminder',
+                          context.isIndonesian ? 'Pengingat' : 'Reminder',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontWeight: FontWeight.bold,
@@ -532,7 +539,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          'Tanggal',
+                          context.isIndonesian ? 'Tanggal' : 'Date',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontWeight: FontWeight.bold,
@@ -562,7 +569,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: Text(
-                          "Action",
+                          context.isIndonesian ? 'Aksi' : "Action",
                           style: TextStyle(
                             color: AppColors.putih,
                             fontWeight: FontWeight.bold,

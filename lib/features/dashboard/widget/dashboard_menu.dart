@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/dashboard_item.dart';
 
 class DashboardMenu extends StatelessWidget {
@@ -37,7 +38,7 @@ class DashboardMenu extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Office Services",
+            context.isIndonesian ? "Layanan Kantor" : "Office Services",
             style: TextStyle(
               fontSize: MediaQuery.of(context).size.width * 0.045,
               color: AppColors.putih,
@@ -140,7 +141,7 @@ class DashboardMenu extends StatelessWidget {
           const SizedBox(height: 6),
           Flexible(
             child: Text(
-              "More",
+              context.isIndonesian ? "Lebih banyak" : "More",
               style: TextStyle(
                 fontSize: fontSize,
                 color: AppColors.putih,
@@ -233,7 +234,7 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "All Services",
+                      context.isIndonesian ? "Semua Layanan" : "All Services",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,

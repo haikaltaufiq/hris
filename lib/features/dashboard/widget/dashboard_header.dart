@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/landing/landing_page.dart';
@@ -132,8 +133,9 @@ class _DashboardHeaderState extends State<DashboardHeader>
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          _buildDropdownItem("Profile", Icons.person_outline,
-                              () {
+                          _buildDropdownItem(
+                              context.isIndonesian ? "Profile" : "Profil",
+                              Icons.person_outline, () {
                             _hideDropdownImmediate();
                             Navigator.pushNamed(context, AppRoutes.profile);
                           }),
@@ -144,7 +146,8 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             color: Colors.grey.withOpacity(0.1),
                           ),
                           _buildDropdownItem(
-                              "Settings", Icons.settings_outlined, () {
+                              context.isIndonesian ? "Pengaturan" : "Settings",
+                              Icons.settings_outlined, () {
                             _hideDropdownImmediate();
                             Navigator.pushNamed(context, AppRoutes.pengaturan);
                           }),
@@ -154,7 +157,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             color: Colors.grey.withOpacity(0.1),
                           ),
                           _buildDropdownItem(
-                            "Logout",
+                            context.isIndonesian ? "Keluar" : "Logout",
                             Icons.logout,
                             () async {
                               Future.microtask(() async {

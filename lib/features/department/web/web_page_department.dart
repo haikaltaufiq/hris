@@ -6,6 +6,7 @@ import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/department/widgets/department_tabel.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +60,10 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
                   if (vm.isLoading)
                     const Center(child: LoadingWidget())
                   else if (departemen.isEmpty)
-                    const Center(child: Text('Tidak ada data departemen'))
+                    Center(
+                        child: Text(context.isIndonesian
+                            ? 'Tidak ada data departemen'
+                            : 'No Data Available'))
                   else
                     DepartmentTabel(
                       departemenList: departemen,
@@ -69,7 +73,9 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
                           context: context,
                           builder: (_) => _buildDepartmentDialog(
                             context,
-                            title: 'Edit Department',
+                            title: context.isIndonesian
+                                ? 'Edit Department'
+                                : 'Edit Department',
                             controller: departmentNameController,
                             onSubmit: () async {
                               final result = await vm.updateDepartemen(
@@ -89,7 +95,9 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
                       onDelete: (id) async {
                         final confirmed = await showConfirmationDialog(
                           context,
-                          title: "Konfirmasi Hapus",
+                          title: context.isIndonesian
+                              ? "Konfirmasi Hapus"
+                              : 'Delete Confirmation',
                           content:
                               "Apakah Anda yakin ingin menghapus departemen ini?",
                           confirmText: "Hapus",
@@ -118,7 +126,9 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
                       context: context,
                       builder: (_) => _buildDepartmentDialog(
                         context,
-                        title: 'Tambah Department',
+                        title: context.isIndonesian
+                            ? 'Tambah Department'
+                            : 'Add Department',
                         controller: departmentNameController,
                         onSubmit: () async {
                           final result = await vm.createDepartemen(
@@ -177,7 +187,9 @@ Widget _buildDepartmentDialog(
               style: TextStyle(color: AppColors.putih),
               cursorColor: AppColors.putih,
               decoration: InputDecoration(
-                hintText: 'Nama Department',
+                hintText: context.isIndonesian
+                    ? 'Nama Department'
+                    : 'Department Name',
                 hintStyle: TextStyle(
                   color: AppColors.putih.withOpacity(0.5),
                   fontFamily: GoogleFonts.poppins().fontFamily,

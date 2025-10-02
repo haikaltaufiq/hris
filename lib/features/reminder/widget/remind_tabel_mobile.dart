@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -186,6 +187,21 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
 
   @override
   Widget build(BuildContext context) {
+    final List<String> headers = context.isIndonesian
+        ? [
+            'PIC',
+            'Pengingat',
+            'Jatuh Tempo',
+            'Sisa Hari',
+            'Status',
+          ]
+        : [
+            'PIC',
+            'Reminder',
+            'Deadline',
+            "Day's Left",
+            'Status',
+          ];
     return Consumer<PengingatViewModel>(
       builder: (context, viewModel, child) {
         final displayList = viewModel.searchQuery.isEmpty
@@ -199,7 +215,9 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
         if (reminders.isEmpty) {
           return Center(
             child: Text(
-              'Belum ada reminder',
+              context.isIndonesian
+                  ? 'Belum ada pengingat'
+                  : 'No reminder available',
               style: TextStyle(color: AppColors.putih),
             ),
           );

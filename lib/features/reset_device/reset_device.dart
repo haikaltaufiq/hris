@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/device_service.dart';
 
@@ -60,7 +61,7 @@ class _ResetDeviceState extends State<ResetDevice> {
       appBar: context.isMobile
           ? AppBar(
               title: Text(
-                'Reset Device',
+                context.isIndonesian ? 'Reset Perangkat' : 'Reset Device',
                 style: TextStyle(
                     color: AppColors.putih,
                     fontSize: 22,

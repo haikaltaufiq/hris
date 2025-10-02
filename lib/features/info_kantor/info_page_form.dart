@@ -7,6 +7,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/kantor_service.dart';
@@ -160,7 +161,9 @@ class _InfoPageState extends State<InfoPage>
                           ),
                         ),
                         Text(
-                          "Lokasi Absen",
+                          context.isIndonesian
+                              ? "Lokasi Absen"
+                              : 'Attendance Loc',
                           textAlign: TextAlign.center,
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
@@ -261,7 +264,13 @@ class _InfoPageState extends State<InfoPage>
                           ),
                           const SizedBox(height: 10),
                           Text(
-                            isKeterlambatan ? 'Pilih Menit' : 'Pilih Waktu',
+                            isKeterlambatan
+                                ? context.isIndonesian
+                                    ? 'Pilih Menit'
+                                    : 'Choose Minute'
+                                : context.isIndonesian
+                                    ? 'Pilih Waktu'
+                                    : 'Choose Time',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -271,8 +280,12 @@ class _InfoPageState extends State<InfoPage>
                           ),
                           Text(
                             isKeterlambatan
-                                ? 'Minimal Keterlambatan'
-                                : 'Mulai Tugas',
+                                ? context.isIndonesian
+                                    ? 'Minimal Keterlambatan'
+                                    : 'Late Tolerance'
+                                : context.isIndonesian
+                                    ? 'Mulai Tugas'
+                                    : 'Start Task',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -404,7 +417,7 @@ class _InfoPageState extends State<InfoPage>
                       label: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 18),
                         child: Text(
-                          'Simpan',
+                          context.isIndonesian ? 'Simpan' : 'Save',
                           style: TextStyle(
                             fontFamily: GoogleFonts.poppins().fontFamily,
                             color: AppColors.putih,
@@ -570,7 +583,7 @@ class _InfoPageState extends State<InfoPage>
         children: [
           // Form fields dengan spacing konsisten
           _buildFormField(
-              label: "Jam Masuk",
+              label: context.isIndonesian ? "Jam Masuk" : 'Checkin Time',
               controller: jamMasukController,
               icon: Icons.access_time,
               readOnly: true,
@@ -612,7 +625,7 @@ class _InfoPageState extends State<InfoPage>
                       (v) => v == null || v.isEmpty ? "Wajib diisi" : null;
                     }),
           _buildFormField(
-              label: "Jam Keluar",
+              label: context.isIndonesian ? "Jam Keluar" : 'Checkout Time',
               controller: jamKeluarController,
               icon: Icons.access_time,
               readOnly: true,
@@ -657,7 +670,9 @@ class _InfoPageState extends State<InfoPage>
           const SizedBox(height: 14),
 
           _buildFormField(
-            label: "Minimal Keterlambatan",
+            label: context.isIndonesian
+                ? "Minimal Keterlambatan"
+                : 'Late Tolerance',
             controller: minimalKeterlambatanController,
             icon: Icons.timer_off,
             readOnly: true,
@@ -669,7 +684,9 @@ class _InfoPageState extends State<InfoPage>
           const SizedBox(height: 14),
 
           _buildFormField(
-            label: "Jatah Cuti Tahunan (hari)",
+            label: context.isIndonesian
+                ? "Jatah Cuti Tahunan (hari)"
+                : 'Annual Leave',
             controller: jatahCutiController,
             icon: Icons.date_range,
             keyboardType: TextInputType.number,
@@ -729,7 +746,9 @@ class _InfoPageState extends State<InfoPage>
           const SizedBox(height: 14),
 
           _buildFormField(
-            label: "Radius Absen (meter)",
+            label: context.isIndonesian
+                ? "Radius Absen (meter)"
+                : 'Attendance Radius (meter)',
             controller: radiusController,
             icon: Icons.circle_outlined,
             keyboardType: TextInputType.number,
@@ -765,7 +784,9 @@ class _InfoPageState extends State<InfoPage>
                       size: 18,
                     ),
                     label: Text(
-                      "Bagikan Lokasi",
+                      context.isIndonesian
+                          ? "Bagikan Lokasi"
+                          : 'Share Location',
                       style: GoogleFonts.poppins(
                         color: AppColors.putih,
                         fontSize: 14,
@@ -798,7 +819,7 @@ class _InfoPageState extends State<InfoPage>
                       size: 18,
                     ),
                     label: Text(
-                      "Lihat Map",
+                      context.isIndonesian ? "Lihat Map" : 'See Map',
                       style: GoogleFonts.poppins(
                         color: AppColors.putih,
                         fontSize: 14,
@@ -839,7 +860,7 @@ class _InfoPageState extends State<InfoPage>
                 ),
               ),
               child: Text(
-                "Simpan Pengaturan",
+                context.isIndonesian ? "Simpan Pengaturan" : 'save',
                 style: GoogleFonts.poppins(
                   color: Colors.white,
                   fontSize: 16,
@@ -873,7 +894,10 @@ class _InfoPageState extends State<InfoPage>
                       SizedBox(
                         height: 10,
                       ),
-                      Header(title: 'Manajemen Info Kantor'),
+                      Header(
+                          title: context.isIndonesian
+                              ? 'Manajemen Info Kantor'
+                              : 'Company Info'),
                     ],
 
                     // Form content - tampil untuk semua ukuran layar
@@ -906,7 +930,7 @@ class _InfoPageState extends State<InfoPage>
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        "Menyimpan...",
+                        context.isIndonesian ? "Menyimpan..." : 'Saving...',
                         style: GoogleFonts.poppins(
                           color: AppColors.putih,
                           fontWeight: FontWeight.w500,
