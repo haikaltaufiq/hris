@@ -28,7 +28,7 @@ jobs:
         run: |
           git config --global user.email "ci-bot@example.com"
           git config --global user.name "CI Bot"
-          git clone https://x-access-token:${{ secrets.FRONTEND_REPO_TOKEN }}@github.com/HaikalTaufiq/hris-web-app
+          git clone https://x-access-token:${{ secrets.FRONTEND_REPO_TOKEN }}@github.com/HaikalTaufiq/hris-web-app.git frontend-repo
           cd frontend-repo
           rm -rf *
           cp -r ../build/web/* .
