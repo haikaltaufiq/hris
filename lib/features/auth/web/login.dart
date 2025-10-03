@@ -490,6 +490,106 @@ class _LoginState extends State<Login> {
             ),
           ],
         ),
+        SizedBox(
+          height: 10,
+        ),
+        Column(
+          children: [
+            TextButton(
+              onPressed: () {
+                // Handle sign up navigation
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  final Uri mailUri = Uri(
+                    scheme: 'mailto',
+                    path: 'hris.ksi@kreatifsystem.com', // ganti alamat email
+                    query: Uri.encodeQueryComponent(
+                        'subject=Support&body=Halo HRIS Team'),
+                  );
+
+                  if (await canLaunchUrl(mailUri)) {
+                    await launchUrl(mailUri);
+                  } else {
+                    debugPrint("Failed to open email client");
+                    NotificationHelper.showTopNotification(
+                      context,
+                      "Can't open the email client",
+                      isSuccess: false,
+                    );
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.email, size: 16, color: AppColors.blue),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      'hris.ksi@kreatifsystem.com',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.blue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            TextButton(
+              onPressed: () {
+                // Handle sign up navigation
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  final Uri telUri = Uri(
+                      scheme: 'tel',
+                      path: "0778 2140088"); // ganti nomor kantor
+                  if (await canLaunchUrl(telUri)) {
+                    await launchUrl(telUri);
+                  } else {
+                    debugPrint("Failed to open dialer");
+                    NotificationHelper.showTopNotification(
+                        context, "Can't open the phone",
+                        isSuccess: false);
+                  }
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.phone, size: 16, color: AppColors.blue),
+                    SizedBox(
+                      width: 10,
+                    ),
+                    Text(
+                      '0778 214 0088',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: AppColors.blue,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
