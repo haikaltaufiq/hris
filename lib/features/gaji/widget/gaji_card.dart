@@ -5,6 +5,7 @@ import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/data/services/gaji_service.dart';
 import 'package:hr/features/gaji/widget/format_currency.dart';
 import 'package:hr/features/gaji/widget/gaji_detail.dart';
+import 'package:provider/provider.dart';
 
 class GajiCard extends StatelessWidget {
   final GajiUser gaji;
@@ -29,16 +30,18 @@ class GajiCard extends StatelessWidget {
 
   void _showStatusDropdown(
       BuildContext context, String currentStatus, int gajiId) {
+    final overlay = Navigator.of(context).overlay!.context;
+
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
-    final statusList = context.isIndonesian
+    final statusList = overlay.read<LanguageProvider>().isIndonesian
         ? ["Belum Dibayar", "Sudah Dibayar"]
         : ["Unpaid", "Paid"];
 
     showMenu<String>(
-      context: context,
+      context: overlay, // pakai overlay context
       position: RelativeRect.fromLTRB(
         offset.dx,
         offset.dy + size.height,

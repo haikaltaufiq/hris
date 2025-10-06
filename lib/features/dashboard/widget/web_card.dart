@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
@@ -111,7 +112,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
               value: totalDepartment,
               subtitle:
                   context.isIndonesian ? "Divisi Aktif" : "Active divisions",
-              icon: Icons.business_outlined,
+              icon: FontAwesomeIcons.building,
             ),
             const SizedBox(height: 10),
             _statCard(
@@ -119,7 +120,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
               value: totalUser,
               subtitle:
                   context.isIndonesian ? "Jumlah Pegawai" : "Total Employees",
-              icon: Icons.people_outline,
+              icon: Icons.people_alt_rounded,
               isGrowth: true,
             ),
             const SizedBox(height: 10),
@@ -155,38 +156,65 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
           ],
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Text(
+              context.isIndonesian ? "Selamat Datang" : "Welcome Back",
+              style: TextStyle(
+                color: AppColors.putih.withOpacity(0.8),
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Row(
               children: [
-                Text(
-                  context.isIndonesian ? "Selamat Datang" : "Welcome Back,",
-                  style: TextStyle(
-                    color: AppColors.putih.withOpacity(0.8),
-                    fontSize: 20,
-                    fontWeight: FontWeight.w700,
+                Container(
+                  width: 74,
+                  height: 74,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      _nama.isNotEmpty
+                          ? _nama.trim().substring(0, 1).toUpperCase()
+                          : '?',
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                   ),
                 ),
-                Text(
-                  _nama.split(" ").take(2).join(" "),
-                  style: TextStyle(
-                    color: AppColors.putih,
-                    fontSize: 26,
-                    fontWeight: FontWeight.w800,
-                  ),
+                SizedBox(
+                  width: 10,
                 ),
-                Text(
-                  _peran,
-                  style: TextStyle(
-                    color: AppColors.putih.withOpacity(0.5),
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _nama.split(" ").take(2).join(" "),
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      _peran,
+                      style: TextStyle(
+                        color: AppColors.putih.withOpacity(0.5),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 22),
             Consumer3<AbsenProvider, UserProvider, TugasProvider>(
               builder: (context, absenProv, userProv, tugasProv, child) {
                 final hadirHariIni = absenProv.todayJumlahHadir;
@@ -296,15 +324,44 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(7),
-                  decoration: BoxDecoration(
-                    color: AppColors.secondary,
-                    borderRadius: BorderRadius.circular(7),
-                  ),
-                  child: Icon(icon, color: AppColors.putih, size: 18),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(7),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(7),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(15.0),
+                        child: Icon(icon, color: AppColors.putih, size: 28),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: TextStyle(
+                            color: AppColors.putih.withOpacity(0.7),
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        Text(
+                          subtitle,
+                          style: TextStyle(
+                            color: AppColors.putih.withOpacity(0.5),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w400,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
                 Text(
                   value,
                   style: TextStyle(
@@ -313,29 +370,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                     fontWeight: FontWeight.w800,
                     height: 1,
                   ),
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: AppColors.putih.withOpacity(0.7),
-                    fontSize: 11,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: TextStyle(
-                    color: AppColors.putih.withOpacity(0.5),
-                    fontSize: 9,
-                    fontWeight: FontWeight.w400,
-                  ),
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

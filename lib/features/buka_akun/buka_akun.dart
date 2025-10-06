@@ -5,6 +5,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/akun_service.dart';
+import 'package:hr/features/buka_akun/info_danger.dart';
 
 class BukaAkun extends StatefulWidget {
   const BukaAkun({super.key});
@@ -85,6 +86,13 @@ class _BukaAkunState extends State<BukaAkun> {
               itemCount: users.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+                    child: InfoBukaAkun(),
+                  );
+                }
                 final user = users[index];
                 return ListTile(
                   contentPadding:

@@ -5,6 +5,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/device_service.dart';
+import 'package:hr/features/reset_device/info_danger.dart';
 
 class ResetDevice extends StatefulWidget {
   const ResetDevice({super.key});
@@ -83,10 +84,17 @@ class _ResetDeviceState extends State<ResetDevice> {
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : ListView.separated(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(26),
               itemCount: devices.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
+                if (index == 0) {
+                  return Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
+                    child: InfoResetPerangkat(),
+                  );
+                }
                 final device = devices[index];
                 return ListTile(
                   contentPadding:

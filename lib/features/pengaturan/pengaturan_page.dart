@@ -2,10 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
+import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
+
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -382,6 +387,80 @@ class _PengaturanPageState extends State<PengaturanPage>
                           },
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(isIndonesian ? 'Keluar' : 'Logout',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.putih)),
+                          SizedBox(
+                            height: 4,
+                          ),
+                          Text(
+                              isIndonesian
+                                  ? 'Keluar dari akun'
+                                  : 'Logout from account',
+                              style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  color: AppColors.putih.withOpacity(0.6))),
+                        ],
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 10),
+                        child: IconButton(
+                            onPressed: () async {
+                              final confirmed = await showConfirmationDialog(
+                                context,
+                                title: "Konfirmasi Logout",
+                                content:
+                                    "Apakah Anda yakin ingin keluar dari akun ini?",
+                                confirmText: "Keluar",
+                                cancelText: "Batal",
+                                confirmColor: AppColors.red,
+                              );
+
+                              if (!confirmed) return;
+
+                              // Panggil service logout
+                              final result = await AuthService().logout();
+                              debugPrint("Logout result: $result");
+
+                              // Hapus local storage
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              await prefs.clear();
+
+                              if (mounted) {
+                                if (context.isNativeMobile) {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    AppRoutes
+                                        .landingPageMobile, // Route untuk mobile
+                                    (route) => false,
+                                  );
+                                } else {
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    AppRoutes.login, // Route untuk non-mobile
+                                    (route) => false,
+                                  );
+                                }
+                              }
+                            },
+                            icon: Icon(
+                              FontAwesomeIcons.signOut,
+                              size: 18,
+                            ),
+                            color: AppColors.putih),
+                      )
                     ],
                   ),
                 ],
