@@ -83,14 +83,17 @@ class AuthService {
         await prefs.setString('email', user.email);
         await prefs.setString('npwp', user.npwp ?? '');
         await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-        await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+        await prefs.setString(
+            'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
         await prefs.setString('jenis_kelamin', user.jenisKelamin);
         await prefs.setString('status_pernikahan', user.statusPernikahan);
-        await prefs.setDouble('gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
+        await prefs.setDouble(
+            'gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
         await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
         await prefs.setString('departemen', user.departemen.namaDepartemen);
         await prefs.setString('peran', user.peran.namaPeran);
-        await prefs.setString('fitur', jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
+        await prefs.setString('fitur',
+            jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
         return {

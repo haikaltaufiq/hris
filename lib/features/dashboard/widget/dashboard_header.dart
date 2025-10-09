@@ -5,8 +5,6 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
-import 'package:hr/features/landing/landing_page.dart';
-import 'package:hr/features/landing/mobile/landing_page.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -167,14 +165,14 @@ class _DashboardHeaderState extends State<DashboardHeader>
                                 if (!mounted) return;
                                 _hideDropdownImmediate();
 
-                                final nextPage = context.isNativeMobile
-                                    ? const LandingPageMobile()
-                                    : const LandingPage();
+                                final nextPageRoute = context.isNativeMobile
+                                    ? AppRoutes.landingPageMobile
+                                    : AppRoutes.login;
 
                                 if (rootContext != null) {
-                                  Navigator.pushAndRemoveUntil(
+                                  Navigator.pushNamedAndRemoveUntil(
                                     rootContext,
-                                    MaterialPageRoute(builder: (_) => nextPage),
+                                    nextPageRoute,
                                     (route) => false,
                                   );
                                 }

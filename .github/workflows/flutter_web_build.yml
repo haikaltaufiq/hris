@@ -1,0 +1,37 @@
+name: Build Flutter Web
+
+on:
+  push:
+    branches:
+      - main   # branch utama
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Install Flutter SDK
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.35.2"   # sesuaikan dengan versi project lo
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter Web
+        run: flutter build web --release
+
+      # Deploy hasil build ke repo B
+      - name: Push to Frontend Repo
+        run: |
+          git config --global user.email "ci-bot@example.com"
+          git config --global user.name "CI Bot"
+          git clone https://x-access-token:${{ secrets.FRONTEND_REPO_TOKEN }}@github.com/HaikalTaufiq/hris-web-app.git frontend-repo
+          cd frontend-repo
+          rm -rf *
+          cp -r ../build/web/* .
+          git add .
+          git commit -m "Deploy from Repo A at $(date)" || echo "No changes to commit"
+          git push origin main

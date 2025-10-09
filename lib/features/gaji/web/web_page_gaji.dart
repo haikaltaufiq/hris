@@ -8,9 +8,11 @@ import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/services/gaji_service.dart';
 import 'package:hr/features/gaji/widget/excel_export.dart';
 import 'package:hr/features/gaji/gaji_provider.dart';
 import 'package:hr/features/gaji/widget/gaji_card.dart';
+import 'package:hr/features/gaji/widget/gaji_tabel.dart';
 import 'package:provider/provider.dart';
 
 class WebPageGaji extends StatefulWidget {
@@ -28,9 +30,9 @@ class _WebPageGajiState extends State<WebPageGaji> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<GajiProvider>();
-      provider.loadCacheFirst(); // Load cache first
-      provider.fetchGaji(); // Then fetch from API
-    }); // langsung fetch pas load
+      provider.loadCacheFirst();
+      provider.fetchGaji();
+    });
   }
 
   @override
@@ -47,9 +49,9 @@ class _WebPageGajiState extends State<WebPageGaji> {
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Header(
-                    title: context.isIndonesian
-                        ? "Data Penggajian"
-                        : 'Payroll Data'),
+                  title:
+                      context.isIndonesian ? "Data Penggajian" : 'Payroll Data',
+                ),
               ),
             SearchingBar(
               controller: searchController,
@@ -58,36 +60,72 @@ class _WebPageGajiState extends State<WebPageGaji> {
             ),
             Padding(
               padding: EdgeInsets.only(
-                  right: context.isMobile ? 0 : 16.0,
-                  left: context.isMobile ? 0 : 16.0),
+                right: context.isMobile ? 0 : 16.0,
+                left: context.isMobile ? 0 : 16.0,
+              ),
               child: ExcelExport(),
             ),
-            // --- Konten data gaji ---
-            if (provider.isLoading && provider.displayedList.isEmpty)
-              _buildLoading()
-            else if (provider.error != null)
-              _buildError(provider.error!)
-            else if (provider.displayedList.isEmpty && !provider.isLoading)
-              _buildEmpty()
-            else
-              Padding(
-                padding: EdgeInsets.only(
-                  right: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
-                  left: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
-                ),
-                child: Column(
-                  children: provider.displayedList
-                      .map((gaji) => GajiCard(
-                            gaji: gaji,
-                            onStatusChanged: () => provider.fetchGaji(),
-                          ))
-                      .toList(),
-                ),
-              ),
+            // 👇 ini jadi satu widget saja
+            _buildContent(context, provider),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildContent(BuildContext context, GajiProvider provider) {
+    if (provider.isLoading && provider.displayedList.isEmpty) {
+      return _buildLoading();
+    } else if (provider.error != null) {
+      return _buildError(provider.error!);
+    } else if (provider.displayedList.isEmpty && !provider.isLoading) {
+      return _buildEmpty();
+    } else {
+      if (context.isMobile) {
+        return Padding(
+          padding: EdgeInsets.only(
+            right: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
+            left: MediaQuery.of(context).size.width < 600 ? 8.0 : 28.0,
+          ),
+          child: Column(
+            children: provider.displayedList
+                .map((gaji) => GajiCard(
+                      gaji: gaji,
+                      onStatusChanged: () => provider.fetchGaji(),
+                    ))
+                .toList(),
+          ),
+        );
+      } else {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 14.0),
+          child: GajiTabelWeb(
+            gajiList: provider.displayedList,
+            onReload: (gajiId, newStatus) async {
+              print('🔄 WebPageGaji onReload called');
+              print('gajiId: $gajiId, newStatus: $newStatus');
+
+              try {
+                await GajiService.updateStatus(gajiId, newStatus);
+                print('✅ Status updated in DB');
+
+                // PENTING: refresh data dari server
+                await provider.fetchGaji();
+                print('✅ Data refreshed from server');
+              } catch (e) {
+                print('❌ Error: $e');
+                // Tampilkan error ke user
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Gagal update status: $e')),
+                  );
+                }
+              }
+            },
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildLoading() => const Center(
@@ -117,32 +155,33 @@ class _WebPageGajiState extends State<WebPageGaji> {
       );
 
   Widget _buildEmpty() => Center(
-          child: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.6,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.money_off,
-                size: 64,
-                color: AppColors.putih.withOpacity(0.5),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                context.isIndonesian
-                    ? 'Belum ada data gaji'
-                    : "No Data available",
-                style: TextStyle(
-                  color: AppColors.putih,
-                  fontFamily: GoogleFonts.poppins().fontFamily,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.6,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.money_off,
+                  size: 64,
+                  color: AppColors.putih.withOpacity(0.5),
                 ),
-              ),
-              const SizedBox(height: 8),
-            ],
+                const SizedBox(height: 16),
+                Text(
+                  context.isIndonesian
+                      ? 'Belum ada data gaji'
+                      : "No Data available",
+                  style: TextStyle(
+                    color: AppColors.putih,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
           ),
         ),
-      ));
+      );
 }

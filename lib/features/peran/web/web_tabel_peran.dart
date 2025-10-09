@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
-import 'package:hr/core/helpers/pagination.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/peran_model.dart';
@@ -19,9 +18,6 @@ class WebTabelPeranWeb extends StatefulWidget {
 }
 
 class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
-  int currentPage = 0;
-  int rowsPerPage = 5;
-
   void _handleView(PeranModel peran) {
     showDialog(
       context: context,
@@ -43,7 +39,6 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Ini nama peran paling atas
                 Text(
                   peran.namaPeran,
                   style: TextStyle(
@@ -53,9 +48,7 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
                     fontFamily: GoogleFonts.poppins().fontFamily,
                   ),
                 ),
-                const SizedBox(height: 12), // spacing dikit
-
-                // list fitur
+                const SizedBox(height: 12),
                 ...(peran.fitur.isNotEmpty
                     ? peran.fitur.map((f) => ListTile(
                           title: Text(
@@ -97,16 +90,14 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
     final result = await Navigator.pushNamed(
       context,
       AppRoutes.peranForm,
-      arguments: peran, // <-- kirim data
+      arguments: peran,
     );
-
     if (result == true) {
       final viewModel = context.read<PeranViewModel>();
       await viewModel.fetchPeran();
     }
   }
 
-  // -------------------- HAPUS PERAN --------------------
   Future<void> _hapusPeran(PeranModel peran) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -124,11 +115,10 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
                   const Icon(Icons.delete_outline, color: Colors.red, size: 24),
             ),
             const SizedBox(width: 16),
-            Expanded(
+            const Expanded(
               child: Text(
                 'Hapus Peran?',
-                style:
-                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
             ),
           ],
@@ -228,31 +218,13 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
         }
 
         final headers = context.isIndonesian ? ['Nama Peran'] : ["Role Name"];
-        final paginatedList = peranList
-            .skip(currentPage * rowsPerPage)
-            .take(rowsPerPage)
-            .toList();
 
-        return Column(
-          children: [
-            CustomDataTableWeb(
-              headers: headers,
-              rows: paginatedList.map((p) => [p.namaPeran]).toList(),
-              onView: (i) => _handleView(paginatedList[i]),
-              onEdit: (i) => _handleEdit(paginatedList[i]),
-              onDelete: (i) => _hapusPeran(paginatedList[i]),
-            ),
-            PaginationControls(
-              currentPage: currentPage,
-              rowsPerPage: rowsPerPage,
-              totalItems: peranList.length,
-              onPageChanged: (newPage) {
-                setState(() {
-                  currentPage = newPage;
-                });
-              },
-            ),
-          ],
+        return CustomDataTableWeb(
+          headers: headers,
+          rows: peranList.map((p) => [p.namaPeran]).toList(),
+          onView: (i) => _handleView(peranList[i]),
+          onEdit: (i) => _handleEdit(peranList[i]),
+          onDelete: (i) => _hapusPeran(peranList[i]),
         );
       },
     );

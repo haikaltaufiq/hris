@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/departemen_model.dart';
 
 class DepartmentTabel extends StatelessWidget {
@@ -54,7 +55,7 @@ class DepartmentTabel extends StatelessWidget {
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: context.isMobile ? 15 : 13,
                       fontFamily: GoogleFonts.poppins().fontFamily,
                     ),
                   ),
@@ -66,7 +67,7 @@ class DepartmentTabel extends StatelessWidget {
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.bold,
-                      fontSize: 15,
+                      fontSize: context.isMobile ? 15 : 13,
                       fontFamily: GoogleFonts.poppins().fontFamily,
                     ),
                   ),
@@ -76,14 +77,13 @@ class DepartmentTabel extends StatelessWidget {
             Align(
               alignment: Alignment.center,
               child: FractionallySizedBox(
-                widthFactor: 1.09,
+                widthFactor: 1.0,
                 child: Divider(
                   color: AppColors.secondary,
                   thickness: 1,
                 ),
               ),
             ),
-            const SizedBox(height: 12),
 
             ListView.separated(
               shrinkWrap: true,
@@ -104,7 +104,8 @@ class DepartmentTabel extends StatelessWidget {
                           departemen.namaDepartemen,
                           style: TextStyle(
                             color: AppColors.putih,
-                            fontWeight: FontWeight.w400,
+                            fontSize: context.isMobile ? 15 : 12,
+                            fontWeight: FontWeight.w500,
                             fontFamily: GoogleFonts.poppins().fontFamily,
                           ),
                         ),
@@ -118,23 +119,23 @@ class DepartmentTabel extends StatelessWidget {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  onDelete(departemen.id);
-                                },
-                                child: FaIcon(
-                                  FontAwesomeIcons.trash,
-                                  color: AppColors.putih,
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 15),
-                              GestureDetector(
-                                onTap: () {
                                   onEdit(departemen);
                                 },
                                 child: FaIcon(
                                   FontAwesomeIcons.pen,
                                   color: AppColors.putih,
-                                  size: 20,
+                                  size: 15,
+                                ),
+                              ),
+                              const SizedBox(width: 15),
+                              GestureDetector(
+                                onTap: () {
+                                  onDelete(departemen.id);
+                                },
+                                child: FaIcon(
+                                  FontAwesomeIcons.trash,
+                                  color: AppColors.putih,
+                                  size: 15,
                                 ),
                               ),
                             ],

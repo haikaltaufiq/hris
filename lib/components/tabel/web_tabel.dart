@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 
-class CustomDataTableWeb extends StatelessWidget {
+class CustomDataTableWeb extends StatefulWidget {
   final List<String> headers;
   final List<List<String>> rows;
   final List<int>? statusColumnIndexes;
@@ -36,14 +36,31 @@ class CustomDataTableWeb extends StatelessWidget {
     this.onTapLampiran,
   });
 
+  @override
+  State<CustomDataTableWeb> createState() => _CustomDataTableWebState();
+}
+
+class _CustomDataTableWebState extends State<CustomDataTableWeb> {
+  int currentPage = 0;
+  static const int rowsPerPage = 10;
+
+  List<List<String>> get paginatedRows {
+    final reversedRows = widget.rows.reversed.toList();
+    final start = currentPage * rowsPerPage;
+    final end = (start + rowsPerPage).clamp(0, reversedRows.length);
+    return reversedRows.sublist(start, end);
+  }
+
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'selesai':
       case 'approved':
+      case 'sudah dibayar':
       case 'disetujui':
         return Colors.green;
       case 'proses':
       case 'pending':
+      case 'belum dibayar':
       case 'menunggu':
         return Colors.orange;
       case 'ditolak':
@@ -57,12 +74,10 @@ class CustomDataTableWeb extends StatelessWidget {
 
   void _showStatusDropdown(
       BuildContext context, String currentStatus, int rowIndex, int colIndex) {
-    // Get the RenderBox of the tapped widget to position dropdown
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
-    // Calculate the required width based on content
     double calculateTextWidth(String text) {
       final TextPainter textPainter = TextPainter(
         text: TextSpan(
@@ -79,8 +94,8 @@ class CustomDataTableWeb extends StatelessWidget {
       return textPainter.size.width;
     }
 
-    // Find the longest status text to determine dropdown width
-    final statusList = statusOptions ?? ['approved', 'pending', 'rejected'];
+    final statusList =
+        widget.statusOptions ?? ['approved', 'pending', 'rejected'];
     double maxTextWidth = 0;
 
     for (String status in statusList) {
@@ -90,7 +105,6 @@ class CustomDataTableWeb extends StatelessWidget {
       }
     }
 
-    // Add padding: circle (12) + spacing (8) + container padding (8) + small margin (8)
     final dropdownWidth = maxTextWidth + 36;
 
     showMenu<String>(
@@ -99,7 +113,7 @@ class CustomDataTableWeb extends StatelessWidget {
         offset.dx,
         offset.dy + size.height,
         offset.dx + dropdownWidth,
-        offset.dy + size.height + 200, // Max height
+        offset.dy + size.height + 200,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -110,7 +124,7 @@ class CustomDataTableWeb extends StatelessWidget {
         final statusColor = _getStatusColor(status);
         return PopupMenuItem<String>(
           value: status,
-          padding: EdgeInsets.zero, // Remove default PopupMenuItem padding
+          padding: EdgeInsets.zero,
           child: Container(
             width: dropdownWidth,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 1),
@@ -148,7 +162,7 @@ class CustomDataTableWeb extends StatelessWidget {
       }).toList(),
     ).then((selectedStatus) {
       if (selectedStatus != null && selectedStatus != currentStatus) {
-        onStatusChanged?.call(rowIndex, selectedStatus);
+        widget.onStatusChanged?.call(rowIndex, selectedStatus);
       }
     });
   }
@@ -160,23 +174,19 @@ class CustomDataTableWeb extends StatelessWidget {
 
   Widget _buildValueCell(
       BuildContext context, String value, int rowIndex, int colIndex) {
-    // Check if this is a dropdown status column
-    if (dropdownStatusColumnIndexes != null &&
-        dropdownStatusColumnIndexes!.contains(colIndex)) {
+    if (widget.dropdownStatusColumnIndexes != null &&
+        widget.dropdownStatusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
       return Align(
         alignment: Alignment.centerLeft,
         child: IntrinsicWidth(
           child: Builder(
-            // Use Builder to get correct context for positioning
             builder: (context) => Tooltip(
               message: value,
               waitDuration: const Duration(milliseconds: 300),
               child: InkWell(
                 onTap: () {
-                  // Call onCellTap if provided
-                  onCellTap?.call(rowIndex, colIndex);
-                  // Show dropdown with proper context
+                  widget.onCellTap?.call(rowIndex, colIndex);
                   _showStatusDropdown(context, value, rowIndex, colIndex);
                 },
                 borderRadius: BorderRadius.circular(20),
@@ -230,9 +240,8 @@ class CustomDataTableWeb extends StatelessWidget {
       );
     }
 
-    // Check if this is a regular status column
-    if (statusColumnIndexes != null &&
-        statusColumnIndexes!.contains(colIndex)) {
+    if (widget.statusColumnIndexes != null &&
+        widget.statusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
       return Align(
         alignment: Alignment.centerLeft,
@@ -280,17 +289,16 @@ class CustomDataTableWeb extends StatelessWidget {
       );
     }
 
-    // Check for lampiran by looking for specific text patterns (reusable)
     if (value.toLowerCase() == "lihat lampiran" ||
         value.toLowerCase() == "see photo" ||
         value.toLowerCase() == "see video" ||
         value.toLowerCase() == "view attachment") {
-      if (onTapLampiran != null) {
+      if (widget.onTapLampiran != null) {
         return Tooltip(
           message: value,
           waitDuration: const Duration(milliseconds: 300),
           child: GestureDetector(
-            onTap: () => onTapLampiran!(rowIndex),
+            onTap: () => widget.onTapLampiran!(rowIndex),
             child: Text(
               value,
               style: TextStyle(
@@ -305,29 +313,27 @@ class CustomDataTableWeb extends StatelessWidget {
       }
     }
 
-    // Handle text length limits dynamically
     String displayText = value;
-
-    // Use custom text limits if provided, otherwise use default of 25 characters
-    int textLimit = 25; // Default limit
-    if (textLengthLimits != null && colIndex < textLengthLimits!.length) {
-      textLimit = textLengthLimits![colIndex];
+    int textLimit = 25;
+    if (widget.textLengthLimits != null &&
+        colIndex < widget.textLengthLimits!.length) {
+      textLimit = widget.textLengthLimits![colIndex];
     }
-
     if (value.length > textLimit) {
       displayText = _shortenText(value, textLimit);
     }
 
-    // Regular cell with text overflow handling
     return Tooltip(
-      message: value, // Always show full text on hover
+      message: value,
       waitDuration: const Duration(milliseconds: 300),
       child: GestureDetector(
-        onTap: () => onCellTap?.call(rowIndex, colIndex),
+        onTap: () => widget.onCellTap?.call(rowIndex, colIndex),
         child: Text(
           displayText,
           style: TextStyle(
             color: AppColors.putih,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
             fontFamily: GoogleFonts.poppins().fontFamily,
           ),
           overflow: TextOverflow.ellipsis,
@@ -339,197 +345,237 @@ class CustomDataTableWeb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05), // tipis banget
-            blurRadius: 4, // kecil, biar soft
-            spreadRadius: 0,
-            offset: Offset(0, 1), // cuma bawah dikit
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Headers row
-          Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: AppColors.secondary,
-                  width: 2,
-                ),
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Row(
-              children: [
-                // Headers
-                ...headers.asMap().entries.map((entry) {
-                  // Use custom flex values if provided, otherwise default to 1
-                  int flexValue = 1;
-                  if (columnFlexValues != null &&
-                      entry.key < columnFlexValues!.length) {
-                    flexValue = columnFlexValues![entry.key];
-                  }
+    final totalPages = (widget.rows.length / rowsPerPage).ceil();
 
-                  return Expanded(
-                    flex: flexValue,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Tooltip(
-                        message: entry.value,
-                        waitDuration: const Duration(milliseconds: 500),
-                        child: Text(
-                          entry.value,
-                          style: TextStyle(
-                            color: AppColors.putih,
-                            fontWeight: FontWeight.bold,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-                // Action header - fixed width container
-                if (onView != null || onEdit != null || onDelete != null)
-                  SizedBox(
-                    width: 120, // Reduced width for better spacing
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: Text(
-                        "Action",
-                        style: TextStyle(
-                          color: AppColors.putih,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: GoogleFonts.poppins().fontFamily,
-                        ),
-                      ),
+    return Column(
+      children: [
+        Container(
+          margin: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 4,
+                spreadRadius: 0,
+                offset: const Offset(0, 1),
+              ),
+            ],
+          ),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.secondary,
+                      width: 2,
                     ),
                   ),
-              ],
-            ),
-          ),
-
-          // Data rows
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: rows.length,
-            separatorBuilder: (_, __) => Divider(
-              color: AppColors.secondary,
-              thickness: 0.5,
-              height: 1,
-            ),
-            itemBuilder: (context, rowIndex) {
-              final row = rows[rowIndex];
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
+                ),
+                padding: const EdgeInsets.only(bottom: 15, top: 10),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Data cells
-                    ...row.asMap().entries.map((entry) {
-                      // Use custom flex values if provided, otherwise default to 1
+                    ...widget.headers.asMap().entries.map((entry) {
                       int flexValue = 1;
-                      if (columnFlexValues != null &&
-                          entry.key < columnFlexValues!.length) {
-                        flexValue = columnFlexValues![entry.key];
+                      if (widget.columnFlexValues != null &&
+                          entry.key < widget.columnFlexValues!.length) {
+                        flexValue = widget.columnFlexValues![entry.key];
                       }
-
                       return Expanded(
                         flex: flexValue,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: _buildValueCell(
-                            context,
-                            entry.value,
-                            rowIndex,
-                            entry.key,
+                          child: Tooltip(
+                            message: entry.value,
+                            waitDuration: const Duration(milliseconds: 500),
+                            child: Text(
+                              entry.value,
+                              style: TextStyle(
+                                color: AppColors.putih,
+                                fontSize: 13,
+                                fontWeight: FontWeight.bold,
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                              ),
+                            ),
                           ),
                         ),
                       );
                     }),
-                    // Action buttons - fixed width container
-                    if (onView != null || onEdit != null || onDelete != null)
+                    if (widget.onView != null ||
+                        widget.onEdit != null ||
+                        widget.onDelete != null)
                       SizedBox(
-                        width: context.isMobile ? 160 : 120,
-                        // Reduced width for better spacing
+                        width: 120,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (onView != null)
-                                Tooltip(
-                                  message: 'View',
-                                  child: IconButton(
-                                    icon: FaIcon(
-                                      FontAwesomeIcons.eye,
-                                      color: AppColors.putih,
-                                      size: 14,
-                                    ),
-                                    padding: const EdgeInsets.all(8),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 32,
-                                      minHeight: 32,
-                                    ),
-                                    onPressed: () => onView!(rowIndex),
-                                  ),
-                                ),
-                              if (onEdit != null)
-                                Tooltip(
-                                  message: 'Edit',
-                                  child: IconButton(
-                                    icon: FaIcon(
-                                      FontAwesomeIcons.pen,
-                                      color: AppColors.putih,
-                                      size: 14,
-                                    ),
-                                    padding: const EdgeInsets.all(8),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 32,
-                                      minHeight: 32,
-                                    ),
-                                    onPressed: () => onEdit!(rowIndex),
-                                  ),
-                                ),
-                              if (onDelete != null)
-                                Tooltip(
-                                  message: 'Delete',
-                                  child: IconButton(
-                                    icon: FaIcon(
-                                      FontAwesomeIcons.trash,
-                                      color: AppColors.putih,
-                                      size: 14,
-                                    ),
-                                    padding: const EdgeInsets.all(8),
-                                    constraints: const BoxConstraints(
-                                      minWidth: 32,
-                                      minHeight: 32,
-                                    ),
-                                    onPressed: () => onDelete!(rowIndex),
-                                  ),
-                                ),
-                            ],
+                          child: Text(
+                            "Action",
+                            style: TextStyle(
+                              color: AppColors.putih,
+                              fontWeight: FontWeight.bold,
+                              fontFamily: GoogleFonts.poppins().fontFamily,
+                            ),
                           ),
                         ),
                       ),
                   ],
                 ),
-              );
-            },
+              ),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: paginatedRows.length,
+                separatorBuilder: (_, __) => Divider(
+                  color: AppColors.secondary,
+                  thickness: 0.5,
+                  height: 1,
+                ),
+                itemBuilder: (context, rowIndex) {
+                  final row = paginatedRows[rowIndex];
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        ...row.asMap().entries.map((entry) {
+                          int flexValue = 1;
+                          if (widget.columnFlexValues != null &&
+                              entry.key < widget.columnFlexValues!.length) {
+                            flexValue = widget.columnFlexValues![entry.key];
+                          }
+                          return Expanded(
+                            flex: flexValue,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: _buildValueCell(
+                                context,
+                                entry.value,
+                                rowIndex,
+                                entry.key,
+                              ),
+                            ),
+                          );
+                        }),
+                        if (widget.onView != null ||
+                            widget.onEdit != null ||
+                            widget.onDelete != null)
+                          SizedBox(
+                            width: context.isMobile ? 160 : 120,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 8.0),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (widget.onView != null)
+                                    Tooltip(
+                                      message: 'View',
+                                      child: IconButton(
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.eye,
+                                          color: AppColors.putih,
+                                          size: 14,
+                                        ),
+                                        padding: const EdgeInsets.all(8),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
+                                        ),
+                                        onPressed: () =>
+                                            widget.onView!(rowIndex),
+                                      ),
+                                    ),
+                                  if (widget.onEdit != null)
+                                    Tooltip(
+                                      message: 'Edit',
+                                      child: IconButton(
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.pen,
+                                          color: AppColors.putih,
+                                          size: 14,
+                                        ),
+                                        padding: const EdgeInsets.all(8),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
+                                        ),
+                                        onPressed: () =>
+                                            widget.onEdit!(rowIndex),
+                                      ),
+                                    ),
+                                  if (widget.onDelete != null)
+                                    Tooltip(
+                                      message: 'Delete',
+                                      child: IconButton(
+                                        icon: FaIcon(
+                                          FontAwesomeIcons.trash,
+                                          color: AppColors.putih,
+                                          size: 14,
+                                        ),
+                                        padding: const EdgeInsets.all(8),
+                                        constraints: const BoxConstraints(
+                                          minWidth: 32,
+                                          minHeight: 32,
+                                        ),
+                                        onPressed: () =>
+                                            widget.onDelete!(rowIndex),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            IconButton(
+              icon: Icon(
+                Icons.chevron_left,
+                color: AppColors.putih,
+              ),
+              onPressed: currentPage > 0
+                  ? () {
+                      setState(() {
+                        currentPage--;
+                      });
+                    }
+                  : null,
+            ),
+            Text(
+              "${currentPage + 1} / $totalPages",
+              style: TextStyle(
+                color: AppColors.putih,
+              ),
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.chevron_right,
+                color: AppColors.putih,
+              ),
+              onPressed: currentPage < totalPages - 1
+                  ? () {
+                      setState(() {
+                        currentPage++;
+                      });
+                    }
+                  : null,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

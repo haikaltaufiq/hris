@@ -4,6 +4,7 @@ import 'package:hr/components/custom/header.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/features/danger/info_danger.dart';
 import 'package:hr/features/danger/reset_db.dart';
 
 class DangerPage extends StatefulWidget {
@@ -28,6 +29,12 @@ class _DangerPageState extends State<DangerPage> {
               alignment: Alignment.bottomLeft,
               child: Header(title: context.isIndonesian ? "Bahaya" : "Danger"),
             ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: context.isMobile ? 4.0 : 30.0,
+            ),
+            child: InfoDanger(),
+          ),
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: context.isMobile ? 4.0 : 30.0,

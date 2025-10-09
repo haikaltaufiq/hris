@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -107,87 +108,94 @@ class _ExcelExportState extends State<ExcelExport> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       margin: const EdgeInsets.all(12),
       child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: // Row Dropdown + Tombol Export
-              Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  context.isIndonesian
-                      ? "Export Gaji (Excel)"
-                      : "Export Payroll (Excell)",
-                  textAlign: TextAlign.start,
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: AppColors.putih,
-                      fontWeight: FontWeight.bold),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                context.isIndonesian
+                    ? "Export Gaji (Excel)"
+                    : "Export Payroll (Excell)",
+                textAlign: TextAlign.start,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.putih,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(
-                height: 10,
-              ),
-              Row(
-                children: [
-                  // Dropdown lebar otomatis
-                  Expanded(
-                    child: DropdownButtonFormField<Map<String, dynamic>>(
-                      value: _selectedPeriod,
-                      decoration: InputDecoration(
-                        labelText: context.isIndonesian ? "Periode" : "Period",
-                        labelStyle: TextStyle(color: AppColors.putih),
-                        filled: true,
-                        fillColor: AppColors.primary.withOpacity(0.5),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: AppColors.putih),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide:
-                              BorderSide(color: AppColors.secondary, width: 2),
-                        ),
-                      ),
-                      dropdownColor: AppColors.primary,
-                      items: _availablePeriods.map((p) {
-                        return DropdownMenuItem(
-                          value: p,
-                          child: Text(
-                            "${_months[p["bulan"] - 1]} ${p["tahun"]}",
-                            style: TextStyle(color: AppColors.putih),
-                          ),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: CustomDropDownField(
+                    label: context.isIndonesian ? "Periode" : "Period",
+                    hint: context.isIndonesian
+                        ? "Pilih Periode"
+                        : "Select Period",
+                    items: _availablePeriods
+                        .map((p) => "${_months[p["bulan"] - 1]} ${p["tahun"]}")
+                        .toList(),
+                    value: _selectedPeriod != null
+                        ? "${_months[_selectedPeriod!["bulan"] - 1]} ${_selectedPeriod!["tahun"]}"
+                        : null,
+                    onChanged: (val) {
+                      setState(() {
+                        _selectedPeriod = _availablePeriods.firstWhere(
+                          (p) =>
+                              "${_months[p["bulan"] - 1]} ${p["tahun"]}" == val,
                         );
-                      }).toList(),
-                      onChanged: (val) => setState(() => _selectedPeriod = val),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-
-                  // Tombol di kanan fixed size 50x50
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: _exportExcel,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.secondary,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                      });
+                    },
+                    labelStyle: TextStyle(color: AppColors.putih),
+                    textStyle: TextStyle(color: AppColors.putih),
+                    inputStyle: InputDecoration(
+                      filled: true,
+                      fillColor: AppColors.primary.withOpacity(0.5),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: AppColors.putih),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(
+                          color: AppColors.secondary,
+                          width: 2,
                         ),
-                        padding: EdgeInsets.zero, // biar pas 50x50
-                      ),
-                      child: FaIcon(
-                        FontAwesomeIcons.download,
-                        color: AppColors.putih,
-                        size: 20,
                       ),
                     ),
+                    dropdownColor: AppColors.primary,
+                    dropdownTextColor: AppColors.putih,
+                    dropdownIconColor: AppColors.putih,
                   ),
-                ],
-              ),
-            ],
-          )),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _exportExcel,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: EdgeInsets.zero,
+                    ),
+                    child: FaIcon(
+                      FontAwesomeIcons.download,
+                      color: AppColors.putih,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

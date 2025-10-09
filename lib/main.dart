@@ -6,6 +6,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
+import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -104,14 +105,14 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
+    if (!mounted) return;
     if (context.isNativeMobile) {
       _precacheAssets(context).then((_) {
         if (mounted) setState(() => _ready = true);
       });
     } else {
       // langsung ready kalau bukan native mobile
-      _ready = true;
+      setState(() => _ready = true);
     }
   }
 
@@ -131,33 +132,47 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
   }
 }
 
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+  Future<void> _restoreSession(BuildContext context, String token) async {
+    // Restore fitur
+    await FeatureAccess.init();
 
-  Future<String> _getInitialRoute(bool isNativeMobile) async {
+    // Restore pengaturan (tema & bahasa)
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final pengaturanService = PengaturanService();
+
+    try {
+      final pengaturan = await pengaturanService.getPengaturan(token);
+      themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
+      langProvider.toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+    } catch (e) {
+      debugPrint('Gagal fetch pengaturan otomatis: $e');
+    }
+  }
+
+  Future<String> _getInitialRoute(
+      BuildContext context, bool isNativeMobile) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
+    if (token != null && token.isNotEmpty) {
+      // jika ada token, langsung restore session
+      await _restoreSession(context, token);
+    }
+
     if (isNativeMobile) {
-      //  Mobile: cek onboarding dulu
-      if (!seenOnboarding) {
-        return AppRoutes.onboarding; // route onboarding cuma buat mobile
-      }
-
-      //  Udah login → dashboard
-      if (token != null && token.isNotEmpty) {
-        return AppRoutes.dashboardMobile;
-      }
-
-      //  Belum login → landing
-      return AppRoutes.landingPageMobile;
+      if (!seenOnboarding) return AppRoutes.onboarding;
+      return token != null && token.isNotEmpty
+          ? AppRoutes.dashboardMobile
+          : AppRoutes.landingPageMobile;
     } else {
-      //  Web/Desktop: langsung landing/dashboard, skip onboarding
-      if (token != null && token.isNotEmpty) {
-        return AppRoutes.dashboard;
-      }
-      return AppRoutes.landingPage;
+      return token != null && token.isNotEmpty
+          ? AppRoutes.dashboard
+          : AppRoutes.landingPage;
     }
   }
 
@@ -168,13 +183,13 @@ class MyApp extends StatelessWidget {
     final isNativeMobile = context.isNativeMobile;
 
     return FutureBuilder<String>(
-      future: _getInitialRoute(isNativeMobile),
+      future: _getInitialRoute(context, isNativeMobile),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const ColoredBox(color: Colors.black);
         }
-
         return MaterialApp(
+
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.currentMode,
           theme: ThemeData(

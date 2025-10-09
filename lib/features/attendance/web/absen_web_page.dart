@@ -96,7 +96,7 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
             ],
           ),
           FeatureGuard(
-            requiredFeature: 'lihat_absensi_sendiri',
+            requiredFeature: 'absensi',
             child: Positioned(
               bottom: 16,
               right: 16,

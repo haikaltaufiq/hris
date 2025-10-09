@@ -1,5 +1,6 @@
 // widgets/landing_footer.dart
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import '../../../core/utils/device_size.dart';
@@ -36,7 +37,7 @@ class LandingFooter extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              '© 2024 HRIS. ${l10n.footerText}',
+              '© 2025 HRIS. ${l10n.footerText}',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
@@ -70,15 +71,15 @@ class LandingFooter extends StatelessWidget {
           child: _buildFooterColumn(
             context,
             'Company',
-            ['About Us', 'Careers', 'Contact', 'Blog'],
+            ['About Us', 'Careers', 'Blog'],
           ),
         ),
         const SizedBox(width: 32),
         Expanded(
           child: _buildFooterColumn(
             context,
-            'Legal',
-            ['Privacy Policy', 'Terms of Service', 'Cookies'],
+            'Contact Us',
+            ['hris.ksi@kreatifsystem.com', '0778 214 0088'],
           ),
         ),
       ],
@@ -113,10 +114,13 @@ class LandingFooter extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
                 color: Colors.white,
               ),
-              child: Icon(
-                Icons.business,
-                size: 20,
-                color: AppColors.blue,
+              child: Center(
+                child: FaIcon(
+                  FontAwesomeIcons.building,
+                  size: 20,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.blue,
+                ),
               ),
             ),
             const SizedBox(width: 12),
@@ -165,20 +169,38 @@ class LandingFooter extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        ...items.map((item) => Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: InkWell(
-                onTap: () {},
-                child: Text(
-                  item,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.white,
-                    height: 1.4,
+        ...items.map((item) {
+          IconData? icon;
+
+          if (item.contains('@')) {
+            icon = Icons.email;
+          } else if (RegExp(r'^[0-9+ ]+$').hasMatch(item)) {
+            icon = Icons.phone;
+          }
+
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: InkWell(
+              onTap: () {},
+              child: Row(
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 16, color: Colors.white),
+                    const SizedBox(width: 6),
+                  ],
+                  Text(
+                    item,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      height: 1.4,
+                    ),
                   ),
-                ),
+                ],
               ),
-            )),
+            ),
+          );
+        }),
       ],
     );
   }

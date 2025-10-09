@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/const/app_size.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
-import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -522,7 +522,17 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       debugPrint("Settings diklik");
                       Navigator.pushNamed(context, AppRoutes.pengaturan);
                     } else if (value == 'logout') {
-                      debugPrint("Logout diklik");
+                      final confirmed = await showConfirmationDialog(
+                        context,
+                        title: "Konfirmasi Logout",
+                        content:
+                            "Apakah Anda yakin ingin keluar dari akun ini?",
+                        confirmText: "Keluar",
+                        cancelText: "Batal",
+                        confirmColor: AppColors.red,
+                      );
+
+                      if (!confirmed) return;
 
                       // panggil API logout dulu
                       final result = await AuthService().logout();
@@ -533,9 +543,9 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       await prefs.clear();
 
                       if (mounted) {
-                        Navigator.pushAndRemoveUntil(
+                        Navigator.pushNamedAndRemoveUntil(
                           context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          AppRoutes.login,
                           (route) => false,
                         );
                       }
