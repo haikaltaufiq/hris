@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/fitur_model.dart';
 import 'package:http/http.dart' as http;
@@ -253,10 +254,13 @@ class AuthService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
 
+    // buka hive box
+    final box = Hive.box('user');
     debugPrint("Token sebelum logout: $token"); // <--- debug
 
     if (token == null) {
       await prefs.clear();
+      await box.clear();
       return {'success': true, 'message': 'Sudah logout (local only)'};
     }
 
@@ -272,7 +276,7 @@ class AuthService {
       debugPrint("Logout response: ${response.statusCode} - ${response.body}");
 
       await prefs.clear();
-
+      await box.clear();
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return {'success': true, 'message': data['message']};
@@ -280,6 +284,9 @@ class AuthService {
         return {'success': false, 'message': 'Logout gagal'};
       }
     } catch (e) {
+      // tetap bersihkan data meski request gagal (biar user dipaksa relogin)
+      await prefs.clear();
+      await box.clear();
       return {'success': false, 'message': e.toString()};
     }
   }

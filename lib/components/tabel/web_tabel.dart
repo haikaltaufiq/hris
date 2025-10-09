@@ -45,10 +45,9 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
   static const int rowsPerPage = 10;
 
   List<List<String>> get paginatedRows {
-    final reversedRows = widget.rows.reversed.toList();
     final start = currentPage * rowsPerPage;
-    final end = (start + rowsPerPage).clamp(0, reversedRows.length);
-    return reversedRows.sublist(start, end);
+    final end = (start + rowsPerPage).clamp(0, widget.rows.length);
+    return widget.rows.sublist(start, end);
   }
 
   Color _getStatusColor(String status) {
@@ -522,8 +521,12 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                           minWidth: 32,
                                           minHeight: 32,
                                         ),
-                                        onPressed: () =>
-                                            widget.onDelete!(rowIndex),
+                                        onPressed: () {
+                                          final actualRowIndex =
+                                              currentPage * rowsPerPage +
+                                                  rowIndex;
+                                          widget.onDelete!(actualRowIndex);
+                                        },
                                       ),
                                     ),
                                 ],

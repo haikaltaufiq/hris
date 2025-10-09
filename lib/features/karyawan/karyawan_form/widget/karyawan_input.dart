@@ -30,7 +30,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
   final TextEditingController _bpjsKesController = TextEditingController();
   final TextEditingController _bpjsKetController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool _isLoading = false;
   // Dropdown values
   int? _jabatanId;
   int? _peranId;
@@ -148,7 +148,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
       );
       return;
     }
-
+    setState(() => _isLoading = true);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
@@ -192,6 +192,8 @@ class _KaryawanInputState extends State<KaryawanInput> {
           isSuccess: false,
         );
       }
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -367,7 +369,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _submitData,
+              onPressed: _isLoading ? null : _submitData,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF1F1F1F),
                 padding:
@@ -376,14 +378,23 @@ class _KaryawanInputState extends State<KaryawanInput> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: Text(
-                'Submit',
-                style: GoogleFonts.poppins(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                ),
-              ),
+              child: _isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        color: AppColors.putih,
+                        strokeWidth: 2,
+                      ),
+                    )
+                  : Text(
+                      'Submit',
+                      style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 15),

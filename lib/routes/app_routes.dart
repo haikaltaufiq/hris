@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/peran_model.dart';
@@ -106,7 +107,54 @@ class AppRoutes {
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     final String? routeName = settings.name;
+    // Cek autentikasi sederhana
+    final box = Hive.box('user');
+    final token = box.get('token');
 
+    bool isAuthenticated = token != null && token.isNotEmpty;
+
+// Rute yang dilindungi
+    const protectedRoutes = [
+      dashboard,
+      dashboardMobile,
+      attendance,
+      task,
+      overTime,
+      leave,
+      employee,
+      payroll,
+      department,
+      jabatan,
+      potonganGaji,
+      potonganForm,
+      potonganEdit,
+      info,
+      logActivity,
+      peran,
+      pengaturan,
+      profile,
+      tugasForm,
+      karyawanForm,
+      mapPage,
+      reminder,
+      taskEdit,
+      reminderAdd,
+      reminderEdit,
+      peranForm,
+      infoKantor,
+      danger,
+      checkin,
+      checkout,
+      cutiForm,
+      lemburForm,
+      resetDevice,
+      bukaAkun,
+    ];
+
+    // Jika URL dilindungi tapi belum login
+    if (protectedRoutes.contains(routeName) && !isAuthenticated) {
+      return _route(const LoginPage(), settings);
+    }
     switch (routeName) {
       case onboarding:
         return _route(const OnBoarding(), settings);

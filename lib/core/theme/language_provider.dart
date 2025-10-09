@@ -17,6 +17,6 @@ class LanguageProvider extends ChangeNotifier {
 }
 
 extension LanguageContext on BuildContext {
-  bool get isIndonesian => watch<LanguageProvider>().isIndonesian;
-  bool get isEnglish => watch<LanguageProvider>().isEnglish;
+  bool get isIndonesian =>
+      Provider.of<LanguageProvider>(this, listen: false).isIndonesian;
 }

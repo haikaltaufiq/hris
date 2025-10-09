@@ -132,7 +132,6 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
   }
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
   Future<void> _restoreSession(BuildContext context, String token) async {
@@ -189,7 +188,6 @@ class MyApp extends StatelessWidget {
           return const ColoredBox(color: Colors.black);
         }
         return MaterialApp(
-
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.currentMode,
           theme: ThemeData(
@@ -200,6 +198,11 @@ class MyApp extends StatelessWidget {
           supportedLocales: AppLocalizations.supportedLocales,
           initialRoute: snapshot.data,
           onGenerateRoute: AppRoutes.generateRoute,
+          onUnknownRoute: (_) => MaterialPageRoute(
+            builder: (_) => const Scaffold(
+              body: Center(child: Text("404 Page Not Found")),
+            ),
+          ),
         );
       },
     );

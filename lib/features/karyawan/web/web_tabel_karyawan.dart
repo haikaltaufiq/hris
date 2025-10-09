@@ -110,8 +110,7 @@ class KaryawanTabelWeb extends StatelessWidget {
       },
       onDelete: (rowIndex) async {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final user = userProvider.users[rowIndex];
-
+        final user = users[rowIndex];
         final confirmed = await showConfirmationDialog(
           context,
           title: 'Konfirmasi',
@@ -121,19 +120,23 @@ class KaryawanTabelWeb extends StatelessWidget {
         if (!confirmed) return;
 
         try {
-          await userProvider.deleteUser(user.id); // pake provider
-          NotificationHelper.showTopNotification(
-            context,
-            'Karyawan berhasil dihapus',
-            isSuccess: true,
-          );
-          // users list otomatis ke-refresh karena provider notifyListeners
+          await userProvider.deleteUser(user.id);
+
+          if (context.mounted) {
+            NotificationHelper.showTopNotification(
+              context,
+              'Karyawan berhasil dihapus',
+              isSuccess: true,
+            );
+          }
         } catch (e) {
-          NotificationHelper.showTopNotification(
-            context,
-            'Gagal menghapus karyawan: $e',
-            isSuccess: false,
-          );
+          if (context.mounted) {
+            NotificationHelper.showTopNotification(
+              context,
+              'Gagal menghapus karyawan: $e',
+              isSuccess: false,
+            );
+          }
         }
       },
       onCellTap: (row, col) {

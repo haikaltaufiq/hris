@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/dashboard/widget/attendance_chart.dart';
 import 'package:hr/features/dashboard/widget/status_task_chart.dart';
-import 'package:hr/features/dashboard/widget/tech_task_chart.dart';
 import 'package:hr/features/dashboard/widget/web_card.dart';
 
 class DashboardWeb extends StatefulWidget {
@@ -38,11 +37,6 @@ class _DashboardWebState extends State<DashboardWeb> {
                 Expanded(child: StatusTaskChart()),
               ],
             ),
-          ),
-          Padding(
-            padding:
-                const EdgeInsets.only(right: 18.0, left: 18.0, bottom: 18.0),
-            child: TechTaskChart(),
           ),
         ],
       ),
