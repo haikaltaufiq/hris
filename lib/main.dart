@@ -1,8 +1,11 @@
 import 'dart:ui';
-import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
@@ -21,33 +24,32 @@ import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FeatureAccess.init();
-  final themeProvider = ThemeProvider();
 
-  // default hanya sekali
-  // Init Hive
   await Hive.initFlutter();
-  await Hive.openBox('user');
-  await Hive.openBox('cuti');
-  await Hive.openBox('lembur');
-  await Hive.openBox('tugas');
-  await Hive.openBox('absen');
-  await Hive.openBox('gaji');
-  await Hive.openBox('potongan_gaji');
-  await Hive.openBox('departemen');
-  await Hive.openBox('jabatan');
-  await Hive.openBox('pengingat');
-  await Hive.openBox('peran');
+  for (final box in [
+    'user',
+    'cuti',
+    'lembur',
+    'tugas',
+    'absen',
+    'gaji',
+    'potongan_gaji',
+    'departemen',
+    'jabatan',
+    'pengingat',
+    'peran',
+  ]) {
+    await Hive.openBox(box);
+  }
 
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider.value(value: themeProvider),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => TugasProvider()),
@@ -77,10 +79,7 @@ class PrecacheWrapper extends StatefulWidget {
 class _PrecacheWrapperState extends State<PrecacheWrapper> {
   bool _ready = false;
 
-  final List<String> _imagesToCache = [
-    'assets/images/dahua.webp',
-  ];
-
+  final List<String> _imagesToCache = ['assets/images/dahua.webp'];
   final List<TextStyle> _fontsToCache = [
     GoogleFonts.poppins(),
     GoogleFonts.roboto(),
@@ -111,56 +110,64 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
         if (mounted) setState(() => _ready = true);
       });
     } else {
-      // langsung ready kalau bukan native mobile
       setState(() => _ready = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // kalau bukan native mobile → langsung render MyApp
-    if (!context.isNativeMobile) {
-      return const MyApp();
-    }
-
-    // native mobile, tunggu precache selesai
-    if (!_ready) {
-      return const SizedBox.shrink(); // transparan, no blank hitam
-    }
-
+    if (!context.isNativeMobile) return const MyApp();
+    if (!_ready) return const SizedBox.shrink();
     return const MyApp();
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
-  Future<void> _restoreSession(BuildContext context, String token) async {
-    // Restore fitur
-    await FeatureAccess.init();
 
-    // Restore pengaturan (tema & bahasa)
-    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    final langProvider = Provider.of<LanguageProvider>(context, listen: false);
-    final pengaturanService = PengaturanService();
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
 
+class _MyAppState extends State<MyApp> {
+  late Future<String> _initialRoute;
+
+  @override
+  void initState() {
+    super.initState();
+    _initialRoute = _getInitialRoute();
+  }
+
+  Future<void> _restoreSession(String token) async {
     try {
+      await FeatureAccess.init();
+      final pengaturanService = PengaturanService();
       final pengaturan = await pengaturanService.getPengaturan(token);
-      themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
-      langProvider.toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final themeProvider = context.read<ThemeProvider>();
+        final langProvider = context.read<LanguageProvider>();
+
+        final isDark = pengaturan['tema'] == 'gelap';
+        final isIndo = pengaturan['bahasa'] == 'indonesia';
+        themeProvider.setDarkMode(isDark);
+        langProvider.toggleLanguage(isIndo);
+      });
     } catch (e) {
-      debugPrint('Gagal fetch pengaturan otomatis: $e');
+      debugPrint('Gagal restore session: $e');
     }
   }
 
-  Future<String> _getInitialRoute(
-      BuildContext context, bool isNativeMobile) async {
+  Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+    final isNativeMobile = WidgetsBinding
+        .instance.platformDispatcher.defaultRouteName
+        .contains('mobile');
 
     if (token != null && token.isNotEmpty) {
-      // jika ada token, langsung restore session
-      await _restoreSession(context, token);
+      _restoreSession(token);
     }
 
     if (isNativeMobile) {
@@ -178,11 +185,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
-    context.watch<LanguageProvider>();
-    final isNativeMobile = context.isNativeMobile;
 
     return FutureBuilder<String>(
-      future: _getInitialRoute(context, isNativeMobile),
+      future: _initialRoute,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const ColoredBox(color: Colors.black);
@@ -193,10 +198,9 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             textTheme: GoogleFonts.poppinsTextTheme(),
           ),
-          // locale: languageProvider.locale,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,
-          initialRoute: snapshot.data,
+          initialRoute: snapshot.data!,
           onGenerateRoute: AppRoutes.generateRoute,
           onUnknownRoute: (_) => MaterialPageRoute(
             builder: (_) => const Scaffold(

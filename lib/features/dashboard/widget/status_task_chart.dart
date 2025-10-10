@@ -41,8 +41,8 @@ class StatusTaskChart extends StatelessWidget {
                       children: [
                         Text(
                           context.isIndonesian
-                              ? 'Status Tugas Mingguan'
-                              : 'Weekly Task Status',
+                              ? 'Tugas Mingguan'
+                              : 'Weekly Task',
                           style: TextStyle(
                             fontSize: 18,
                             color: AppColors.putih,
@@ -50,18 +50,6 @@ class StatusTaskChart extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (tugasProvider.tugasList.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          Text(
-                            context.isIndonesian
-                                ? 'Total: ${tugasProvider.tugasList.length} Tugas'
-                                : 'Total: ${tugasProvider.tugasList.length} Task',
-                            style: TextStyle(
-                              color: AppColors.putih.withOpacity(0.7),
-                              fontSize: 11,
-                            ),
-                          ),
-                        ],
                       ],
                     ),
                     const SizedBox(height: 16),

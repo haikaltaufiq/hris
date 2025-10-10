@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -120,7 +121,6 @@ class ResetDb extends StatelessWidget {
     if (title == "Log Aktivitas") jenis = "log";
 
     if (jenis == null) {
-      // Gaji, Absen, dll → reset biasa aja
       final confirmed = await showConfirmationDialog(
         context,
         title: "Konfirmasi",
@@ -138,7 +138,6 @@ class ResetDb extends StatelessWidget {
       return;
     }
 
-    // semua yg pakai bulan-tahun (log, cuti, lembur, tugas)
     List<Map<String, dynamic>> months =
         await DangerService.fetchAvailableMonths(jenis: jenis);
 
@@ -151,19 +150,27 @@ class ResetDb extends StatelessWidget {
     await showResetLogDialog(context: context, months: months, jenis: jenis);
   }
 
-// Fungsi modal
   Future<void> showResetLogDialog({
     required BuildContext context,
     required List<Map<String, dynamic>> months,
     required String jenis,
   }) async {
-    int? selectedBulan;
-    int? selectedTahun;
+    String? selectedMonth;
 
     await showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(builder: (context, setState) {
+          // Prepare dropdown items
+          final dropdownItems = months.map((month) {
+            final bulan = month['bulan'] as int;
+            final tahun = month['tahun'] as int;
+            final jumlah = month['jumlah'] as int;
+            return context.isIndonesian
+                ? "Bulan $bulan - $tahun ($jumlah data)"
+                : "Month $bulan - $tahun ($jumlah data)";
+          }).toList();
+
           return Padding(
             padding: EdgeInsets.only(
               left: context.isMobile ? 0 : 50,
@@ -176,7 +183,10 @@ class ResetDb extends StatelessWidget {
               insetPadding:
                   const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 400),
+                constraints: BoxConstraints(
+                  maxHeight: 400,
+                  maxWidth: context.isMobile ? double.infinity : 600,
+                ),
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Column(
@@ -194,34 +204,49 @@ class ResetDb extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      DropdownButton<int>(
-                        isExpanded: true,
-                        value: selectedBulan,
-                        hint: Text(context.isIndonesian ? "Bulan" : "Month",
-                            style: TextStyle(color: AppColors.putih)),
-                        dropdownColor: AppColors.bg,
-                        style: TextStyle(color: AppColors.putih),
-                        items: months.map((month) {
-                          final bulan = month['bulan'] as int;
-                          final tahun = month['tahun'] as int;
-                          final jumlah = month['jumlah'] as int;
-                          return DropdownMenuItem<int>(
-                            value: bulan,
-                            child: Text(context.isIndonesian
-                                ? "Bulan $bulan - $tahun ($jumlah data)"
-                                : "Month $bulan - $tahun ($jumlah data)"),
-                          );
-                        }).toList(),
+                      CustomDropDownField(
+                        label: "",
+                        hint: context.isIndonesian
+                            ? "Pilih Bulan"
+                            : "Select Month",
+                        items: dropdownItems,
+                        value: selectedMonth,
                         onChanged: (val) {
                           setState(() {
-                            selectedBulan = val;
+                            selectedMonth = val;
                           });
                         },
+                        labelStyle: TextStyle(color: AppColors.putih),
+                        textStyle: TextStyle(color: AppColors.putih),
+                        inputStyle: InputDecoration(
+                          filled: true,
+                          fillColor: AppColors.bg,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                                color: AppColors.putih.withOpacity(0.3)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                                color: AppColors.putih.withOpacity(0.3)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: AppColors.primary),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 12),
+                        ),
+                        dropdownColor: AppColors.bg,
+                        dropdownTextColor: AppColors.putih,
+                        dropdownIconColor: AppColors.putih,
+                        buttonColor: AppColors.bg,
                       ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          if (selectedBulan != null)
+                          if (selectedMonth != null)
                             Expanded(
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
@@ -234,20 +259,23 @@ class ResetDb extends StatelessWidget {
                                     style: TextStyle(color: AppColors.putih)),
                               ),
                             ),
-                          if (selectedBulan != null) const SizedBox(width: 12),
+                          if (selectedMonth != null) const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: selectedBulan != null
+                                backgroundColor: selectedMonth != null
                                     ? AppColors.red
                                     : AppColors.secondary,
                                 foregroundColor: AppColors.putih,
                               ),
-                              onPressed: selectedBulan != null
+                              onPressed: selectedMonth != null
                                   ? () async {
-                                      final monthData = months.firstWhere(
-                                          (e) => e['bulan'] == selectedBulan);
-                                      selectedTahun = monthData['tahun'];
+                                      // Find selected month data
+                                      final selectedIndex =
+                                          dropdownItems.indexOf(selectedMonth!);
+                                      final monthData = months[selectedIndex];
+                                      final selectedBulan = monthData['bulan'];
+                                      final selectedTahun = monthData['tahun'];
 
                                       final confirmed =
                                           await showConfirmationDialog(
@@ -265,8 +293,8 @@ class ResetDb extends StatelessWidget {
                                       if (confirmed) {
                                         try {
                                           await DangerService.resetByMonth(
-                                            bulan: selectedBulan!,
-                                            tahun: selectedTahun!,
+                                            bulan: selectedBulan,
+                                            tahun: selectedTahun,
                                             jenis: jenis,
                                           );
                                           NotificationHelper.showTopNotification(
@@ -313,30 +341,56 @@ class DangerButton extends StatefulWidget {
 
 class _DangerButtonState extends State<DangerButton> {
   bool isHover = false;
+  bool isProcessing = false;
 
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: isProcessing ? SystemMouseCursors.wait : SystemMouseCursors.click,
       onEnter: (_) => setState(() => isHover = true),
       onExit: (_) => setState(() => isHover = false),
       child: GestureDetector(
-        onTap: widget.onTap,
+        onTap: isProcessing
+            ? null
+            : () async {
+                if (isProcessing) return;
+
+                setState(() => isProcessing = true);
+
+                try {
+                  widget.onTap();
+                } finally {
+                  if (mounted) {
+                    setState(() => isProcessing = false);
+                  }
+                }
+              },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: isHover ? AppColors.red : Colors.transparent,
+            color: isProcessing
+                ? AppColors.red.withOpacity(0.5)
+                : (isHover ? AppColors.red : Colors.transparent),
             border: Border.all(color: AppColors.red, width: 1),
             borderRadius: BorderRadius.circular(6),
           ),
-          child: Text(
-            widget.label,
-            style: TextStyle(
-              color: isHover ? Colors.white : AppColors.red,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+          child: isProcessing
+              ? SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                )
+              : Text(
+                  widget.label,
+                  style: TextStyle(
+                    color: isHover ? Colors.white : AppColors.red,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
         ),
       ),
     );

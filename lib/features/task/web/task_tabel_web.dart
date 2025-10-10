@@ -203,12 +203,11 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Terlambat/Tepat Waktu',
+              label: 'Ketepatan',
               value: tugas.displayTerlambat,
             ),
           ],
         ),
-
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -253,13 +252,13 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             "Judul",
             "Tgl Mulai",
             "Batas Submit",
-            "Lokasi Tugas",
             "Radius Lokasi",
+            "Lokasi Tugas",
             "Lokasi Lampiran",
             "Status",
             "Catatan",
             "Lampiran",
-            "Terlambat/Tepat Waktu"
+            "Ketepatan"
           ]
         : [
             "To",
@@ -272,7 +271,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             "Status",
             "Note",
             "Attachment",
-            "On Time/Late"
+            "Punctuality"
           ];
     final rows = widget.tugasList.map((tugas) {
       return [
@@ -281,12 +280,17 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         parseDate(tugas.tanggalMulai),
         parseDate(tugas.tanggalSelesai),
         "${tugas.radius} M",
-        tugas.displayLokasiTugas,
-        tugas.displayLokasiLampiran,
+        tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
+            ? "See Location"
+            : '-',
+        tugas.displayLokasiLampiran != null &&
+                tugas.displayLokasiLampiran != "-"
+            ? "See Location"
+            : '-',
         tugas.status,
         tugas.displayNote,
         tugas.displayLampiran,
-        tugas.displayTerlambat,
+        tugas.lampiran != null ? tugas.displayTerlambat : '-',
       ];
     }).toList();
 
@@ -317,7 +321,9 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
           _openMap("${tugas.tugasLat},${tugas.tugasLng}");
         }
-        if (col == 6 && tugas.lampiranLat != null && tugas.lampiranLng != null) {
+        if (col == 6 &&
+            tugas.lampiranLat != null &&
+            tugas.lampiranLng != null) {
           _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");
         }
       },

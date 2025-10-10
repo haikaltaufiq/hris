@@ -373,118 +373,148 @@ class _ProfilePageState extends State<ProfilePage> {
     final emailController = TextEditingController(text: email);
     final passwordController = TextEditingController();
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    if (context.isMobile) {
+      // === MOBILE: Modal Bottom Sheet ===
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        backgroundColor: AppColors.primary,
+        builder: (context) {
+          return _buildEditEmailContent(emailController, passwordController);
+        },
+      );
+    } else {
+      // === DESKTOP: Dialog ===
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            backgroundColor: AppColors.primary,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 600,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child:
+                    _buildEditEmailContent(emailController, passwordController),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
+
+  Widget _buildEditEmailContent(TextEditingController emailController,
+      TextEditingController passwordController) {
+    return Padding(
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+        left: 16,
+        right: 16,
+        top: 24,
       ),
-      builder: (context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-            left: 16,
-            right: 16,
-            top: 24,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Edit Email',
+            style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.putih),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Edit Email',
-                style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.putih),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  labelText: context.isIndonesian ? 'Email Baru' : 'New Email',
-                  labelStyle: GoogleFonts.poppins(
-                      color: AppColors.putih.withOpacity(0.7)),
-                  filled: true,
-                  fillColor: AppColors.primary.withOpacity(0.2),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none),
-                ),
-                style: GoogleFonts.poppins(color: AppColors.putih),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  labelText: context.isIndonesian
-                      ? 'Konfirmasi Password'
-                      : 'Password Confirmation',
-                  labelStyle: GoogleFonts.poppins(
-                      color: AppColors.putih.withOpacity(0.7)),
-                  filled: true,
-                  fillColor: AppColors.primary.withOpacity(0.2),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none),
-                ),
-                style: GoogleFonts.poppins(color: AppColors.putih),
-              ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.secondary,
-                    padding: const EdgeInsets.symmetric(vertical: 18),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  onPressed: () async {
-                    final newEmail = emailController.text.trim();
-                    final oldPassword = passwordController.text.trim();
-
-                    if (newEmail.isEmpty || oldPassword.isEmpty) {
-                      NotificationHelper.showTopNotification(
-                          context, 'Email dan password wajib diisi',
-                          isSuccess: false);
-                      return;
-                    }
-
-                    final result =
-                        await _authService.updateEmail(newEmail, oldPassword);
-
-                    if (result['success'] == true) {
-                      setState(() {
-                        email = result['data']['email'];
-                      });
-                      Navigator.pop(context);
-
-                      NotificationHelper.showTopNotification(
-                        context,
-                        result['message'],
-                        isSuccess: true,
-                      );
-                    } else {
-                      NotificationHelper.showTopNotification(
-                        context,
-                        result['message'],
-                        isSuccess: false,
-                      );
-                    }
-                  },
-                  child: Text('Simpan',
-                      style: GoogleFonts.poppins(
-                          fontWeight: FontWeight.bold, color: AppColors.putih)),
-                ),
-              ),
-              const SizedBox(height: 24),
-            ],
+          const SizedBox(height: 16),
+          TextField(
+            controller: emailController,
+            decoration: InputDecoration(
+              labelText: context.isIndonesian ? 'Email Baru' : 'New Email',
+              labelStyle:
+                  GoogleFonts.poppins(color: AppColors.putih.withOpacity(0.7)),
+              filled: true,
+              fillColor: AppColors.primary.withOpacity(0.2),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+            ),
+            style: GoogleFonts.poppins(color: AppColors.putih),
           ),
-        );
-      },
-      backgroundColor: AppColors.primary,
+          const SizedBox(height: 16),
+          TextField(
+            controller: passwordController,
+            obscureText: true,
+            decoration: InputDecoration(
+              labelText: context.isIndonesian
+                  ? 'Konfirmasi Password'
+                  : 'Password Confirmation',
+              labelStyle:
+                  GoogleFonts.poppins(color: AppColors.putih.withOpacity(0.7)),
+              filled: true,
+              fillColor: AppColors.primary.withOpacity(0.2),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+            ),
+            style: GoogleFonts.poppins(color: AppColors.putih),
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.secondary,
+                padding: const EdgeInsets.symmetric(vertical: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () async {
+                final newEmail = emailController.text.trim();
+                final oldPassword = passwordController.text.trim();
+
+                if (newEmail.isEmpty || oldPassword.isEmpty) {
+                  NotificationHelper.showTopNotification(
+                      context, 'Email dan password wajib diisi',
+                      isSuccess: false);
+                  return;
+                }
+
+                final result =
+                    await _authService.updateEmail(newEmail, oldPassword);
+
+                if (result['success'] == true) {
+                  setState(() {
+                    email = result['data']['email'];
+                  });
+                  Navigator.pop(context);
+
+                  NotificationHelper.showTopNotification(
+                    context,
+                    result['message'],
+                    isSuccess: true,
+                  );
+                } else {
+                  NotificationHelper.showTopNotification(
+                    context,
+                    result['message'],
+                    isSuccess: false,
+                  );
+                }
+              },
+              child: Text('Simpan',
+                  style: GoogleFonts.poppins(
+                      fontWeight: FontWeight.bold, color: AppColors.putih)),
+            ),
+          ),
+          const SizedBox(height: 24),
+        ],
+      ),
     );
   }
 
@@ -493,141 +523,232 @@ class _ProfilePageState extends State<ProfilePage> {
     final newPasswordController = TextEditingController();
     final confirmPasswordController = TextEditingController();
 
-    // definisi state toggle di luar builder
     bool obscureOld = true;
     bool obscureNew = true;
     bool obscureConfirm = true;
 
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      backgroundColor: AppColors.primary,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-                left: 16,
-                right: 16,
-                top: 24,
+    if (context.isMobile) {
+      // === MOBILE: Bottom Sheet ===
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        backgroundColor: AppColors.primary,
+        builder: (context) {
+          return _buildEditPasswordContent(
+              oldPasswordController,
+              newPasswordController,
+              confirmPasswordController,
+              obscureOld,
+              obscureNew,
+              obscureConfirm);
+        },
+      );
+    } else {
+      // === DESKTOP: Dialog ===
+      showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            backgroundColor: AppColors.primary,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: 600, // <-- ubah sesuai kebutuhan, misal 400px
               ),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('Edit Password',
-                        style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.putih)),
-                    const SizedBox(height: 16),
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: _buildEditPasswordContent(
+                    oldPasswordController,
+                    newPasswordController,
+                    confirmPasswordController,
+                    obscureOld,
+                    obscureNew,
+                    obscureConfirm),
+              ),
+            ),
+          );
+        },
+      );
+    }
+  }
 
-                    // Password lama
-                    TextField(
-                      controller: oldPasswordController,
-                      obscureText: obscureOld,
-                      decoration: InputDecoration(
-                        labelText: context.isIndonesian
-                            ? 'Password Lama'
-                            : 'Old Password',
-                        labelStyle: GoogleFonts.poppins(
-                            color: AppColors.putih.withOpacity(0.7)),
-                        filled: true,
-                        fillColor: AppColors.primary.withOpacity(0.2),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscureOld
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: AppColors.putih,
-                          ),
-                          onPressed: () {
-                            setState(() => obscureOld = !obscureOld);
-                          },
-                        ),
-                      ),
-                      style: GoogleFonts.poppins(color: AppColors.putih),
+  Widget _buildEditPasswordContent(
+    TextEditingController oldPasswordController,
+    TextEditingController newPasswordController,
+    TextEditingController confirmPasswordController,
+    bool obscureOld,
+    bool obscureNew,
+    bool obscureConfirm,
+  ) {
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 16,
+            right: 16,
+            top: 24,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Edit Password',
+                    style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.putih)),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: oldPasswordController,
+                  obscureText: obscureOld,
+                  decoration: InputDecoration(
+                    labelText:
+                        context.isIndonesian ? 'Password Lama' : 'Old Password',
+                    labelStyle: GoogleFonts.poppins(
+                        color: AppColors.putih.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: AppColors.primary.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
                     ),
-                    const SizedBox(height: 16),
-
-                    // Password baru
-                    TextField(
-                      controller: newPasswordController,
-                      obscureText: obscureNew,
-                      decoration: InputDecoration(
-                        labelText: context.isIndonesian
-                            ? 'Password Baru'
-                            : ' New Password',
-                        labelStyle: GoogleFonts.poppins(
-                            color: AppColors.putih.withOpacity(0.7)),
-                        filled: true,
-                        fillColor: AppColors.primary.withOpacity(0.2),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscureNew
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: AppColors.putih,
-                          ),
-                          onPressed: () {
-                            setState(() => obscureNew = !obscureNew);
-                          },
-                        ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureOld ? Icons.visibility_off : Icons.visibility,
+                        color: AppColors.putih,
                       ),
-                      style: GoogleFonts.poppins(color: AppColors.putih),
+                      onPressed: () => setState(() => obscureOld = !obscureOld),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Konfirmasi password baru
-                    TextField(
-                      controller: confirmPasswordController,
-                      obscureText: obscureConfirm,
-                      decoration: InputDecoration(
-                        labelText: context.isIndonesian
-                            ? 'Konfirmasi Password Baru'
-                            : 'New Password Confirmation',
-                        labelStyle: GoogleFonts.poppins(
-                            color: AppColors.putih.withOpacity(0.7)),
-                        filled: true,
-                        fillColor: AppColors.primary.withOpacity(0.2),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none,
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            obscureConfirm
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                            color: AppColors.putih,
-                          ),
-                          onPressed: () {
-                            setState(() => obscureConfirm = !obscureConfirm);
-                          },
-                        ),
-                      ),
-                      style: GoogleFonts.poppins(color: AppColors.putih),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Tombol simpan (kode asli tetap sama)...
-                  ],
+                  ),
+                  style: GoogleFonts.poppins(color: AppColors.putih),
                 ),
-              ),
-            );
-          },
+                const SizedBox(height: 16),
+                TextField(
+                  controller: newPasswordController,
+                  obscureText: obscureNew,
+                  decoration: InputDecoration(
+                    labelText:
+                        context.isIndonesian ? 'Password Baru' : 'New Password',
+                    labelStyle: GoogleFonts.poppins(
+                        color: AppColors.putih.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: AppColors.primary.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureNew ? Icons.visibility_off : Icons.visibility,
+                        color: AppColors.putih,
+                      ),
+                      onPressed: () => setState(() => obscureNew = !obscureNew),
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(color: AppColors.putih),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: confirmPasswordController,
+                  obscureText: obscureConfirm,
+                  decoration: InputDecoration(
+                    labelText: context.isIndonesian
+                        ? 'Konfirmasi Password Baru'
+                        : 'New Password Confirmation',
+                    labelStyle: GoogleFonts.poppins(
+                        color: AppColors.putih.withOpacity(0.7)),
+                    filled: true,
+                    fillColor: AppColors.primary.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        obscureConfirm
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: AppColors.putih,
+                      ),
+                      onPressed: () =>
+                          setState(() => obscureConfirm = !obscureConfirm),
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(color: AppColors.putih),
+                ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.secondary,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final oldPassword = oldPasswordController.text.trim();
+                      final newPassword = newPasswordController.text.trim();
+                      final confirmPassword =
+                          confirmPasswordController.text.trim();
+
+                      if (oldPassword.isEmpty ||
+                          newPassword.isEmpty ||
+                          confirmPassword.isEmpty) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Semua field wajib diisi',
+                          isSuccess: false,
+                        );
+                        return;
+                      }
+
+                      if (newPassword != confirmPassword) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          'Konfirmasi password tidak cocok',
+                          isSuccess: false,
+                        );
+                        return;
+                      }
+
+                      final result = await _authService.changePassword(
+                          oldPassword: oldPassword, newPassword: newPassword);
+
+                      if (result['success'] == true) {
+                        Navigator.pop(context);
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: true,
+                        );
+                      } else {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          result['message'],
+                          isSuccess: false,
+                        );
+                      }
+                    },
+                    child: Text(
+                      'Simpan',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.putih,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
         );
       },
     );

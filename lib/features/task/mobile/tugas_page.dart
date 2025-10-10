@@ -49,7 +49,7 @@ class _TugasMobileState extends State<TugasMobile> {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<TugasProvider>();
-    final displayedTugas = provider.filteredTugasList.isEmpty
+    final displayedTugas = searchController.text.isEmpty
         ? provider.tugasList
         : provider.filteredTugasList;
 
@@ -70,13 +70,6 @@ class _TugasMobileState extends State<TugasMobile> {
                     controller: searchController,
                     onChanged: provider.filterTugas,
                     onFilter1Tap: () {},
-                  ),
-                  FeatureGuard(
-                    requiredFeature: 'lihat_semua_tugas',
-                    child: TugasTabel(
-                      tugasList: displayedTugas,
-                      onActionDone: () => searchController.clear(),
-                    ),
                   ),
                   if (provider.isLoading && displayedTugas.isEmpty)
                     SizedBox(
@@ -121,29 +114,13 @@ class _TugasMobileState extends State<TugasMobile> {
                     )
                   else
                     FeatureAccess.has("tambah_lampiran_tugas")
-                        ? ListView.builder(
-                            itemCount: displayedTugas.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final tugas = displayedTugas[index];
-                              return TugasUserTabel(
-                                tugasList: [tugas],
-                                onActionDone: () => searchController.clear(),
-                              );
-                            },
+                        ? TugasUserTabel(
+                            tugasList: displayedTugas,
+                            onActionDone: () => searchController.clear(),
                           )
-                        : ListView.builder(
-                            itemCount: displayedTugas.length,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              final tugas = displayedTugas[index];
-                              return TugasTabel(
-                                tugasList: [tugas],
-                                onActionDone: () => searchController.clear(),
-                              );
-                            },
+                        : TugasTabel(
+                            tugasList: displayedTugas,
+                            onActionDone: () => searchController.clear(),
                           )
                 ],
               ),
