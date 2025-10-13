@@ -101,11 +101,11 @@ class TugasUserTabel extends StatelessWidget {
                 case 2:
                   return DetailItem(
                       label: 'Tanggal Mulai',
-                      value: parseDate(tugas.tanggalMulai));
+                      value: parseDate(tugas.tanggalPenugasan));
                 case 3:
                   return DetailItem(
                       label: 'Batas Submit',
-                      value: parseDate(tugas.tanggalSelesai));
+                      value: parseDate(tugas.batasPenugasan));
                 case 4:
                   return DetailItem(label: 'Lokasi', value: tugas.displayLokasiTugas);
                 case 5:
@@ -173,8 +173,8 @@ class TugasUserTabel extends StatelessWidget {
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        parseDate(tugas.tanggalMulai),
-        parseDate(tugas.tanggalSelesai),
+        parseDate(tugas.tanggalPenugasan),
+        parseDate(tugas.batasPenugasan),
         tugas.displayLokasiTugas,
         tugas.displayNote,
         tugas.status,

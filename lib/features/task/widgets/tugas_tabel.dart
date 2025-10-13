@@ -288,12 +288,12 @@ class _TugasTabelState extends State<TugasTabel> {
             SizedBox(height: 5),
             DetailItem(
               label: 'Tanggal Mulai',
-              value: parseDate(tugas.tanggalMulai),
+              value: parseDate(tugas.tanggalPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
               label: 'Batas Submit',
-              value: parseDate(tugas.tanggalSelesai),
+              value: parseDate(tugas.batasPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
@@ -369,8 +369,8 @@ class _TugasTabelState extends State<TugasTabel> {
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        parseDate(tugas.tanggalMulai),
-        parseDate(tugas.tanggalSelesai),
+        parseDate(tugas.tanggalPenugasan),
+        parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",
         tugas.displayLokasiTugas,
         tugas.displayLokasiLampiran,

@@ -3,8 +3,8 @@ import 'package:hr/data/models/user_model.dart';
 class TugasModel {
   final int id;
   final String namaTugas;
-  final String tanggalMulai;
-  final String tanggalSelesai;
+  final String tanggalPenugasan;
+  final String batasPenugasan;
   final int radius;
   final double? tugasLat;
   final double? tugasLng;
@@ -19,8 +19,8 @@ class TugasModel {
   TugasModel({
     required this.id,
     required this.namaTugas,
-    required this.tanggalMulai,
-    required this.tanggalSelesai,
+    required this.tanggalPenugasan,
+    required this.batasPenugasan,
     required this.radius,
     this.tugasLat,
     this.tugasLng,
@@ -37,8 +37,8 @@ class TugasModel {
     return TugasModel(
       id: json['id'] ?? 0,
       namaTugas: json['nama_tugas'] ?? '',
-      tanggalMulai: json['tanggal_mulai'] ?? '',
-      tanggalSelesai: json['tanggal_selesai'] ?? '',
+      tanggalPenugasan: json['tanggal_penugasan'] ?? '',
+      batasPenugasan: json['batas_penugasan'] ?? '',
       radius: json['radius_meter'] ?? 100,
       tugasLat: json['tugas_lat'] != null
           ? double.tryParse(json['tugas_lat'].toString())
@@ -69,8 +69,8 @@ class TugasModel {
     return {
       'id': id,
       'nama_tugas': namaTugas,
-      'tanggal_mulai': tanggalMulai,
-      'tanggal_selesai': tanggalSelesai,
+      'tanggal_penugasan': tanggalPenugasan,
+      'batas_penugasan': batasPenugasan,
       'radius_meter': radius,
       'tugas_lat': tugasLat,
       'tugas_lng': tugasLng,

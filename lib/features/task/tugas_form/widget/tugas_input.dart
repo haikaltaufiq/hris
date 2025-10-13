@@ -25,23 +25,60 @@ class TugasInput extends StatefulWidget {
   State<TugasInput> createState() => _TugasInputState();
 }
 
-class _TugasInputState extends State<TugasInput> {
-  final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController = TextEditingController();
-  final TextEditingController _latitudeController = TextEditingController();
-  final TextEditingController _longitudeController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
-  final TextEditingController _judulTugasController = TextEditingController();
-  final TextEditingController _radiusController = TextEditingController();
+  class _TugasInputState extends State<TugasInput> {
+    final TextEditingController _tanggalPenugasanController = TextEditingController();
+    final TextEditingController _batasPenugasanController = TextEditingController();
+    final TextEditingController _latitudeController = TextEditingController();
+    final TextEditingController _longitudeController = TextEditingController();
+    final TextEditingController _noteController = TextEditingController();
+    final TextEditingController _judulTugasController = TextEditingController();
+    final TextEditingController _radiusController = TextEditingController();
 
-  UserModel? _selectedUser;
-  List<UserModel> _userList = [];
-  bool _isLoadingUser = true;
+    UserModel? _selectedUser;
+    List<UserModel> _userList = [];
+    bool _isLoadingUser = true;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUsers();
+    @override
+    void initState() {
+      super.initState();
+      _loadUsers();
+    }
+
+    void _onTapDateandTime(TextEditingController controller) async {
+    // Pilih tanggal
+    final pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+
+    if (pickedDate == null || !mounted) return;
+
+    // Pilih waktu
+    final pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime == null) return;
+
+    // Gabungkan tanggal & waktu
+    final dateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+
+    // Simpan ke controller
+    controller.text =
+        "${dateTime.day.toString().padLeft(2, '0')}/"
+        "${dateTime.month.toString().padLeft(2, '0')}/"
+        "${dateTime.year} "
+        "${dateTime.hour.toString().padLeft(2, '0')}:"
+        "${dateTime.minute.toString().padLeft(2, '0')}";
   }
 
   Future<void> _loadUsers() async {
@@ -199,48 +236,10 @@ class _TugasInputState extends State<TugasInput> {
     }
   }
 
-  void _onTapIconDate(TextEditingController controller) async {
-    final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: const Color(0xFF1F1F1F),
-              onPrimary: Colors.white,
-              onSurface: AppColors.hitam,
-              secondary: AppColors.yellow,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.hitam,
-              ),
-            ),
-            textTheme: GoogleFonts.poppinsTextTheme(
-              Theme.of(context).textTheme.apply(
-                    bodyColor: AppColors.hitam,
-                    displayColor: AppColors.hitam,
-                  ),
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (pickedDate != null && mounted) {
-      controller.text =
-          "${pickedDate.day.toString().padLeft(2, '0')} / ${pickedDate.month.toString().padLeft(2, '0')} / ${pickedDate.year}";
-    }
-  }
-
   @override
   void dispose() {
-    _tanggalMulaiController.dispose();
-    _tanggalSelesaiController.dispose();
+    _tanggalPenugasanController.dispose();
+    _batasPenugasanController.dispose();
     _latitudeController.dispose();
     _longitudeController.dispose();
     _noteController.dispose();
@@ -298,9 +297,9 @@ class _TugasInputState extends State<TugasInput> {
           CustomInputField(
             label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
             hint: "dd / mm / yyyy",
-            controller: _tanggalMulaiController,
+            controller: _tanggalPenugasanController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-            onTapIcon: () => _onTapIconDate(_tanggalMulaiController),
+            onTapIcon: () => _onTapDateandTime(_tanggalPenugasanController),
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -311,9 +310,9 @@ class _TugasInputState extends State<TugasInput> {
                 ? "Batas Tanggal Penyelesaian"
                 : "Deadline Task",
             hint: "dd / mm / yyyy",
-            controller: _tanggalSelesaiController,
+            controller: _batasPenugasanController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-            onTapIcon: () => _onTapIconDate(_tanggalSelesaiController),
+            onTapIcon: () => _onTapDateandTime(_batasPenugasanController),
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -491,8 +490,8 @@ class _TugasInputState extends State<TugasInput> {
                   : () async {
                       // Validasi input
                       if (_judulTugasController.text.trim().isEmpty ||
-                          _tanggalMulaiController.text.trim().isEmpty ||
-                          _tanggalSelesaiController.text.trim().isEmpty ||
+                          _tanggalPenugasanController.text.trim().isEmpty ||
+                          _batasPenugasanController.text.trim().isEmpty ||
                           _selectedUser == null ||
                           _latitudeController.text.trim().isEmpty ||
                           _longitudeController.text.trim().isEmpty) {
@@ -531,8 +530,8 @@ class _TugasInputState extends State<TugasInput> {
 
                         final result = await tugasProvider.createTugas(
                           judul: _judulTugasController.text.trim(),
-                          tanggalMulai: _tanggalMulaiController.text.trim(),
-                          tanggalSelesai: _tanggalSelesaiController.text.trim(),
+                          tanggalPenugasan: _tanggalPenugasanController.text.trim(),
+                          batasPenugasan: _batasPenugasanController.text.trim(),
                           tugasLat: latitude,
                           tugasLng: longitude,
                           person: _selectedUser?.id,
