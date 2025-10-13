@@ -27,6 +27,9 @@ class TugasProvider extends ChangeNotifier {
       .where((tugas) => tugas.status.toLowerCase() == 'selesai')
       .length;
 
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -57,7 +60,10 @@ class TugasProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       final apiData = await TugasService.fetchTugas();
+      tugasList.clear();
       _tugasList = apiData;
+      sortTugas('terbaru');
+
       filteredTugasList.clear();
       _errorMessage = null;
 
@@ -71,6 +77,30 @@ class TugasProvider extends ChangeNotifier {
       if (_tugasList.isEmpty) loadCacheFirst();
     }
     _setLoading(false);
+  }
+
+  void sortTugas(String order) {
+    if (_tugasList.isEmpty) return;
+    _currentSortField = order;
+
+    switch (order) {
+      case 'terlama':
+        _tugasList.sort((a, b) => DateTime.parse(a.tanggalMulai)
+            .compareTo(DateTime.parse(b.tanggalMulai)));
+        break;
+      case 'terbaru':
+        _tugasList.sort((a, b) => DateTime.parse(b.tanggalMulai)
+            .compareTo(DateTime.parse(a.tanggalMulai)));
+        break;
+      case 'nama':
+        _tugasList.sort((a, b) => a.displayUser.compareTo(b.displayUser));
+        break;
+      case 'status':
+        _tugasList.sort((a, b) => a.status.compareTo(b.status));
+        break;
+    }
+
+    notifyListeners();
   }
 
   void filterTugas(String query) {
@@ -97,7 +127,6 @@ class TugasProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   // Create tugas dengan koordinat
   Future<Map<String, dynamic>> createTugas({
     required String judul,
@@ -123,7 +152,7 @@ class TugasProvider extends ChangeNotifier {
         lampiranLat: lampiranLat,
         lampiranLng: lampiranLng,
         note: note,
-        radius: radius.toString(), 
+        radius: radius.toString(),
       );
       if (result['success'] == true) await fetchTugas(forceRefresh: true);
       return result;
@@ -162,7 +191,7 @@ class TugasProvider extends ChangeNotifier {
         lampiranLat: lampiranLat,
         lampiranLng: lampiranLng,
         note: note,
-        radius: radius.toString(), 
+        radius: radius.toString(),
       );
       if (result['success'] == true) await fetchTugas(forceRefresh: true);
       return result;
@@ -173,7 +202,6 @@ class TugasProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
 
   // Hapus tugas
   Future<String?> deleteTugas(int id) async {
@@ -228,8 +256,10 @@ class TugasProvider extends ChangeNotifier {
         if (date == null) continue;
         int monthIndex = date.month - 1;
         target[monthIndex] += 1;
-        if (tugas.status.toLowerCase() == 'selesai') projectCompletion[monthIndex] += 1;
-        else attendanceRate[monthIndex] += 1;
+        if (tugas.status.toLowerCase() == 'selesai')
+          projectCompletion[monthIndex] += 1;
+        else
+          attendanceRate[monthIndex] += 1;
       } catch (e) {
         print('Error parsing tugas tanggalMulai: $e');
       }

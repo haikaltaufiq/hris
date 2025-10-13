@@ -130,13 +130,11 @@ class _GajiTabelWebState extends State<GajiTabelWeb> {
       statusOptions: ["Belum Dibayar", "Sudah Dibayar"],
       onView: (rowIndex) {
         // Ambil data gaji yang sesuai (reversed list)
-        final reversedList = widget.gajiList.reversed.toList();
-        final gaji = reversedList[rowIndex];
+        final gaji = widget.gajiList[rowIndex];
         _showDetailDialog(context, gaji);
       },
       onStatusChanged: (rowIndex, newStatus) async {
-        final reversedList = widget.gajiList.reversed.toList();
-        final gaji = reversedList[rowIndex];
+        final gaji = widget.gajiList[rowIndex];
 
         if (widget.onReload != null) {
           await widget.onReload!(gaji.id, newStatus);

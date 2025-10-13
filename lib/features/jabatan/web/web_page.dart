@@ -173,7 +173,7 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                           confirmColor: AppColors.red,
                         );
                         if (confirmed) {
-                          await vm.deleteJabatan(context, id);
+                          vm.deleteJabatan(context, id);
                         }
                       },
                     ),

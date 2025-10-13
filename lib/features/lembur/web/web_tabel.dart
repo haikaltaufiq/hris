@@ -57,9 +57,9 @@ class WebTabelLembur extends StatelessWidget {
         ];
       }).toList(),
       statusColumnIndexes: [5],
-      onCellTap: (row, col) {},
-      onView: (row) {
-        final c = lemburList[row];
+      onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {},
+      onView: (actualRowIndex) {
+        final c = lemburList[actualRowIndex];
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
@@ -110,8 +110,8 @@ class WebTabelLembur extends StatelessWidget {
       //   final c = lemburList[row];
       //   onDelete(c);
       // },
-      onEdit: (row) {
-        final c = lemburList[row];
+      onEdit: (actualRowIndex) {
+        final c = lemburList[actualRowIndex];
         showDialog(
           context: context,
           builder: (_) => UpdateStatusDialog(

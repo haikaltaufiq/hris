@@ -10,14 +10,14 @@ class CustomDataTableWeb extends StatefulWidget {
   final List<int>? statusColumnIndexes;
   final List<int>? dropdownStatusColumnIndexes;
   final List<String>? statusOptions;
-  final List<int>? textLengthLimits; // New parameter for custom text limits
-  final List<int>? columnFlexValues; // New parameter for custom flex values
-  final Function(int row, int col)? onCellTap;
-  final Function(int row)? onView;
-  final Function(int row)? onEdit;
-  final Function(int row)? onDelete;
+  final List<int>? textLengthLimits;
+  final List<int>? columnFlexValues;
+  final Function(int row, int col, int actualRowIndex)? onCellTap;
+  final Function(int actualRowIndex)? onView;
+  final Function(int actualRowIndex)? onEdit;
+  final Function(int actualRowIndex)? onDelete;
   final Function(int row, String value)? onStatusChanged;
-  final Function(int row)? onTapLampiran;
+  final Function(int actualRowIndex)? onTapLampiran;
 
   const CustomDataTableWeb({
     super.key,
@@ -45,10 +45,14 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
   static const int rowsPerPage = 10;
 
   List<List<String>> get paginatedRows {
-    final reversedRows = widget.rows.reversed.toList();
     final start = currentPage * rowsPerPage;
-    final end = (start + rowsPerPage).clamp(0, reversedRows.length);
-    return reversedRows.sublist(start, end);
+    final end = (start + rowsPerPage).clamp(0, widget.rows.length);
+    return widget.rows.sublist(start, end);
+  }
+
+  /// Convert paginated row index to actual row index in full list
+  int _getActualRowIndex(int paginatedRowIndex) {
+    return (currentPage * rowsPerPage) + paginatedRowIndex;
   }
 
   Color _getStatusColor(String status) {
@@ -73,7 +77,9 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
   }
 
   void _showStatusDropdown(
-      BuildContext context, String currentStatus, int rowIndex, int colIndex) {
+      BuildContext context, String currentStatus, int paginatedRowIndex, int colIndex) {
+    final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
+    
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
@@ -162,7 +168,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
       }).toList(),
     ).then((selectedStatus) {
       if (selectedStatus != null && selectedStatus != currentStatus) {
-        widget.onStatusChanged?.call(rowIndex, selectedStatus);
+        widget.onStatusChanged?.call(actualRowIndex, selectedStatus);
       }
     });
   }
@@ -173,7 +179,9 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
   }
 
   Widget _buildValueCell(
-      BuildContext context, String value, int rowIndex, int colIndex) {
+      BuildContext context, String value, int paginatedRowIndex, int colIndex) {
+    final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
+
     if (widget.dropdownStatusColumnIndexes != null &&
         widget.dropdownStatusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
@@ -186,8 +194,8 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
               waitDuration: const Duration(milliseconds: 300),
               child: InkWell(
                 onTap: () {
-                  widget.onCellTap?.call(rowIndex, colIndex);
-                  _showStatusDropdown(context, value, rowIndex, colIndex);
+                  widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex);
+                  _showStatusDropdown(context, value, paginatedRowIndex, colIndex);
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
@@ -298,7 +306,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
           message: value,
           waitDuration: const Duration(milliseconds: 300),
           child: GestureDetector(
-            onTap: () => widget.onTapLampiran!(rowIndex),
+            onTap: () => widget.onTapLampiran!(actualRowIndex),
             child: Text(
               value,
               style: TextStyle(
@@ -327,7 +335,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
       message: value,
       waitDuration: const Duration(milliseconds: 300),
       child: GestureDetector(
-        onTap: () => widget.onCellTap?.call(rowIndex, colIndex),
+        onTap: () => widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex),
         child: Text(
           displayText,
           style: TextStyle(
@@ -434,8 +442,10 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                   thickness: 0.5,
                   height: 1,
                 ),
-                itemBuilder: (context, rowIndex) {
-                  final row = paginatedRows[rowIndex];
+                itemBuilder: (context, paginatedRowIndex) {
+                  final row = paginatedRows[paginatedRowIndex];
+                  final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
+
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
                     child: Row(
@@ -455,7 +465,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                               child: _buildValueCell(
                                 context,
                                 entry.value,
-                                rowIndex,
+                                paginatedRowIndex,
                                 entry.key,
                               ),
                             ),
@@ -487,7 +497,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                           minHeight: 32,
                                         ),
                                         onPressed: () =>
-                                            widget.onView!(rowIndex),
+                                            widget.onView!(actualRowIndex),
                                       ),
                                     ),
                                   if (widget.onEdit != null)
@@ -505,7 +515,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                           minHeight: 32,
                                         ),
                                         onPressed: () =>
-                                            widget.onEdit!(rowIndex),
+                                            widget.onEdit!(actualRowIndex),
                                       ),
                                     ),
                                   if (widget.onDelete != null)
@@ -523,7 +533,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                           minHeight: 32,
                                         ),
                                         onPressed: () =>
-                                            widget.onDelete!(rowIndex),
+                                            widget.onDelete!(actualRowIndex),
                                       ),
                                     ),
                                 ],

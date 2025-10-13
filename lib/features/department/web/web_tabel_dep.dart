@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/departemen_model.dart';
+import 'package:provider/provider.dart';
 
 class WebTabelDep extends StatelessWidget {
   final List<DepartemenModel> departemenList;
@@ -17,9 +18,10 @@ class WebTabelDep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Header tabel
-    final headers =
-        context.isIndonesian ? ["Nama Department"] : ["Department Name"];
+    final isIndonesian =
+        Provider.of<LanguageProvider>(context, listen: false).isIndonesian;
+
+    final headers = isIndonesian ? ["Nama Department"] : ["Department Name"];
 
     // Convert departemenList ke rows (List<List<String>>)
     final rows = departemenList

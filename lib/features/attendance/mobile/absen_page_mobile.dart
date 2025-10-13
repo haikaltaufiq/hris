@@ -65,7 +65,74 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     onChanged: (value) {
                       provider.searchAbsensi(value);
                     },
-                    onFilter1Tap: () {},
+                    onFilter1Tap: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          String selected = provider.currentSortField;
+                          return AlertDialog(
+                            backgroundColor: AppColors.primary,
+                            title: Text(
+                              'Urutkan Berdasarkan',
+                              style: TextStyle(color: AppColors.putih),
+                            ),
+                            content: StatefulBuilder(
+                              builder: (context, setState) => Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  RadioListTile<String>(
+                                    value: 'terbaru',
+                                    groupValue: selected,
+                                    onChanged: (v) =>
+                                        setState(() => selected = v!),
+                                    title: const Text('Terbaru'),
+                                  ),
+                                  RadioListTile<String>(
+                                    value: 'terlama',
+                                    groupValue: selected,
+                                    onChanged: (v) =>
+                                        setState(() => selected = v!),
+                                    title: const Text('Terlama'),
+                                  ),
+                                  FeatureGuard(
+                                    requiredFeature: 'lihat_semua_absensi',
+                                    child: RadioListTile<String>(
+                                      value: 'nama',
+                                      groupValue: selected,
+                                      onChanged: (v) =>
+                                          setState(() => selected = v!),
+                                      title: const Text('Per-orang'),
+                                    ),
+                                  ),
+                                  RadioListTile<String>(
+                                    value: 'status',
+                                    groupValue: selected,
+                                    onChanged: (v) =>
+                                        setState(() => selected = v!),
+                                    title: const Text('Status'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('Batal'),
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  context
+                                      .read<AbsenProvider>()
+                                      .sortAbsensi(selected);
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('Terapkan'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
                   ),
                   if (provider.isLoading && displayedAbsensi.isEmpty)
                     SizedBox(

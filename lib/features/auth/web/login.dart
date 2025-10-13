@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -380,6 +381,9 @@ class _LoginState extends State<Login> {
 
             if (result['success'] == true && result['token'] != null) {
               final token = result['token'];
+              // simpan token sebelum navigasi
+              final box = await Hive.openBox('user');
+              await box.put('token', token);
 
               FeatureAccess.setFeatures(result['fitur']);
 
