@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/loading.dart';
-import 'package:hr/components/dialog/show_confirmation.dart';
-import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/log_service.dart';
@@ -71,47 +69,10 @@ class _WebTabelLogState extends State<WebTabelLog> {
     });
   }
 
-  void _toggleLogSelection(int logId) {
-    setState(() {
-      if (selectedLogs.contains(logId)) {
-        selectedLogs.remove(logId);
-      } else {
-        selectedLogs.add(logId);
-      }
-    });
-  }
-
   void _toggleShowAll(String userName) {
     setState(() {
       userShowAll[userName] = !(userShowAll[userName] ?? false);
     });
-  }
-
-  void _deleteSelectedLogs() async {
-    if (selectedLogs.isEmpty) return;
-
-    // Panggil confirmation dialog custom
-    final confirmed = await showConfirmationDialog(
-      context,
-      title: 'Hapus Log',
-      content: 'Yakin ingin menghapus ${selectedLogs.length} log yang dipilih?',
-      confirmText: 'Hapus',
-      cancelText: 'Batal',
-      confirmColor: AppColors.red,
-    );
-
-    if (confirmed) {
-      setState(() {
-        activityLogs.removeWhere((log) => selectedLogs.contains(log['id']));
-        selectedLogs.clear();
-      });
-
-      NotificationHelper.showTopNotification(
-        context,
-        'Log berhasil dihapus',
-        isSuccess: true,
-      );
-    }
   }
 
   Color getActionColor(String action) {
@@ -277,12 +238,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                 ),
               ),
             ),
-            if (selectedLogs.isNotEmpty)
-              IconButton(
-                onPressed: _deleteSelectedLogs,
-                icon: Icon(Icons.delete, color: Colors.red.shade600),
-                tooltip: 'Hapus log terpilih (${selectedLogs.length})',
-              ),
           ],
         ),
 
@@ -383,7 +338,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                               final actionColor = getActionColor(log['action']);
                               final actionIcon = getActionIcon(log['action']);
                               final isLast = index == displayLogs.length - 1;
-                              final isSelected = selectedLogs.contains(logId);
+                              selectedLogs.contains(logId);
 
                               return Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,23 +433,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                           ),
                                         ],
                                       ),
-                                    ),
-                                  ),
-
-                                  // Checkbox
-                                  const SizedBox(width: 8),
-                                  Checkbox(
-                                    value: isSelected,
-                                    onChanged: (value) =>
-                                        _toggleLogSelection(logId),
-                                    activeColor: AppColors.primary,
-                                    checkColor: AppColors.putih,
-                                    side: BorderSide(
-                                      color: Colors.grey.shade400,
-                                      width: 1.5,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(3),
                                     ),
                                   ),
                                 ],

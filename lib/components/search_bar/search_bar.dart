@@ -68,32 +68,34 @@ class SearchingBar extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
-          SizedBox(
-            width: buttonSize,
-            height: buttonSize,
-            child: ElevatedButton(
-              onPressed: onFilter1Tap,
-              style: ElevatedButton.styleFrom(
-                padding: EdgeInsets.zero,
-                backgroundColor: AppColors.secondary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+          if (onFilter1Tap != null) ...[
+            const SizedBox(width: 8),
+            SizedBox(
+              width: buttonSize,
+              height: buttonSize,
+              child: ElevatedButton(
+                onPressed: onFilter1Tap,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  backgroundColor: AppColors.secondary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
-              ),
-              child: Transform(
-                alignment: Alignment.center,
-                transform: Matrix4.identity()
-                  ..rotateZ(1.5708)
-                  ..scale(-1.0, 1.0),
-                child: FaIcon(
-                  FontAwesomeIcons.arrowRightArrowLeft,
-                  size: 20,
-                  color: AppColors.putih,
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.identity()
+                    ..rotateZ(1.5708)
+                    ..scale(-1.0, 1.0),
+                  child: FaIcon(
+                    FontAwesomeIcons.arrowRightArrowLeft,
+                    size: 20,
+                    color: AppColors.putih,
+                  ),
                 ),
               ),
             ),
-          ),
+          ]
         ],
       ),
     );

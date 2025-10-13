@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -50,7 +51,25 @@ class _WebPageKaryawanState extends State<WebPageKaryawan> {
                     userProvider.searchUsers(value);
                     // Bisa nanti filter users list di provider kalau mau
                   },
-                  onFilter1Tap: () => print("Filter1 Halaman A"),
+                  onFilter1Tap: () async {
+                    final provider = context.read<UserProvider>();
+
+                    final selected = await showSortDialog(
+                      context: context,
+                      title: 'Urutkan User Berdasarkan',
+                      currentValue: provider.currentSortField,
+                      options: [
+                        {'value': 'terbaru', 'label': 'Terbaru'},
+                        {'value': 'terlama', 'label': 'Terlama'},
+                        {'value': 'departemen', 'label': 'Departemen'},
+                        {'value': 'peran', 'label': 'Peran'},
+                      ],
+                    );
+
+                    if (selected != null) {
+                      provider.sortUsers(selected);
+                    }
+                  },
                 ),
                 if (isLoading)
                   Center(

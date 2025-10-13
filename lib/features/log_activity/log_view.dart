@@ -19,7 +19,6 @@ class LogActivity extends StatelessWidget {
             if (context.isMobile) Header(title: "Log Activity"),
             SearchingBar(
               controller: SearchController(),
-              onFilter1Tap: () {},
             ),
             Padding(
               padding: EdgeInsets.symmetric(

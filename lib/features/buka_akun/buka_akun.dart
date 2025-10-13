@@ -92,41 +92,68 @@ class _BukaAkunState extends State<BukaAkun> {
             )
           : null,
       body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.separated(
-              padding: const EdgeInsets.all(16),
-              itemCount: users.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
-                    child: InfoBukaAkun(),
-                  );
-                }
-                final user = users[index];
-                return ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  title: Text(user['nama'] ?? '',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, color: AppColors.putih)),
-                  subtitle: Text(
-                    user['email'] ?? '',
-                    style: TextStyle(color: AppColors.putih.withOpacity(0.5)),
+          ? Center(
+              child: CircularProgressIndicator(
+              color: AppColors.putih,
+            ))
+          : users.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.lock_open_rounded,
+                          size: 80, color: AppColors.putih.withOpacity(0.4)),
+                      const SizedBox(height: 12),
+                      Text(
+                        context.isIndonesian
+                            ? "Belum ada akun terkunci"
+                            : "No locked accounts",
+                        style: TextStyle(
+                          color: AppColors.putih.withOpacity(0.6),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: GoogleFonts.poppins().fontFamily,
+                        ),
+                      ),
+                    ],
                   ),
-                  trailing: IconButton(
-                    icon: Icon(Icons.refresh, color: AppColors.green),
-                    onPressed: () => _unlockUser(user['id']),
-                  ),
-                  tileColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                );
-              },
-            ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: users.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 8),
+                        child: InfoBukaAkun(),
+                      );
+                    }
+                    final user = users[index];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      title: Text(user['nama'] ?? '',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.putih)),
+                      subtitle: Text(
+                        user['email'] ?? '',
+                        style:
+                            TextStyle(color: AppColors.putih.withOpacity(0.5)),
+                      ),
+                      trailing: IconButton(
+                        icon: Icon(Icons.refresh, color: AppColors.green),
+                        onPressed: () => _unlockUser(user['id']),
+                      ),
+                      tileColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

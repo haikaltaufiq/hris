@@ -70,42 +70,94 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
                                 value: 'terbaru',
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
-                                title: const Text('Terbaru'),
+                                title: Text(
+                                  'Terbaru',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
                               ),
                               RadioListTile<String>(
                                 value: 'terlama',
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
-                                title: const Text('Terlama'),
+                                title: Text(
+                                  'Terlama',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
                               ),
-                              RadioListTile<String>(
-                                value: 'nama',
-                                groupValue: selected,
-                                onChanged: (v) => setState(() => selected = v!),
-                                title: const Text('Per-orang'),
+                              FeatureGuard(
+                                requiredFeature: 'lihat_semua_absensi',
+                                child: RadioListTile<String>(
+                                  value: 'nama',
+                                  groupValue: selected,
+                                  onChanged: (v) =>
+                                      setState(() => selected = v!),
+                                  title: Text(
+                                    'Per-orang',
+                                    style: TextStyle(color: AppColors.putih),
+                                  ),
+                                  activeColor: AppColors.putih,
+                                ),
                               ),
                               RadioListTile<String>(
                                 value: 'status',
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
-                                title: const Text('Status'),
+                                title: Text(
+                                  'Status',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
                               ),
                             ],
                           ),
                         ),
                         actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Batal'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              context
-                                  .read<AbsenProvider>()
-                                  .sortAbsensi(selected);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Terapkan'),
+                          Row(
+                            children: [
+                              // Tombol Batal
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.putih,
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    minimumSize: const Size.fromHeight(
+                                        50), // samakan tinggi
+                                  ),
+                                  child: const Text('Batal'),
+                                ),
+                              ),
+                              const SizedBox(width: 16), // jarak antar tombol
+                              // Tombol Terapkan
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    context
+                                        .read<AbsenProvider>()
+                                        .sortAbsensi(selected);
+                                    Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.secondary,
+                                    foregroundColor: AppColors.putih,
+                                    minimumSize: const Size.fromHeight(50),
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text('Terapkan'),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       );

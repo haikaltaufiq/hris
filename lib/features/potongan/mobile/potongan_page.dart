@@ -65,7 +65,6 @@ class _PotonganMobileState extends State<PotonganMobile> {
                     onChanged: (value) {
                       potonganProvider.filterPotonganGaji(value);
                     },
-                    onFilter1Tap: () {},
                   ),
                   if (potonganProvider.isLoading && displayedList.isEmpty)
                     SizedBox(

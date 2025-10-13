@@ -19,6 +19,23 @@ class JabatanViewModel extends ChangeNotifier {
   bool get hasCache => _hasCache;
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
+// ================= SORTING ================= //
+  void sortJabatan(String sortBy) {
+    _currentSortField = sortBy;
+
+    switch (sortBy) {
+      case 'terbaru':
+        _jabatanList.sort((a, b) => b.id.compareTo(a.id));
+        break;
+      case 'terlama':
+        _jabatanList.sort((a, b) => a.id.compareTo(b.id));
+        break;
+    }
+
+    notifyListeners();
+  }
 
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
@@ -59,6 +76,7 @@ class JabatanViewModel extends ChangeNotifier {
       print('✅ API success: ${apiData.length} items');
 
       _jabatanList = apiData;
+      sortJabatan('terbaru');
       _filteredList.clear();
       _errorMessage = null;
 

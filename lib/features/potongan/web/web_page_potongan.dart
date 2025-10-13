@@ -49,7 +49,6 @@ class _WebPagePotonganState extends State<WebPagePotongan> {
                 onChanged: (value) {
                   potonganProvider.filterPotonganGaji(value);
                 },
-                onFilter1Tap: () {},
               ),
               if (potonganProvider.isLoading && displayedList.isEmpty)
                 SizedBox(

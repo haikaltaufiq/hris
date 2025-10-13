@@ -19,6 +19,48 @@ class LemburProvider extends ChangeNotifier {
   bool _hasCache = false;
   bool get hasCache => _hasCache;
 
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
+
+  void sortLembur(String field) {
+    _currentSortField = field;
+
+    List<LemburModel> listToSort = [..._lemburList];
+
+    switch (field) {
+      case 'terbaru':
+        listToSort.sort((a, b) => b.tanggal.compareTo(a.tanggal)); // descending
+        break;
+
+      case 'terlama':
+        listToSort.sort((a, b) => a.tanggal.compareTo(b.tanggal)); // ascending
+        break;
+
+      case 'nama':
+        listToSort.sort((a, b) {
+          final namaA = (a.user['nama'] ?? '').toString().toLowerCase();
+          final namaB = (b.user['nama'] ?? '').toString().toLowerCase();
+          return namaA.compareTo(namaB);
+        });
+        break;
+
+      case 'status':
+        listToSort.sort(
+            (a, b) => a.status.toLowerCase().compareTo(b.status.toLowerCase()));
+        break;
+
+      default:
+        break;
+    }
+
+    if (filteredLemburList.isNotEmpty) {
+      filteredLemburList = listToSort;
+    } else {
+      _lemburList = listToSort;
+    }
+    notifyListeners();
+  }
+
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
     try {
@@ -58,6 +100,8 @@ class LemburProvider extends ChangeNotifier {
       print('✅ API success: ${apiData.length} items');
 
       _lemburList = apiData;
+      sortLembur('terbaru');
+
       filteredLemburList.clear();
       _errorMessage = null;
 

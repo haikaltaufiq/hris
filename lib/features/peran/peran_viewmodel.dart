@@ -17,6 +17,30 @@ class PeranViewModel extends ChangeNotifier {
 
   bool _hasCache = false;
   bool get hasCache => _hasCache;
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
+
+// ================= SORTING ================= //
+  void sortPeran(String sortBy) {
+    _currentSortField = sortBy;
+
+    if (_peranList.isEmpty) return;
+
+    try {
+      switch (sortBy) {
+        case 'terbaru':
+          _peranList.sort((a, b) => (b.id).compareTo(a.id));
+          break;
+        case 'terlama':
+          _peranList.sort((a, b) => (a.id).compareTo(b.id));
+          break;
+      }
+    } catch (e) {
+      print('⚠️ Sort error: $e');
+    }
+
+    notifyListeners();
+  }
 
   // ================= SERVICE WRAPPER ================= //
 
@@ -59,6 +83,8 @@ class PeranViewModel extends ChangeNotifier {
       print('✅ API success: ${apiData.length} items');
 
       _peranList = apiData;
+      sortPeran('terbaru');
+
       _errorMessage = null;
 
       // Save ke cache

@@ -64,7 +64,6 @@ class TugasModel {
     );
   }
 
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -90,16 +89,18 @@ extension TugasTableGetter on TugasModel {
   String get displayUser => user?.nama ?? '-';
   String get displayNote => note ?? '-';
   String get displayLampiran => lampiran != null ? "Lihat Lampiran" : '-';
-  
+
   String get displayLokasiTugas => (tugasLat != null && tugasLng != null)
       ? "${tugasLat!.toStringAsFixed(5)}, ${tugasLng!.toStringAsFixed(5)}"
       : '-';
-  
-  String get displayLokasiLampiran => (lampiranLat != null && lampiranLng != null)
+
+  String get displayLokasiLampiran => (lampiranLat != null &&
+          lampiranLng != null)
       ? "${lampiranLat!.toStringAsFixed(5)}, ${lampiranLng!.toStringAsFixed(5)}"
       : '-';
-  
-  String get displayTerlambat => (terlambat ?? false) ? "Terlambat" : "Tepat Waktu";
+
+  String get displayTerlambat =>
+      (terlambat ?? false) ? "Terlambat" : "Tepat Waktu";
   String get shortTugas =>
-      namaTugas.length > 20 ? namaTugas.substring(0, 20) + '...' : namaTugas;
+      namaTugas.length > 20 ? '${namaTugas.substring(0, 20)}...' : namaTugas;
 }

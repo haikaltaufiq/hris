@@ -19,6 +19,31 @@ class PengingatViewModel extends ChangeNotifier {
   bool get hasCache => _hasCache;
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
+  String _currentSortField = 'terdekat';
+  String get currentSortField => _currentSortField;
+
+  // ================= SORTING ================= //
+  void sortPengingat(String sortBy) {
+    _currentSortField = sortBy;
+
+    switch (sortBy) {
+      case 'terdekat':
+        // Urut dari tanggal jatuh tempo terdekat ke terjauh (ascending)
+        _pengingatList.sort(
+          (a, b) => a.tanggalJatuhTempo.compareTo(b.tanggalJatuhTempo),
+        );
+        break;
+
+      case 'terlama':
+        // Urut dari tanggal jatuh tempo terlama ke yang paling dekat (descending)
+        _pengingatList.sort(
+          (a, b) => b.tanggalJatuhTempo.compareTo(a.tanggalJatuhTempo),
+        );
+        break;
+    }
+
+    notifyListeners();
+  }
 
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
@@ -59,6 +84,8 @@ class PengingatViewModel extends ChangeNotifier {
       print('✅ API success: ${apiData.length} items');
 
       _pengingatList = apiData;
+      sortPengingat('terdekat'); // Default sort
+
       _filteredList.clear();
       _errorMessage = null;
 

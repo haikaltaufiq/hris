@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -55,8 +56,28 @@ class _WebPageGajiState extends State<WebPageGaji> {
               ),
             SearchingBar(
               controller: searchController,
-              onChanged: (val) => provider.setSearchQuery(val),
-              onFilter1Tap: () => provider.setSorting("gaji_bersih", true),
+              onChanged: (val) => provider.searchGaji(val),
+              onFilter1Tap: () async {
+                final provider = context.read<GajiProvider>();
+
+                final selected = await showSortDialog(
+                  context: context,
+                  title: 'Urutkan Gaji Berdasarkan',
+                  currentValue: provider.currentSortField,
+                  options: [
+                    {'value': 'nama', 'label': 'Nama'},
+                    {'value': 'status', 'label': 'Status'},
+                  ],
+                );
+
+                if (selected != null) {
+                  provider.sortGaji(selected);
+                }
+
+                if (selected != null) {
+                  provider.sortGaji(selected);
+                }
+              },
             ),
             Padding(
               padding: EdgeInsets.only(

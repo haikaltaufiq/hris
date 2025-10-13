@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
@@ -194,25 +195,6 @@ class _CutiWebPageState extends State<CutiWebPage> {
     }
   }
 
-  void _toggleSort() {
-    setState(() {
-      isAscending = !isAscending;
-
-      final provider = context.read<CutiProvider>();
-      final listToSort = searchController.text.isEmpty
-          ? provider.cutiList
-          : provider.filteredCutiList;
-
-      listToSort.sort((a, b) {
-        final dateA = DateTime.parse(a.tanggal_mulai);
-        final dateB = DateTime.parse(b.tanggal_selesai);
-        return isAscending
-            ? dateA.compareTo(dateB) // Terlama → Terbaru
-            : dateB.compareTo(dateA); // Terbaru → Terlama
-      });
-    });
-  }
-
   Widget build(BuildContext context) {
     final cutiProvider = context.watch<CutiProvider>();
     final displayedList = searchController.text.isEmpty
@@ -230,7 +212,25 @@ class _CutiWebPageState extends State<CutiWebPage> {
                 onChanged: (value) {
                   cutiProvider.filterCuti(value);
                 },
-                onFilter1Tap: _toggleSort,
+                onFilter1Tap: () async {
+                  final provider = context.read<CutiProvider>();
+
+                  final selected = await showSortDialog(
+                    context: context,
+                    title: 'Urutkan Cuti Berdasarkan',
+                    currentValue: provider.currentSortField,
+                    options: [
+                      {'value': 'terbaru', 'label': 'Terbaru'},
+                      {'value': 'terlama', 'label': 'Terlama'},
+                      {'value': 'nama', 'label': 'Nama Karyawan'},
+                      {'value': 'status', 'label': 'Status'},
+                    ],
+                  );
+
+                  if (selected != null) {
+                    provider.sortCuti(selected);
+                  }
+                },
               ),
               if (cutiProvider.isLoading && displayedList.isEmpty)
                 SizedBox(

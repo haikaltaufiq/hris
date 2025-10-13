@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
@@ -65,73 +66,24 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     onChanged: (value) {
                       provider.searchAbsensi(value);
                     },
-                    onFilter1Tap: () {
-                      showDialog(
+                    onFilter1Tap: () async {
+                      final absenProvider = context.read<AbsenProvider>();
+
+                      final selected = await showSortDialog(
                         context: context,
-                        builder: (context) {
-                          String selected = provider.currentSortField;
-                          return AlertDialog(
-                            backgroundColor: AppColors.primary,
-                            title: Text(
-                              'Urutkan Berdasarkan',
-                              style: TextStyle(color: AppColors.putih),
-                            ),
-                            content: StatefulBuilder(
-                              builder: (context, setState) => Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  RadioListTile<String>(
-                                    value: 'terbaru',
-                                    groupValue: selected,
-                                    onChanged: (v) =>
-                                        setState(() => selected = v!),
-                                    title: const Text('Terbaru'),
-                                  ),
-                                  RadioListTile<String>(
-                                    value: 'terlama',
-                                    groupValue: selected,
-                                    onChanged: (v) =>
-                                        setState(() => selected = v!),
-                                    title: const Text('Terlama'),
-                                  ),
-                                  FeatureGuard(
-                                    requiredFeature: 'lihat_semua_absensi',
-                                    child: RadioListTile<String>(
-                                      value: 'nama',
-                                      groupValue: selected,
-                                      onChanged: (v) =>
-                                          setState(() => selected = v!),
-                                      title: const Text('Per-orang'),
-                                    ),
-                                  ),
-                                  RadioListTile<String>(
-                                    value: 'status',
-                                    groupValue: selected,
-                                    onChanged: (v) =>
-                                        setState(() => selected = v!),
-                                    title: const Text('Status'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Batal'),
-                              ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  context
-                                      .read<AbsenProvider>()
-                                      .sortAbsensi(selected);
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Terapkan'),
-                              ),
-                            ],
-                          );
-                        },
+                        title: 'Urutkan Berdasarkan',
+                        currentValue: absenProvider.currentSortField,
+                        options: [
+                          {'value': 'terbaru', 'label': 'Terbaru'},
+                          {'value': 'terlama', 'label': 'Terlama'},
+                          {'value': 'nama', 'label': 'Per-orang'},
+                          {'value': 'status', 'label': 'Status'},
+                        ],
                       );
+
+                      if (selected != null) {
+                        absenProvider.sortAbsensi(selected);
+                      }
                     },
                   ),
                   if (provider.isLoading && displayedAbsensi.isEmpty)

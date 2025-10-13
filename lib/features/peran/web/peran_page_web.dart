@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -47,7 +48,30 @@ class _PeranPageWebState extends State<PeranPageWeb> {
                     Header(
                         title:
                             context.isIndonesian ? "Data Peran" : "Role Data"),
-                  SearchingBar(controller: SearchController()),
+                  SearchingBar(
+                    controller: SearchController(),
+                    onFilter1Tap: () async {
+                      final provider = context.read<PeranViewModel>();
+
+                      final selected = await showSortDialog(
+                        context: context,
+                        title: 'Urutkan Peran Berdasarkan',
+                        currentValue: provider.currentSortField,
+                        options: [
+                          {'value': 'terbaru', 'label': 'Terbaru'},
+                          {'value': 'terlama', 'label': 'Terlama'},
+                        ],
+                      );
+
+                      if (selected != null) {
+                        provider.sortPeran(selected);
+                      }
+
+                      if (selected != null) {
+                        provider.sortPeran(selected);
+                      }
+                    },
+                  ),
                   WebTabelPeranWeb(), // Expanded biar tabel bisa render full height
                 ],
               ),
