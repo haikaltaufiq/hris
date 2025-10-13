@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -39,6 +40,17 @@ class _BukaAkunState extends State<BukaAkun> {
   }
 
   Future<void> _unlockUser(int userId) async {
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: context.isIndonesian ? "Konfirmasi" : "Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin membuka akun ini?"
+          : "Are you sure you want to unlock this account?",
+      confirmText: "Buka",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
+      confirmColor: AppColors.red,
+    );
+    if (!confirmed) return;
     try {
       final success = await AkunService.unlockUser(userId);
       if (success) {
