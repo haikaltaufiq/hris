@@ -113,12 +113,12 @@ class ResetDb extends StatelessWidget {
   void _confirmReset(BuildContext context, String title) async {
     // mapping title ke jenis
     String? jenis;
-    if (title == "Cuti") jenis = "cuti";
-    if (title == "Gaji") jenis = "gaji";
-    if (title == "Absen") jenis = "absensi";
-    if (title == "Lembur") jenis = "lembur";
-    if (title == "Tugas") jenis = "tugas";
-    if (title == "Log Aktivitas") jenis = "log";
+    if (title == "Cuti" || title == "Leave") jenis = "cuti";
+    if (title == "Gaji" || title == "Salary") jenis = "gaji";
+    if (title == "Absen" || title == "Attendance") jenis = "absensi";
+    if (title == "Lembur" || title == "Over Time") jenis = "lembur";
+    if (title == "Tugas" || title == "Task") jenis = "tugas";
+    if (title == "Log Aktivitas" || title == "Log Activity") jenis = "log";
 
     if (jenis == null) {
       final confirmed = await showConfirmationDialog(

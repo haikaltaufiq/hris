@@ -241,7 +241,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
             SizedBox(height: 16),
             Text(context.isIndonesian
                 ? 'Belum ada activity log'
-                : 'No Avtivity'),
+                : 'No Activity'),
           ],
         ),
       );

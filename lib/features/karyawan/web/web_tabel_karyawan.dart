@@ -67,8 +67,8 @@ class KaryawanTabelWeb extends StatelessWidget {
     return CustomDataTableWeb(
       headers: headers,
       rows: rows,
-      onView: (rowIndex) {
-        final values = rows[rowIndex];
+      onView: (actualRowIndex) {
+        final values = rows[actualRowIndex];
 
         showDialog(
           context: context,
@@ -99,8 +99,8 @@ class KaryawanTabelWeb extends StatelessWidget {
           ),
         );
       },
-      onEdit: (rowIndex) {
-        final user = users[rowIndex];
+      onEdit: (actualRowIndex) {
+        final user = users[actualRowIndex];
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -108,9 +108,9 @@ class KaryawanTabelWeb extends StatelessWidget {
           ),
         );
       },
-      onDelete: (rowIndex) async {
+      onDelete: (actualRowIndex) async {
         final userProvider = Provider.of<UserProvider>(context, listen: false);
-        final user = users[rowIndex];
+        final user = users[actualRowIndex];
         final confirmed = await showConfirmationDialog(
           context,
           title: 'Konfirmasi',
@@ -139,7 +139,7 @@ class KaryawanTabelWeb extends StatelessWidget {
           }
         }
       },
-      onCellTap: (row, col) {
+      onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
         // Bisa custom logika per cell
       },
     );

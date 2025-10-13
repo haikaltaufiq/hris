@@ -202,8 +202,8 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
       headers: headers,
       rows: rows,
       statusColumnIndexes: null,
-      onCellTap: (rowIndex, colIndex) {
-        final absen = widget.absensi[rowIndex];
+      onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
+        final absen = widget.absensi[actualRowIndex];
 
         if (colIndex == 5 &&
             absen.checkinLat != null &&
@@ -219,7 +219,7 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
           _openVideo(absen.videoUser);
         }
       },
-      onView: (rowIndex) => _showDetail(widget.absensi[rowIndex]),
+      onView: (actualRowIndex) => _showDetail(widget.absensi[actualRowIndex]),
     );
   }
 }

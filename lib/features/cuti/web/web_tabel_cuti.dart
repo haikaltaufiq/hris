@@ -56,9 +56,7 @@ class WebTabelCuti extends StatelessWidget {
         ];
       }).toList(),
       statusColumnIndexes: [5],
-      onCellTap: (row, col) {
-        print('Klik cell row: $row, col: $col');
-      },
+      onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {},
       onView: (row) {
         final c = cutiList[row];
         showDialog(
