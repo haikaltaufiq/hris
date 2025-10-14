@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
@@ -65,7 +66,25 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     onChanged: (value) {
                       provider.searchAbsensi(value);
                     },
-                    onFilter1Tap: () {},
+                    onFilter1Tap: () async {
+                      final absenProvider = context.read<AbsenProvider>();
+
+                      final selected = await showSortDialog(
+                        context: context,
+                        title: 'Urutkan Berdasarkan',
+                        currentValue: absenProvider.currentSortField,
+                        options: [
+                          {'value': 'terbaru', 'label': 'Terbaru'},
+                          {'value': 'terlama', 'label': 'Terlama'},
+                          {'value': 'nama', 'label': 'Per-orang'},
+                          {'value': 'status', 'label': 'Status'},
+                        ],
+                      );
+
+                      if (selected != null) {
+                        absenProvider.sortAbsensi(selected);
+                      }
+                    },
                   ),
                   if (provider.isLoading && displayedAbsensi.isEmpty)
                     SizedBox(

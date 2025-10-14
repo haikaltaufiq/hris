@@ -41,9 +41,10 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
   String parseDate(String? date) {
     if (date == null || date.isEmpty) return '';
     try {
-      return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+      final parsed = DateTime.parse(date);
+      return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
     } catch (_) {
-      return '';
+      return date; // fallback kalau parsing gagal
     }
   }
 
@@ -183,12 +184,12 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             SizedBox(height: 5),
             DetailItem(
               label: 'Tanggal Mulai',
-              value: parseDate(tugas.tanggalMulai),
+              value: parseDate(tugas.tanggalPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
               label: 'Batas Submit',
-              value: parseDate(tugas.tanggalSelesai),
+              value: parseDate(tugas.batasPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
@@ -277,8 +278,8 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        parseDate(tugas.tanggalMulai),
-        parseDate(tugas.tanggalSelesai),
+        parseDate(tugas.tanggalPenugasan),
+        parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",
         tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
             ? "See Location"
@@ -311,17 +312,19 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           isSuccess: message != null,
         );
       },
-      onView: (row) => _showDetailDialog(context, widget.tugasList[row]),
-      onEdit: (row) => _editTugas(context, row),
-      onDelete: (row) => _deleteTugas(context, widget.tugasList[row]),
-      onTapLampiran: (row) =>
-          _showLampiranDialog(context, widget.tugasList[row]),
-      onCellTap: (row, col) {
-        final tugas = widget.tugasList[row];
-        if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
+      onView: (actualRowIndex) =>
+          _showDetailDialog(context, widget.tugasList[actualRowIndex]),
+      onEdit: (actualRowIndex) => _editTugas(context, actualRowIndex),
+      onDelete: (actualRowIndex) =>
+          _deleteTugas(context, widget.tugasList[actualRowIndex]),
+      onTapLampiran: (actualRowIndex) =>
+          _showLampiranDialog(context, widget.tugasList[actualRowIndex]),
+      onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
+        final tugas = widget.tugasList[actualRowIndex];
+        if (colIndex == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
           _openMap("${tugas.tugasLat},${tugas.tugasLng}");
         }
-        if (col == 6 &&
+        if (colIndex == 6 &&
             tugas.lampiranLat != null &&
             tugas.lampiranLng != null) {
           _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");

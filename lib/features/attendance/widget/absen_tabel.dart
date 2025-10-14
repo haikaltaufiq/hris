@@ -258,7 +258,6 @@ class _AbsenTabelState extends State<AbsenTabel> {
               label: "Lokasi Keluar",
               value: "${absen.checkoutLat}, ${absen.checkoutLng}",
             ),
-            DetailItem(label: "Video", value: absen.videoUser ?? "-"),
             DetailItem(label: "Tipe", value: absen.status ?? "-"),
           ],
         ),

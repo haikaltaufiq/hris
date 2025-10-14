@@ -23,8 +23,25 @@ class DepartmentViewModel extends ChangeNotifier {
   final _departemenBox = Hive.box('departemen');
   bool _hasCache = false;
   bool get hasCache => _hasCache;
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
 
   int get totalDepartment => _departemenList.length;
+// ================= SORTING ================= //
+  void sortDepartemen(String sortBy) {
+    _currentSortField = sortBy;
+
+    switch (sortBy) {
+      case 'terbaru':
+        _departemenList.sort((a, b) => b.id.compareTo(a.id));
+        break;
+      case 'terlama':
+        _departemenList.sort((a, b) => a.id.compareTo(b.id));
+        break;
+    }
+
+    notifyListeners();
+  }
 
   /// Load cache immediately (synchronous)
   void loadCacheFirst() {
@@ -68,6 +85,7 @@ class DepartmentViewModel extends ChangeNotifier {
       print('✅ API success: ${apiData.length} items');
 
       _departemenList = apiData;
+      sortDepartemen('terbaru');
       _filteredList.clear();
       _errorMessage = null;
 

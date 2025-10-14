@@ -16,8 +16,8 @@ class TechTaskStatusProvider extends ChangeNotifier {
     for (int month = 1; month <= 12; month++) {
       // Filter tugas per bulan
       final monthTasks = tasks.where((t) {
-        if (t.tanggalSelesai == null) return false;
-        final date = DateTime.parse(t.tanggalSelesai); // parse dari string
+        if (t.tanggalPenugasan == null) return false;
+        final date = DateTime.parse(t.batasPenugasan); // parse dari string
         return date.month == month;
       }).toList();
 

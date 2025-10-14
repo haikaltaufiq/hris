@@ -5,8 +5,34 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/log_activity/widgets/web_tabel_log.dart';
 
-class LogActivity extends StatelessWidget {
+class LogActivity extends StatefulWidget {
   const LogActivity({super.key});
+
+  @override
+  State<LogActivity> createState() => _LogActivityState();
+}
+
+class _LogActivityState extends State<LogActivity> {
+  late SearchController _searchController;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = SearchController();
+    // Listen untuk perubahan search query
+    _searchController.addListener(() {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +44,14 @@ class LogActivity extends StatelessWidget {
           children: [
             if (context.isMobile) Header(title: "Log Activity"),
             SearchingBar(
-              controller: SearchController(),
-              onFilter1Tap: () {},
+              controller: _searchController,
             ),
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: context.isMobile ? 5.0 : 26.0,
                 vertical: 10.0,
               ),
-              child: WebTabelLog(),
+              child: WebTabelLog(searchQuery: _searchQuery),
             ),
           ],
         ),

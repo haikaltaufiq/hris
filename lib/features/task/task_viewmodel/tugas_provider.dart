@@ -27,6 +27,9 @@ class TugasProvider extends ChangeNotifier {
       .where((tugas) => tugas.status.toLowerCase() == 'selesai')
       .length;
 
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -59,6 +62,8 @@ class TugasProvider extends ChangeNotifier {
       final apiData = await TugasService.fetchTugas();
       tugasList.clear();
       _tugasList = apiData;
+      sortTugas('terbaru');
+
       filteredTugasList.clear();
       _errorMessage = null;
 
@@ -74,6 +79,30 @@ class TugasProvider extends ChangeNotifier {
     _setLoading(false);
   }
 
+  void sortTugas(String order) {
+    if (_tugasList.isEmpty) return;
+    _currentSortField = order;
+
+    switch (order) {
+      case 'terlama':
+        _tugasList.sort((a, b) => DateTime.parse(a.tanggalPenugasan)
+            .compareTo(DateTime.parse(b.tanggalPenugasan)));
+        break;
+      case 'terbaru':
+        _tugasList.sort((a, b) => DateTime.parse(b.tanggalPenugasan)
+            .compareTo(DateTime.parse(a.tanggalPenugasan)));
+        break;
+      case 'nama':
+        _tugasList.sort((a, b) => a.displayUser.compareTo(b.displayUser));
+        break;
+      case 'status':
+        _tugasList.sort((a, b) => a.status.compareTo(b.status));
+        break;
+    }
+
+    notifyListeners();
+  }
+
   void filterTugas(String query) {
     if (query.isEmpty) {
       filteredTugasList.clear();
@@ -82,8 +111,8 @@ class TugasProvider extends ChangeNotifier {
       filteredTugasList = _tugasList.where((tugas) {
         final namaTugas = tugas.namaTugas.toLowerCase();
         final status = tugas.status.toLowerCase();
-        final tanggalMulai = tugas.tanggalMulai.toLowerCase();
-        final tanggalSelesai = tugas.tanggalSelesai.toLowerCase();
+        final tanggalPenugasan = tugas.tanggalPenugasan.toLowerCase();
+        final batasPenugasan = tugas.batasPenugasan.toLowerCase();
         final note = tugas.note?.toLowerCase() ?? '';
         final namaKaryawan = tugas.user?.nama.toLowerCase() ?? '';
 
@@ -91,8 +120,8 @@ class TugasProvider extends ChangeNotifier {
             namaKaryawan.contains(lowerQuery) ||
             note.contains(lowerQuery) ||
             status.contains(lowerQuery) ||
-            tanggalMulai.contains(lowerQuery) ||
-            tanggalSelesai.contains(lowerQuery);
+            tanggalPenugasan.contains(lowerQuery) ||
+            batasPenugasan.contains(lowerQuery);
       }).toList();
     }
     notifyListeners();
@@ -101,8 +130,8 @@ class TugasProvider extends ChangeNotifier {
   // Create tugas dengan koordinat
   Future<Map<String, dynamic>> createTugas({
     required String judul,
-    required String tanggalMulai,
-    required String tanggalSelesai,
+    required String tanggalPenugasan,
+    required String batasPenugasan,
     required double tugasLat,
     required double tugasLng,
     int? person,
@@ -115,8 +144,8 @@ class TugasProvider extends ChangeNotifier {
     try {
       final result = await TugasService.createTugas(
         judul: judul,
-        tanggalMulai: tanggalMulai,
-        tanggalSelesai: tanggalSelesai,
+        tanggalPenugasan: tanggalPenugasan,
+        batasPenugasan: batasPenugasan,
         tugasLat: tugasLat,
         tugasLng: tugasLng,
         person: person,
@@ -139,8 +168,8 @@ class TugasProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
-    required String tanggalMulai,
-    required String tanggalSelesai,
+    required String tanggalPenugasan,
+    required String batasPenugasan,
     required double tugasLat,
     required double tugasLng,
     int? person,
@@ -154,8 +183,8 @@ class TugasProvider extends ChangeNotifier {
       final result = await TugasService.updateTugas(
         id: id,
         judul: judul,
-        tanggalMulai: tanggalMulai,
-        tanggalSelesai: tanggalSelesai,
+        tanggalPenugasan: tanggalPenugasan,
+        batasPenugasan: batasPenugasan,
         tugasLat: tugasLat,
         tugasLng: tugasLng,
         person: person,
@@ -173,7 +202,6 @@ class TugasProvider extends ChangeNotifier {
       _setLoading(false);
     }
   }
-
 
   // Hapus tugas
   Future<String?> deleteTugas(int id) async {
@@ -207,7 +235,7 @@ class TugasProvider extends ChangeNotifier {
     final today = DateTime.now();
     return _tugasList.where((tugas) {
       try {
-        final selesai = DateTime.parse(tugas.tanggalSelesai);
+        final selesai = DateTime.parse(tugas.batasPenugasan);
         return selesai.year == today.year &&
             selesai.month == today.month &&
             selesai.day == today.day;
@@ -224,7 +252,7 @@ class TugasProvider extends ChangeNotifier {
 
     for (final tugas in _tugasList) {
       try {
-        DateTime? date = DateTime.tryParse(tugas.tanggalMulai);
+        DateTime? date = DateTime.tryParse(tugas.tanggalPenugasan);
         if (date == null) continue;
         int monthIndex = date.month - 1;
         target[monthIndex] += 1;
@@ -233,7 +261,7 @@ class TugasProvider extends ChangeNotifier {
         else
           attendanceRate[monthIndex] += 1;
       } catch (e) {
-        print('Error parsing tugas tanggalMulai: $e');
+        print('Error parsing tugas tanggalPenugasan: $e');
       }
     }
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/custom/header.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -65,7 +66,30 @@ class _ReminderPageState extends State<ReminderPage> {
                   Header(
                       title:
                           context.isIndonesian ? 'Pengingat' : "Reminder Page"),
-                SearchingBar(controller: _searchController),
+                SearchingBar(
+                  controller: _searchController,
+                  onFilter1Tap: () async {
+                    final provider = context.read<PengingatViewModel>();
+
+                    final selected = await showSortDialog(
+                      context: context,
+                      title: 'Urutkan Pengingat Berdasarkan',
+                      currentValue: provider.currentSortField,
+                      options: [
+                        {'value': 'terdekat', 'label': 'Terdekat'},
+                        {'value': 'terlama', 'label': 'Terlama'},
+                      ],
+                    );
+
+                    if (selected != null) {
+                      provider.sortPengingat(selected);
+                    }
+
+                    if (selected != null) {
+                      provider.sortPengingat(selected);
+                    }
+                  },
+                ),
                 if (context.isMobile) ...[
                   RemindTabelMobile(),
                 ] else ...[

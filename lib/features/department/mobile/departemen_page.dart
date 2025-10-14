@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
@@ -68,7 +69,27 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
                     SearchingBar(
                       controller: searchController,
                       onChanged: (value) => vm.searchDepartemen(value),
-                      onFilter1Tap: () {},
+                      onFilter1Tap: () async {
+                        final provider = context.read<DepartmentViewModel>();
+
+                        final selected = await showSortDialog(
+                          context: context,
+                          title: 'Urutkan Departemen Berdasarkan',
+                          currentValue: provider.currentSortField,
+                          options: [
+                            {'value': 'terbaru', 'label': 'Terbaru'},
+                            {'value': 'terlama', 'label': 'Terlama'},
+                          ],
+                        );
+
+                        if (selected != null) {
+                          provider.sortDepartemen(selected);
+                        }
+
+                        if (selected != null) {
+                          provider.sortDepartemen(selected);
+                        }
+                      },
                     ),
                     if (vm.isLoading)
                       const Center(child: LoadingWidget())

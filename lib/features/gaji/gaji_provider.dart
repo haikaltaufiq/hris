@@ -1,36 +1,47 @@
+// 📂 lib/features/gaji/gaji_provider.dart
+// ignore_for_file: avoid_print, prefer_final_fields
+
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/data/services/gaji_service.dart';
 
 class GajiProvider extends ChangeNotifier {
+  // ================= STATE ================= //
   List<GajiUser> _gajiList = [];
-  String _searchQuery = '';
-  String _sortBy = 'nama';
-  bool _ascending = true;
-  bool _loading = false;
-  String? _error;
+  List<GajiUser> _filteredList = [];
 
-  List<GajiUser> get gajiList => _gajiList;
-  bool get isLoading => _loading;
-  String? get error => _error;
+  bool _isLoading = false;
+  String? _errorMessage;
+  String _currentSearch = '';
+  String _currentSortField = 'nama';
 
-  final _gajibox = Hive.box('gaji');
+  final _gajiBox = Hive.box('gaji');
   bool _hasCache = false;
-  bool get hasCache => _hasCache;
 
-  /// Load cache immediately (synchronous)
+  // ================= GETTERS ================= //
+  List<GajiUser> get gajiList =>
+      _currentSearch.isEmpty ? _gajiList : _filteredList;
+
+  bool get isLoading => _isLoading;
+  String? get error => _errorMessage;
+  bool get hasCache => _hasCache;
+  String get currentSortField => _currentSortField;
+
+  int get totalGaji => _gajiList.length;
+
+  // ================= LOAD CACHE ================= //
   void loadCacheFirst() {
     try {
-      final hasCache = _gajibox.containsKey('gaji_list');
+      final hasCache = _gajiBox.containsKey('gaji_list');
       if (hasCache) {
-        final cached = _gajibox.get('gaji_list') as List;
+        final cached = _gajiBox.get('gaji_list') as List;
         if (cached.isNotEmpty) {
           _gajiList = cached
               .map((json) => GajiUser.fromJson(Map<String, dynamic>.from(json)))
               .toList();
           _hasCache = true;
-          notifyListeners(); // Update UI immediately
+          notifyListeners();
           print('✅ Cache loaded: ${_gajiList.length} items');
         }
       }
@@ -39,106 +50,105 @@ class GajiProvider extends ChangeNotifier {
     }
   }
 
-  /// Fetch data dari API
+  // ================= FETCH DATA ================= //
   Future<void> fetchGaji({bool forceRefresh = false}) async {
     print('🔄 fetchGaji called - forceRefresh: $forceRefresh');
 
-    // Load cache first if not force refresh
     if (!forceRefresh && _gajiList.isEmpty) {
       loadCacheFirst();
     }
 
-    _loading = true;
+    _isLoading = true;
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      print('🌐 Fetching gaji...');
       final apiData = await GajiService.fetchGaji();
-      print('✅ API success: ${apiData.length} items');
-
       _gajiList = apiData;
-      _searchQuery = '';
-      _error = null;
-      // Save to cache
-      await _gajibox.put(
+      _filteredList.clear();
+      _errorMessage = null;
+
+      // save to cache
+      await _gajiBox.put(
         'gaji_list',
-        _gajiList.map((c) => c.toJson()).toList(),
+        _gajiList.map((g) => g.toJson()).toList(),
       );
-      print('💾 Cache saved');
 
       _hasCache = true;
+      print('💾 Cache updated (${_gajiList.length} items)');
     } catch (e) {
       print('❌ API Error: $e');
-      _error = e.toString();
-      // If no data and cache exists, load cache
+      _errorMessage = e.toString();
+
       if (_gajiList.isEmpty) {
         loadCacheFirst();
       }
     }
 
-    _loading = false;
-    notifyListeners();
-    print('🏁 fetchGaji completed - items: ${_gajiList.length}');
-  }
-
-  /// Update search query
-  void setSearchQuery(String query) {
-    _searchQuery = query.toLowerCase();
+    _isLoading = false;
     notifyListeners();
   }
 
-  /// Update sorting
-  void setSorting(String sortBy, bool ascending) {
-    _sortBy = sortBy;
-    _ascending = ascending;
-    notifyListeners();
+  // ================= SORTING ================= //
+  void sortGaji(String sortBy) {
+    _currentSortField = sortBy;
+    notifyListeners(); // biar displayedList build ulang
   }
 
-  /// List yang sudah di-filter + sort
-  List<GajiUser> get displayedList {
-    List<GajiUser> data = [..._gajiList];
+  // ================= SEARCH ================= //
+  void searchGaji(String query) {
+    _currentSearch = query.trim().toLowerCase();
 
-    // filter by nama
-    if (_searchQuery.isNotEmpty) {
-      data = data
-          .where((gaji) =>
-              gaji.nama.toLowerCase().contains(_searchQuery) ||
-              gaji.gajiPokok.toString().contains(_searchQuery) ||
-              gaji.gajiBersih.toString().contains(_searchQuery))
-          .toList();
+    if (_currentSearch.isEmpty) {
+      _filteredList = [];
+    } else {
+      _filteredList = _gajiList.where((gaji) {
+        final nama = gaji.nama.toLowerCase();
+        final status = gaji.status.toLowerCase();
+        final gajiPokok = gaji.gajiPokok.toString();
+        final gajiBersih = gaji.gajiBersih.toString();
+
+        return nama.contains(_currentSearch) ||
+            status.contains(_currentSearch) ||
+            gajiPokok.contains(_currentSearch) ||
+            gajiBersih.contains(_currentSearch);
+      }).toList();
     }
 
-    // sort
-    data.sort((a, b) {
-      dynamic valueA, valueB;
+    notifyListeners();
+  }
 
-      switch (_sortBy) {
-        case 'nama':
-          valueA = a.nama.toLowerCase();
-          valueB = b.nama.toLowerCase();
-          break;
-        case 'gaji_per_hari':
-          valueA = a.gajiPokok;
-          valueB = b.gajiPokok;
-          break;
-        case 'gaji_bersih':
-          valueA = a.gajiBersih;
-          valueB = b.gajiBersih;
-          break;
-        default:
-          valueA = a.nama.toLowerCase();
-          valueB = b.nama.toLowerCase();
-      }
+  void clearSearch() {
+    _currentSearch = '';
+    _filteredList = [];
+    notifyListeners();
+  }
 
-      int result = 0;
-      if (valueA is String && valueB is String) {
-        result = valueA.compareTo(valueB);
-      } else if (valueA is num && valueB is num) {
-        result = valueA.compareTo(valueB);
-      }
+  // ================= DISPLAYED LIST ================= //
+  List<GajiUser> get displayedList {
+    List<GajiUser> data =
+        _currentSearch.isEmpty ? [..._gajiList] : [..._filteredList];
 
-      return _ascending ? result : -result;
-    });
+    // Sorting sesuai field aktif
+    switch (_currentSortField) {
+      case 'terbaru':
+        data.sort((a, b) => b.id.compareTo(a.id));
+        break;
+
+      case 'terlama':
+        data.sort((a, b) => a.id.compareTo(b.id));
+        break;
+
+      case 'nama':
+        data.sort(
+            (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+        break;
+
+      case 'status':
+        data.sort((a, b) =>
+            (a.status).toLowerCase().compareTo((b.status).toLowerCase()));
+        break;
+    }
 
     return data;
   }

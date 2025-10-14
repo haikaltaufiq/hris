@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -134,7 +135,27 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                   SearchingBar(
                     controller: searchController,
                     onChanged: (value) => vm.search(value),
-                    onFilter1Tap: () {}, // kosong sesuai request
+                    onFilter1Tap: () async {
+                      final provider = context.read<JabatanViewModel>();
+
+                      final selected = await showSortDialog(
+                        context: context,
+                        title: 'Urutkan Jabatan Berdasarkan',
+                        currentValue: provider.currentSortField,
+                        options: [
+                          {'value': 'terbaru', 'label': 'Terbaru'},
+                          {'value': 'terlama', 'label': 'Terlama'},
+                        ],
+                      );
+
+                      if (selected != null) {
+                        provider.sortJabatan(selected);
+                      }
+
+                      if (selected != null) {
+                        provider.sortJabatan(selected);
+                      }
+                    },
                   ),
                   if (vm.isLoading)
                     const Center(child: LoadingWidget())

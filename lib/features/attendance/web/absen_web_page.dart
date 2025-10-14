@@ -35,6 +35,12 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final absenProvider = context.watch<AbsenProvider>();
     final absen = searchController.text.isEmpty
@@ -51,7 +57,119 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
               SearchingBar(
                 controller: searchController,
                 onChanged: (query) => absenProvider.searchAbsensi(query),
-                onFilter1Tap: () {},
+                onFilter1Tap: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      String selected = absenProvider.currentSortField;
+                      return AlertDialog(
+                        backgroundColor: AppColors.primary,
+                        title: Text(
+                          'Urutkan Berdasarkan',
+                          style: TextStyle(color: AppColors.putih),
+                        ),
+                        content: StatefulBuilder(
+                          builder: (context, setState) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              RadioListTile<String>(
+                                value: 'terbaru',
+                                groupValue: selected,
+                                onChanged: (v) => setState(() => selected = v!),
+                                title: Text(
+                                  'Terbaru',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
+                              ),
+                              RadioListTile<String>(
+                                value: 'terlama',
+                                groupValue: selected,
+                                onChanged: (v) => setState(() => selected = v!),
+                                title: Text(
+                                  'Terlama',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
+                              ),
+                              FeatureGuard(
+                                requiredFeature: 'lihat_semua_absensi',
+                                child: RadioListTile<String>(
+                                  value: 'nama',
+                                  groupValue: selected,
+                                  onChanged: (v) =>
+                                      setState(() => selected = v!),
+                                  title: Text(
+                                    'Per-orang',
+                                    style: TextStyle(color: AppColors.putih),
+                                  ),
+                                  activeColor: AppColors.putih,
+                                ),
+                              ),
+                              RadioListTile<String>(
+                                value: 'status',
+                                groupValue: selected,
+                                onChanged: (v) => setState(() => selected = v!),
+                                title: Text(
+                                  'Status',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
+                              ),
+                            ],
+                          ),
+                        ),
+                        actions: [
+                          Row(
+                            children: [
+                              // Tombol Batal
+                              Expanded(
+                                child: TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: AppColors.putih,
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    minimumSize: const Size.fromHeight(
+                                        50), // samakan tinggi
+                                  ),
+                                  child: const Text('Batal'),
+                                ),
+                              ),
+                              const SizedBox(width: 16), // jarak antar tombol
+                              // Tombol Terapkan
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    context
+                                        .read<AbsenProvider>()
+                                        .sortAbsensi(selected);
+                                    Navigator.pop(context);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.secondary,
+                                    foregroundColor: AppColors.putih,
+                                    minimumSize: const Size.fromHeight(50),
+                                    textStyle: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: const Text('Terapkan'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
               ),
               const SizedBox(height: 5),
               if (absenProvider.isLoading && absen.isEmpty)

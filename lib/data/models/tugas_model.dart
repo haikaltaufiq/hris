@@ -3,8 +3,8 @@ import 'package:hr/data/models/user_model.dart';
 class TugasModel {
   final int id;
   final String namaTugas;
-  final String tanggalMulai;
-  final String tanggalSelesai;
+  final String tanggalPenugasan;
+  final String batasPenugasan;
   final int radius;
   final double? tugasLat;
   final double? tugasLng;
@@ -19,8 +19,8 @@ class TugasModel {
   TugasModel({
     required this.id,
     required this.namaTugas,
-    required this.tanggalMulai,
-    required this.tanggalSelesai,
+    required this.tanggalPenugasan,
+    required this.batasPenugasan,
     required this.radius,
     this.tugasLat,
     this.tugasLng,
@@ -37,8 +37,8 @@ class TugasModel {
     return TugasModel(
       id: json['id'] ?? 0,
       namaTugas: json['nama_tugas'] ?? '',
-      tanggalMulai: json['tanggal_mulai'] ?? '',
-      tanggalSelesai: json['tanggal_selesai'] ?? '',
+      tanggalPenugasan: json['tanggal_penugasan'] ?? '',
+      batasPenugasan: json['batas_penugasan'] ?? '',
       radius: json['radius_meter'] ?? 100,
       tugasLat: json['tugas_lat'] != null
           ? double.tryParse(json['tugas_lat'].toString())
@@ -64,13 +64,12 @@ class TugasModel {
     );
   }
 
-
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'nama_tugas': namaTugas,
-      'tanggal_mulai': tanggalMulai,
-      'tanggal_selesai': tanggalSelesai,
+      'tanggal_penugasan': tanggalPenugasan,
+      'batas_penugasan': batasPenugasan,
       'radius_meter': radius,
       'tugas_lat': tugasLat,
       'tugas_lng': tugasLng,
@@ -90,16 +89,18 @@ extension TugasTableGetter on TugasModel {
   String get displayUser => user?.nama ?? '-';
   String get displayNote => note ?? '-';
   String get displayLampiran => lampiran != null ? "Lihat Lampiran" : '-';
-  
+
   String get displayLokasiTugas => (tugasLat != null && tugasLng != null)
       ? "${tugasLat!.toStringAsFixed(5)}, ${tugasLng!.toStringAsFixed(5)}"
       : '-';
-  
-  String get displayLokasiLampiran => (lampiranLat != null && lampiranLng != null)
+
+  String get displayLokasiLampiran => (lampiranLat != null &&
+          lampiranLng != null)
       ? "${lampiranLat!.toStringAsFixed(5)}, ${lampiranLng!.toStringAsFixed(5)}"
       : '-';
-  
-  String get displayTerlambat => (terlambat ?? false) ? "Terlambat" : "Tepat Waktu";
+
+  String get displayTerlambat =>
+      (terlambat ?? false) ? "Terlambat" : "Tepat Waktu";
   String get shortTugas =>
-      namaTugas.length > 20 ? namaTugas.substring(0, 20) + '...' : namaTugas;
+      namaTugas.length > 20 ? '${namaTugas.substring(0, 20)}...' : namaTugas;
 }

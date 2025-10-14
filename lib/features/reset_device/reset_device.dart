@@ -96,68 +96,94 @@ class _ResetDeviceState extends State<ResetDevice> {
             )
           : null,
       body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView.separated(
-              padding: const EdgeInsets.all(26),
-              itemCount: devices.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 12),
-              itemBuilder: (context, index) {
-                if (index == 0) {
-                  return Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
-                    child: InfoResetPerangkat(),
-                  );
-                }
-                final device = devices[index];
-                return ListTile(
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  title: Text(
-                    "${device['user']['nama']} (${device['device_model']})",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: AppColors.putih),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          ? Center(
+              child: CircularProgressIndicator(
+              color: AppColors.putih,
+            ))
+          : devices.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(
-                        height: 5,
-                      ),
+                      Icon(Icons.device_hub,
+                          size: 80, color: AppColors.putih.withOpacity(0.4)),
+                      const SizedBox(height: 12),
                       Text(
-                        "Device ID:  ${device['device_id']}",
-                        style:
-                            TextStyle(color: AppColors.putih.withOpacity(0.5)),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "Manufacturer:  ${device['device_manufacturer']}",
-                        style:
-                            TextStyle(color: AppColors.putih.withOpacity(0.5)),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      if ((device['device_version'] ?? '').isNotEmpty)
-                        Text(
-                          "Version:  ${device['device_version']}",
-                          style: TextStyle(
-                              color: AppColors.putih.withOpacity(0.5)),
+                        context.isIndonesian
+                            ? "Belum ada data device"
+                            : "No device data available",
+                        style: TextStyle(
+                          color: AppColors.putih.withOpacity(0.6),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          fontFamily: GoogleFonts.poppins().fontFamily,
                         ),
+                      ),
                     ],
                   ),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _resetDevice(device['user_id']),
-                  ),
-                  tileColor: AppColors.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                );
-              }),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(26),
+                  itemCount: devices.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 2, vertical: 8),
+                        child: InfoResetPerangkat(),
+                      );
+                    }
+                    final device = devices[index];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      title: Text(
+                        "${device['user']['nama']} (${device['device_model']})",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.putih),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Device ID:  ${device['device_id']}",
+                            style: TextStyle(
+                                color: AppColors.putih.withOpacity(0.5)),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Manufacturer:  ${device['device_manufacturer']}",
+                            style: TextStyle(
+                                color: AppColors.putih.withOpacity(0.5)),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          if ((device['device_version'] ?? '').isNotEmpty)
+                            Text(
+                              "Version:  ${device['device_version']}",
+                              style: TextStyle(
+                                  color: AppColors.putih.withOpacity(0.5)),
+                            ),
+                        ],
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () => _resetDevice(device['user_id']),
+                      ),
+                      tileColor: AppColors.primary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    );
+                  }),
     );
   }
 }

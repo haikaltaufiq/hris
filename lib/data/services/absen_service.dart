@@ -93,8 +93,9 @@ class AbsenService {
         );
         request.files.add(videoFile);
       }
-      
-      print("Checkin lat=$lat lng=$lng date=$checkinDate time=$checkinTime path=$videoPath");
+
+      print(
+          "Checkin lat=$lat lng=$lng date=$checkinDate time=$checkinTime path=$videoPath");
 
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);

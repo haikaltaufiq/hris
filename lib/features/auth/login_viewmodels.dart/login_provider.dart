@@ -40,6 +40,63 @@ class UserProvider extends ChangeNotifier {
   bool get hasCache => _hasCache;
 
   int get totalUsers => _users.length;
+
+  String _currentSortField = 'nama';
+  String get currentSortField => _currentSortField;
+
+  void sortUsers(String field) {
+    _currentSortField = field;
+
+    // Tentukan list mana yang diurutkan (filtered atau full)
+    List<UserModel> listToSort =
+        _currentSearch.isEmpty ? [..._users] : [..._filteredUsers];
+
+    switch (field) {
+      case 'nama':
+        listToSort.sort(
+            (a, b) => a.nama.toLowerCase().compareTo(b.nama.toLowerCase()));
+        break;
+
+      case 'jabatan':
+        listToSort.sort((a, b) => (a.jabatan?.namaJabatan ?? '')
+            .toLowerCase()
+            .compareTo((b.jabatan?.namaJabatan ?? '').toLowerCase()));
+        break;
+
+      case 'departemen':
+        listToSort.sort((a, b) => (a.departemen.namaDepartemen)
+            .toLowerCase()
+            .compareTo(b.departemen.namaDepartemen.toLowerCase()));
+        break;
+
+      case 'peran':
+        listToSort.sort((a, b) => a.peran.namaPeran
+            .toLowerCase()
+            .compareTo(b.peran.namaPeran.toLowerCase()));
+        break;
+
+      case 'terbaru':
+        // kalau model user punya field createdAt / id, kamu bisa pakai itu
+        listToSort.sort((a, b) => b.id.compareTo(a.id));
+        break;
+
+      case 'terlama':
+        listToSort.sort((a, b) => a.id.compareTo(b.id));
+        break;
+
+      default:
+        break;
+    }
+
+    if (_currentSearch.isEmpty) {
+      _users = listToSort;
+    } else {
+      _filteredUsers = listToSort;
+    }
+
+    notifyListeners();
+  }
+
   // ===== User setter =====
 
   void setUser(UserModel user) {

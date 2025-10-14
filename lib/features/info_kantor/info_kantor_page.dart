@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/header.dart';
-import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
@@ -29,10 +28,6 @@ class _InfoKantorPageState extends State<InfoKantorPage> {
               child: Header(
                   title: context.isIndonesian ? "Info Kantor" : 'Company Info'),
             ),
-          SearchingBar(
-            controller: searchController,
-            onFilter1Tap: () {},
-          ),
           Padding(
             padding: EdgeInsets.symmetric(
                 horizontal: context.isMobile ? 4.0 : 30.0,

@@ -340,9 +340,9 @@ class StatusTaskChart extends StatelessWidget {
     for (final tugas in tugasList) {
       try {
         // Parse tanggal mulai untuk menentukan hari dalam seminggu
-        final tanggalMulai = tugas.tanggalMulai;
-        if (tanggalMulai != null && tanggalMulai.isNotEmpty) {
-          final date = _parseDate(tanggalMulai);
+        final tanggalPenugasan = tugas.tanggalPenugasan;
+        if (tanggalPenugasan != null && tanggalPenugasan.isNotEmpty) {
+          final date = _parseDate(tanggalPenugasan);
           if (date != null) {
             final dayOfWeek = date.weekday - 1; // 0=Monday, 6=Sunday
             final status = tugas.status?.toLowerCase() ?? '';

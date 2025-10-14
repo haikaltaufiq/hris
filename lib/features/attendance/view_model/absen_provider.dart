@@ -34,6 +34,8 @@ class AbsenProvider extends ChangeNotifier {
   bool get hasCheckedInToday => _hasCheckedInToday;
 
   int get jumlahHadir => _absensi.map((a) => a.userId).toSet().length;
+  String _currentSortField = 'terbaru';
+  String get currentSortField => _currentSortField;
 
   double attendanceRate(int totalUsers) {
     if (totalUsers == 0) return 0;
@@ -90,6 +92,7 @@ class AbsenProvider extends ChangeNotifier {
       }
 
       _absensi = apiData;
+      sortAbsensi('terbaru');
       filteredAbsensi.clear();
       _errorMessage = null;
 
@@ -282,6 +285,60 @@ class AbsenProvider extends ChangeNotifier {
     }
 
     return monthly;
+  }
+
+  void filterByMonth(int month, int year) {
+    _filteredAbsensi = _absensi.where((absen) {
+      if (absen.checkinDate == null || absen.checkinDate!.isEmpty) return false;
+      try {
+        final date = DateTime.parse(absen.checkinDate!);
+        return date.month == month && date.year == year;
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+    notifyListeners();
+  }
+
+  void sortAbsensi(String field) {
+    _currentSortField = field;
+    switch (field) {
+      case 'terbaru':
+        _absensi.sort((a, b) {
+          final dateA = DateTime.tryParse(a.checkinDate ?? '');
+          final dateB = DateTime.tryParse(b.checkinDate ?? '');
+          if (dateA == null || dateB == null) return 0;
+          return dateB.compareTo(dateA); // terbaru dulu
+        });
+        break;
+
+      case 'terlama':
+        _absensi.sort((a, b) {
+          final dateA = DateTime.tryParse(a.checkinDate ?? '');
+          final dateB = DateTime.tryParse(b.checkinDate ?? '');
+          if (dateA == null || dateB == null) return 0;
+          return dateA.compareTo(dateB); // terlama dulu
+        });
+        break;
+
+      case 'nama':
+        _absensi
+            .sort((a, b) => (a.user?.nama ?? '').compareTo(b.user?.nama ?? ''));
+        break;
+
+      case 'status':
+        _absensi.sort((a, b) => (a.status ?? '').compareTo(b.status ?? ''));
+        break;
+
+      default:
+        break;
+    }
+
+    if (_currentSearch.isNotEmpty) {
+      searchAbsensi(_currentSearch);
+    } else {
+      notifyListeners();
+    }
   }
 }
 
