@@ -1,15 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
-import 'package:hr/core/theme/language_provider.dart';
-import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:hr/routes/app_routes.dart';
-import 'package:provider/provider.dart';
 
 class LoginButton extends StatefulWidget {
   final TextEditingController emailController;
@@ -53,18 +52,23 @@ class _LoginButtonState extends State<LoginButton> {
 
       if (result['success'] == true && result['token'] != null) {
         final token = result['token'];
+        final box = await Hive.openBox('user');
+        await box.put('token', token);
+
+        // user sudah berupa UserModel, bukan Map
+        final user = result['user'] as UserModel?;
+        final userRole = user?.peran;
+
+        // ambil fitur dari peran
+        final fiturList = userRole?.fitur.map((f) => f.toJson()).toList() ?? [];
+
+        await FeatureAccess.setFeatures(fiturList);
         await FeatureAccess.init();
 
-        final themeProvider =
-            Provider.of<ThemeProvider>(context, listen: false);
-        final langProvider =
-            Provider.of<LanguageProvider>(context, listen: false);
         final pengaturanService = PengaturanService();
 
         try {
-          final pengaturan = await pengaturanService.getPengaturan(token);
-          themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
-          langProvider.toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+          await pengaturanService.getPengaturan(token);
         } catch (e) {
           print('Gagal fetch pengaturan: $e');
         }
@@ -75,7 +79,7 @@ class _LoginButtonState extends State<LoginButton> {
           isSuccess: true,
         );
         if (mounted) {
-          Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+          Navigator.pushNamed(context, AppRoutes.dashboardMobile);
         }
       } else {
         final backendMessage = result['message'];

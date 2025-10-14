@@ -2,6 +2,8 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:hr/data/models/user_model.dart';
+import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,7 +11,6 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/cuti/cuti_viewmodel/cuti_provider.dart';
@@ -110,15 +111,17 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
         if (mounted) setState(() => _ready = true);
       });
     } else {
-      setState(() => _ready = true);
+      _ready = true;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Render MyApp langsung di non-native platform
     if (!context.isNativeMobile) return const MyApp();
-    if (!_ready) return const SizedBox.shrink();
-    return const MyApp();
+
+    // Hanya tunda di platform native saat caching
+    return _ready ? const MyApp() : const SizedBox.shrink();
   }
 }
 
@@ -140,14 +143,24 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _restoreSession(String token) async {
     try {
-      await FeatureAccess.init();
+      final box = await Hive.openBox('user');
+      final userData = box.get('user'); // pastikan user disimpan saat login
+
+      if (userData != null) {
+        final user = UserModel.fromJson(Map<String, dynamic>.from(userData));
+        final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
+
+        await FeatureAccess.setFeatures(fiturList);
+        await FeatureAccess.init();
+      }
+
+      // restore tema dan bahasa
       final pengaturanService = PengaturanService();
       final pengaturan = await pengaturanService.getPengaturan(token);
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         final themeProvider = context.read<ThemeProvider>();
         final langProvider = context.read<LanguageProvider>();
-
         final isDark = pengaturan['tema'] == 'gelap';
         final isIndo = pengaturan['bahasa'] == 'indonesia';
         themeProvider.setDarkMode(isDark);
@@ -160,17 +173,15 @@ class _MyAppState extends State<MyApp> {
 
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+    final box = await Hive.openBox('user');
+    final token = box.get('token') ?? prefs.getString('token');
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-    final isNativeMobile = WidgetsBinding
-        .instance.platformDispatcher.defaultRouteName
-        .contains('mobile');
 
     if (token != null && token.isNotEmpty) {
-      _restoreSession(token);
+      await _restoreSession(token);
     }
 
-    if (isNativeMobile) {
+    if (context.isNativeMobile) {
       if (!seenOnboarding) return AppRoutes.onboarding;
       return token != null && token.isNotEmpty
           ? AppRoutes.dashboardMobile
@@ -190,7 +201,9 @@ class _MyAppState extends State<MyApp> {
       future: _initialRoute,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return const ColoredBox(color: Colors.black);
+          return ColoredBox(
+              color:
+                  context.isNativeMobile ? Colors.black : Colors.transparent);
         }
         return MaterialApp(
           debugShowCheckedModeBanner: false,

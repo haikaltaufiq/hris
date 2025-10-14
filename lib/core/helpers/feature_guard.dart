@@ -39,9 +39,12 @@ class FeatureAccess {
   }
 
   // lebih aman
-  static void setFeatures(List<dynamic>? fiturFromBackend) {
+  static Future<void> setFeatures(List<dynamic>? fiturFromBackend) async {
+    final prefs = await SharedPreferences.getInstance();
+
     if (fiturFromBackend == null) {
       _fitur = [];
+      await prefs.remove('fitur');
       return;
     }
 
@@ -53,9 +56,8 @@ class FeatureAccess {
         .toList();
 
     // simpan juga ke shared preferences
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setString('fitur', jsonEncode(fiturFromBackend));
-    });
+    await prefs.setString('fitur', jsonEncode(fiturFromBackend));
+    debugPrint('✅ FeatureAccess updated: $_fitur');
   }
 
   static bool has(String requiredFeature) {
