@@ -3,14 +3,11 @@ import 'package:hive/hive.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:hr/core/theme/language_provider.dart';
-import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:hr/features/auth/web/forget_page.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
-import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/device_size.dart';
 
@@ -387,15 +384,10 @@ class _LoginState extends State<Login> {
 
               FeatureAccess.setFeatures(result['fitur']);
 
-              Provider.of<ThemeProvider>(context, listen: false);
-              final langProvider =
-                  Provider.of<LanguageProvider>(context, listen: false);
               final pengaturanService = PengaturanService();
 
               try {
-                final pengaturan = await pengaturanService.getPengaturan(token);
-                langProvider
-                    .toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+                await pengaturanService.getPengaturan(token);
               } catch (e) {
                 print('Gagal fetch pengaturan: $e');
               }
