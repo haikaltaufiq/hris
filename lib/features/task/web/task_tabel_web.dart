@@ -41,9 +41,10 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
   String parseDate(String? date) {
     if (date == null || date.isEmpty) return '';
     try {
-      return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+      final parsed = DateTime.parse(date);
+      return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
     } catch (_) {
-      return '';
+      return date; // fallback kalau parsing gagal
     }
   }
 
@@ -183,12 +184,12 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             SizedBox(height: 5),
             DetailItem(
               label: 'Tanggal Mulai',
-              value: parseDate(tugas.tanggalMulai),
+              value: parseDate(tugas.tanggalPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
               label: 'Batas Submit',
-              value: parseDate(tugas.tanggalSelesai),
+              value: parseDate(tugas.batasPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
@@ -277,8 +278,8 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        parseDate(tugas.tanggalMulai),
-        parseDate(tugas.tanggalSelesai),
+        parseDate(tugas.tanggalPenugasan),
+        parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",
         tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
             ? "See Location"

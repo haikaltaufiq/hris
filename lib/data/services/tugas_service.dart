@@ -15,15 +15,40 @@ class TugasService {
     return prefs.getString('token');
   }
 
-  /// Format tanggal dd/MM/yyyy → yyyy-MM-dd
-  static String _formatDateForApi(String input) {
-    input = input.trim();
-    final parts = input.split(RegExp(r'[-/ ]+'));
-    if (parts.length == 3) {
-      return "${parts[2]}-${parts[1].padLeft(2, '0')}-${parts[0].padLeft(2, '0')}";
+  /// Format tanggal dari form atau database ke format API `yyyy-MM-dd HH:mm:ss`
+  static String formatDateForApi(String input) {
+    try {
+      input = input.trim();
+      if (input.isEmpty) throw FormatException("Tanggal kosong");
+
+      // Jika sudah dalam format API (yyyy-MM-dd HH:mm:ss)
+      if (RegExp(r'^\d{4}-\d{2}-\d{2}').hasMatch(input)) {
+        return input;
+      }
+
+      // Jika formatnya dari form (dd/MM/yyyy HH:mm)
+      if (input.contains('/')) {
+        final parts = input.split(' ');
+        final datePart = parts[0];
+        final timePart = parts.length > 1 ? parts[1] : "00:00";
+
+        final dateMatch = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$').firstMatch(datePart);
+        if (dateMatch == null) throw FormatException("Format tanggal salah: '$input'");
+
+        final day = dateMatch.group(1)!.padLeft(2, '0');
+        final month = dateMatch.group(2)!.padLeft(2, '0');
+        final year = dateMatch.group(3);
+
+        return "$year-$month-$day $timePart:00";
+      }
+
+      throw FormatException("Format tanggal tidak dikenali: '$input'");
+    } catch (e) {
+      print("⚠️ Format tanggal tidak valid: $input ($e)");
+      return "0000-00-00 00:00:00";
     }
-    throw FormatException("Format tanggal tidak valid: $input");
   }
+
 
   /// Fetch daftar tugas
   static Future<List<TugasModel>> fetchTugas() async {
@@ -58,8 +83,8 @@ class TugasService {
   /// Create tugas baru dengan koordinat
   static Future<Map<String, dynamic>> createTugas({
     required String judul,
-    required String tanggalMulai,
-    required String tanggalSelesai,
+    required String tanggalPenugasan,
+    required String batasPenugasan,
     required double tugasLat,
     required double tugasLng,
     int? person,
@@ -73,8 +98,8 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
-      'tanggal_mulai': _formatDateForApi(tanggalMulai),
-      'tanggal_selesai': _formatDateForApi(tanggalSelesai),
+      'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
+      'batas_penugasan': formatDateForApi(batasPenugasan),
       'tugas_lat': tugasLat,
       'tugas_lng': tugasLng,
       'lampiran_lat': lampiranLat,
@@ -118,8 +143,8 @@ class TugasService {
   static Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
-    required String tanggalMulai,
-    required String tanggalSelesai,
+    required String tanggalPenugasan,
+    required String batasPenugasan,
     required double tugasLat,
     required double tugasLng,
     int? person,
@@ -134,8 +159,8 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
-      'tanggal_mulai': _formatDateForApi(tanggalMulai),
-      'tanggal_selesai': _formatDateForApi(tanggalSelesai),
+      'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
+      'batas_penugasan': formatDateForApi(batasPenugasan),
       'tugas_lat': tugasLat,
       'tugas_lng': tugasLng,
       'lampiran_lat': lampiranLat,

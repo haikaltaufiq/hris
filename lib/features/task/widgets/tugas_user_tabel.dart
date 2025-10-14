@@ -28,13 +28,13 @@ class TugasUserTabel extends StatelessWidget {
     }
   }
 
-  // Format dd/MM/yyyy
   String parseDate(String? date) {
     if (date == null || date.isEmpty) return '';
     try {
-      return DateFormat('dd/MM/yyyy').format(DateTime.parse(date));
+      final parsed = DateTime.parse(date);
+      return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
     } catch (_) {
-      return '';
+      return date; // fallback kalau parsing gagal
     }
   }
 
@@ -94,20 +94,20 @@ class TugasUserTabel extends StatelessWidget {
             itemBuilder: (context, index) {
               switch (index) {
                 case 0:
-                  return DetailItem(
-                      label: 'Kepada', value: tugas.displayUser);
+                  return DetailItem(label: 'Kepada', value: tugas.displayUser);
                 case 1:
                   return DetailItem(label: 'Judul', value: tugas.namaTugas);
                 case 2:
                   return DetailItem(
                       label: 'Tanggal Mulai',
-                      value: parseDate(tugas.tanggalMulai));
+                      value: parseDate(tugas.tanggalPenugasan));
                 case 3:
                   return DetailItem(
                       label: 'Batas Submit',
-                      value: parseDate(tugas.tanggalSelesai));
+                      value: parseDate(tugas.batasPenugasan));
                 case 4:
-                  return DetailItem(label: 'Lokasi', value: tugas.displayLokasiTugas);
+                  return DetailItem(
+                      label: 'Lokasi', value: tugas.displayLokasiTugas);
                 case 5:
                   return DetailItem(label: 'Note', value: tugas.displayNote);
                 case 6:
@@ -146,20 +146,26 @@ class TugasUserTabel extends StatelessWidget {
             "Judul",
             "Tgl Mulai",
             "Batas Submit",
-            "Lokasi",
-            "Catatan",
+            "Radius Lokasi",
+            "Lokasi Tugas",
+            "Lokasi Lampiran",
             "Status",
+            "Catatan",
             "Lampiran",
+            "Ketepatan"
           ]
         : [
             "To",
             "Title",
             "Start Date",
             "Deadline",
-            "Location",
-            "Note",
+            "Location Radius",
+            "Task Location",
+            "Attachment Location",
             "Status",
+            "Note",
             "Attachment",
+            "Punctuality"
           ];
 
     if (tugasList.isEmpty) {
@@ -173,21 +179,30 @@ class TugasUserTabel extends StatelessWidget {
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        parseDate(tugas.tanggalMulai),
-        parseDate(tugas.tanggalSelesai),
-        tugas.displayLokasiTugas,
-        tugas.displayNote,
+        parseDate(tugas.tanggalPenugasan),
+        parseDate(tugas.batasPenugasan),
+        "${tugas.radius} M",
+        tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
+            ? "See Location"
+            : '-',
+        tugas.displayLokasiLampiran != null &&
+                tugas.displayLokasiLampiran != "-"
+            ? "See Location"
+            : '-',
         tugas.status,
+        tugas.displayNote,
         tugas.displayLampiran,
+        tugas.lampiran != null ? tugas.displayTerlambat : '-',
       ];
     }).toList();
 
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
-      statusColumnIndexes: const [6], // status di kolom ke-6
+      statusColumnIndexes: const [7], // status di kolom ke-6
       onCellTap: (row, col) {
-        if (col == 7) { // Lampiran di kolom terakhir
+        if (col == 9) {
+          // Lampiran di kolom terakhir
           _editTugas(context, row);
         }
       },

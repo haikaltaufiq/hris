@@ -35,6 +35,12 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
   }
 
   @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final absenProvider = context.watch<AbsenProvider>();
     final absen = searchController.text.isEmpty

@@ -5,7 +5,9 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/log_service.dart';
 
 class WebTabelLog extends StatefulWidget {
-  const WebTabelLog({super.key});
+  final String? searchQuery; // Terima query dari parent
+
+  const WebTabelLog({super.key, this.searchQuery});
 
   @override
   State<WebTabelLog> createState() => _WebTabelLogState();
@@ -15,15 +17,24 @@ class _WebTabelLogState extends State<WebTabelLog> {
   List<Map<String, dynamic>> activityLogs = [];
   bool isLoading = true;
   String? errorMessage;
-  Set<String> expandedUsers = {}; // Track which users are expanded
-  Set<int> selectedLogs = {}; // Track selected logs for deletion
-  Map<String, bool> userShowAll = {}; // Track which users show all logs
-  final int itemsPerPage = 10; // Number of items to show initially
+  Set<String> expandedUsers = {};
+  Set<int> selectedLogs = {};
+  Map<String, bool> userShowAll = {};
+  final int itemsPerPage = 10;
 
   @override
   void initState() {
     super.initState();
     _loadActivityLogs();
+  }
+
+  @override
+  void didUpdateWidget(WebTabelLog oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Reload data jika search query berubah
+    if (oldWidget.searchQuery != widget.searchQuery) {
+      setState(() {});
+    }
   }
 
   Future<void> _loadActivityLogs() async {
@@ -46,9 +57,31 @@ class _WebTabelLogState extends State<WebTabelLog> {
     }
   }
 
+  // Filter logs berdasarkan search query
+  List<Map<String, dynamic>> get filteredLogs {
+    if (widget.searchQuery == null || widget.searchQuery!.isEmpty) {
+      return activityLogs;
+    }
+
+    final query = widget.searchQuery!.toLowerCase();
+    return activityLogs.where((log) {
+      final user = (log['user'] as String).toLowerCase();
+      final action = (log['action'] as String).toLowerCase();
+      final module = (log['module'] as String).toLowerCase();
+      final description = (log['description'] as String).toLowerCase();
+      final timestamp = (log['created_at'] as String).toLowerCase();
+
+      return user.contains(query) ||
+          action.contains(query) ||
+          module.contains(query) ||
+          description.contains(query) ||
+          timestamp.contains(query);
+    }).toList();
+  }
+
   Map<String, List<Map<String, dynamic>>> get groupedLogs {
     final Map<String, List<Map<String, dynamic>>> grouped = {};
-    for (var log in activityLogs) {
+    for (var log in filteredLogs) {
       final user = log['user'] as String;
       if (!grouped.containsKey(user)) grouped[user] = [];
       grouped[user]!.add(log);
@@ -193,6 +226,8 @@ class _WebTabelLogState extends State<WebTabelLog> {
       );
     }
 
+    final grouped = groupedLogs;
+
     if (activityLogs.isEmpty) {
       return Center(
         child: Column(
@@ -208,12 +243,25 @@ class _WebTabelLogState extends State<WebTabelLog> {
       );
     }
 
-    final grouped = groupedLogs;
+    if (grouped.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text(context.isIndonesian
+                ? 'Tidak ada hasil pencarian'
+                : 'No Search Results'),
+          ],
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Summary Section with Delete Button
+        // Summary Section
         Row(
           children: [
             Expanded(
@@ -226,8 +274,8 @@ class _WebTabelLogState extends State<WebTabelLog> {
                     const SizedBox(width: 8),
                     Text(
                       context.isIndonesian
-                          ? 'Total ${activityLogs.length} aktivitas dari ${grouped.length} user'
-                          : 'Total ${activityLogs.length} activity from ${grouped.length} user',
+                          ? 'Total ${filteredLogs.length} aktivitas dari ${grouped.length} user'
+                          : 'Total ${filteredLogs.length} activity from ${grouped.length} user',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -253,7 +301,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // User Header Typography
+              // User Header
               InkWell(
                 onTap: () => _toggleUserExpansion(userName),
                 borderRadius: BorderRadius.circular(8),
@@ -262,7 +310,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                       const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
                   child: Row(
                     children: [
-                      // Circle Avatar (matching card style)
                       CircleAvatar(
                         backgroundColor: AppColors.primary,
                         radius: 18,
@@ -276,8 +323,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                         ),
                       ),
                       const SizedBox(width: 12),
-
-                      // User Name
                       Text(
                         userName,
                         style: TextStyle(
@@ -286,8 +331,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                           color: AppColors.putih,
                         ),
                       ),
-
-                      // Dash Line
                       Expanded(
                         child: Container(
                           margin: const EdgeInsets.symmetric(horizontal: 12),
@@ -295,8 +338,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                           color: Colors.grey.shade300,
                         ),
                       ),
-
-                      // Activity Count
                       Text(
                         '${userLogs.length} Activity',
                         style: TextStyle(
@@ -305,10 +346,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                           fontWeight: FontWeight.w500,
                         ),
                       ),
-
                       const SizedBox(width: 12),
-
-                      // Expand Icon
                       Icon(
                         isExpanded
                             ? Icons.keyboard_arrow_up
@@ -321,7 +359,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                 ),
               ),
 
-              // Activity List (Expandable)
+              // Activity List
               AnimatedContainer(
                 duration: const Duration(milliseconds: 300),
                 curve: Curves.easeInOut,
@@ -330,20 +368,16 @@ class _WebTabelLogState extends State<WebTabelLog> {
                         padding: const EdgeInsets.only(left: 40, bottom: 16),
                         child: Column(
                           children: [
-                            // Display logs
                             ...displayLogs.asMap().entries.map((entry) {
                               final index = entry.key;
                               final log = entry.value;
-                              final logId = log['id'] as int;
                               final actionColor = getActionColor(log['action']);
                               final actionIcon = getActionIcon(log['action']);
                               final isLast = index == displayLogs.length - 1;
-                              selectedLogs.contains(logId);
 
                               return Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Timeline
                                   Column(
                                     children: [
                                       Icon(
@@ -360,10 +394,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                         ),
                                     ],
                                   ),
-
                                   const SizedBox(width: 12),
-
-                                  // Content
                                   Expanded(
                                     child: Padding(
                                       padding: EdgeInsets.only(
@@ -376,7 +407,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          // Action & Module
                                           Row(
                                             children: [
                                               Text(
@@ -409,10 +439,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                               ),
                                             ],
                                           ),
-
                                           const SizedBox(height: 4),
-
-                                          // Description
                                           Text(
                                             log['description'],
                                             style: TextStyle(
@@ -420,10 +447,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                               color: AppColors.putih,
                                             ),
                                           ),
-
                                           const SizedBox(height: 4),
-
-                                          // Timestamp
                                           Text(
                                             log['created_at'] ?? '',
                                             style: TextStyle(
@@ -438,22 +462,17 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                 ],
                               );
                             }).toList(),
-
-                            // See More / See Less Button
                             if (hasMoreLogs)
                               Padding(
                                 padding: const EdgeInsets.only(top: 8),
                                 child: Row(
                                   children: [
-                                    // Timeline dot for see more button
                                     Icon(
                                       Icons.more_horiz,
                                       color: Colors.grey.shade400,
                                       size: 16,
                                     ),
                                     const SizedBox(width: 12),
-
-                                    // See More/Less Button
                                     InkWell(
                                       onTap: () => _toggleShowAll(userName),
                                       borderRadius: BorderRadius.circular(6),
@@ -506,8 +525,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
                       )
                     : const SizedBox.shrink(),
               ),
-
-              // Bottom spacing between users
               if (entry != grouped.entries.last) const SizedBox(height: 8),
             ],
           );

@@ -371,7 +371,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
           boxShadow: [
             BoxShadow(
               color: const Color.fromARGB(56, 5, 5, 5),
-              blurRadius: 5,
+              blurRadius: 1,
               offset: const Offset(0, 1),
             ),
           ],

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/custom/header.dart';
-import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
-import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/peran/web/web_tabel_peran.dart';
 import 'package:hr/features/peran/peran_viewmodel.dart';
@@ -48,30 +46,30 @@ class _PeranPageWebState extends State<PeranPageWeb> {
                     Header(
                         title:
                             context.isIndonesian ? "Data Peran" : "Role Data"),
-                  SearchingBar(
-                    controller: SearchController(),
-                    onFilter1Tap: () async {
-                      final provider = context.read<PeranViewModel>();
+                  // SearchingBar(
+                  //   controller: SearchController(),
+                  //   onFilter1Tap: () async {
+                  //     final provider = context.read<PeranViewModel>();
 
-                      final selected = await showSortDialog(
-                        context: context,
-                        title: 'Urutkan Peran Berdasarkan',
-                        currentValue: provider.currentSortField,
-                        options: [
-                          {'value': 'terbaru', 'label': 'Terbaru'},
-                          {'value': 'terlama', 'label': 'Terlama'},
-                        ],
-                      );
+                  //     final selected = await showSortDialog(
+                  //       context: context,
+                  //       title: 'Urutkan Peran Berdasarkan',
+                  //       currentValue: provider.currentSortField,
+                  //       options: [
+                  //         {'value': 'terbaru', 'label': 'Terbaru'},
+                  //         {'value': 'terlama', 'label': 'Terlama'},
+                  //       ],
+                  //     );
 
-                      if (selected != null) {
-                        provider.sortPeran(selected);
-                      }
+                  //     if (selected != null) {
+                  //       provider.sortPeran(selected);
+                  //     }
 
-                      if (selected != null) {
-                        provider.sortPeran(selected);
-                      }
-                    },
-                  ),
+                  //     if (selected != null) {
+                  //       provider.sortPeran(selected);
+                  //     }
+                  //   },
+                  // ),
                   WebTabelPeranWeb(), // Expanded biar tabel bisa render full height
                 ],
               ),

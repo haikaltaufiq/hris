@@ -25,8 +25,8 @@ class UserEditTugas extends StatefulWidget {
 }
 
 class _UserEditTugasState extends State<UserEditTugas> {
-  final TextEditingController _tanggalMulaiController = TextEditingController();
-  final TextEditingController _tanggalSelesaiController = TextEditingController();
+  final TextEditingController _tanggalPenugasanController = TextEditingController();
+  final TextEditingController _batasPenugasanController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
@@ -46,19 +46,19 @@ class _UserEditTugasState extends State<UserEditTugas> {
     _noteController.text = widget.tugas.note ?? '';
 
     // Tanggal dari API (yyyy-MM-dd) → Form (dd / MM / yyyy)
-    if (widget.tugas.tanggalMulai != null &&
-        widget.tugas.tanggalMulai.isNotEmpty) {
-      final parts = widget.tugas.tanggalMulai.split('-');
+    if (widget.tugas.tanggalPenugasan != null &&
+        widget.tugas.tanggalPenugasan.isNotEmpty) {
+      final parts = widget.tugas.tanggalPenugasan.split('-');
       if (parts.length == 3) {
-        _tanggalMulaiController.text =
+        _tanggalPenugasanController.text =
             "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
       }
     }
-    if (widget.tugas.tanggalSelesai != null &&
-        widget.tugas.tanggalSelesai.isNotEmpty) {
-      final parts = widget.tugas.tanggalSelesai.split('-');
+    if (widget.tugas.batasPenugasan != null &&
+        widget.tugas.batasPenugasan.isNotEmpty) {
+      final parts = widget.tugas.batasPenugasan.split('-');
       if (parts.length == 3) {
-        _tanggalSelesaiController.text =
+        _batasPenugasanController.text =
             "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
       }
     }
@@ -116,8 +116,8 @@ class _UserEditTugasState extends State<UserEditTugas> {
   @override
   void dispose() {
     _judulTugasController.dispose();
-    _tanggalMulaiController.dispose();
-    _tanggalSelesaiController.dispose();
+    _tanggalPenugasanController.dispose();
+    _batasPenugasanController.dispose();
     _noteController.dispose();
     _lokasiController.dispose();
     _lampiranTugasController.dispose();
@@ -178,7 +178,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
               CustomInputField(
                 label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
                 hint: "dd / mm / yyyy",
-                controller: _tanggalMulaiController,
+                controller: _tanggalPenugasanController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
                 onTapIcon: () {
                   NotificationHelper.showTopNotification(
@@ -197,7 +197,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
                     ? "Batas Tanggal Penyelesaian"
                     : "Deadline Task",
                 hint: "dd / mm / yyyy",
-                controller: _tanggalSelesaiController,
+                controller: _batasPenugasanController,
                 suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
                 onTapIcon: () {
                   NotificationHelper.showTopNotification(

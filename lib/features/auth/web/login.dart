@@ -387,15 +387,13 @@ class _LoginState extends State<Login> {
 
               FeatureAccess.setFeatures(result['fitur']);
 
-              final themeProvider =
-                  Provider.of<ThemeProvider>(context, listen: false);
+              Provider.of<ThemeProvider>(context, listen: false);
               final langProvider =
                   Provider.of<LanguageProvider>(context, listen: false);
               final pengaturanService = PengaturanService();
 
               try {
                 final pengaturan = await pengaturanService.getPengaturan(token);
-                themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
                 langProvider
                     .toggleLanguage(pengaturan['bahasa'] == 'indonesia');
               } catch (e) {
