@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/fitur_model.dart';
+import 'package:hr/data/services/fcm_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
@@ -261,6 +262,7 @@ class AuthService {
     if (token == null) {
       await prefs.clear();
       await box.clear();
+
       return {'success': true, 'message': 'Sudah logout (local only)'};
     }
 
@@ -274,7 +276,7 @@ class AuthService {
       );
 
       debugPrint("Logout response: ${response.statusCode} - ${response.body}");
-
+      await FcmService.deleteToken(prefs.getInt('id') ?? 0);
       await prefs.clear();
       await box.clear();
       if (response.statusCode == 200) {

@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "491685505081",
-    "project_id": "hris-storage-986fa",
-    "storage_bucket": "hris-storage-986fa.firebasestorage.app"
+    "project_number": "853136954941",
+    "project_id": "fcm-hris-5763a",
+    "storage_bucket": "fcm-hris-5763a.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:491685505081:android:f3bfe81032d2f5849685e8",
+        "mobilesdk_app_id": "1:853136954941:android:24b65a363ea5d14bcbbc54",
         "android_client_info": {
           "package_name": "com.example.hr"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAcVFr_K51UdzW4_zeM0qQjDfHvNY2Gq_M"
+          "current_key": "AIzaSyDGMYV6Cxy7KD6miagzlKuy2iRtjlK8sPU"
         }
       ],
       "services": {

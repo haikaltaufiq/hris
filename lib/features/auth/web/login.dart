@@ -376,25 +376,22 @@ class _LoginState extends State<Login> {
             final password = _passwordController.text;
             final auth = AuthService();
             final result = await auth.login(email, password);
-            setState(() {
-              _isLoading = false;
-            });
 
             if (result['success'] == true && result['token'] != null) {
               final token = result['token'];
-              final box = await Hive.openBox('user');
-              await box.put('token', token);
-
-              // user sudah berupa UserModel, bukan Map
               final user = result['user'] as UserModel?;
-              final userRole = user?.peran;
 
-              // ambil fitur dari peran
-              final fiturList =
-                  userRole?.fitur.map((f) => f.toJson()).toList() ?? [];
+              if (user != null) {
+                final userBox = await Hive.openBox('user');
+                await userBox.put('token', token);
+                await userBox.put('id', user.id); // simpan user_id juga
 
-              await FeatureAccess.setFeatures(fiturList);
-              await FeatureAccess.init();
+                // ambil fitur dari peran
+                final fiturList =
+                    user.peran.fitur.map((f) => f.toJson()).toList();
+                await FeatureAccess.setFeatures(fiturList);
+                await FeatureAccess.init();
+              }
 
               final pengaturanService = PengaturanService();
 
@@ -421,7 +418,13 @@ class _LoginState extends State<Login> {
                 isSuccess: true,
               );
               Navigator.pushNamed(context, AppRoutes.dashboard);
+              setState(() {
+                _isLoading = false;
+              });
             } else {
+              setState(() {
+                _isLoading = false;
+              });
               NotificationHelper.showTopNotification(
                 context,
                 result['message'] ?? 'Invalid email or password',

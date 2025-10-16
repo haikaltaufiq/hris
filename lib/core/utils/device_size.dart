@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart'; // buat cek kIsWeb
 import 'package:flutter/material.dart';
 
@@ -22,10 +24,15 @@ extension DeviceExtension on BuildContext {
   // Alternative: if you want to distinguish native vs web
   bool get isNativeMobile => !kIsWeb && deviceWidth < 600;
   bool get isWebMobile => kIsWeb && deviceWidth < 600;
-  bool get isNativeTablet => !kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
+  bool get isNativeTablet =>
+      !kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
   bool get isWebTablet => kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
   bool get isNativeDesktop => !kIsWeb && deviceWidth >= 1024;
   bool get isWebDesktop => kIsWeb && deviceWidth >= 1024;
+
+  // platform check
+  bool get isAndroid => !kIsWeb && Platform.isAndroid;
+  bool get isIOS => !kIsWeb && Platform.isIOS;
 
   // scaling factor (base 375 iPhone X misalnya)
   double scale(double value) => value * deviceWidth / 375;
@@ -35,5 +42,6 @@ extension DeviceExtension on BuildContext {
 
   // padding scaling
   EdgeInsets padding(double value) => EdgeInsets.all(scale(value));
-  EdgeInsets symmetricPadding({double h = 0, double v = 0}) => EdgeInsets.symmetric(horizontal: scale(h), vertical: scale(v));
+  EdgeInsets symmetricPadding({double h = 0, double v = 0}) =>
+      EdgeInsets.symmetric(horizontal: scale(h), vertical: scale(v));
 }

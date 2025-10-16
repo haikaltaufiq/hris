@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class TugasService {
   /// Ambil token dari SharedPreferences
-  static Future<String?> _getToken() async {
+  static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token');
   }
@@ -32,8 +32,10 @@ class TugasService {
         final datePart = parts[0];
         final timePart = parts.length > 1 ? parts[1] : "00:00";
 
-        final dateMatch = RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$').firstMatch(datePart);
-        if (dateMatch == null) throw FormatException("Format tanggal salah: '$input'");
+        final dateMatch =
+            RegExp(r'^(\d{1,2})/(\d{1,2})/(\d{4})$').firstMatch(datePart);
+        if (dateMatch == null)
+          throw FormatException("Format tanggal salah: '$input'");
 
         final day = dateMatch.group(1)!.padLeft(2, '0');
         final month = dateMatch.group(2)!.padLeft(2, '0');
@@ -49,11 +51,11 @@ class TugasService {
     }
   }
 
-
   /// Fetch daftar tugas
   static Future<List<TugasModel>> fetchTugas() async {
-    final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    final token = await getToken();
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.get(
       Uri.parse('${ApiConfig.baseUrl}/api/tugas'),
@@ -93,8 +95,9 @@ class TugasService {
     required String note,
     required String radius,
   }) async {
-    final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    final token = await getToken();
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final requestBody = {
       'nama_tugas': judul,
@@ -152,10 +155,10 @@ class TugasService {
     double? lampiranLng,
     required String note,
     required String radius,
-
   }) async {
-    final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    final token = await getToken();
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final requestBody = {
       'nama_tugas': judul,
@@ -196,8 +199,9 @@ class TugasService {
 
   /// Delete tugas
   static Future<Map<String, dynamic>> deleteTugas(int id) async {
-    final token = await _getToken();
-    if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
+    final token = await getToken();
+    if (token == null)
+      throw Exception('Token tidak ditemukan. Harap login ulang.');
 
     final response = await http.delete(
       Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
@@ -229,7 +233,7 @@ class TugasService {
     double? lampiranLat,
     double? lampiranLng,
   }) async {
-    final token = await _getToken();
+    final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
     try {
@@ -243,8 +247,10 @@ class TugasService {
         'Accept': 'application/json',
       });
 
-      if (lampiranLat != null) request.fields['lampiran_lat'] = lampiranLat.toString();
-      if (lampiranLng != null) request.fields['lampiran_lng'] = lampiranLng.toString();
+      if (lampiranLat != null)
+        request.fields['lampiran_lat'] = lampiranLat.toString();
+      if (lampiranLng != null)
+        request.fields['lampiran_lng'] = lampiranLng.toString();
 
       if (kIsWeb) {
         if (fileBytes == null || fileName == null) {
@@ -293,7 +299,7 @@ class TugasService {
     required int id,
     required String status,
   }) async {
-    final token = await _getToken();
+    final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
     final response = await http.put(

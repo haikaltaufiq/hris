@@ -75,11 +75,11 @@ class PotonganTabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<String> headers = context.isIndonesian
         ? [
-            "Nama Potongan",
+            "Potongan",
             "Nominal",
           ]
         : [
-            'Deduction Name',
+            'Deduction',
             'Amount',
           ];
 

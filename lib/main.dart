@@ -1,9 +1,10 @@
 import 'dart:ui';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/pengaturan_service.dart';
+import 'package:hr/firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,6 +30,11 @@ import 'package:hr/routes/app_routes.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FeatureAccess.init();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   await Hive.initFlutter();
   for (final box in [
@@ -68,6 +74,10 @@ Future<void> main() async {
       child: const PrecacheWrapper(),
     ),
   );
+}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("Background message: ${message.notification?.title}");
 }
 
 class PrecacheWrapper extends StatefulWidget {
@@ -111,17 +121,15 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
         if (mounted) setState(() => _ready = true);
       });
     } else {
-      _ready = true;
+      setState(() => _ready = true);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Render MyApp langsung di non-native platform
     if (!context.isNativeMobile) return const MyApp();
-
-    // Hanya tunda di platform native saat caching
-    return _ready ? const MyApp() : const SizedBox.shrink();
+    if (!_ready) return const SizedBox.shrink();
+    return const MyApp();
   }
 }
 
@@ -134,52 +142,26 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Future<String> _initialRoute;
-
   @override
   void initState() {
     super.initState();
     _initialRoute = _getInitialRoute();
+    _setupFCM();
   }
 
-  Future<void> _restoreSession(String token) async {
-    try {
-      final box = await Hive.openBox('user');
-      final userData = box.get('user'); // pastikan user disimpan saat login
+  Future<void> _setupFCM() async {
+    FirebaseMessaging messaging = FirebaseMessaging.instance;
+    await messaging.requestPermission(alert: true, badge: true, sound: true);
 
-      if (userData != null) {
-        final user = UserModel.fromJson(Map<String, dynamic>.from(userData));
-        final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
-
-        await FeatureAccess.setFeatures(fiturList);
-        await FeatureAccess.init();
-      }
-
-      // restore tema dan bahasa
-      final pengaturanService = PengaturanService();
-      final pengaturan = await pengaturanService.getPengaturan(token);
-
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        final themeProvider = context.read<ThemeProvider>();
-        final langProvider = context.read<LanguageProvider>();
-        final isDark = pengaturan['tema'] == 'gelap';
-        final isIndo = pengaturan['bahasa'] == 'indonesia';
-        themeProvider.setDarkMode(isDark);
-        langProvider.toggleLanguage(isIndo);
-      });
-    } catch (e) {
-      debugPrint('Gagal restore session: $e');
-    }
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("Foreground message: ${message.notification?.title}");
+    });
   }
 
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
-    final box = await Hive.openBox('user');
-    final token = box.get('token') ?? prefs.getString('token');
+    final token = prefs.getString('token');
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
-
-    if (token != null && token.isNotEmpty) {
-      await _restoreSession(token);
-    }
 
     if (context.isNativeMobile) {
       if (!seenOnboarding) return AppRoutes.onboarding;
@@ -201,9 +183,7 @@ class _MyAppState extends State<MyApp> {
       future: _initialRoute,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
-          return ColoredBox(
-              color:
-                  context.isNativeMobile ? Colors.black : Colors.transparent);
+          return const ColoredBox(color: Colors.black);
         }
         return MaterialApp(
           debugShowCheckedModeBanner: false,

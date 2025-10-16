@@ -7,6 +7,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -256,13 +257,25 @@ class _MainLayoutState extends State<MainLayout>
                             context.isIndonesian ? "Keluar" : "Logout",
                             Icons.logout,
                             () async {
-                              // panggil service logout dulu biar API /api/logout terpanggil
-                              final result = await AuthService().logout();
-                              debugPrint("Logout result: $result");
-
-                              // lalu clear local storage
                               final prefs =
                                   await SharedPreferences.getInstance();
+
+                              // simpan dulu data penting
+                              final userId = prefs.getInt('user_id');
+                              final authToken = prefs.getString('auth_token');
+
+                              // hapus token FCM di server
+                              if (userId != null) {
+                                await FcmService.deleteToken(userId);
+                              }
+
+                              // panggil API logout auth
+                              if (authToken != null) {
+                                final result = await AuthService().logout();
+                                debugPrint("Logout result: $result");
+                              }
+
+                              // baru bersihkan semua prefs
                               await prefs.clear();
 
                               if (mounted) {
