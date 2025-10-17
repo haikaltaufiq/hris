@@ -7,7 +7,6 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
-import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -26,7 +25,7 @@ class ResponsiveNavBar extends StatefulWidget {
     required this.userFitur,
   });
 
-  // Definisi semua menu dengan fitur yang diperlukan
+  // Definisi semua menu
   List<NavItemWithFeature> getAllNavItems(BuildContext context) {
     final langProvider = Provider.of<LanguageProvider>(context);
     bool isIndonesian = langProvider.isIndonesian;
@@ -35,125 +34,192 @@ class ResponsiveNavBar extends StatefulWidget {
         label: "Dashboard",
         icon: FontAwesomeIcons.house,
         selectedIcon: FontAwesomeIcons.houseChimney,
-        requiredFeature: null, // Dashboard selalu ditampilkan
+        requiredFeature: null,
+        route: AppRoutes.dashboard,
       ),
       NavItemWithFeature(
         label: isIndonesian ? "Kehadiran" : "Attendance",
         icon: FontAwesomeIcons.calendarCheck,
         selectedIcon: FontAwesomeIcons.solidCalendarCheck,
         requiredFeature: "absensi",
+        route: AppRoutes.attendance,
       ),
       NavItemWithFeature(
         label: isIndonesian ? "Tugas" : "Task",
         icon: FontAwesomeIcons.listCheck,
         requiredFeature: "lihat_tugas",
+        route: AppRoutes.task,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Lembur' : "Over Time",
         icon: FontAwesomeIcons.clock,
         selectedIcon: FontAwesomeIcons.solidClock,
         requiredFeature: "lihat_lembur",
+        route: AppRoutes.overTime,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Cuti' : "Leave",
         icon: FontAwesomeIcons.calendarMinus,
         selectedIcon: FontAwesomeIcons.solidCalendarMinus,
         requiredFeature: "lihat_cuti",
+        route: AppRoutes.leave,
       ),
+      // Dropdown parent: Data Pegawai
       NavItemWithFeature(
-        label: isIndonesian ? 'Pegawai' : "Employees",
+        label: isIndonesian ? 'Data Pegawai' : "Employee Data",
         icon: FontAwesomeIcons.users,
-        requiredFeature: "karyawan",
+        requiredFeature: null,
+        isDropdownParent: true,
+        dropdownChildren: [
+          NavItemWithFeature(
+            label: isIndonesian ? 'Pegawai' : "Employees",
+            icon: FontAwesomeIcons.users,
+            requiredFeature: "karyawan",
+            route: AppRoutes.employee,
+          ),
+          NavItemWithFeature(
+            label: isIndonesian ? 'Departemen' : "Department",
+            icon: FontAwesomeIcons.building,
+            selectedIcon: FontAwesomeIcons.solidBuilding,
+            requiredFeature: "departemen",
+            route: AppRoutes.department,
+          ),
+          NavItemWithFeature(
+            label: isIndonesian ? 'Jabatan' : "Position",
+            icon: FontAwesomeIcons.idBadge,
+            selectedIcon: FontAwesomeIcons.solidIdBadge,
+            requiredFeature: "jabatan",
+            route: AppRoutes.jabatan,
+          ),
+          NavItemWithFeature(
+            label: isIndonesian ? 'Hak Akses' : "Access Rights",
+            icon: FontAwesomeIcons.userShield,
+            requiredFeature: "peran",
+            route: AppRoutes.peran,
+          ),
+          NavItemWithFeature(
+            label: isIndonesian ? 'Potongan Gaji' : "Salary Deduction",
+            icon: FontAwesomeIcons.calculator,
+            requiredFeature: "potongan_gaji",
+            route: AppRoutes.potonganGaji,
+          ),
+        ],
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Penggajian' : "Payroll",
         icon: FontAwesomeIcons.moneyBill,
         requiredFeature: "gaji",
-      ),
-      NavItemWithFeature(
-        label: isIndonesian ? 'Departemen' : "Department",
-        icon: FontAwesomeIcons.building,
-        selectedIcon: FontAwesomeIcons.solidBuilding,
-        requiredFeature: "departemen",
-      ),
-      NavItemWithFeature(
-        label: isIndonesian ? 'Jabatan' : "Position",
-        icon: FontAwesomeIcons.idBadge,
-        selectedIcon: FontAwesomeIcons.solidIdBadge,
-        requiredFeature: "jabatan",
-      ),
-      NavItemWithFeature(
-        label: isIndonesian ? 'Hak Akses' : "Access Rights",
-        icon: FontAwesomeIcons.userShield,
-        requiredFeature: "peran",
-      ),
-      NavItemWithFeature(
-        label: isIndonesian ? 'Potongan Gaji' : "Salary Deduction",
-        icon: FontAwesomeIcons.calculator,
-        requiredFeature: "potongan_gaji",
+        route: AppRoutes.payroll,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Log Aktifitas' : "Log Activity",
         icon: FontAwesomeIcons.history,
         requiredFeature: "log_aktifitas",
+        route: AppRoutes.logActivity,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Pengingat' : "Reminder",
         icon: FontAwesomeIcons.alarmClock,
         selectedIcon: FontAwesomeIcons.solidAlarmClock,
         requiredFeature: "pengingat",
+        route: AppRoutes.reminder,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Pengaturan' : "Settings",
         icon: FontAwesomeIcons.gear,
         requiredFeature: null,
+        route: AppRoutes.pengaturan,
       ),
       NavItemWithFeature(
         label: isIndonesian ? "Info Kantor" : "Company info",
         icon: FontAwesomeIcons.circleInfo,
         requiredFeature: "kantor",
+        route: AppRoutes.infoKantor,
       ),
+      // Dropdown parent: Reset
       NavItemWithFeature(
-        label: isIndonesian ? 'Berbahaya' : "Danger Zone",
+        label: "Reset",
         icon: FontAwesomeIcons.triangleExclamation,
-        requiredFeature: "denger",
-      ),
-      NavItemWithFeature(
-        label: isIndonesian ? 'Reset Perangkat' : "Reset Device",
-        icon: FontAwesomeIcons.trashRestore,
-        requiredFeature: "reset_device",
-      ),
-      NavItemWithFeature(
-        label: isIndonesian ? 'Buka Akun' : "Unlock Account",
-        icon: FontAwesomeIcons.unlock,
-        requiredFeature: "buka_akun",
+        requiredFeature: null,
+        isDropdownParent: true,
+        dropdownChildren: [
+          NavItemWithFeature(
+            label: isIndonesian ? 'Reset Data' : "Reset Data",
+            icon: FontAwesomeIcons.triangleExclamation,
+            requiredFeature: "denger",
+            route: AppRoutes.danger,
+          ),
+          NavItemWithFeature(
+            label: isIndonesian ? 'Reset Perangkat' : "Reset Device",
+            icon: FontAwesomeIcons.trashRestore,
+            requiredFeature: "reset_device",
+            route: AppRoutes.resetDevice,
+          ),
+          NavItemWithFeature(
+            label: isIndonesian ? 'Buka Akun' : "Unlock Account",
+            icon: FontAwesomeIcons.unlock,
+            requiredFeature: "buka_akun",
+            route: AppRoutes.bukaAkun,
+          ),
+        ],
       ),
     ];
   }
 
-  // Method untuk filter menu berdasarkan fitur user
+  // Filter menu
   List<NavItem> getFilteredNavItems(
       BuildContext context, List<String> userFitur) {
     final allItems = getAllNavItems(context);
+    List<NavItem> result = [];
 
-    return allItems
-        .where((item) =>
-            item.requiredFeature == null ||
-            userFitur.contains(item.requiredFeature))
-        .map((item) => NavItem(
-              originalIndex: allItems.indexOf(item),
-              label: item.label,
-              icon: item.icon,
-              selectedIcon: item.selectedIcon,
-            ))
-        .toList();
+    for (var item in allItems) {
+      if (item.isDropdownParent) {
+        final filteredChildren = item.dropdownChildren
+            ?.where((child) =>
+                child.requiredFeature == null ||
+                userFitur.contains(child.requiredFeature))
+            .toList();
+
+        if (filteredChildren != null && filteredChildren.isNotEmpty) {
+          result.add(NavItem(
+            label: item.label,
+            icon: item.icon,
+            selectedIcon: item.selectedIcon,
+            isDropdownParent: true,
+            dropdownChildren: filteredChildren
+                .map((child) => NavItem(
+                      label: child.label,
+                      icon: child.icon,
+                      selectedIcon: child.selectedIcon,
+                      route: child.route,
+                    ))
+                .toList(),
+          ));
+        }
+      } else {
+        if (item.requiredFeature == null ||
+            userFitur.contains(item.requiredFeature)) {
+          result.add(NavItem(
+            label: item.label,
+            icon: item.icon,
+            selectedIcon: item.selectedIcon,
+            route: item.route,
+          ));
+        }
+      }
+    }
+
+    return result;
   }
 
-  // Method untuk mobile navigation (ambil maksimal 5 item pertama)
   List<NavItem> getMobileNavItems(
       BuildContext context, List<String> userFitur) {
     final filtered = getFilteredNavItems(context, userFitur);
-    return filtered.length > 5 ? filtered.sublist(0, 5) : filtered;
+    final nonDropdownItems =
+        filtered.where((item) => !item.isDropdownParent).toList();
+    return nonDropdownItems.length > 5
+        ? nonDropdownItems.sublist(0, 5)
+        : nonDropdownItems;
   }
 
   @override
@@ -174,6 +240,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
   String _nama = "";
   String _email = "";
+  final Map<int, bool> _expandedDropdowns = {};
 
   @override
   bool get wantKeepAlive => true;
@@ -188,24 +255,14 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
   void _initializeControllers() {
     _slideController = AnimationController(
-      duration: const Duration(milliseconds: 350),
-      vsync: this,
-    );
-
+        duration: const Duration(milliseconds: 350), vsync: this);
     _fadeController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
+        duration: const Duration(milliseconds: 300), vsync: this);
 
-    _slideAnimation = CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeInOutCubic,
-    );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    );
+    _slideAnimation =
+        CurvedAnimation(parent: _slideController, curve: Curves.easeInOutCubic);
+    _fadeAnimation =
+        CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
 
     if (widget.isCollapsed) {
       _slideController.value = 1.0;
@@ -219,7 +276,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   @override
   void didUpdateWidget(ResponsiveNavBar oldWidget) {
     super.didUpdateWidget(oldWidget);
-
     if (oldWidget.isCollapsed != widget.isCollapsed) {
       if (widget.isCollapsed) {
         _fadeController.reverse();
@@ -241,7 +297,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
           ScrollController(initialScrollOffset: _lastScrollPosition);
       _scrollController!.addListener(_saveScrollPosition);
     }
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _restoreScrollPosition();
     });
@@ -250,7 +305,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   void _saveScrollPosition() {
     if (_scrollController != null && _scrollController!.hasClients) {
       _lastScrollPosition = _scrollController!.offset;
-
       PageStorage.of(context).writeState(
         context,
         _lastScrollPosition,
@@ -261,17 +315,12 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
   void _restoreScrollPosition() async {
     if (_scrollController == null || !_scrollController!.hasClients) return;
-
     final storedPosition = PageStorage.of(context).readState(
       context,
       identifier: _scrollStorageKey,
     );
-
     double targetPosition = _lastScrollPosition;
-    if (storedPosition is double) {
-      targetPosition = storedPosition;
-    }
-
+    if (storedPosition is double) targetPosition = storedPosition;
     if (targetPosition > 0 &&
         targetPosition <= _scrollController!.position.maxScrollExtent) {
       await _scrollController!.animateTo(
@@ -294,12 +343,9 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
-    if (context.isMobile) {
-      return _buildMobileBottomNav(context);
-    } else {
-      return _buildDesktopSidebar(context);
-    }
+    return context.isMobile
+        ? _buildMobileBottomNav(context)
+        : _buildDesktopSidebar(context);
   }
 
   Future<void> _loadUserData() async {
@@ -314,16 +360,12 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
   Widget _buildMobileBottomNav(BuildContext context) {
     final mobileItems = widget.getMobileNavItems(context, widget.userFitur);
+    final currentRoute = ModalRoute.of(context)?.settings.name;
 
     return Container(
       decoration: BoxDecoration(
         color: AppColors.hitam,
-        border: Border(
-          top: BorderSide(
-            color: Color(0xFF1a1a1a),
-            width: 1,
-          ),
-        ),
+        border: Border(top: BorderSide(color: Color(0xFF1a1a1a), width: 1)),
       ),
       child: SafeArea(
         child: Container(
@@ -331,41 +373,34 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: mobileItems.asMap().entries.map((entry) {
-              NavItem item = entry.value;
-              bool isSelected = item.originalIndex == widget.selectedIndex;
-
+            children: mobileItems.map((item) {
+              final bool isSelected = item.route == currentRoute;
               return Expanded(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () => widget.onItemTapped(item.originalIndex),
+                    onTap: () {
+                      if (item.route != null && item.route != currentRoute) {
+                        Navigator.pushNamed(context, item.route!);
+                      }
+                    },
                     borderRadius: BorderRadius.circular(12),
                     splashColor: Colors.transparent,
                     highlightColor: Colors.transparent,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: FaIcon(
-                              isSelected && item.selectedIcon != null
-                                  ? item.selectedIcon!
-                                  : item.icon,
-                              color: isSelected ? Colors.white : Colors.white60,
-                              size: 23,
-                            ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: FaIcon(
+                            isSelected && item.selectedIcon != null
+                                ? item.selectedIcon!
+                                : item.icon,
+                            color: isSelected ? Colors.white : Colors.white60,
+                            size: 23,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -385,55 +420,40 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
     return AnimatedBuilder(
       animation: _slideAnimation,
-      builder: (context, child) {
+      builder: (context, _) {
         final double currentWidth =
             widget.isCollapsed ? collapsedWidth : expandedWidth;
 
         return Container(
           width: currentWidth,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            color: AppColors.latar3,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 12,
-                offset: const Offset(5, 0),
-              ),
-            ],
-          ),
+          color: AppColors.latar3,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(height: 60),
-              const SizedBox(height: AppSizes.paddingM),
+              const SizedBox(height: 60),
               Expanded(
                 child: PageStorage(
                   bucket: _bucket,
                   child: ListView.builder(
                     key: const PageStorageKey('sidebar_navigation_list'),
                     controller: _scrollController,
-                    physics: const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    ),
+                    physics: const BouncingScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: widget.isCollapsed ? 4 : AppSizes.paddingS,
-                    ),
+                        horizontal: widget.isCollapsed ? 4 : AppSizes.paddingS),
                     itemCount: filteredItems.length,
                     itemBuilder: (context, index) {
-                      return Column(
-                        children: [
-                          _SidebarNavItemWidget(
-                            key: ValueKey('nav_item_$index'),
-                            index: index,
-                            item: filteredItems[index],
-                            selectedIndex: widget.selectedIndex,
-                            isCollapsed: widget.isCollapsed,
-                            onTap: (originalIndex) =>
-                                widget.onItemTapped(originalIndex),
-                            fadeAnimation: _fadeAnimation,
-                          ),
-                        ],
+                      final item = filteredItems[index];
+                      if (item.isDropdownParent) {
+                        return _buildDropdownNavItem(index: index, item: item);
+                      }
+                      return _SidebarNavItemWidget(
+                        key: ValueKey('nav_item_$index'),
+                        index: index,
+                        item: item,
+                        selectedIndex: widget.selectedIndex,
+                        isCollapsed: widget.isCollapsed,
+                        onTap: (_) {},
+                        fadeAnimation: _fadeAnimation,
                       );
                     },
                   ),
@@ -441,13 +461,123 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
               ),
               if (!widget.isCollapsed)
                 FadeTransition(
-                  opacity: _fadeAnimation,
-                  child: _buildSidebarFooter(context),
-                ),
+                    opacity: _fadeAnimation,
+                    child: _buildSidebarFooter(context)),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _buildDropdownNavItem({
+    required int index,
+    required NavItem item,
+  }) {
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    final bool hasActiveChild =
+        item.dropdownChildren?.any((c) => c.route == currentRoute) ?? false;
+
+    // Jika user sudah toggle manual, pakai nilai itu.
+    // Kalau belum ada entry, fallback ke hasActiveChild.
+    final bool isExpanded = _expandedDropdowns.containsKey(index)
+        ? (_expandedDropdowns[index] ?? false)
+        : hasActiveChild;
+
+    return Column(
+      children: [
+        MouseRegion(
+          onEnter: (_) => setState(() {}),
+          onExit: (_) => setState(() {}),
+          child: InkWell(
+            onTap: widget.isCollapsed
+                ? null
+                : () {
+                    setState(() {
+                      _expandedDropdowns[index] = !isExpanded;
+                    });
+                  },
+            borderRadius: BorderRadius.circular(12),
+            splashColor: AppColors.putih.withOpacity(0.1),
+            highlightColor: Colors.transparent,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 150),
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.isCollapsed ? 8 : AppSizes.paddingM,
+                vertical: 12,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  FaIcon(
+                    item.icon,
+                    color: AppColors.putih.withOpacity(0.7),
+                    size: 18,
+                  ),
+                  if (!widget.isCollapsed) ...[
+                    const SizedBox(width: AppSizes.paddingM),
+                    Expanded(
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Text(
+                          item.label,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.putih.withOpacity(0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
+                    AnimatedRotation(
+                      turns: isExpanded ? 0.5 : 0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Icon(
+                        Icons.keyboard_arrow_down,
+                        color: AppColors.putih.withOpacity(0.7),
+                        size: 20,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        // children
+        if (!widget.isCollapsed)
+          AnimatedSize(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeInOut,
+            child: isExpanded
+                ? Column(
+                    children: item.dropdownChildren?.map((child) {
+                          return _SidebarNavItemWidget(
+                            key: ValueKey('nav_item_child_${child.label}'),
+                            index: 0,
+                            item: child,
+                            selectedIndex: widget.selectedIndex,
+                            isCollapsed: false,
+                            // important: navigate by route, don't toggle dropdown
+                            onTap: (_) {
+                              if (child.route != null &&
+                                  child.route !=
+                                      ModalRoute.of(context)?.settings.name) {
+                                Navigator.pushNamed(context, child.route!);
+                              }
+                            },
+                            fadeAnimation: _fadeAnimation,
+                            isChild: true,
+                          );
+                        }).toList() ??
+                        [],
+                  )
+                : const SizedBox.shrink(),
+          ),
+      ],
     );
   }
 
@@ -511,7 +641,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                     ],
                   ),
                 ),
-                // titik tiga
                 PopupMenuButton<String>(
                   icon: Icon(
                     Icons.more_vert,
@@ -535,20 +664,10 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       if (!confirmed) return;
 
-                      final prefs = await SharedPreferences.getInstance();
-                      final userId = prefs
-                          .getInt('user_id'); // simpan dulu sebelum dihapus
-
-// hapus token FCM di server
-                      if (userId != null) {
-                        await FcmService.deleteToken(userId);
-                      }
-
-// lanjut logout API
                       final result = await AuthService().logout();
                       debugPrint("Logout result: $result");
 
-// baru bersihkan data lokal
+                      final prefs = await SharedPreferences.getInstance();
                       await prefs.clear();
 
                       if (mounted) {
@@ -599,6 +718,7 @@ class _SidebarNavItemWidget extends StatefulWidget {
   final bool isCollapsed;
   final Function(int) onTap;
   final Animation<double> fadeAnimation;
+  final bool isChild;
 
   const _SidebarNavItemWidget({
     super.key,
@@ -608,6 +728,7 @@ class _SidebarNavItemWidget extends StatefulWidget {
     required this.isCollapsed,
     required this.onTap,
     required this.fadeAnimation,
+    this.isChild = false,
   });
 
   @override
@@ -641,13 +762,18 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
 
   @override
   Widget build(BuildContext context) {
-    final bool isSelected = widget.item.originalIndex == widget.selectedIndex;
+    final currentRoute = ModalRoute.of(context)?.settings.name;
+    final bool isSelected = widget.item.route == currentRoute;
     final double screenWidth = MediaQuery.of(context).size.width;
     final double iconSize = screenWidth < 1024 ? 16 : 18;
     final double fontSize = screenWidth < 1024 ? 13 : 14;
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 4),
+      margin: EdgeInsets.only(
+        top: 6,
+        bottom: 4,
+        left: widget.isChild ? 24 : 0,
+      ),
       child: MouseRegion(
         onEnter: (_) {
           setState(() => _isHovered = true);
@@ -660,7 +786,12 @@ class _SidebarNavItemWidgetState extends State<_SidebarNavItemWidget>
         child: Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => widget.onTap(widget.item.originalIndex),
+            onTap: () {
+              if (widget.item.route != null &&
+                  widget.item.route != currentRoute) {
+                Navigator.pushNamed(context, widget.item.route!);
+              }
+            },
             borderRadius: BorderRadius.circular(12),
             splashColor: AppColors.putih.withOpacity(0.1),
             highlightColor: AppColors.putih.withOpacity(0.05),
@@ -759,26 +890,34 @@ class NavItemWithFeature {
   final IconData icon;
   final IconData? selectedIcon;
   final String? requiredFeature;
-
+  final bool isDropdownParent;
+  final List<NavItemWithFeature>? dropdownChildren;
+  final String? route;
   const NavItemWithFeature({
     required this.label,
     required this.icon,
     this.selectedIcon,
     this.requiredFeature,
+    this.isDropdownParent = false,
+    this.dropdownChildren,
+    this.route,
   });
 }
 
 // Class untuk menu item biasa (tanpa fitur)
 class NavItem {
-  final int originalIndex;
   final String label;
   final IconData icon;
   final IconData? selectedIcon;
-
+  final bool isDropdownParent;
+  final List<NavItem>? dropdownChildren;
+  final String? route;
   const NavItem({
-    required this.originalIndex,
     required this.label,
     required this.icon,
     this.selectedIcon,
+    this.isDropdownParent = false,
+    this.dropdownChildren,
+    this.route,
   });
 }
