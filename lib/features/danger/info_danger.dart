@@ -32,7 +32,7 @@ class InfoDanger extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  context.isIndonesian ? 'Zona Berbahaya' : 'Danger Zone',
+                  'Reset Data',
                   style: TextStyle(
                     color: AppColors.putih,
                     fontSize: 16,
