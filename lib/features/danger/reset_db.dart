@@ -47,7 +47,7 @@ class ResetDb extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            context.isIndonesian ? "Zona Berbahaya" : "Danger Zone",
+            context.isIndonesian ? "Reset Data" : "Reset Data",
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,

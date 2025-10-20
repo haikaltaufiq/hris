@@ -64,12 +64,11 @@ class CutiModel {
   }
 
 //Baca nama user
-  String get nama =>
-      (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
-
+  String get nama => (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isProses => status.toLowerCase() == 'proses';
-
+  bool get isApproved => status.toLowerCase() == 'disetujui';
+  bool get isDitolak => status.toLowerCase() == 'ditolak';
 //Motong alasan kepanjangan
   String get shortAlasan =>
       alasan.length > 20 ? '${alasan.substring(0, 20)}...' : alasan;

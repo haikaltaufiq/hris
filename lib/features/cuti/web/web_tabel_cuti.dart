@@ -113,22 +113,24 @@ class WebTabelCuti extends StatelessWidget {
       //   final c = cutiList[row];
       //   onDelete(c);
       // },
-      onEdit: (row) {
-        final c = cutiList[row];
-        showDialog(
-          context: context,
-          builder: (_) => UpdateStatusDialog(
-            onApprove: () async {
-              onApprove(c);
-              return;
+      onEdit: (cutiList.any((c) => c.isApproved || c.isDitolak))
+          ? null
+          : (row) {
+              final c = cutiList[row];
+              showDialog(
+                context: context,
+                builder: (_) => UpdateStatusDialog(
+                  onApprove: () async {
+                    onApprove(c);
+                    return;
+                  },
+                  onDecline: () async {
+                    onDecline(c);
+                    return;
+                  },
+                ),
+              );
             },
-            onDecline: () async {
-              onDecline(c);
-              return;
-            },
-          ),
-        );
-      },
     );
   }
 }

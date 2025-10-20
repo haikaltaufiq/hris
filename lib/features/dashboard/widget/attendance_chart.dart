@@ -151,7 +151,6 @@ class AttendanceChart extends StatelessWidget {
     return maxValue > 0 ? maxValue : 6;
   }
 
-// ganti fungsi lama _calculateLeftTitles
   List<double> _calculateLeftTitles(double maxY) {
     final interval = _getInterval(maxY);
     final titles = <double>[];
@@ -162,7 +161,6 @@ class AttendanceChart extends StatelessWidget {
     return titles;
   }
 
-// tambahkan fungsi baru
   double _getInterval(double maxY) {
     if (maxY <= 5) return 1;
     if (maxY <= 10) return 2;
@@ -176,8 +174,9 @@ class AttendanceChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<AbsenProvider, UserProvider>(
       builder: (context, absenProvider, userProvider, child) {
+        // PERBAIKAN UTAMA: Gunakan allAbsensi, bukan absensi
         final monthlyData =
-            _calculateMonthlyData(absenProvider.absensi, userProvider);
+            _calculateMonthlyData(absenProvider.allAbsensi, userProvider);
         final barGroups = _generateBarGroups(monthlyData);
         final maxY = _getMaxY(monthlyData);
         final leftTitles = _calculateLeftTitles(maxY);

@@ -52,6 +52,9 @@ class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     final deviceInfo = await _getDeviceInfo();
 
+    // ✅ Ambil token FCM dari FcmService
+    final fcmToken = await FcmService.getToken();
+
     try {
       final response = await http
           .post(
@@ -66,9 +69,11 @@ class AuthService {
               'device_model': deviceInfo["device_model"] ?? 'unknown_model',
               'device_manufacturer':
                   deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
-              'device_version':
-                  deviceInfo["device_version"] ?? 'unknown_version',
+              'device_version': deviceInfo["device_version"] ?? 'unknown_version',
               'platform': kIsWeb ? 'web' : 'apk',
+
+              // ✅ Tambahkan ini:
+              'device_token': fcmToken,
             }),
           )
           .timeout(const Duration(seconds: 120));
@@ -98,6 +103,9 @@ class AuthService {
             jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
+        // ✅ Simpan juga fcmToken agar bisa dihapus saat logout
+        await prefs.setString('fcm_token', fcmToken ?? '');
+
         return {
           'success': true,
           'token': data['token'],
@@ -106,7 +114,6 @@ class AuthService {
           'message': data['message'],
         };
       } else {
-        // tangani error API dengan jelas
         final errorData = jsonDecode(response.body);
         return {
           'success': false,

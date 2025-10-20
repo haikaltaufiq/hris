@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/button/action_button.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -188,15 +189,37 @@ class CutiCard extends StatelessWidget {
                       ),
                     ] else if (cuti.isProses) ...[
                       // Selain Admin Office → tetep Approve & Decline
-                      ActionButton(
-                        label: context.isIndonesian ? "Tolak" : 'Decline',
-                        color: AppColors.red,
-                        onTap: () => onDecline(),
+                      FeatureGuard(
+                        requiredFeature: 'approve_lembur_step2',
+                        child: ActionButton(
+                          label: context.isIndonesian ? "Tolak" : 'Decline',
+                          color: AppColors.red,
+                          onTap: () => onDecline(),
+                        ),
                       ),
-                      ActionButton(
-                        label: context.isIndonesian ? "Setujui" : 'Approve',
-                        color: AppColors.green,
-                        onTap: () => onApprove(),
+                      FeatureGuard(
+                        requiredFeature: 'approve_lembur_step2',
+                        child: ActionButton(
+                          label: context.isIndonesian ? "Setujui" : 'Approve',
+                          color: AppColors.green,
+                          onTap: () => onApprove(),
+                        ),
+                      ),
+                      FeatureGuard(
+                        requiredFeature: 'approve_lembur_step1',
+                        child: ActionButton(
+                          label: 'Edit',
+                          color: AppColors.yellow,
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (_) => UpdateStatusDialog(
+                                onApprove: onApprove,
+                                onDecline: onDecline,
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ] else ...[
                       // Admin Office pas Proses, atau status lain → Edit & Delete
@@ -205,19 +228,6 @@ class CutiCard extends StatelessWidget {
                       //   color: AppColors.red,
                       //   onTap: () => onDelete(),
                       // ),
-                      ActionButton(
-                        label: 'Edit',
-                        color: AppColors.yellow,
-                        onTap: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => UpdateStatusDialog(
-                              onApprove: onApprove,
-                              onDecline: onDecline,
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ],
                 ),

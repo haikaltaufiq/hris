@@ -4,8 +4,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/auth_service.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
+import 'package:hr/features/department/view_model/department_viewmodels.dart';
+import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardHeader extends StatefulWidget {
@@ -56,6 +61,12 @@ class _DashboardHeaderState extends State<DashboardHeader>
     setState(() {
       _nama = prefs.getString('nama') ?? '';
       _peran = prefs.getString('peran') ?? '';
+    });
+    await Future.microtask(() {
+      context.read<AbsenProvider>().fetchAbsensi();
+      context.read<TugasProvider>().fetchTugas();
+      context.read<UserProvider>().fetchUsers();
+      context.read<DepartmentViewModel>().fetchDepartemen();
     });
   }
 

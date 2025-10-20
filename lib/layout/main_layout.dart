@@ -756,7 +756,7 @@ class _MainLayoutState extends State<MainLayout>
       case AppRoutes.infoKantor:
         return context.isIndonesian ? 'Info Kantor' : 'Info Kantor';
       case AppRoutes.danger:
-        return context.isIndonesian ? 'Zona Bahaya' : 'Danger Zone';
+        return context.isIndonesian ? 'Reset Data' : 'Reset Data';
       case AppRoutes.checkin:
         return context.isIndonesian ? 'Absen Masuk' : 'Check-in';
       case AppRoutes.checkout:

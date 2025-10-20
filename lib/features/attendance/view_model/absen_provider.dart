@@ -6,6 +6,7 @@ import 'package:hr/data/services/absen_service.dart';
 class AbsenProvider extends ChangeNotifier {
   // ================= STATE ================= //
   List<AbsenModel> _absensi = [];
+  List<AbsenModel> _allAbsensi = []; // TAMBAHAN: simpan semua data mentah
   List<AbsenModel> _filteredAbsensi = [];
   String _currentSearch = '';
 
@@ -17,6 +18,8 @@ class AbsenProvider extends ChangeNotifier {
 
   // ================= GETTER ================= //
   List<AbsenModel> get absensi => _absensi;
+  List<AbsenModel> get allAbsensi =>
+      _allAbsensi; // TAMBAHAN: getter untuk semua data
   List<AbsenModel> get filteredAbsensi => _filteredAbsensi;
 
   bool get isLoading => _isLoading;
@@ -34,7 +37,7 @@ class AbsenProvider extends ChangeNotifier {
   bool get hasCheckedInToday => _hasCheckedInToday;
 
   int get jumlahHadir => _absensi.map((a) => a.userId).toSet().length;
-  String _currentSortField = 'terbaru';
+  String _currentSortField = 'hari'; // UBAH: default ke 'hari'
   String get currentSortField => _currentSortField;
 
   double attendanceRate(int totalUsers) {
@@ -50,12 +53,16 @@ class AbsenProvider extends ChangeNotifier {
       if (hasCache) {
         final cached = _absenBox.get('absen_list') as List;
         if (cached.isNotEmpty) {
+          _allAbsensi = cached // TAMBAHAN: load ke _allAbsensi
+              .map((json) =>
+                  AbsenModel.fromJson(Map<String, dynamic>.from(json)))
+              .toList();
           _absensi = cached
               .map((json) =>
                   AbsenModel.fromJson(Map<String, dynamic>.from(json)))
               .toList();
           _hasCache = true;
-          notifyListeners(); // Update UI immediately
+          notifyListeners();
           if (kDebugMode) {
             print('✅ Cache loaded: ${_absensi.length} items');
           }
@@ -63,7 +70,7 @@ class AbsenProvider extends ChangeNotifier {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('❌ Error loading cache: $e');
+        print(' Error loading cache: $e');
       }
     }
   }
@@ -71,7 +78,7 @@ class AbsenProvider extends ChangeNotifier {
   /// Fetch daftar absensi
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
     if (kDebugMode) {
-      print('🔄 fetchAbsen called - forceRefresh: $forceRefresh');
+      print(' fetchAbsen called - forceRefresh: $forceRefresh');
     }
 
     // Load cache first if not force refresh
@@ -84,16 +91,16 @@ class AbsenProvider extends ChangeNotifier {
 
     try {
       if (kDebugMode) {
-        print('🌐 Calling API...');
+        print(' Calling API...');
       }
       final apiData = await AbsenService.fetchAbsensi();
       if (kDebugMode) {
-        print('✅ API success: ${apiData.length} items');
+        print(' API success: ${apiData.length} items');
       }
 
-      _absensi = apiData;
-      sortAbsensi('terbaru');
-      filteredAbsensi.clear();
+      _allAbsensi = apiData; // TAMBAHAN: simpan semua data mentah
+      sortAbsensi('hari'); // UBAH: sort default ke hari ini
+      _filteredAbsensi.clear();
       _errorMessage = null;
 
       //   cek absen hari ini
@@ -101,20 +108,22 @@ class AbsenProvider extends ChangeNotifier {
       final todayStr = "${today.year.toString().padLeft(4, '0')}-"
           "${today.month.toString().padLeft(2, '0')}-"
           "${today.day.toString().padLeft(2, '0')}";
-      _hasCheckedInToday = _absensi.any((a) => a.checkinDate == todayStr);
+      _hasCheckedInToday = _allAbsensi.any((a) => a.checkinDate == todayStr);
 
       // Save to cache
       await _absenBox.put(
         'absen_list',
-        _absensi.map((c) => c.toJson()).toList(),
+        _allAbsensi
+            .map((c) => c.toJson())
+            .toList(), // UBAH: save dari _allAbsensi
       );
       if (kDebugMode) {
-        print('💾 Cache saved');
+        print(' Cache saved');
       }
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -125,7 +134,7 @@ class AbsenProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchAbsensi completed - items: ${_absensi.length}');
+    print(' fetchAbsensi completed - items: ${_absensi.length}');
   }
 
   /// Check-in
@@ -247,7 +256,9 @@ class AbsenProvider extends ChangeNotifier {
         "${today.month.toString().padLeft(2, '0')}-"
         "${today.day.toString().padLeft(2, '0')}";
 
-    return _absensi.where((a) => a.checkinDate == todayStr).toList();
+    return _allAbsensi
+        .where((a) => a.checkinDate == todayStr)
+        .toList(); // UBAH: dari _allAbsensi
   }
 
   /// Jumlah karyawan yang absen hari ini
@@ -268,7 +279,8 @@ class AbsenProvider extends ChangeNotifier {
     // List 12 elemen, masing-masing index = bulan
     final List<double> monthly = List.filled(12, 0);
 
-    for (final absen in _absensi) {
+    for (final absen in _allAbsensi) {
+      // UBAH: dari _allAbsensi
       try {
         if (absen.checkinDate != null && absen.checkinDate!.isNotEmpty) {
           final date = DateTime.parse(absen.checkinDate!);
@@ -279,7 +291,7 @@ class AbsenProvider extends ChangeNotifier {
         }
       } catch (e) {
         if (kDebugMode) {
-          print('❌ Error parsing absen date: $e');
+          print(' Error parsing absen date: $e');
         }
       }
     }
@@ -288,7 +300,8 @@ class AbsenProvider extends ChangeNotifier {
   }
 
   void filterByMonth(int month, int year) {
-    _filteredAbsensi = _absensi.where((absen) {
+    _filteredAbsensi = _allAbsensi.where((absen) {
+      // UBAH: dari _allAbsensi
       if (absen.checkinDate == null || absen.checkinDate!.isEmpty) return false;
       try {
         final date = DateTime.parse(absen.checkinDate!);
@@ -300,38 +313,54 @@ class AbsenProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // PERBAIKAN UTAMA: Sort dari _allAbsensi, bukan _absensi
   void sortAbsensi(String field) {
     _currentSortField = field;
+
+    // Gunakan _allAbsensi sebagai sumber data
+    List<AbsenModel> dataToSort = List.from(_allAbsensi);
+
     switch (field) {
+      case 'hari': // Filter data hari ini saja
+        final today = DateTime.now();
+        final todayStr = "${today.year.toString().padLeft(4, '0')}-"
+            "${today.month.toString().padLeft(2, '0')}-"
+            "${today.day.toString().padLeft(2, '0')}";
+        _absensi = dataToSort.where((a) => a.checkinDate == todayStr).toList();
+        break;
+
+      case 'semua': // Tampilkan semua data
+        _absensi = dataToSort;
+        break;
+
       case 'terbaru':
-        _absensi.sort((a, b) {
+        dataToSort.sort((a, b) {
           final dateA = DateTime.tryParse(a.checkinDate ?? '');
           final dateB = DateTime.tryParse(b.checkinDate ?? '');
           if (dateA == null || dateB == null) return 0;
-          return dateB.compareTo(dateA); // terbaru dulu
+          return dateB.compareTo(dateA);
         });
+        _absensi = dataToSort;
         break;
 
       case 'terlama':
-        _absensi.sort((a, b) {
+        dataToSort.sort((a, b) {
           final dateA = DateTime.tryParse(a.checkinDate ?? '');
           final dateB = DateTime.tryParse(b.checkinDate ?? '');
           if (dateA == null || dateB == null) return 0;
-          return dateA.compareTo(dateB); // terlama dulu
+          return dateA.compareTo(dateB);
         });
+        _absensi = dataToSort;
         break;
 
       case 'nama':
-        _absensi
+        dataToSort
             .sort((a, b) => (a.user?.nama ?? '').compareTo(b.user?.nama ?? ''));
-        break;
-
-      case 'status':
-        _absensi.sort((a, b) => (a.status ?? '').compareTo(b.status ?? ''));
+        _absensi = dataToSort;
         break;
 
       default:
-        break;
+        _absensi = dataToSort;
     }
 
     if (_currentSearch.isNotEmpty) {

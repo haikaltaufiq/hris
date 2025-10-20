@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
@@ -16,13 +17,28 @@ class DashboardCard extends StatefulWidget {
 }
 
 class _DashboardCardState extends State<DashboardCard> {
-  late final totalUser = context.read<UserProvider>().totalUsers.toString();
-  late final totalDepartment =
-      context.read<DepartmentViewModel>().totalDepartment.toString();
-  late final totalTask = context.read<TugasProvider>().totalTugas.toString();
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    await Future.microtask(() {
+      context.read<AbsenProvider>().fetchAbsensi();
+      context.read<TugasProvider>().fetchTugas();
+      context.read<UserProvider>().fetchUsers();
+      context.read<DepartmentViewModel>().fetchDepartemen();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    final totalUser = context.watch<UserProvider>().totalUsers.toString();
+    final totalDepartment =
+        context.watch<DepartmentViewModel>().totalDepartment.toString();
+    final totalTask = context.watch<TugasProvider>().totalTugas.toString();
+
     late List<Map<String, dynamic>> rawCardData = context.isIndonesian
         ? [
             {
