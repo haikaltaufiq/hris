@@ -17,7 +17,6 @@ class LemburModel {
   final String keteranganStatus;
   final String catatan_penolakan;
 
-
   LemburModel({
     required this.id,
     required this.userId,
@@ -79,6 +78,8 @@ class LemburModel {
 
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isProses => status.toLowerCase() == 'proses';
+  bool get isApproved => status.toLowerCase() == 'disetujui';
+  bool get isDitolak => status.toLowerCase() == 'ditolak';
 
   Color get statusColor {
     switch (status.toLowerCase()) {

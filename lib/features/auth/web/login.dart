@@ -399,17 +399,11 @@ class _LoginState extends State<Login> {
               final pengaturanService = PengaturanService();
 
               try {
-                final pengaturan = await pengaturanService.getPengaturan(token);
+                await pengaturanService.getPengaturan(token);
 
                 if (context.mounted) {
-                  final themeProvider =
-                      Provider.of<ThemeProvider>(context, listen: false);
-                  final langProvider =
-                      Provider.of<LanguageProvider>(context, listen: false);
-
-                  themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
-                  langProvider
-                      .toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+                  Provider.of<ThemeProvider>(context, listen: false);
+                  Provider.of<LanguageProvider>(context, listen: false);
                 }
               } catch (e) {
                 print('Gagal fetch pengaturan: $e');

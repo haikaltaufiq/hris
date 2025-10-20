@@ -63,7 +63,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
       animation: _animationController,
       builder: (context, child) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final isNarrow = constraints.maxWidth < 800;
@@ -72,21 +72,26 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                   ? Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        _welcomeCard(),
-                        const SizedBox(height: 10),
                         _statSection(),
+                        const SizedBox(height: 10),
+                        _welcomeCard(),
                         const SizedBox(height: 10),
                         _overviewCard(),
                       ],
                     )
-                  : Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Flexible(flex: 2, child: _welcomeCard()),
-                        const SizedBox(width: 10),
-                        Flexible(flex: 3, child: _statSection()),
-                        const SizedBox(width: 10),
-                        Flexible(flex: 2, child: _overviewCard()),
+                        _statSection(),
+                        const SizedBox(height: 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Flexible(flex: 2, child: _welcomeCard()),
+                            const SizedBox(width: 10),
+                            Flexible(flex: 2, child: _overviewCard()),
+                          ],
+                        ),
                       ],
                     );
             },
@@ -96,7 +101,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Bagian Stats Column
+  /// Bagian Stats Row
   Widget _statSection() {
     return Consumer3<UserProvider, DepartmentViewModel, TugasProvider>(
       builder: (context, userProv, deptProv, tugasProv, child) {
@@ -104,33 +109,42 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
         final totalDepartment = deptProv.totalDepartment.toString();
         final totalTask = tugasProv.totalTugas.toString();
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _statCard(
-              title: context.isIndonesian ? "Departemen" : "Departments",
-              value: totalDepartment,
-              subtitle:
-                  context.isIndonesian ? "Divisi Aktif" : "Active divisions",
-              icon: FontAwesomeIcons.building,
+            Flexible(
+              child: _statCard(
+                title: context.isIndonesian ? "Departemen" : "Departments",
+                value: totalDepartment,
+                subtitle:
+                    context.isIndonesian ? "Divisi Aktif" : "Active divisions",
+                icon: FontAwesomeIcons.building,
+                iconColor: const Color.fromARGB(255, 82, 172, 246),
+              ),
             ),
-            const SizedBox(height: 10),
-            _statCard(
-              title: context.isIndonesian ? "Pegawai" : "Employees",
-              value: totalUser,
-              subtitle:
-                  context.isIndonesian ? "Jumlah Pegawai" : "Total Employees",
-              icon: Icons.people_alt_rounded,
-              isGrowth: true,
+            const SizedBox(width: 10),
+            Flexible(
+              child: _statCard(
+                title: context.isIndonesian ? "Pegawai" : "Employees",
+                value: totalUser,
+                subtitle:
+                    context.isIndonesian ? "Jumlah Pegawai" : "Total Employees",
+                icon: Icons.people_alt_rounded,
+                iconColor: const Color.fromARGB(255, 54, 255, 61),
+                isGrowth: true,
+              ),
             ),
-            const SizedBox(height: 10),
-            _statCard(
-              title: context.isIndonesian ? "Tugas Aktif" : "Active Tasks",
-              value: totalTask,
-              subtitle: context.isIndonesian
-                  ? "Deadline minggu ini"
-                  : "Due this week",
-              icon: Icons.assignment_outlined,
+            const SizedBox(width: 10),
+            Flexible(
+              child: _statCard(
+                title: context.isIndonesian ? "Tugas Aktif" : "Active Tasks",
+                value: totalTask,
+                subtitle: context.isIndonesian
+                    ? "Deadline minggu ini"
+                    : "Due this week",
+                icon: Icons.assignment_outlined,
+                iconColor: const Color.fromARGB(255, 255, 80, 67),
+              ),
             ),
           ],
         );
@@ -173,7 +187,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                   width: 74,
                   height: 74,
                   decoration: BoxDecoration(
-                    color: AppColors.secondary,
+                    color: AppColors.secondary.withOpacity(0.5),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -260,7 +274,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
         height: cardHeight,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.secondary,
+          color: AppColors.secondary.withOpacity(0.5),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(
@@ -300,6 +314,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     required String value,
     required String subtitle,
     required IconData icon,
+    required Color iconColor,
     bool isGrowth = false,
   }) {
     return _HoverCard(
@@ -323,49 +338,59 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(7),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(15.0),
-                        child: Icon(icon, color: AppColors.putih, size: 28),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: TextStyle(
-                            color: AppColors.putih.withOpacity(0.7),
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
+                Flexible(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(7),
+                        decoration: BoxDecoration(
+                          color: iconColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(7),
                         ),
-                        Text(
-                          subtitle,
-                          style: TextStyle(
-                            color: AppColors.putih.withOpacity(0.5),
-                            fontSize: 12,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: Icon(icon, color: iconColor, size: 28),
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              title,
+                              style: TextStyle(
+                                color: AppColors.putih.withOpacity(0.7),
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            Text(
+                              subtitle,
+                              style: TextStyle(
+                                color: AppColors.putih.withOpacity(0.5),
+                                fontSize: 12,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   value,
                   style: TextStyle(
-                    color: AppColors.putih,
+                    color: iconColor,
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
                     height: 1,
@@ -406,10 +431,12 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
 
         final totalUser = context.read<UserProvider>().totalUsers;
         final totalTugasSelesai = tugasProv.totalTugasSelesai.toDouble();
-        final totalTugas =
-            tugasProv.totalAllTugas.toDouble(); // pake totalAllTugas
+        final totalTugas = tugasProv.totalAllTugas.toDouble();
 
-        final rate = (totalUser > 0) ? absenProv.jumlahHadir / totalUser : 0.0;
+        // PERBAIKAN: Hitung dari allAbsensi untuk monthly rate
+        final jumlahHadirTotal = absenProv.allAbsensi.map((a) => a.userId).toSet().length;
+        final rate = (totalUser > 0) ? jumlahHadirTotal / totalUser : 0.0;
+        
         final projectRate =
             (totalTugas > 0) ? totalTugasSelesai / totalTugas : 0.0;
         final performance = ((rate * 0.5) + (projectRate * 0.5));
@@ -486,7 +513,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
-                          color: AppColors.secondary,
+                          color: AppColors.secondary.withOpacity(0.5),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Row(

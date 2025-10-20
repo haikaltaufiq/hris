@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
+import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 
 class LoginButton extends StatefulWidget {
   final TextEditingController emailController;
@@ -69,6 +72,10 @@ class _LoginButtonState extends State<LoginButton> {
 
         try {
           await pengaturanService.getPengaturan(token);
+          if (context.mounted) {
+            Provider.of<ThemeProvider>(context, listen: false);
+            Provider.of<LanguageProvider>(context, listen: false);
+          }
         } catch (e) {
           print('Gagal fetch pengaturan: $e');
         }

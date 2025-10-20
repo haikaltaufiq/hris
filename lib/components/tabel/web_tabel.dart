@@ -76,10 +76,10 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
     }
   }
 
-  void _showStatusDropdown(
-      BuildContext context, String currentStatus, int paginatedRowIndex, int colIndex) {
+  void _showStatusDropdown(BuildContext context, String currentStatus,
+      int paginatedRowIndex, int colIndex) {
     final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
-    
+
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
@@ -194,8 +194,10 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
               waitDuration: const Duration(milliseconds: 300),
               child: InkWell(
                 onTap: () {
-                  widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex);
-                  _showStatusDropdown(context, value, paginatedRowIndex, colIndex);
+                  widget.onCellTap
+                      ?.call(paginatedRowIndex, colIndex, actualRowIndex);
+                  _showStatusDropdown(
+                      context, value, paginatedRowIndex, colIndex);
                 },
                 borderRadius: BorderRadius.circular(20),
                 child: Container(
@@ -335,7 +337,8 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
       message: value,
       waitDuration: const Duration(milliseconds: 300),
       child: GestureDetector(
-        onTap: () => widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex),
+        onTap: () =>
+            widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex),
         child: Text(
           displayText,
           style: TextStyle(

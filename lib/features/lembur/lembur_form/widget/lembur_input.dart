@@ -5,6 +5,7 @@ import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -247,7 +248,43 @@ class _LemburInputState extends State<LemburInput> {
             hint: "--:--",
             controller: _jamMulaiController,
             suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-            onTapIcon: () => _onTapIcon(_jamMulaiController),
+            onTapIcon: () async {
+              if (context.isMobile) {
+                _onTapIcon(_jamMulaiController);
+              } else {
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: const TimeOfDay(hour: 0, minute: 0),
+                  initialEntryMode: TimePickerEntryMode.input,
+                  builder: (context, child) {
+                    return MediaQuery(
+                      data: MediaQuery.of(context)
+                          .copyWith(alwaysUse24HourFormat: true),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.dark(
+                            primary: AppColors.secondary,
+                            onPrimary: AppColors.putih,
+                            surface: AppColors.primary,
+                            onSurface: AppColors.putih,
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.putih,
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      ),
+                    );
+                  },
+                );
+                if (picked != null) {
+                  _jamMulaiController.text =
+                      "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+                }
+              }
+            },
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -257,7 +294,43 @@ class _LemburInputState extends State<LemburInput> {
             hint: "--:--",
             controller: _jamSelesaiController,
             suffixIcon: Icon(Icons.access_time, color: AppColors.putih),
-            onTapIcon: () => _onTapIcon(_jamSelesaiController),
+            onTapIcon: () async {
+              if (context.isMobile) {
+                _onTapIcon(_jamSelesaiController);
+              } else {
+                final picked = await showTimePicker(
+                  context: context,
+                  initialTime: const TimeOfDay(hour: 0, minute: 0),
+                  initialEntryMode: TimePickerEntryMode.input,
+                  builder: (context, child) {
+                    return MediaQuery(
+                      data: MediaQuery.of(context)
+                          .copyWith(alwaysUse24HourFormat: true),
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          colorScheme: ColorScheme.dark(
+                            primary: AppColors.secondary,
+                            onPrimary: AppColors.putih,
+                            surface: AppColors.primary,
+                            onSurface: AppColors.putih,
+                          ),
+                          textButtonTheme: TextButtonThemeData(
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.putih,
+                            ),
+                          ),
+                        ),
+                        child: child!,
+                      ),
+                    );
+                  },
+                );
+                if (picked != null) {
+                  _jamSelesaiController.text =
+                      "${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}";
+                }
+              }
+            },
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,

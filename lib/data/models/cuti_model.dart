@@ -69,7 +69,8 @@ class CutiModel {
 
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isProses => status.toLowerCase() == 'proses';
-
+  bool get isApproved => status.toLowerCase() == 'disetujui';
+  bool get isDitolak => status.toLowerCase() == 'ditolak';
 //Motong alasan kepanjangan
   String get shortAlasan =>
       alasan.length > 20 ? '${alasan.substring(0, 20)}...' : alasan;

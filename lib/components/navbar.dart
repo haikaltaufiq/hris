@@ -532,10 +532,10 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       ),
                     ),
                     AnimatedRotation(
-                      turns: isExpanded ? 0.5 : 0,
+                      turns: isExpanded ? 0.25 : 0,
                       duration: const Duration(milliseconds: 200),
                       child: Icon(
-                        Icons.keyboard_arrow_down,
+                        Icons.keyboard_arrow_right,
                         color: AppColors.putih.withOpacity(0.7),
                         size: 20,
                       ),

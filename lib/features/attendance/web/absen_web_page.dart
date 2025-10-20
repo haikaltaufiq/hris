@@ -73,6 +73,26 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               RadioListTile<String>(
+                                value: 'hari',
+                                groupValue: selected,
+                                onChanged: (v) => setState(() => selected = v!),
+                                title: Text(
+                                  'Per-hari ini',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
+                              ),
+                              RadioListTile<String>(
+                                value: 'semua',
+                                groupValue: selected,
+                                onChanged: (v) => setState(() => selected = v!),
+                                title: Text(
+                                  'Semua Tanggal',
+                                  style: TextStyle(color: AppColors.putih),
+                                ),
+                                activeColor: AppColors.putih,
+                              ),
+                              RadioListTile<String>(
                                 value: 'terbaru',
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
@@ -88,30 +108,6 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
                                 onChanged: (v) => setState(() => selected = v!),
                                 title: Text(
                                   'Terlama',
-                                  style: TextStyle(color: AppColors.putih),
-                                ),
-                                activeColor: AppColors.putih,
-                              ),
-                              FeatureGuard(
-                                requiredFeature: 'lihat_semua_absensi',
-                                child: RadioListTile<String>(
-                                  value: 'nama',
-                                  groupValue: selected,
-                                  onChanged: (v) =>
-                                      setState(() => selected = v!),
-                                  title: Text(
-                                    'Per-orang',
-                                    style: TextStyle(color: AppColors.putih),
-                                  ),
-                                  activeColor: AppColors.putih,
-                                ),
-                              ),
-                              RadioListTile<String>(
-                                value: 'status',
-                                groupValue: selected,
-                                onChanged: (v) => setState(() => selected = v!),
-                                title: Text(
-                                  'Status',
                                   style: TextStyle(color: AppColors.putih),
                                 ),
                                 activeColor: AppColors.putih,

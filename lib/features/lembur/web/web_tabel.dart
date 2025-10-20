@@ -110,22 +110,24 @@ class WebTabelLembur extends StatelessWidget {
       //   final c = lemburList[row];
       //   onDelete(c);
       // },
-      onEdit: (actualRowIndex) {
-        final c = lemburList[actualRowIndex];
-        showDialog(
-          context: context,
-          builder: (_) => UpdateStatusDialog(
-            onApprove: () async {
-              onApprove(c);
-              return;
+
+      onEdit: (lemburList.any((c) => c.isApproved || c.isDitolak))
+          ? null // kalau semua sudah disetujui/ditolak, tombol edit hilang
+          : (actualRowIndex) {
+              final c = lemburList[actualRowIndex];
+              if (c.isApproved || c.isDitolak) return; // skip jika status final
+              showDialog(
+                context: context,
+                builder: (_) => UpdateStatusDialog(
+                  onApprove: () async {
+                    onApprove(c);
+                  },
+                  onDecline: () async {
+                    onDecline(c);
+                  },
+                ),
+              );
             },
-            onDecline: () async {
-              onDecline(c);
-              return;
-            },
-          ),
-        );
-      },
     );
   }
 }
