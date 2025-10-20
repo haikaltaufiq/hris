@@ -77,6 +77,8 @@ class AbsenProvider extends ChangeNotifier {
 
   /// Fetch daftar absensi
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
+    final userBox = await Hive.openBox('user');
+    final currentUserId = userBox.get('id');
     if (kDebugMode) {
       print(' fetchAbsen called - forceRefresh: $forceRefresh');
     }
@@ -108,7 +110,11 @@ class AbsenProvider extends ChangeNotifier {
       final todayStr = "${today.year.toString().padLeft(4, '0')}-"
           "${today.month.toString().padLeft(2, '0')}-"
           "${today.day.toString().padLeft(2, '0')}";
-      _hasCheckedInToday = _allAbsensi.any((a) => a.checkinDate == todayStr);
+
+      // tambahkan pengecekan userId
+      _hasCheckedInToday = _allAbsensi.any(
+        (a) => a.userId == currentUserId && a.checkinDate == todayStr,
+      );
 
       // Save to cache
       await _absenBox.put(
