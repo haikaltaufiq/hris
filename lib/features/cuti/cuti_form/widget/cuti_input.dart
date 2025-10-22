@@ -74,6 +74,7 @@ class _CutiInputState extends State<CutiInput> {
           CustomInputField(
             label: context.isIndonesian ? "Nama" : "Name",
             hint: "",
+            onTapIcon: () {},
             controller: _namaController,
             labelStyle: labelStyle,
             textStyle: textStyle,
