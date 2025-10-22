@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
@@ -12,6 +13,7 @@ import 'package:hr/features/auth/web/forget_page.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/device_size.dart';
 
@@ -26,13 +28,101 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  // 🔥 FocusNode untuk handling keyboard events
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
   bool _isPasswordVisible = false;
   bool _isLoading = false;
+
+  List<String> _savedEmails = [];
+  List<String> _filteredEmails = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedEmails();
+  }
+
+  Future<void> _loadSavedEmails() async {
+    final prefs = await SharedPreferences.getInstance();
+    _savedEmails = prefs.getStringList('saved_emails') ?? [];
+  }
+
+  void _filterEmails(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredEmails = [];
+      } else {
+        _filteredEmails = _savedEmails
+            .where((e) => e.toLowerCase().contains(query.toLowerCase()))
+            .toList();
+      }
+    });
+  }
+
+  // 🔥 Method untuk handle login (extracted untuk reusability)
+  Future<void> _handleLogin() async {
+    if (_formKey.currentState!.validate()) {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final email = _emailController.text.trim();
+      final password = _passwordController.text;
+      final auth = AuthService();
+      final result = await auth.login(email, password);
+
+      if (result['success'] == true && result['token'] != null) {
+        final token = result['token'];
+        final user = result['user'] as UserModel?;
+
+        if (user != null) {
+          final userBox = await Hive.openBox('user');
+          await userBox.put('token', token);
+          await userBox.put('id', user.id);
+
+          final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
+          await FeatureAccess.setFeatures(fiturList);
+          await FeatureAccess.init();
+
+          await auth.saveEmail(user.email);
+        }
+
+        if (context.mounted) {
+          await _loadAndSyncSettings(context, token);
+        }
+
+        NotificationHelper.showTopNotification(
+          context,
+          result['message'],
+          isSuccess: true,
+        );
+        Navigator.pushNamed(context, AppRoutes.dashboard);
+
+        setState(() {
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          _isLoading = false;
+        });
+        NotificationHelper.showTopNotification(
+          context,
+          result['message'] ?? 'Invalid email or password',
+          isSuccess: false,
+        );
+      }
+    }
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -169,28 +259,6 @@ class _LoginState extends State<Login> {
     return Column(
       children: [
         if (showLogo) ...[
-          // Container(
-          //   width: 80,
-          //   height: 80,
-          //   decoration: BoxDecoration(
-          //     color: AppColors.blue.withOpacity(0.1),
-          //     borderRadius: BorderRadius.circular(20),
-          //   ),
-          //   child: Icon(
-          //     Icons.business_center_outlined,
-          //     size: 40,
-          //     color: AppColors.blue,
-          //   ),
-          // ),
-          // const SizedBox(height: 24),
-          // Text(
-          //   'HRIS',
-          //   style: TextStyle(
-          //     fontSize: 32,
-          //     fontWeight: FontWeight.bold,
-          //     color: AppColors.blue,
-          //   ),
-          // ),
           const SizedBox(height: 102),
         ],
         Text(
@@ -246,35 +314,81 @@ class _LoginState extends State<Login> {
           ),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: _emailController,
-          keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            hintText: 'Enter your email',
-            prefixIcon: Icon(Icons.email_outlined, color: AppColors.blue),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
+        Stack(
+          children: [
+            // 🔥 AutofillGroup untuk Google Password Manager
+            AutofillGroup(
+              child: TextFormField(
+                controller: _emailController,
+                focusNode: _emailFocusNode,
+                keyboardType: TextInputType.emailAddress,
+                // 🔥 Autofill hints untuk email
+                autofillHints: const [
+                  AutofillHints.email,
+                  AutofillHints.username,
+                ],
+                // 🔥 Handle Enter key - pindah ke password field
+                onFieldSubmitted: (value) {
+                  FocusScope.of(context).requestFocus(_passwordFocusNode);
+                },
+                decoration: InputDecoration(
+                  hintText: 'Enter your email',
+                  prefixIcon: Icon(Icons.email_outlined, color: AppColors.blue),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: AppColors.blue, width: 2),
+                  ),
+                  contentPadding: const EdgeInsets.all(16),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$')
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
+                onChanged: (val) {
+                  _filterEmails(val);
+                },
+              ),
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.blue, width: 2),
-            ),
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your email';
-            }
-            if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-              return 'Please enter a valid email';
-            }
-            return null;
-          },
+            if (_filteredEmails.isNotEmpty)
+              Positioned(
+                top: 60,
+                left: 0,
+                right: 0,
+                child: Material(
+                  elevation: 4,
+                  borderRadius: BorderRadius.circular(12),
+                  child: ListView(
+                    shrinkWrap: true,
+                    padding: EdgeInsets.zero,
+                    children: _filteredEmails
+                        .map((e) => ListTile(
+                              title: Text(e),
+                              onTap: () {
+                                _emailController.text = e;
+                                setState(() {
+                                  _filteredEmails = [];
+                                });
+                              },
+                            ))
+                        .toList(),
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
@@ -293,43 +407,62 @@ class _LoginState extends State<Login> {
           ),
         ),
         const SizedBox(height: 8),
-        TextFormField(
-          controller: _passwordController,
-          obscureText: !_isPasswordVisible,
-          decoration: InputDecoration(
-            hintText: 'Enter your password',
-            prefixIcon: Icon(Icons.lock_outline, color: AppColors.blue),
-            suffixIcon: IconButton(
-              icon: Icon(
-                _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                color: AppColors.blue,
-              ),
-              onPressed: () {
-                setState(() {
-                  _isPasswordVisible = !_isPasswordVisible;
-                });
-              },
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: Colors.grey.shade300),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(color: AppColors.blue, width: 2),
-            ),
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please enter your password';
+        // 🔥 Wrap dengan RawKeyboardListener untuk custom keyboard handling
+        RawKeyboardListener(
+          focusNode: FocusNode(),
+          onKey: (RawKeyEvent event) {
+            // Handle Enter key press
+            if (event is RawKeyDownEvent &&
+                event.logicalKey == LogicalKeyboardKey.enter) {
+              _handleLogin();
             }
-            return null;
           },
+          child: TextFormField(
+            controller: _passwordController,
+            focusNode: _passwordFocusNode,
+            obscureText: !_isPasswordVisible,
+            // 🔥 Autofill hints untuk password
+            autofillHints: const [AutofillHints.password],
+            // 🔥 Handle Enter key - trigger login
+            textInputAction: TextInputAction.done,
+            onFieldSubmitted: (value) {
+              _handleLogin();
+            },
+            decoration: InputDecoration(
+              hintText: 'Enter your password',
+              prefixIcon: Icon(Icons.lock_outline, color: AppColors.blue),
+              suffixIcon: IconButton(
+                icon: Icon(
+                  _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  color: AppColors.blue,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isPasswordVisible = !_isPasswordVisible;
+                  });
+                },
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: Colors.grey.shade300),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide(color: AppColors.blue, width: 2),
+              ),
+              contentPadding: const EdgeInsets.all(16),
+            ),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter your password';
+              }
+              return null;
+            },
+          ),
         ),
       ],
     );
@@ -344,8 +477,7 @@ class _LoginState extends State<Login> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) =>
-                    ForgetPage(), // class widget yang mau dituju
+                builder: (context) => ForgetPage(),
               ),
             );
           },
@@ -366,70 +498,10 @@ class _LoginState extends State<Login> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () async {
-          if (_formKey.currentState!.validate()) {
-            setState(() {
-              _isLoading = true;
-            });
-
-            final email = _emailController.text.trim();
-            final password = _passwordController.text;
-            final auth = AuthService();
-            final result = await auth.login(email, password);
-
-            if (result['success'] == true && result['token'] != null) {
-              final token = result['token'];
-              final user = result['user'] as UserModel?;
-
-              if (user != null) {
-                final userBox = await Hive.openBox('user');
-                await userBox.put('token', token);
-                await userBox.put('id', user.id); // simpan user_id juga
-
-                // ambil fitur dari peran
-                final fiturList =
-                    user.peran.fitur.map((f) => f.toJson()).toList();
-                await FeatureAccess.setFeatures(fiturList);
-                await FeatureAccess.init();
-              }
-
-              final pengaturanService = PengaturanService();
-
-              try {
-                await pengaturanService.getPengaturan(token);
-
-                if (context.mounted) {
-                  Provider.of<ThemeProvider>(context, listen: false);
-                  Provider.of<LanguageProvider>(context, listen: false);
-                }
-              } catch (e) {
-                print('Gagal fetch pengaturan: $e');
-              }
-
-              NotificationHelper.showTopNotification(
-                context,
-                result['message'],
-                isSuccess: true,
-              );
-              Navigator.pushNamed(context, AppRoutes.dashboard);
-              setState(() {
-                _isLoading = false;
-              });
-            } else {
-              setState(() {
-                _isLoading = false;
-              });
-              NotificationHelper.showTopNotification(
-                context,
-                result['message'] ?? 'Invalid email or password',
-                isSuccess: false,
-              );
-            }
-          }
-        },
+        onPressed: _isLoading ? null : _handleLogin,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.blue,
-          foregroundColor: Colors.white,
+          foregroundColor: AppColors.blue,
           padding: const EdgeInsets.symmetric(vertical: 22),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -457,6 +529,30 @@ class _LoginState extends State<Login> {
     );
   }
 
+  Future<void> _loadAndSyncSettings(BuildContext context, String token) async {
+    try {
+      final pengaturanService = PengaturanService();
+      final pengaturan = await pengaturanService.getPengaturan(token);
+
+      final tema = pengaturan['tema'] ?? 'terang';
+      final bahasa = pengaturan['bahasa'] ?? 'indonesia';
+
+      print(' Login - Pengaturan loaded: tema=$tema, bahasa=$bahasa');
+
+      if (context.mounted) {
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        final langProvider =
+            Provider.of<LanguageProvider>(context, listen: false);
+
+        themeProvider.setDarkMode(tema == 'gelap');
+        langProvider.toggleLanguage(bahasa == 'indonesia');
+      }
+    } catch (e) {
+      print(' Login - Gagal load pengaturan: $e');
+    }
+  }
+
   Widget _buildSignUpLink(BuildContext context) {
     return Column(
       children: [
@@ -471,9 +567,7 @@ class _LoginState extends State<Login> {
               ),
             ),
             TextButton(
-              onPressed: () {
-                // Handle sign up navigation
-              },
+              onPressed: () {},
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -481,9 +575,7 @@ class _LoginState extends State<Login> {
               ),
               child: GestureDetector(
                 onTap: () async {
-                  final Uri telUri = Uri(
-                      scheme: 'tel',
-                      path: "0778 2140088"); // ganti nomor kantor
+                  final Uri telUri = Uri(scheme: 'tel', path: "0778 2140088");
                   if (await canLaunchUrl(telUri)) {
                     await launchUrl(telUri);
                   } else {
@@ -505,15 +597,11 @@ class _LoginState extends State<Login> {
             ),
           ],
         ),
-        SizedBox(
-          height: 10,
-        ),
+        SizedBox(height: 10),
         Column(
           children: [
             TextButton(
-              onPressed: () {
-                // Handle sign up navigation
-              },
+              onPressed: () {},
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -523,7 +611,7 @@ class _LoginState extends State<Login> {
                 onTap: () async {
                   final Uri mailUri = Uri(
                     scheme: 'mailto',
-                    path: 'hris.ksi@kreatifsystem.com', // ganti alamat email
+                    path: 'hris.ksi@kreatifsystem.com',
                     query: Uri.encodeQueryComponent(
                         'subject=Support&body=Halo HRIS Team'),
                   );
@@ -543,9 +631,7 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.email, size: 16, color: AppColors.blue),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    SizedBox(width: 10),
                     Text(
                       'hris.ksi@kreatifsystem.com',
                       style: TextStyle(
@@ -558,13 +644,9 @@ class _LoginState extends State<Login> {
                 ),
               ),
             ),
-            SizedBox(
-              height: 10,
-            ),
+            SizedBox(height: 10),
             TextButton(
-              onPressed: () {
-                // Handle sign up navigation
-              },
+              onPressed: () {},
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
                 minimumSize: Size.zero,
@@ -572,9 +654,7 @@ class _LoginState extends State<Login> {
               ),
               child: GestureDetector(
                 onTap: () async {
-                  final Uri telUri = Uri(
-                      scheme: 'tel',
-                      path: "0778 2140088"); // ganti nomor kantor
+                  final Uri telUri = Uri(scheme: 'tel', path: "0778 2140088");
                   if (await canLaunchUrl(telUri)) {
                     await launchUrl(telUri);
                   } else {
@@ -588,9 +668,7 @@ class _LoginState extends State<Login> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.phone, size: 16, color: AppColors.blue),
-                    SizedBox(
-                      width: 10,
-                    ),
+                    SizedBox(width: 10),
                     Text(
                       '0778 214 0088',
                       style: TextStyle(

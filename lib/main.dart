@@ -26,6 +26,7 @@ import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:hr/data/services/pengaturan_service.dart';
 
 // variabel global
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -38,7 +39,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-    // 🔔 Setup notification channel
+  // 🔔 Setup notification channel
   const AndroidInitializationSettings initializationSettingsAndroid =
       AndroidInitializationSettings('@mipmap/ic_launcher');
 
@@ -155,6 +156,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   late Future<String> _initialRoute;
+
   @override
   void initState() {
     super.initState();
@@ -169,7 +171,6 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print("📩 Foreground message: ${message.notification?.title}");
 
-      // 🔔 Tampilkan notifikasi lokal
       final notification = message.notification;
       if (notification != null) {
         flutterLocalNotificationsPlugin.show(
@@ -178,8 +179,8 @@ class _MyAppState extends State<MyApp> {
           notification.body,
           const NotificationDetails(
             android: AndroidNotificationDetails(
-              'high_importance_channel', // ID unik
-              'Notifikasi Penting',       // Nama channel
+              'high_importance_channel',
+              'Notifikasi Penting',
               importance: Importance.max,
               priority: Priority.high,
               showWhen: true,
@@ -190,11 +191,15 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
+
+    // 🔥 LOAD PENGATURAN DARI DATABASE JIKA TOKEN ADA
+    if (token != null && token.isNotEmpty) {
+      await _loadUserSettings(token);
+    }
 
     if (context.isNativeMobile) {
       if (!seenOnboarding) return AppRoutes.onboarding;
@@ -205,6 +210,43 @@ class _MyAppState extends State<MyApp> {
       return token != null && token.isNotEmpty
           ? AppRoutes.dashboard
           : AppRoutes.landingPage;
+    }
+  }
+
+  /// 🔥 Load pengaturan user dari database dan sync ke provider
+  Future<void> _loadUserSettings(String token) async {
+    try {
+      final pengaturanService = PengaturanService();
+      final pengaturan = await pengaturanService.getPengaturan(token);
+
+      final tema = pengaturan['tema'] ?? 'terang';
+      final bahasa = pengaturan['bahasa'] ?? 'indonesia';
+
+      print('✅ Pengaturan loaded: tema=$tema, bahasa=$bahasa');
+
+      // Sync ke provider
+      if (mounted) {
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        final langProvider =
+            Provider.of<LanguageProvider>(context, listen: false);
+
+        themeProvider.setDarkMode(tema == 'gelap');
+        langProvider.toggleLanguage(bahasa == 'indonesia');
+      }
+    } catch (e) {
+      print('❌ Gagal load pengaturan: $e');
+      // Jika gagal, gunakan default atau dari SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      if (mounted) {
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        final langProvider =
+            Provider.of<LanguageProvider>(context, listen: false);
+
+        themeProvider.setDarkMode(prefs.getBool('isDarkMode') ?? false);
+        langProvider.toggleLanguage(prefs.getString('bahasa') == 'indonesia');
+      }
     }
   }
 

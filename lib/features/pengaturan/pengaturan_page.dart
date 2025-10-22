@@ -22,7 +22,8 @@ class _PengaturanPageState extends State<PengaturanPage>
   late AnimationController _langAnimationController;
 
   late PengaturanService _service;
-  late String token;
+  String token = '';
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -39,43 +40,55 @@ class _PengaturanPageState extends State<PengaturanPage>
       vsync: this,
     );
 
-    // Init provider values first
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    _initTokenAndLoad();
+  }
+
+  Future<void> _initTokenAndLoad() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      token = prefs.getString('token') ?? '';
+
+      if (token.isEmpty) {
+        setState(() => _isLoading = false);
+        return;
+      }
+
+      // Get providers
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
       final langProvider =
           Provider.of<LanguageProvider>(context, listen: false);
 
+      // Set initial animation values from current provider state
       _themeAnimationController.value = themeProvider.isDarkMode ? 1.0 : 0.0;
       _langAnimationController.value = langProvider.isIndonesian ? 1.0 : 0.0;
 
-      _initTokenAndLoad(themeProvider, langProvider);
-    });
-  }
-
-  Future<void> _initTokenAndLoad(
-      ThemeProvider themeProvider, LanguageProvider langProvider) async {
-    final prefs = await SharedPreferences.getInstance();
-    token = prefs.getString('token') ?? '';
-
-    if (token.isEmpty) return;
-
-    try {
+      // Load settings from database
       final pengaturan = await _service.getPengaturan(token);
       final tema = pengaturan['tema'] ?? 'terang';
       final bahasa = pengaturan['bahasa'] ?? 'indonesia';
 
+      print('✅ Pengaturan Page - Loaded: tema=$tema, bahasa=$bahasa');
+
       final isDark = tema == 'gelap';
       final isID = bahasa == 'indonesia';
 
-      // Sinkron ke provider global
+      // Sync to providers
       themeProvider.setDarkMode(isDark);
       langProvider.toggleLanguage(isID);
 
-      // Update animasi switch
-      _themeAnimationController.value = isDark ? 1.0 : 0.0;
-      _langAnimationController.value = isID ? 1.0 : 0.0;
+      // Update animation controllers
+      if (mounted) {
+        setState(() {
+          _themeAnimationController.value = isDark ? 1.0 : 0.0;
+          _langAnimationController.value = isID ? 1.0 : 0.0;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      print('Gagal load pengaturan: $e');
+      print('❌ Pengaturan Page - Error loading: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -92,7 +105,7 @@ class _PengaturanPageState extends State<PengaturanPage>
 
     themeProvider.setDarkMode(newDark);
 
-    // Update animasi
+    // Update animation
     newDark
         ? _themeAnimationController.forward()
         : _themeAnimationController.reverse();
@@ -106,8 +119,14 @@ class _PengaturanPageState extends State<PengaturanPage>
         tema: newDark ? 'gelap' : 'terang',
         bahasa: langProvider.isIndonesian ? 'indonesia' : 'inggris',
       );
+      print('✅ Tema updated to: ${newDark ? "gelap" : "terang"}');
     } catch (e) {
-      print('Gagal update tema: $e');
+      print('❌ Gagal update tema: $e');
+      // Revert on error
+      themeProvider.setDarkMode(!newDark);
+      newDark
+          ? _themeAnimationController.reverse()
+          : _themeAnimationController.forward();
     }
   }
 
@@ -118,7 +137,7 @@ class _PengaturanPageState extends State<PengaturanPage>
 
     langProvider.toggleLanguage(newLang);
 
-    // Update animasi switch
+    // Update animation
     newLang
         ? _langAnimationController.forward()
         : _langAnimationController.reverse();
@@ -130,8 +149,14 @@ class _PengaturanPageState extends State<PengaturanPage>
         tema: themeProvider.isDarkMode ? 'gelap' : 'terang',
         bahasa: newLang ? 'indonesia' : 'inggris',
       );
+      print('✅ Bahasa updated to: ${newLang ? "indonesia" : "inggris"}');
     } catch (e) {
-      print('Gagal update bahasa: $e');
+      print('❌ Gagal update bahasa: $e');
+      // Revert on error
+      langProvider.toggleLanguage(!newLang);
+      newLang
+          ? _langAnimationController.reverse()
+          : _langAnimationController.forward();
     }
   }
 
@@ -142,6 +167,15 @@ class _PengaturanPageState extends State<PengaturanPage>
 
     final isDark = themeProvider.isDarkMode;
     final isIndonesian = langProvider.isIndonesian;
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.bg,
+        body: Center(
+          child: CircularProgressIndicator(color: AppColors.primary),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -156,26 +190,32 @@ class _PengaturanPageState extends State<PengaturanPage>
           Card(
             color: AppColors.primary,
             elevation: 0,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(isIndonesian ? 'Penampilan' : 'Appearance',
-                      style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.putih)),
+                  Text(
+                    isIndonesian ? 'Penampilan' : 'Appearance',
+                    style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.putih,
+                    ),
+                  ),
                   const SizedBox(height: 8),
                   Text(
-                      isIndonesian
-                          ? "Pilih preferensi anda"
-                          : 'Choose your preferred theme',
-                      style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: AppColors.putih.withOpacity(0.7))),
+                    isIndonesian
+                        ? "Pilih preferensi anda"
+                        : 'Choose your preferred theme',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: AppColors.putih.withOpacity(0.7),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -184,23 +224,28 @@ class _PengaturanPageState extends State<PengaturanPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(isIndonesian ? "Tema" : 'Theme',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.putih)),
+                            Text(
+                              isIndonesian ? "Tema" : 'Theme',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.putih,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
-                                isDark
-                                    ? isIndonesian
-                                        ? 'Tema gelap diterapkan'
-                                        : 'Dark theme enabled'
-                                    : isIndonesian
-                                        ? 'Tema terang diterapkan'
-                                        : 'Light theme enabled',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: AppColors.putih.withOpacity(0.6))),
+                              isDark
+                                  ? isIndonesian
+                                      ? 'Tema gelap diterapkan'
+                                      : 'Dark theme enabled'
+                                  : isIndonesian
+                                      ? 'Tema terang diterapkan'
+                                      : 'Light theme enabled',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: AppColors.putih.withOpacity(0.6),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -215,9 +260,10 @@ class _PengaturanPageState extends State<PengaturanPage>
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: Color.lerp(
-                                    AppColors.secondary.withOpacity(0.3),
-                                    AppColors.secondary,
-                                    _themeAnimationController.value),
+                                  AppColors.secondary.withOpacity(0.3),
+                                  AppColors.secondary,
+                                  _themeAnimationController.value,
+                                ),
                               ),
                               child: Stack(
                                 children: [
@@ -227,19 +273,25 @@ class _PengaturanPageState extends State<PengaturanPage>
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Opacity(
-                                            opacity: 1 -
-                                                _themeAnimationController.value,
-                                            child: Icon(FontAwesomeIcons.sun,
-                                                size: 14,
-                                                color: AppColors.putih
-                                                    .withOpacity(0.6))),
+                                          opacity: 1 -
+                                              _themeAnimationController.value,
+                                          child: Icon(
+                                            FontAwesomeIcons.sun,
+                                            size: 14,
+                                            color: AppColors.putih
+                                                .withOpacity(0.6),
+                                          ),
+                                        ),
                                         Opacity(
-                                            opacity:
-                                                _themeAnimationController.value,
-                                            child: Icon(FontAwesomeIcons.moon,
-                                                size: 12,
-                                                color: AppColors.putih
-                                                    .withOpacity(0.8))),
+                                          opacity:
+                                              _themeAnimationController.value,
+                                          child: Icon(
+                                            FontAwesomeIcons.moon,
+                                            size: 12,
+                                            color: AppColors.putih
+                                                .withOpacity(0.8),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -256,10 +308,11 @@ class _PengaturanPageState extends State<PengaturanPage>
                                         color: AppColors.putih,
                                         boxShadow: [
                                           BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.2),
-                                              blurRadius: 4,
-                                              offset: const Offset(0, 2)),
+                                            color:
+                                                Colors.black.withOpacity(0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
                                         ],
                                       ),
                                       child: Icon(
@@ -289,19 +342,24 @@ class _PengaturanPageState extends State<PengaturanPage>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(isIndonesian ? 'Bahasa' : 'Language',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                    color: AppColors.putih)),
+                            Text(
+                              isIndonesian ? 'Bahasa' : 'Language',
+                              style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: AppColors.putih,
+                              ),
+                            ),
                             const SizedBox(height: 4),
                             Text(
-                                isIndonesian
-                                    ? 'Bahasa Indonesia aktif'
-                                    : 'English enabled',
-                                style: GoogleFonts.poppins(
-                                    fontSize: 12,
-                                    color: AppColors.putih.withOpacity(0.6))),
+                              isIndonesian
+                                  ? 'Bahasa Indonesia aktif'
+                                  : 'English enabled',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: AppColors.putih.withOpacity(0.6),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -316,9 +374,10 @@ class _PengaturanPageState extends State<PengaturanPage>
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(16),
                                 color: Color.lerp(
-                                    AppColors.secondary.withOpacity(0.3),
-                                    AppColors.secondary,
-                                    _langAnimationController.value),
+                                  AppColors.secondary.withOpacity(0.3),
+                                  AppColors.secondary,
+                                  _langAnimationController.value,
+                                ),
                               ),
                               child: Stack(
                                 children: [
@@ -328,21 +387,29 @@ class _PengaturanPageState extends State<PengaturanPage>
                                           MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Opacity(
-                                            opacity: 1 -
-                                                _langAnimationController.value,
-                                            child: const Text('EN',
-                                                style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white))),
+                                          opacity: 1 -
+                                              _langAnimationController.value,
+                                          child: const Text(
+                                            'EN',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                         Opacity(
-                                            opacity:
-                                                _langAnimationController.value,
-                                            child: const Text('ID',
-                                                style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w600,
-                                                    color: Colors.white))),
+                                          opacity:
+                                              _langAnimationController.value,
+                                          child: const Text(
+                                            'ID',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
@@ -359,20 +426,24 @@ class _PengaturanPageState extends State<PengaturanPage>
                                         color: AppColors.putih,
                                         boxShadow: [
                                           BoxShadow(
-                                              color:
-                                                  Colors.black.withOpacity(0.2),
-                                              blurRadius: 4,
-                                              offset: const Offset(0, 2)),
+                                            color:
+                                                Colors.black.withOpacity(0.2),
+                                            blurRadius: 4,
+                                            offset: const Offset(0, 2),
+                                          ),
                                         ],
                                       ),
                                       child: Center(
-                                        child: Text(isIndonesian ? 'ID' : 'EN',
-                                            style: GoogleFonts.poppins(
-                                                fontSize: 9,
-                                                fontWeight: FontWeight.bold,
-                                                color: isIndonesian
-                                                    ? Colors.red.shade600
-                                                    : Colors.blue.shade700)),
+                                        child: Text(
+                                          isIndonesian ? 'ID' : 'EN',
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 9,
+                                            fontWeight: FontWeight.bold,
+                                            color: isIndonesian
+                                                ? Colors.red.shade600
+                                                : Colors.blue.shade700,
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

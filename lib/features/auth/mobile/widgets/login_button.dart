@@ -58,26 +58,17 @@ class _LoginButtonState extends State<LoginButton> {
         final box = await Hive.openBox('user');
         await box.put('token', token);
 
-        // user sudah berupa UserModel, bukan Map
         final user = result['user'] as UserModel?;
         final userRole = user?.peran;
 
-        // ambil fitur dari peran
         final fiturList = userRole?.fitur.map((f) => f.toJson()).toList() ?? [];
 
         await FeatureAccess.setFeatures(fiturList);
         await FeatureAccess.init();
 
-        final pengaturanService = PengaturanService();
-
-        try {
-          await pengaturanService.getPengaturan(token);
-          if (context.mounted) {
-            Provider.of<ThemeProvider>(context, listen: false);
-            Provider.of<LanguageProvider>(context, listen: false);
-          }
-        } catch (e) {
-          print('Gagal fetch pengaturan: $e');
+        // 🔥 LOAD & SYNC PENGATURAN DARI DATABASE
+        if (mounted) {
+          await _loadAndSyncSettings(context, token);
         }
 
         NotificationHelper.showTopNotification(
@@ -91,8 +82,6 @@ class _LoginButtonState extends State<LoginButton> {
       } else {
         final backendMessage = result['message'];
 
-        // Kalau backend mengirim message spesifik, pakai langsung
-        // Kalau null atau message umum terkait email/password, pakai mapping
         final errorMessage = (backendMessage == null ||
                 backendMessage.toLowerCase().contains('password') ||
                 backendMessage.toLowerCase().contains('email') ||
@@ -110,6 +99,31 @@ class _LoginButtonState extends State<LoginButton> {
       widget.onError("Check your internet connection");
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  // 🔥 Method untuk load dan sync pengaturan
+  Future<void> _loadAndSyncSettings(BuildContext context, String token) async {
+    try {
+      final pengaturanService = PengaturanService();
+      final pengaturan = await pengaturanService.getPengaturan(token);
+
+      final tema = pengaturan['tema'] ?? 'terang';
+      final bahasa = pengaturan['bahasa'] ?? 'indonesia';
+
+      print('✅ Mobile Login - Pengaturan loaded: tema=$tema, bahasa=$bahasa');
+
+      if (context.mounted) {
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        final langProvider =
+            Provider.of<LanguageProvider>(context, listen: false);
+
+        themeProvider.setDarkMode(tema == 'gelap');
+        langProvider.toggleLanguage(bahasa == 'indonesia');
+      }
+    } catch (e) {
+      print('❌ Mobile Login - Gagal load pengaturan: $e');
     }
   }
 

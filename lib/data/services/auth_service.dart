@@ -69,7 +69,8 @@ class AuthService {
               'device_model': deviceInfo["device_model"] ?? 'unknown_model',
               'device_manufacturer':
                   deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
-              'device_version': deviceInfo["device_version"] ?? 'unknown_version',
+              'device_version':
+                  deviceInfo["device_version"] ?? 'unknown_version',
               'platform': kIsWeb ? 'web' : 'apk',
 
               // ✅ Tambahkan ini:
@@ -336,5 +337,13 @@ class AuthService {
       'peran': prefs.getString('peran'),
       'token': prefs.getString('token'),
     };
+  }
+
+  // simpan email historis
+  Future<void> saveEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getStringList('login_emails') ?? [];
+    if (!stored.contains(email)) stored.add(email);
+    await prefs.setStringList('login_emails', stored);
   }
 }
