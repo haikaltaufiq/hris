@@ -266,46 +266,50 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   }
 
   Widget _todayCard({required String title, required String value}) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final cardHeight = screenHeight * 0.2;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight;
+        final fontSize = (availableHeight * 0.28).clamp(24.0, 34.0);
 
-    return _HoverCard(
-      child: Container(
-        height: cardHeight,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.secondary.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: AppColors.putih,
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-              ),
+        return _HoverCard(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.secondary.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(12),
             ),
-            const Spacer(),
-            Flexible(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  value,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  title,
                   style: TextStyle(
-                    color: AppColors.putih.withOpacity(0.6),
-                    fontSize: 34,
-                    fontWeight: FontWeight.w800,
+                    color: AppColors.putih,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 8),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    value,
+                    style: TextStyle(
+                      color: AppColors.putih.withOpacity(0.6),
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
