@@ -231,6 +231,18 @@ class _MyAppState extends State<MyApp> {
         );
       }
     });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      final data = message.data;
+
+      if (data['tipe'] == 'tugas_baru') {
+        final batasWaktu = DateTime.parse(data['batas_penugasan']);
+
+        // Jalankan notifikasi countdown langsung
+        final timerService = TugasProvider();
+        timerService.startCountdownNotification(batasWaktu);
+      }
+    });
   }
 
   Future<String> _getInitialRoute() async {
