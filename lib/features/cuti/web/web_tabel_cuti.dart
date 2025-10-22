@@ -4,6 +4,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/cuti_model.dart';
@@ -115,6 +116,16 @@ class WebTabelCuti extends StatelessWidget {
       // },
       onEdit: (row) {
         final c = cutiList[row];
+        if (c.isApproved || c.isDitolak) {
+          NotificationHelper.showTopNotification(
+            context,
+            context.isIndonesian
+                ? 'Status ajuan cuti sudah final, tidak dapat diubah kembali.'
+                : 'Leave request status is final, cannot be changed again.',
+            isSuccess: false,
+          );
+          return;
+        }
         showDialog(
           context: context,
           builder: (_) => UpdateStatusDialog(

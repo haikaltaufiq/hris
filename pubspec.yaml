@@ -57,22 +57,22 @@ flutter_native_splash:
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "assets/images/business_center.png"
+  image_path: "assets/images/fl_icons.png"
   adaptive_icon_background: "#13214B"
-  adaptive_icon_foreground: "assets/images/business_center.png"
+  adaptive_icon_foreground: "assets/images/fl_icons.png"
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/images/business_center.png"
+    image_path: "assets/images/fl_icons.png"
     background_color: "#13214B"
     theme_color: "#13214B"
   windows:
     generate: true
-    image_path: "assets/images/business_center.png"
+    image_path: "assets/images/fl_icons.png"
     icon_size: 48 # min:48, max:256, default: 48
   macos:
     generate: true
-    image_path: "assets/images/business_center.png"
+    image_path: "assets/images/fl_icons.png"
 
 flutter:
   uses-material-design: true

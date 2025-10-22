@@ -62,7 +62,7 @@ class _ForgetPageState extends State<ForgetPage> {
 
     return Scaffold(
       backgroundColor:
-          context.isNativeMobile ? AppColors.bg : const Color(0xFFF8F9FA),
+          context.isNativeMobile ? AppColors.bg : const Color(0xFFF7F7F7),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

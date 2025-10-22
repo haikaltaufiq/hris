@@ -11,7 +11,6 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
@@ -341,13 +340,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         isSuccess: isSuccess,
       );
 
-      if (isSuccess) {
-        if (result['success'] == true) {
-          await FcmService.sendNotifToUser(_selectedUser!.id, 'Updated Task!',
-              '${_selectedUser!.nama} ada update tugas untukmu. Batas waktunya ${_batasPenugasanController.text.trim()}');
-
-          Navigator.pop(context);
-        }
+      if (isSuccess && mounted) {
         Navigator.pop(context, true);
       }
     } catch (e) {

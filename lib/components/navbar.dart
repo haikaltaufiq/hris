@@ -532,10 +532,10 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       ),
                     ),
                     AnimatedRotation(
-                      turns: isExpanded ? 0.5 : 0,
+                      turns: isExpanded ? 0.25 : 0,
                       duration: const Duration(milliseconds: 200),
                       child: Icon(
-                        Icons.keyboard_arrow_down,
+                        Icons.keyboard_arrow_right,
                         color: AppColors.putih.withOpacity(0.7),
                         size: 20,
                       ),
@@ -664,10 +664,18 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       if (!confirmed) return;
 
+                      final prefs = await SharedPreferences.getInstance();
+                      final userId = prefs.getInt('user_id'); // simpan dulu sebelum dihapus
+
+                      // hapus token FCM di server
+                      if (userId != null) {
+                        await FcmService.deleteToken(userId);
+                      }
+
+                      // lanjut logout API
                       final result = await AuthService().logout();
                       debugPrint("Logout result: $result");
-
-                      final prefs = await SharedPreferences.getInstance();
+                      // baru bersihkan data lokal
                       await prefs.clear();
 
                       if (mounted) {

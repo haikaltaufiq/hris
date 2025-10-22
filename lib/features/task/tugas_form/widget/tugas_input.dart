@@ -10,7 +10,6 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/info_kantor/location_dialog.dart';
@@ -593,22 +592,15 @@ class _TugasInputState extends State<TugasInput> {
                         );
 
                         if (!mounted) return;
+                        if (result['success'] == true && mounted) {
+                          Navigator.pop(context);
+                        }
 
                         NotificationHelper.showTopNotification(
                           context,
                           result['message'] ?? 'Terjadi kesalahan',
                           isSuccess: result['success'] ?? false,
                         );
-
-                        if (result['success'] == true) {
-                          await FcmService.sendNotifToUser(
-                            _selectedUser!.id,
-                            'New Task!',
-                            '${_selectedUser!.nama} ada tugas baru untukmu. Batas waktunya ${_batasPenugasanController.text.trim()}',
-                          );
-
-                          Navigator.pop(context);
-                        }
                       } catch (e) {
                         print("Error creating task: $e");
                         if (mounted) {

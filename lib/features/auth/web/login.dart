@@ -143,7 +143,7 @@ class _LoginState extends State<Login> {
         // Right side - Login Form
         Expanded(
           child: Container(
-            color: Theme.of(context).scaffoldBackgroundColor,
+            color: Color(0xFFF7F7F7),
             child: Center(
               child: SingleChildScrollView(
                 child: Container(
@@ -396,17 +396,11 @@ class _LoginState extends State<Login> {
               final pengaturanService = PengaturanService();
 
               try {
-                final pengaturan = await pengaturanService.getPengaturan(token);
+                await pengaturanService.getPengaturan(token);
 
                 if (context.mounted) {
-                  final themeProvider =
-                      Provider.of<ThemeProvider>(context, listen: false);
-                  final langProvider =
-                      Provider.of<LanguageProvider>(context, listen: false);
-
-                  themeProvider.setDarkMode(pengaturan['tema'] == 'gelap');
-                  langProvider
-                      .toggleLanguage(pengaturan['bahasa'] == 'indonesia');
+                  Provider.of<ThemeProvider>(context, listen: false);
+                  Provider.of<LanguageProvider>(context, listen: false);
                 }
               } catch (e) {
                 print('Gagal fetch pengaturan: $e');

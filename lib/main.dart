@@ -7,7 +7,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:hr/firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
@@ -27,12 +27,25 @@ import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 
+// variabel global
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FeatureAccess.init();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+    // 🔔 Setup notification channel
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings('@mipmap/ic_launcher');
+
+  const InitializationSettings initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
+
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
@@ -154,9 +167,29 @@ class _MyAppState extends State<MyApp> {
     await messaging.requestPermission(alert: true, badge: true, sound: true);
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("Foreground message: ${message.notification?.title}");
+      print("📩 Foreground message: ${message.notification?.title}");
+
+      // 🔔 Tampilkan notifikasi lokal
+      final notification = message.notification;
+      if (notification != null) {
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'high_importance_channel', // ID unik
+              'Notifikasi Penting',       // Nama channel
+              importance: Importance.max,
+              priority: Priority.high,
+              showWhen: true,
+            ),
+          ),
+        );
+      }
     });
   }
+
 
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();

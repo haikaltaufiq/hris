@@ -1,116 +1,56 @@
-import 'dart:convert';
+// lib/data/services/fcm_service.dart
 
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:hr/data/api/api_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:hr/data/api/api_config.dart';
 
 class FcmService {
-  static Future<void> sendTokenToLaravel(String authToken, int userId) async {
+  static final FirebaseMessaging _fcm = FirebaseMessaging.instance;
+
+  /// ✅ Ambil token FCM device ini
+  static Future<String?> getToken() async {
     try {
-      // generate FCM token untuk user ini
-      final fcmToken = await FirebaseMessaging.instance.getToken();
+      // Request permission untuk iOS
+      await _fcm.requestPermission();
 
-      if (fcmToken == null) {
-        print('❌ Gagal generate FCM token');
-        return;
+      // Ambil token dari FCM
+      final token = await _fcm.getToken();
+
+      if (kDebugMode) {
+        print('🔐 FCM Token: $token');
       }
-
-      print('✅ FCM token user $userId: $fcmToken');
-
-      // kirim token ke Laravel
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/save-token'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $authToken',
-        },
-        body: jsonEncode({
-          'user_id': userId,
-          'token': fcmToken,
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        print('✅ Token user $userId berhasil disimpan di server');
-      } else {
-        print('❌ Gagal simpan token: ${response.statusCode}');
-        print(response.body);
-      }
-
-      // Listener jika token berubah, update ke server
-      FirebaseMessaging.instance.onTokenRefresh.listen((newToken) async {
-        print('🔄 Token user $userId diperbarui: $newToken');
-        await http.post(
-          Uri.parse('${ApiConfig.baseUrl}/api/save-token'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $authToken',
-          },
-          body: jsonEncode({
-            'user_id': userId,
-            'token': newToken,
-          }),
-        );
-      });
+      return token;
     } catch (e) {
-      print('❌ Error saat kirim token ke Laravel: $e');
-    }
-  }
-
-  static Future<void> sendNotifToUser(
-      int userId, String title, String body) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/send-notif');
-
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'user_id': userId,
-        'title': title,
-        'body': body,
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      print('✅ Notifikasi terkirim ke user $userId');
-    } else {
-      print('❌ Gagal kirim notifikasi: ${response.statusCode}');
-      print(response.body);
-    }
-  }
-
-  static Future<void> deleteToken(int userId) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/delete-token');
-
-    print('🟡 [FCM] Mulai proses hapus token user_id: $userId');
-    print('🌐 [FCM] Endpoint: $url');
-
-    try {
-      // hapus token di server dulu
-      print('📡 [FCM] Mengirim request ke server untuk hapus token...');
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'user_id': userId}),
-      );
-
-      print('📨 [FCM] Response code: ${response.statusCode}');
-      print('📨 [FCM] Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        print('✅ [FCM] Token FCM user $userId berhasil dihapus di server');
-
-        print('🧹 [FCM] Menghapus token lokal dari Firebase...');
-        await FirebaseMessaging.instance.deleteToken();
-        print('✅ [FCM] Token FCM lokal berhasil dihapus');
-      } else {
-        print('❌ [FCM] Gagal hapus token di server: ${response.body}');
+      if (kDebugMode) {
+        print('❌ Gagal ambil token FCM: $e');
       }
-    } catch (e, stack) {
-      print('⚠️ [FCM] Error deleteToken: $e');
-      print('🧩 [FCM] Stacktrace: $stack');
+      return null;
     }
+  }
 
-    print('🔚 [FCM] Selesai proses hapus token untuk user_id: $userId');
+  /// ✅ Hapus token FCM di backend (saat logout)
+  static Future<void> deleteToken(int userId) async {
+    try {
+      final token = await _fcm.getToken();
+
+      if (token != null) {
+        await http.post(
+          Uri.parse('${ApiConfig.baseUrl}/api/remove-fcm-token'),
+          headers: {'Content-Type': 'application/json'},
+          body: '{"user_id": $userId, "device_token": "$token"}',
+        );
+      }
+
+      await _fcm.deleteToken();
+
+      if (kDebugMode) {
+        print('🧹 FCM token dihapus untuk user ID $userId');
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('⚠️ Gagal hapus token FCM: $e');
+      }
+    }
   }
 }
