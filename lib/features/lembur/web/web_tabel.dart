@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/format_time.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/lembur_model.dart';
@@ -111,23 +112,29 @@ class WebTabelLembur extends StatelessWidget {
       //   onDelete(c);
       // },
 
-      onEdit: (lemburList.any((c) => c.isApproved || c.isDitolak))
-          ? null // kalau semua sudah disetujui/ditolak, tombol edit hilang
-          : (actualRowIndex) {
-              final c = lemburList[actualRowIndex];
-              if (c.isApproved || c.isDitolak) return; // skip jika status final
-              showDialog(
-                context: context,
-                builder: (_) => UpdateStatusDialog(
-                  onApprove: () async {
-                    onApprove(c);
-                  },
-                  onDecline: () async {
-                    onDecline(c);
-                  },
-                ),
-              );
+      onEdit: (actualRowIndex) {
+        final c = lemburList[actualRowIndex];
+        if (c.isApproved || c.isDitolak) {
+          NotificationHelper.showTopNotification(
+              context,
+              context.isIndonesian
+                  ? 'Status ajuan lembur sudah final, tidak dapat diubah kembali.'
+                  : 'Overtime request status is final, cannot be changed again.',
+              isSuccess: false);
+          return;
+        }
+        showDialog(
+          context: context,
+          builder: (_) => UpdateStatusDialog(
+            onApprove: () async {
+              onApprove(c);
             },
+            onDecline: () async {
+              onDecline(c);
+            },
+          ),
+        );
+      },
     );
   }
 }

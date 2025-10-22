@@ -7,6 +7,7 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/attendance/widget/absen_web_tabel.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -57,7 +58,7 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
               SearchingBar(
                 controller: searchController,
                 onChanged: (query) => absenProvider.searchAbsensi(query),
-                onFilter1Tap: () {
+                onFilter1Tap: () async {
                   showDialog(
                     context: context,
                     builder: (context) {

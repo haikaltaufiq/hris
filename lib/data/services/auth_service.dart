@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/fitur_model.dart';
+import 'package:hr/data/services/fcm_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
@@ -51,6 +52,9 @@ class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     final deviceInfo = await _getDeviceInfo();
 
+    // ✅ Ambil token FCM dari FcmService
+    final fcmToken = await FcmService.getToken();
+
     try {
       final response = await http
           .post(
@@ -65,9 +69,11 @@ class AuthService {
               'device_model': deviceInfo["device_model"] ?? 'unknown_model',
               'device_manufacturer':
                   deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
-              'device_version':
-                  deviceInfo["device_version"] ?? 'unknown_version',
+              'device_version': deviceInfo["device_version"] ?? 'unknown_version',
               'platform': kIsWeb ? 'web' : 'apk',
+
+              // ✅ Tambahkan ini:
+              'device_token': fcmToken,
             }),
           )
           .timeout(const Duration(seconds: 120));
@@ -97,6 +103,9 @@ class AuthService {
             jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
+        // ✅ Simpan juga fcmToken agar bisa dihapus saat logout
+        await prefs.setString('fcm_token', fcmToken ?? '');
+
         return {
           'success': true,
           'token': data['token'],
@@ -105,7 +114,6 @@ class AuthService {
           'message': data['message'],
         };
       } else {
-        // tangani error API dengan jelas
         final errorData = jsonDecode(response.body);
         return {
           'success': false,
@@ -261,6 +269,7 @@ class AuthService {
     if (token == null) {
       await prefs.clear();
       await box.clear();
+
       return {'success': true, 'message': 'Sudah logout (local only)'};
     }
 
@@ -274,7 +283,7 @@ class AuthService {
       );
 
       debugPrint("Logout response: ${response.statusCode} - ${response.body}");
-
+      await FcmService.deleteToken(prefs.getInt('id') ?? 0);
       await prefs.clear();
       await box.clear();
       if (response.statusCode == 200) {

@@ -15,25 +15,25 @@ class FeaturesSection extends StatelessWidget {
   static final List<Map<String, dynamic>> aboutItems = [
     {
       'icon': FontAwesomeIcons.clipboardCheck,
-      'title': 'Attendance ',
+      'title': 'Attendance',
       'description':
           'Track employee attendance with real-time monitoring and automated reporting system',
     },
     {
       'icon': FontAwesomeIcons.calendarCheck,
-      'title': 'Leave Management',
+      'title': 'Leave',
       'description':
           'Streamline leave requests, approvals, and balance tracking in one centralized platform',
     },
     {
       'icon': FontAwesomeIcons.clock,
-      'title': 'Overtime Tracking',
+      'title': 'Overtime',
       'description':
           'Monitor and calculate overtime hours with automatic compensation calculations',
     },
     {
       'icon': FontAwesomeIcons.clipboardList,
-      'title': 'Task Management',
+      'title': 'Task',
       'description':
           'Organize, assign, and track tasks efficiently with integrated project management tools',
     },
@@ -220,14 +220,13 @@ class FeaturesSection extends StatelessWidget {
     bool isMobile,
     bool isTablet,
   ) {
-    final theme = Theme.of(context);
-    final headlineColor =
-        theme.textTheme.headlineSmall?.color ?? Colors.black87;
-    final bodyColor = theme.textTheme.bodyMedium?.color ?? Colors.black54;
-
+    final headlineColor = Colors.black;
+    final bodyColor = Colors.black;
+    final cardColor = Colors.white;
     return _HoverCard(
       padding: EdgeInsets.all(isMobile ? 20 : 24),
       borderRadius: 16,
+      color: cardColor,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -280,11 +279,12 @@ class _HoverCard extends StatefulWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final double borderRadius;
-
+  final Color color;
   const _HoverCard({
     required this.child,
     this.padding = const EdgeInsets.all(24),
     this.borderRadius = 16,
+    required this.color,
   });
 
   @override

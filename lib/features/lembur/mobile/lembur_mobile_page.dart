@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/custom/sorting.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
@@ -186,25 +187,6 @@ class _LemburMobileState extends State<LemburMobile> {
     }
   }
 
-  void _toggleSort() {
-    setState(() {
-      isAscending = !isAscending;
-
-      final provider = context.read<LemburProvider>();
-      final listToSort = searchController.text.isEmpty
-          ? provider.lemburList
-          : provider.filteredLemburList;
-
-      listToSort.sort((a, b) {
-        final dateA = DateTime.parse(a.tanggal);
-        final dateB = DateTime.parse(b.tanggal);
-        return isAscending
-            ? dateA.compareTo(dateB) // Terlama → Terbaru
-            : dateB.compareTo(dateA); // Terbaru → Terlama
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final lemburProvider = context.watch<LemburProvider>();
@@ -235,7 +217,25 @@ class _LemburMobileState extends State<LemburMobile> {
                     onChanged: (value) {
                       lemburProvider.filterLembur(value);
                     },
-                    onFilter1Tap: _toggleSort,
+                    onFilter1Tap: () async {
+                      final provider = context.read<LemburProvider>();
+
+                      final selected = await showSortDialog(
+                        context: context,
+                        title: 'Urutkan Lembur Berdasarkan',
+                        currentValue: provider.currentSortField,
+                        options: [
+                          {'value': 'terbaru', 'label': 'Terbaru'},
+                          {'value': 'terlama', 'label': 'Terlama'},
+                          {'value': 'nama', 'label': 'Nama Karyawan'},
+                          {'value': 'status', 'label': 'Status'},
+                        ],
+                      );
+
+                      if (selected != null) {
+                        provider.sortLembur(selected);
+                      }
+                    },
                   ),
                   if (lemburProvider.isLoading && displayedList.isEmpty)
                     SizedBox(

@@ -3,12 +3,12 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
-import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -169,25 +169,35 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             context.isIndonesian ? "Keluar" : "Logout",
                             Icons.logout,
                             () async {
-                              Future.microtask(() async {
-                                final auth = AuthService();
-                                await auth.logout();
+                              final prefs =
+                                  await SharedPreferences.getInstance();
 
-                                if (!mounted) return;
+                              // simpan dulu data penting
+                              final userId = prefs.getInt('user_id');
+                              final authToken = prefs.getString('auth_token');
+
+                              // hapus token FCM di server
+                              if (userId != null) {
+                                await FcmService.deleteToken(userId);
+                              }
+
+                              // panggil API logout auth
+                              if (authToken != null) {
+                                final result = await AuthService().logout();
+                                debugPrint("Logout result: $result");
+                              }
+
+                              // baru bersihkan semua prefs
+                              await prefs.clear();
+
+                              if (mounted) {
+                                Navigator.pushNamedAndRemoveUntil(
+                                  context,
+                                  AppRoutes.landingPageMobile,
+                                  (route) => false,
+                                );
                                 _hideDropdownImmediate();
-
-                                final nextPageRoute = context.isNativeMobile
-                                    ? AppRoutes.landingPageMobile
-                                    : AppRoutes.login;
-
-                                if (rootContext != null) {
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    rootContext,
-                                    nextPageRoute,
-                                    (route) => false,
-                                  );
-                                }
-                              });
+                              }
                             },
                           ),
                         ],

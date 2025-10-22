@@ -41,7 +41,7 @@ class LandingContent extends StatelessWidget {
           // Responsive gap antara About dan Features
           SizedBox(
             height: context.isMobile
-                ? 60
+                ? 235
                 : context.isTablet
                     ? 80
                     : 100,

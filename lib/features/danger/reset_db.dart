@@ -241,7 +241,7 @@ class ResetDb extends StatelessWidget {
                         dropdownColor: AppColors.bg,
                         dropdownTextColor: AppColors.putih,
                         dropdownIconColor: AppColors.putih,
-                        buttonColor: AppColors.bg,
+                        buttonColor: AppColors.secondary,
                       ),
                       const SizedBox(height: 24),
                       Row(
@@ -250,6 +250,7 @@ class ResetDb extends StatelessWidget {
                             Expanded(
                               child: OutlinedButton(
                                 style: OutlinedButton.styleFrom(
+                                  minimumSize: const Size(0, 58),
                                   side: BorderSide(color: AppColors.secondary),
                                   foregroundColor: AppColors.secondary,
                                 ),
@@ -263,6 +264,7 @@ class ResetDb extends StatelessWidget {
                           Expanded(
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(0, 58),
                                 backgroundColor: selectedMonth != null
                                     ? AppColors.red
                                     : AppColors.secondary,

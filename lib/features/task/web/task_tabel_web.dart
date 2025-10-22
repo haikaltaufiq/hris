@@ -5,7 +5,7 @@ import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
-import 'package:hr/features/task/widgets/video.dart';
+import 'package:hr/features/task/widgets/lampiran.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -89,53 +89,98 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       return;
     }
 
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 600;
+
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        backgroundColor: AppColors.primary,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 16 : 40,
+          vertical: isSmallScreen ? 24 : 40,
         ),
-        title: Text(
-          'Lampiran Tugas',
-          style: GoogleFonts.poppins(
-              color: AppColors.putih, fontWeight: FontWeight.w600),
-        ),
-        content: SizedBox(
-          height: 300,
-          child: buildLampiranWidget(tugas.lampiran!),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'Tutup',
-              style: GoogleFonts.poppins(color: AppColors.putih, fontSize: 16),
-            ),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 800,
+            maxHeight: screenSize.height * 0.8,
           ),
-        ],
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 20,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.putih.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.attach_file_rounded,
+                      color: AppColors.putih,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Lampiran Tugas',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih,
+                          fontWeight: FontWeight.w600,
+                          fontSize: isSmallScreen ? 16 : 18,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: AppColors.putih,
+                        size: isSmallScreen ? 20 : 24,
+                      ),
+                      tooltip: 'Tutup',
+                    ),
+                  ],
+                ),
+              ),
+              // Content
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                  child: ProfessionalLampiranWidget(url: tugas.lampiran!),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget buildLampiranWidget(String url) {
-    final ext = url.split('.').last.toLowerCase();
-    if (['mp4', 'mov', 'avi', '3gp'].contains(ext)) {
-      return VideoPlayerWidget(videoUrl: url);
-    } else if (['jpg', 'jpeg', 'png', 'gif'].contains(ext)) {
-      return Image.network(url, fit: BoxFit.contain);
-    } else if (ext == 'pdf') {
-      return Center(child: Text('PDF Viewer bisa ditambahkan di sini'));
-    } else if (['mp3', 'wav', 'm4a'].contains(ext)) {
-      return Center(child: Text('Audio Player bisa ditambahkan di sini'));
-    } else {
-      return Center(
-        child: ElevatedButton(
-          onPressed: () {},
-          child: Text('Download Lampiran'),
-        ),
-      );
-    }
+    return ProfessionalLampiranWidget(url: url);
   }
 
   void _showDetailDialog(BuildContext context, TugasModel tugas) {

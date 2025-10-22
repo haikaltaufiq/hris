@@ -15,25 +15,25 @@ class AboutSection extends StatelessWidget {
   static final List<Map<String, dynamic>> aboutItems = [
     {
       'icon': FontAwesomeIcons.users,
-      'title': 'Employe Management',
+      'title': 'Management',
       'description':
           "Manage complete employee data from recruitment to retirement with an integrated and secure system.",
     },
     {
       'icon': FontAwesomeIcons.chartLine,
-      'title': 'Analyze & Report',
+      'title': 'Report',
       'description':
           "Gain deep insights into employee performance and HR operations through an analytics dashboard.",
     },
     {
       'icon': FontAwesomeIcons.shield,
-      'title': "Data Security",
+      'title': "Security",
       'description':
           "Protect sensitive information with layered security, data encryption, and access controls.",
     },
     {
       'icon': FontAwesomeIcons.cloud,
-      'title': 'Cloud Based',
+      'title': 'Cloud',
       'description':
           "Access the system anytime, anywhere with reliable and scalable cloud infrastructure.",
     },

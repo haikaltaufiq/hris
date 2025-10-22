@@ -29,8 +29,10 @@ class TugasInputEdit extends StatefulWidget {
 }
 
 class _TugasInputEditState extends State<TugasInputEdit> {
-  final TextEditingController _tanggalPenugasanController = TextEditingController();
-  final TextEditingController _batasPenugasanController = TextEditingController();
+  final TextEditingController _tanggalPenugasanController =
+      TextEditingController();
+  final TextEditingController _batasPenugasanController =
+      TextEditingController();
   final TextEditingController _radiusController = TextEditingController();
   final TextEditingController _latitudeController = TextEditingController();
   final TextEditingController _longitudeController = TextEditingController();
@@ -48,7 +50,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     _judulTugasController.text = widget.tugas.namaTugas;
     _radiusController.text = widget.tugas.radius.toString();
 
-    // tanggal 
+    // tanggal
     if (widget.tugas.tanggalPenugasan.isNotEmpty) {
       try {
         final date = DateTime.parse(widget.tugas.tanggalPenugasan);
@@ -106,7 +108,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     }
   }
 
-    void _onTapDateandTime(TextEditingController controller) async {
+  void _onTapDateandTime(TextEditingController controller) async {
     // Pilih tanggal
     final pickedDate = await showDatePicker(
       context: context,
@@ -135,8 +137,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     );
 
     // Simpan ke controller
-    controller.text =
-        "${dateTime.day.toString().padLeft(2, '0')}/"
+    controller.text = "${dateTime.day.toString().padLeft(2, '0')}/"
         "${dateTime.month.toString().padLeft(2, '0')}/"
         "${dateTime.year} "
         "${dateTime.hour.toString().padLeft(2, '0')}:"
@@ -299,16 +300,16 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         _latitudeController.text.trim(), _longitudeController.text.trim())) {
       NotificationHelper.showTopNotification(
         context,
-        isIndonesian
-            ? 'Koordinat tidak valid.'
-            : "Invalid coordinates.",
+        isIndonesian ? 'Koordinat tidak valid.' : "Invalid coordinates.",
         isSuccess: false,
       );
       return;
     }
 
-    final tanggalFormatted = TugasService.formatDateForApi(_tanggalPenugasanController.text.trim());
-    final batasFormatted = TugasService.formatDateForApi(_batasPenugasanController.text.trim());
+    final tanggalFormatted =
+        TugasService.formatDateForApi(_tanggalPenugasanController.text.trim());
+    final batasFormatted =
+        TugasService.formatDateForApi(_batasPenugasanController.text.trim());
 
     try {
       final tugasProvider = context.read<TugasProvider>();
@@ -339,7 +340,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         isSuccess: isSuccess,
       );
 
-      if (isSuccess) {
+      if (isSuccess && mounted) {
         Navigator.pop(context, true);
       }
     } catch (e) {
@@ -469,13 +470,15 @@ class _TugasInputEditState extends State<TugasInputEdit> {
               const SizedBox(height: 10),
 
               CustomInputField(
-                label: context.isIndonesian ? 'Radius (meter)' : 'Radius (meter)',
+                label:
+                    context.isIndonesian ? 'Radius (meter)' : 'Radius (meter)',
                 hint: 'Masukkan radius tugas',
                 controller: _radiusController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
               ),
 
               Row(

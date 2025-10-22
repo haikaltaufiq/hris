@@ -119,7 +119,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                 subtitle:
                     context.isIndonesian ? "Divisi Aktif" : "Active divisions",
                 icon: FontAwesomeIcons.building,
-                iconColor: const Color.fromARGB(255, 82, 172, 246),
+                iconColor: const Color.fromARGB(255, 255, 128, 54),
               ),
             ),
             const SizedBox(width: 10),
@@ -130,7 +130,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                 subtitle:
                     context.isIndonesian ? "Jumlah Pegawai" : "Total Employees",
                 icon: Icons.people_alt_rounded,
-                iconColor: const Color.fromARGB(255, 54, 255, 61),
+                iconColor: const Color.fromARGB(255, 82, 172, 246),
                 isGrowth: true,
               ),
             ),
@@ -434,9 +434,10 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
         final totalTugas = tugasProv.totalAllTugas.toDouble();
 
         // PERBAIKAN: Hitung dari allAbsensi untuk monthly rate
-        final jumlahHadirTotal = absenProv.allAbsensi.map((a) => a.userId).toSet().length;
+        final jumlahHadirTotal =
+            absenProv.allAbsensi.map((a) => a.userId).toSet().length;
         final rate = (totalUser > 0) ? jumlahHadirTotal / totalUser : 0.0;
-        
+
         final projectRate =
             (totalTugas > 0) ? totalTugasSelesai / totalTugas : 0.0;
         final performance = ((rate * 0.5) + (projectRate * 0.5));

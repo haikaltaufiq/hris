@@ -113,9 +113,6 @@ class TugasUserTabel extends StatelessWidget {
                 case 6:
                   return DetailItem(
                       label: 'Status', value: tugas.status, color: statusColor);
-                case 7:
-                  return DetailItem(
-                      label: 'Lampiran', value: tugas.displayLampiran);
                 default:
                   return const SizedBox();
               }
@@ -176,6 +173,7 @@ class TugasUserTabel extends StatelessWidget {
 
     // Build rows
     final rows = tugasList.map((tugas) {
+      final hasLampiran = (tugas.lampiran ?? '').toString().trim().isNotEmpty;
       return [
         tugas.displayUser,
         tugas.shortTugas,
@@ -191,8 +189,8 @@ class TugasUserTabel extends StatelessWidget {
             : '-',
         tugas.status,
         tugas.displayNote,
-        tugas.displayLampiran,
-        tugas.lampiran != null ? tugas.displayTerlambat : '-',
+        hasLampiran ? "Edit Lampiran" : "Upload Lampiran",
+        hasLampiran ? tugas.displayTerlambat : '-',
       ];
     }).toList();
 

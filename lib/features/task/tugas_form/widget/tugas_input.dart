@@ -579,7 +579,6 @@ class _TugasInputState extends State<TugasInput> {
                           );
                           return;
                         }
-
                         final result = await tugasProvider.createTugas(
                           judul: _judulTugasController.text.trim(),
                           tanggalPenugasan:
@@ -593,16 +592,15 @@ class _TugasInputState extends State<TugasInput> {
                         );
 
                         if (!mounted) return;
+                        if (result['success'] == true && mounted) {
+                          Navigator.pop(context);
+                        }
 
                         NotificationHelper.showTopNotification(
                           context,
                           result['message'] ?? 'Terjadi kesalahan',
                           isSuccess: result['success'] ?? false,
                         );
-
-                        if (result['success'] == true) {
-                          Navigator.pop(context);
-                        }
                       } catch (e) {
                         print("Error creating task: $e");
                         if (mounted) {
