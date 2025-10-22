@@ -13,6 +13,8 @@ class TugasModel {
   final String? note;
   final String status;
   final bool? terlambat;
+  final int? menitTerlambat;      
+  final String? waktuUpload;       
   final String? lampiran;
   final UserModel? user;
 
@@ -29,6 +31,8 @@ class TugasModel {
     this.note,
     required this.status,
     this.terlambat,
+    this.menitTerlambat,  
+    this.waktuUpload,      
     this.lampiran,
     this.user,
   });
@@ -57,6 +61,10 @@ class TugasModel {
       terlambat: json['terlambat'] is int
           ? json['terlambat'] == 1
           : json['terlambat'] ?? false,
+      menitTerlambat: json['menit_terlambat'] != null
+          ? int.tryParse(json['menit_terlambat'].toString())
+          : null,
+      waktuUpload: json['waktu_upload']?.toString(),
       lampiran: json['lampiran'],
       user: (json['user'] is Map<String, dynamic>)
           ? UserModel.fromJson(json['user'])
@@ -78,6 +86,8 @@ class TugasModel {
       'instruksi_tugas': note,
       'status': status,
       'terlambat': terlambat,
+      'menit_terlambat': menitTerlambat, 
+      'waktu_upload': waktuUpload,       
       'lampiran': lampiran,
       'user': user?.toJson(),
     };
@@ -87,7 +97,9 @@ class TugasModel {
 // Extension untuk getter tabel
 extension TugasTableGetter on TugasModel {
   String get displayUser => user?.nama ?? '-';
+
   String get displayNote => note ?? '-';
+
   String get displayLampiran => lampiran != null ? "Lihat Lampiran" : '-';
 
   String get displayLokasiTugas => (tugasLat != null && tugasLng != null)
@@ -101,6 +113,16 @@ extension TugasTableGetter on TugasModel {
 
   String get displayTerlambat =>
       (terlambat ?? false) ? "Terlambat" : "Tepat Waktu";
+
   String get shortTugas =>
       namaTugas.length > 20 ? '${namaTugas.substring(0, 20)}...' : namaTugas;
+
+  String get displayWaktuUpload =>
+      waktuUpload != null ? waktuUpload!.replaceAll('T', ' ') : '-';
+
+  String get displayMenitTerlambat {
+    if (menitTerlambat == null) return '-';
+    if (menitTerlambat == 0) return 'Tepat Waktu';
+    return '$menitTerlambat menit terlambat';
+  }
 }

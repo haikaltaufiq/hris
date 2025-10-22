@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/services/tugas_service.dart';
+import 'dart:async';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hr/main.dart';
 
 class TugasProvider extends ChangeNotifier {
   List<TugasModel> _tugasList = [];
@@ -33,6 +36,64 @@ class TugasProvider extends ChangeNotifier {
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  Timer? _timer;
+  int _notificationId = 101; // id unik notif timer
+
+  void startCountdownNotification(DateTime batasWaktu) {
+    final plugin = flutterLocalNotificationsPlugin;
+    _timer?.cancel();
+
+    _timer = Timer.periodic(const Duration(seconds: 10), (timer) async {
+
+      final now = DateTime.now();
+      final sisa = batasWaktu.difference(now);
+
+      if (sisa.isNegative) {
+        // waktu habis
+        await plugin.show(
+          _notificationId,
+          '⏰ Tugas Terlambat!',
+          'Batas waktu sudah lewat, segera upload laporan!',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              channelDescription: 'Peringatan batas waktu tugas',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
+        _timer?.cancel();
+      } else {
+        // hitung mundur
+        final jam = sisa.inHours;
+        final menit = sisa.inMinutes.remainder(60);
+        final sisaWaktu = '${jam.toString().padLeft(2, '0')}:${menit.toString().padLeft(2, '0')}';
+
+        await plugin.show(
+          _notificationId,
+          'Tugas Berjalan',
+          'Waktu tersisa: $sisaWaktu',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              channelDescription: 'Hitung mundur waktu tugas',
+              importance: Importance.high,
+              priority: Priority.high,
+              ongoing: true, // biar terus tampil
+            ),
+          ),
+        );
+      }
+    });
+  }
+
+  void stopCountdown() {
+    _timer?.cancel();
   }
 
   void loadCacheFirst() {

@@ -262,15 +262,15 @@ class _MainLayoutState extends State<MainLayout>
 
                               // simpan dulu data penting
                               final userId = prefs.getInt('user_id');
-                              final authToken = prefs.getString('auth_token');
+                              final token = prefs.getString('token');
 
                               // hapus token FCM di server
                               if (userId != null) {
-                                await FcmService.deleteToken(userId);
+                                await FcmService.deleteLocalToken();
                               }
 
                               // panggil API logout auth
-                              if (authToken != null) {
+                              if (token != null) {
                                 final result = await AuthService().logout();
                                 debugPrint("Logout result: $result");
                               }
