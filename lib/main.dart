@@ -214,10 +214,11 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
     await messaging.requestPermission(alert: true, badge: true, sound: true);
 
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("📩 Foreground message: ${message.notification?.title}");
-
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final notification = message.notification;
+      final data = message.data;
+
+      // Tampilkan notif lokal biasa
       if (notification != null) {
         flutterLocalNotificationsPlugin.show(
           notification.hashCode,
@@ -234,23 +235,17 @@ class _MyAppState extends State<MyApp> {
           ),
         );
       }
-   
-    });
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      final data = message.data;
-
+      // Jika notif tugas baru, jalankan timer countdown
       if (data['tipe'] == 'tugas_baru') {
         final batasWaktu = DateTime.parse(data['batas_penugasan']);
 
-        // Jalankan notifikasi countdown langsung
-        final timerService = TugasProvider();
-        timerService.startCountdownNotification(batasWaktu);
+        // Ambil provider yang ada di MultiProvider
+        final tugasProvider = Provider.of<TugasProvider>(context, listen: false);
+        tugasProvider.startCountdownNotification(batasWaktu);
       }
     });
   }
-
-
 
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
