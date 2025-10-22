@@ -350,6 +350,9 @@ class _TugasTabelState extends State<TugasTabel> {
             "Status",
             "Catatan",
             "Lampiran",
+            "Waktu Upload",
+            "Keterlambatan",
+            "Sisa Waktu",
             "Ketepatan"
           ]
         : [
@@ -363,6 +366,9 @@ class _TugasTabelState extends State<TugasTabel> {
             "Status",
             "Note",
             "Attachment",
+            "Upload Time",
+            "Delay",
+            "Remaining Time",
             "Punctuality"
           ];
 
@@ -383,6 +389,13 @@ class _TugasTabelState extends State<TugasTabel> {
         tugas.status,
         tugas.displayNote,
         tugas.displayLampiran,
+        tugas.displayWaktuUpload,
+        tugas.menitTerlambat != null
+            ? "${tugas.menitTerlambat} menit"
+            : (tugas.waktuUpload != null ? "Tepat waktu" : "-"),
+        tugas.waktuUpload == null
+            ? _hitungSisaWaktu(tugas.batasPenugasan)
+            : "-", // kalau sudah upload, gak perlu tampilkan countdown lagi
         tugas.lampiran != null ? tugas.displayTerlambat : '-',
       ];
     }).toList();
@@ -421,5 +434,24 @@ class _TugasTabelState extends State<TugasTabel> {
         }
       },
     );
+  }
+}
+
+String _hitungSisaWaktu(String? batas) {
+  if (batas == null) return "-";
+  try {
+    final deadline = DateTime.parse(batas);
+    final now = DateTime.now();
+    final diff = deadline.difference(now);
+
+    if (diff.isNegative) {
+      return "Lewat ${diff.inMinutes.abs()} menit";
+    } else {
+      final jam = diff.inHours;
+      final menit = diff.inMinutes.remainder(60);
+      return "$jam jam $menit menit lagi";
+    }
+  } catch (_) {
+    return "-";
   }
 }
