@@ -26,24 +26,63 @@ import 'package:hr/features/reminder/reminder_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:workmanager/workmanager.dart';
+import 'package:hive/hive.dart';
 
 // variabel global
-final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+// Tambahkan ini di luar class manapun, sebelum main
+void callbackDispatcher() {
+  Workmanager().executeTask((task, inputData) async {
+    final batasWaktuString = inputData?['batasWaktu'];
+    final tugasId = inputData?['tugasId'];
+
+    if (batasWaktuString == null) return Future.value(true);
+
+    final batasWaktu = DateTime.parse(batasWaktuString);
+    final now = DateTime.now();
+
+    final box = await Hive.openBox('tugas');
+    final sudahUpload = box.get('uploaded_$tugasId') ?? false;
+
+    if (now.isAfter(batasWaktu) && !sudahUpload) {
+      const androidDetails = AndroidNotificationDetails(
+        'tugas_channel',
+        'Tugas Reminder',
+        channelDescription: 'Notifikasi keterlambatan tugas',
+        importance: Importance.max,
+        priority: Priority.high,
+      );
+
+      const platformDetails = NotificationDetails(android: androidDetails);
+
+      await flutterLocalNotificationsPlugin.show(
+        0,
+        'Tugas Terlambat!',
+        'Kamu belum upload laporan tugas tepat waktu!',
+        platformDetails,
+      );
+    }
+
+    return Future.value(true);
+  });
+}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FeatureAccess.init();
+  await Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: false,
+  );
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-    // 🔔 Setup notification channel
-  const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
-
-  const InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
+  // 🔔 Setup notification channel
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
@@ -189,7 +228,6 @@ class _MyAppState extends State<MyApp> {
       }
     });
   }
-
 
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();

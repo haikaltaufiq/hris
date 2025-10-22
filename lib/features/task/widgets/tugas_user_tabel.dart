@@ -137,6 +137,25 @@ class TugasUserTabel extends StatelessWidget {
       ),
     );
   }
+  
+  String _hitungSisaWaktu(String? batas) {
+    if (batas == null) return "-";
+    try {
+      final deadline = DateTime.parse(batas);
+      final now = DateTime.now();
+      final diff = deadline.difference(now);
+
+      if (diff.isNegative) {
+        return "Lewat ${diff.inMinutes.abs()} menit";
+      } else {
+        final jam = diff.inHours;
+        final menit = diff.inMinutes.remainder(60);
+        return "$jam jam $menit menit lagi";
+      }
+    } catch (_) {
+      return "-";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,6 +171,9 @@ class TugasUserTabel extends StatelessWidget {
             "Status",
             "Catatan",
             "Lampiran",
+            "Waktu Upload",       
+            "Keterlambatan",
+            "Sisa Waktu", 
             "Ketepatan"
           ]
         : [
@@ -165,6 +187,9 @@ class TugasUserTabel extends StatelessWidget {
             "Status",
             "Note",
             "Attachment",
+            "Upload Time",         
+            "Delay",
+            "Remaining Time",  
             "Punctuality"
           ];
 
@@ -192,6 +217,12 @@ class TugasUserTabel extends StatelessWidget {
         tugas.status,
         tugas.displayNote,
         tugas.displayLampiran,
+        tugas.waktuUpload == null
+          ? _hitungSisaWaktu(tugas.batasPenugasan)
+          : "-", // kalau sudah upload, gak perlu tampilkan countdown lagi
+        tugas.menitTerlambat != null
+            ? "${tugas.menitTerlambat} menit"
+            : (tugas.waktuUpload != null ? "Tepat waktu" : "-"),
         tugas.lampiran != null ? tugas.displayTerlambat : '-',
       ];
     }).toList();
