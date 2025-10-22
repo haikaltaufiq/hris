@@ -27,6 +27,7 @@ import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:workmanager/workmanager.dart';
+import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 // variabel global
@@ -34,6 +35,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterL
 
 // Tambahkan ini di luar class manapun, sebelum main
 void callbackDispatcher() {
+  if (kIsWeb) return; // pastikan tidak jalan di Web
   Workmanager().executeTask((task, inputData) async {
     final batasWaktuString = inputData?['batasWaktu'];
     final tugasId = inputData?['tugasId'];
@@ -72,10 +74,12 @@ void callbackDispatcher() {
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FeatureAccess.init();
-  await Workmanager().initialize(
-    callbackDispatcher,
-    isInDebugMode: false,
-  );
+  if (!kIsWeb) {
+    await Workmanager().initialize(
+      callbackDispatcher,
+      isInDebugMode: false,
+    );
+  }
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
