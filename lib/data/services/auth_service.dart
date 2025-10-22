@@ -274,26 +274,37 @@ class AuthService {
     }
 
     try {
+      // 🔍 Tambahkan debug print di sini sebelum request dikirim
+      debugPrint("Logout URL: ${ApiConfig.baseUrl}/api/logout");
+      debugPrint("Token: $token");
+
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/logout'),
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
       debugPrint("Logout response: ${response.statusCode} - ${response.body}");
-      await FcmService.deleteToken(prefs.getInt('id') ?? 0);
-      await prefs.clear();
-      await box.clear();
+
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+
+        // hapus token FCM di device lokal
+        await FcmService.deleteLocalToken();
+
+        // bersihkan data lokal
+        await prefs.clear();
+        await box.clear();
+
         return {'success': true, 'message': data['message']};
       } else {
         return {'success': false, 'message': 'Logout gagal'};
       }
     } catch (e) {
-      // tetap bersihkan data meski request gagal (biar user dipaksa relogin)
+      // kalau error jaringan, tetap bersihkan data biar user logout lokal
       await prefs.clear();
       await box.clear();
       return {'success': false, 'message': e.toString()};

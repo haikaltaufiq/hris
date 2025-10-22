@@ -1,3 +1,5 @@
+// ignore_for_file: await_only_futures, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -174,15 +176,15 @@ class _DashboardHeaderState extends State<DashboardHeader>
 
                               // simpan dulu data penting
                               final userId = prefs.getInt('user_id');
-                              final authToken = prefs.getString('auth_token');
+                              final token = prefs.getString('token');
 
                               // hapus token FCM di server
                               if (userId != null) {
-                                await FcmService.deleteToken(userId);
+                                await FcmService.deleteLocalToken;
                               }
 
                               // panggil API logout auth
-                              if (authToken != null) {
+                              if (token != null) {
                                 final result = await AuthService().logout();
                                 debugPrint("Logout result: $result");
                               }

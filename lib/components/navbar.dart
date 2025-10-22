@@ -1,3 +1,5 @@
+// ignore_for_file: await_only_futures, use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -667,15 +669,19 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       final prefs = await SharedPreferences.getInstance();
                       final userId = prefs.getInt('user_id'); // simpan dulu sebelum dihapus
+                      final token = prefs.getString('token');
 
-                      // hapus token FCM di server
+                      // hapus token FCM loakl
                       if (userId != null) {
-                        await FcmService.deleteToken(userId);
+                        await FcmService.deleteLocalToken;
                       }
 
-                      // lanjut logout API
-                      final result = await AuthService().logout();
-                      debugPrint("Logout result: $result");
+                      // panggil API logout auth
+                      if (token != null) {
+                          final result = await AuthService().logout();
+                        debugPrint("Logout result: $result");
+                      }
+
                       // baru bersihkan data lokal
                       await prefs.clear();
 
