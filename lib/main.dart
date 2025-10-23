@@ -1,9 +1,12 @@
+// ignore_for_file: avoid_print, use_build_context_synchronously
+
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:hr/data/services/countdown_notification_service.dart';
 import 'package:hr/firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,42 +33,63 @@ import 'package:workmanager/workmanager.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
+import 'package:permission_handler/permission_handler.dart';
+
 
 // variabel global
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 // Tambahkan ini di luar class manapun, sebelum main
 void callbackDispatcher() {
-  if (kIsWeb) return; // pastikan tidak jalan di Web
-  Workmanager().executeTask((task, inputData) async {
-    final batasWaktuString = inputData?['batasWaktu'];
-    final tugasId = inputData?['tugasId'];
+    if (kIsWeb) return; // pastikan tidak jalan di Web
+    Workmanager().executeTask((task, inputData) async {
+    await Firebase.initializeApp();
+    final box = await Hive.openBox('tugas');
 
-    if (batasWaktuString == null) return Future.value(true);
-
-    final batasWaktu = DateTime.parse(batasWaktuString);
+    // Cek apakah ada countdown yang perlu diperbarui
+    for (final key in box.keys) {
+      if (key.startsWith('update_needed_')) {
+        final tugasId = key.replaceFirst('update_needed_', '');
+        final batasWaktuKey = 'batas_penugasan_$tugasId';
+        if (box.containsKey(batasWaktuKey)) {
+          final batasWaktu = DateTime.parse(box.get(batasWaktuKey));
+          final countdownService = CountdownNotificationService(flutterLocalNotificationsPlugin);
+          countdownService.startCountdown(batasWaktu, 'Tugas Diperbarui', int.parse(tugasId));
+          
+          // Hapus flag agar tidak diulang
+          await box.delete('update_needed_$tugasId');
+        }
+      }
+    }
     final now = DateTime.now();
 
-    final box = await Hive.openBox('tugas');
-    final sudahUpload = box.get('uploaded_$tugasId') ?? false;
+    for (final key in box.keys) {
+      if (key.startsWith('batas_penugasan_')) {
+        final tugasId = key.replaceFirst('batas_penugasan_', '');
+        final batasWaktu = DateTime.parse(box.get(key));
 
-    if (now.isAfter(batasWaktu) && !sudahUpload) {
-      const androidDetails = AndroidNotificationDetails(
-        'tugas_channel',
-        'Tugas Reminder',
-        channelDescription: 'Notifikasi keterlambatan tugas',
-        importance: Importance.max,
-        priority: Priority.high,
-      );
+        if (now.isAfter(batasWaktu)) {
+          final plugin = FlutterLocalNotificationsPlugin();
+          const androidDetails = AndroidNotificationDetails(
+            'tugas_channel',
+            'Tugas Reminder',
+            channelDescription: 'Notifikasi keterlambatan tugas',
+            importance: Importance.max,
+            priority: Priority.high,
+          );
+          const platformDetails = NotificationDetails(android: androidDetails);
 
-      const platformDetails = NotificationDetails(android: androidDetails);
+          await plugin.show(
+            tugasId.hashCode,
+            '⏰ Tugas Terlambat!',
+            'Kamu belum upload laporan tugas tepat waktu!',
+            platformDetails,
+          );
 
-      await flutterLocalNotificationsPlugin.show(
-        0,
-        'Tugas Terlambat!',
-        'Kamu belum upload laporan tugas tepat waktu!',
-        platformDetails,
-      );
+          // Tandai sudah notifikasi supaya tidak duplikat
+          box.put('uploaded_$tugasId', true);
+        }
+      }
     }
 
     return Future.value(true);
@@ -137,7 +161,110 @@ Future<void> main() async {
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  print("Background message: ${message.notification?.title}");
+  await Firebase.initializeApp();
+  final data = message.data;
+
+  final FlutterLocalNotificationsPlugin plugin = FlutterLocalNotificationsPlugin();
+  final box = await Hive.openBox('tugas');
+
+  final tipe = data['tipe'];
+  final tugasId = data['tugas_id']?.toString() ?? '';
+  final judul = data['judul'] ?? 'Tugas';
+
+  // ===============================
+  // 1️⃣ TUGAS BARU
+  // ===============================
+  if (tipe == 'tugas_baru') {
+    final batas = DateTime.parse(data['batas_penugasan']);
+    await box.put('batas_penugasan_$tugasId', batas.toIso8601String());
+
+    await plugin.show(
+      tugasId.hashCode,
+      '📌 Tugas Baru',
+      'Kamu punya tugas baru: "$judul", deadline: ${batas.toLocal()}',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'tugas_channel',
+          'Tugas Reminder',
+          channelDescription: 'Notifikasi keterlambatan tugas',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+    );
+  }
+
+  // ===============================
+  // 2️⃣ TUGAS DIPERBARUI
+  // ===============================
+  else if (tipe == 'tugas_update') {
+    final batasBaru = DateTime.parse(data['batas_penugasan']);
+    await box.put('batas_penugasan_$tugasId', batasBaru.toIso8601String());
+    await box.put('update_needed_$tugasId', true);
+
+    await plugin.show(
+      tugasId.hashCode,
+      '⏰ Tugas Diperbarui',
+      'Deadline tugas "$judul" diubah ke ${batasBaru.toLocal()}',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'tugas_channel',
+          'Tugas Reminder',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+    );
+  }
+
+  // ===============================
+  // 3️⃣ TUGAS DIHAPUS
+  // ===============================
+  else if (tipe == 'tugas_hapus') {
+    // hapus dari Hive
+    await box.delete('batas_penugasan_$tugasId');
+    await box.delete('update_needed_$tugasId');
+
+    // cancel notifikasi dan countdown
+    await plugin.cancel(tugasId.hashCode);
+
+    await plugin.show(
+      tugasId.hashCode,
+      '❌ Tugas Dihapus',
+      'Tugas "$judul" telah dihapus.',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'tugas_channel',
+          'Tugas Reminder',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+    );
+  }
+
+  // ===============================
+  // 4️⃣ TUGAS DIPINDAHKAN KE ORANG LAIN
+  // ===============================
+  else if (tipe == 'tugas_pindah') {
+    await box.delete('batas_penugasan_$tugasId');
+    await box.delete('update_needed_$tugasId');
+    await plugin.cancel(tugasId.hashCode);
+
+    await plugin.show(
+      tugasId.hashCode,
+      '👋 Tugas Dipindahkan',
+      'Tugas "$judul" sudah dipindahkan ke pengguna lain.',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'tugas_channel',
+          'Tugas Reminder',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+    );
+  }
 }
 
 class PrecacheWrapper extends StatefulWidget {
@@ -208,41 +335,87 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     _initialRoute = _getInitialRoute();
     _setupFCM();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final box = await Hive.openBox('tugas');
+    for (final key in box.keys) {
+      if (key.startsWith('batas_penugasan_')) {
+        final tugasId = key.replaceFirst('batas_penugasan_', '');
+        final batasWaktu = DateTime.parse(box.get(key));
+        final countdownService = CountdownNotificationService(flutterLocalNotificationsPlugin);
+        countdownService.startCountdown(batasWaktu, 'Tugas Aktif', int.parse(tugasId));
+      }
+    }
+  });
   }
 
   Future<void> _setupFCM() async {
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    await messaging.requestPermission(alert: true, badge: true, sound: true);
+    final messaging = FirebaseMessaging.instance;
 
+    // 🔹 Minta izin notifikasi untuk Android 13+
+    if (await Permission.notification.isDenied) {
+      await Permission.notification.request();
+    }
+
+    // 🔹 Izin standar FCM (untuk iOS & Android)
+    await messaging.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+
+    // 🔹 Listener: jika pesan diterima saat app foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
-      final notification = message.notification;
       final data = message.data;
+      final plugin = flutterLocalNotificationsPlugin;
+      final box = await Hive.openBox('tugas');
 
-      // Tampilkan notif lokal biasa
-      if (notification != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
+      final tipe = data['tipe'];
+      final tugasId = int.tryParse(data['tugas_id'] ?? '') ?? 0;
+      final judul = data['judul'] ?? 'Tugas';
+
+      if (tipe == 'tugas_baru') {
+        final batasWaktu = DateTime.parse(data['batas_penugasan']);
+        await box.put('batas_penugasan_$tugasId', batasWaktu.toIso8601String());
+        CountdownNotificationService(plugin).startCountdown(batasWaktu, judul, tugasId);
+        await plugin.show(
+          tugasId.hashCode,
+          '📌 Tugas Baru',
+          'Kamu punya tugas baru: "$judul", deadline: ${batasWaktu.toLocal()}',
           const NotificationDetails(
             android: AndroidNotificationDetails(
-              'high_importance_channel',
-              'Notifikasi Penting',
+              'tugas_channel',
+              'Tugas Reminder',
               importance: Importance.max,
               priority: Priority.high,
-              showWhen: true,
             ),
           ),
         );
       }
 
-      // Jika notif tugas baru, jalankan timer countdown
-      if (data['tipe'] == 'tugas_baru') {
+      else if (tipe == 'tugas_update') {
         final batasWaktu = DateTime.parse(data['batas_penugasan']);
+        await box.put('batas_penugasan_$tugasId', batasWaktu.toIso8601String());
+        await box.put('update_needed_$tugasId', true);
 
-        // Ambil provider yang ada di MultiProvider
-        final tugasProvider = Provider.of<TugasProvider>(context, listen: false);
-        tugasProvider.startCountdownNotification(batasWaktu);
+        // 🚨 Stop countdown lama dulu
+        CountdownNotificationService(plugin).stopCountdown();
+
+        // 🔹 Start countdown baru sesuai batas baru
+        CountdownNotificationService(plugin).startCountdown(batasWaktu, judul, tugasId);
+
+        await plugin.show(
+          tugasId.hashCode,
+          '⏰ Tugas Diperbarui',
+          'Deadline tugas "$judul" diubah ke ${batasWaktu.toLocal()}',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
       }
     });
   }
