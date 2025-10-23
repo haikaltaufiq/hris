@@ -173,11 +173,6 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
     });
   }
 
-  String _shortenText(String text, int maxLength) {
-    if (text.length <= maxLength) return text;
-    return '${text.substring(0, maxLength)}...';
-  }
-
   Widget _buildValueCell(
       BuildContext context, String value, int paginatedRowIndex, int colIndex) {
     final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
@@ -316,21 +311,11 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                 decoration: TextDecoration.underline,
                 fontFamily: GoogleFonts.poppins().fontFamily,
               ),
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.clip,
             ),
           ),
         );
       }
-    }
-
-    String displayText = value;
-    int textLimit = 25;
-    if (widget.textLengthLimits != null &&
-        colIndex < widget.textLengthLimits!.length) {
-      textLimit = widget.textLengthLimits![colIndex];
-    }
-    if (value.length > textLimit) {
-      displayText = _shortenText(value, textLimit);
     }
 
     return Tooltip(
@@ -340,15 +325,14 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
         onTap: () =>
             widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex),
         child: Text(
-          displayText,
+          value,
           style: TextStyle(
             color: AppColors.putih,
             fontSize: 12,
             fontWeight: FontWeight.w500,
             fontFamily: GoogleFonts.poppins().fontFamily,
           ),
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
+          overflow: TextOverflow.clip,
         ),
       ),
     );

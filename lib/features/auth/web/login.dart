@@ -498,7 +498,7 @@ class _LoginState extends State<Login> {
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: _isLoading ? null : _handleLogin,
+        onPressed: _isLoading ? () {} : _handleLogin,
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.blue,
           foregroundColor: AppColors.blue,

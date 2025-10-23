@@ -86,27 +86,32 @@ class _TugasInputState extends State<TugasInput> {
       context: context,
       initialTime: TimeOfDay.now(),
       builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: const Color(0xFF1F1F1F), // header & tombol konfirmasi
-              onPrimary: Colors.white, // teks pada tombol
-              onSurface: AppColors.hitam, // teks jam & menit
-              secondary: AppColors.yellow,
-            ),
-            textButtonTheme: TextButtonThemeData(
-              style: TextButton.styleFrom(
-                foregroundColor: AppColors.hitam,
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: true,
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: const Color(0xFF1F1F1F), // header & tombol konfirmasi
+                onPrimary: Colors.white, // teks pada tombol
+                onSurface: AppColors.hitam, // teks jam & menit
+                secondary: AppColors.yellow,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.hitam,
+                ),
+              ),
+              textTheme: GoogleFonts.poppinsTextTheme(
+                Theme.of(context).textTheme.apply(
+                      bodyColor: AppColors.hitam,
+                      displayColor: AppColors.hitam,
+                    ),
               ),
             ),
-            textTheme: GoogleFonts.poppinsTextTheme(
-              Theme.of(context).textTheme.apply(
-                    bodyColor: AppColors.hitam,
-                    displayColor: AppColors.hitam,
-                  ),
-            ),
+            child: child!,
           ),
-          child: child!,
         );
       },
     );

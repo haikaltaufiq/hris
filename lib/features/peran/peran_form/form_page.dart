@@ -698,7 +698,8 @@ class _PeranFormPageState extends State<PeranFormPage> {
                         return CheckboxListTile(
                           activeColor: AppColors.secondary,
                           checkColor: AppColors.putih,
-                          title: Text(f.namaFitur, style: textStyle),
+                          title: Text(formatFeatureDisplayName(f.namaFitur),
+                              style: textStyle),
                           subtitle: Text(f.deskripsiFitur,
                               style: textStyle.copyWith(
                                   color: AppColors.putih.withOpacity(0.6))),
@@ -761,4 +762,12 @@ class FeatureRule {
   final List<String>? siblings;
 
   FeatureRule({this.parent, this.siblings});
+}
+
+String formatFeatureDisplayName(String value) {
+  if (value.isEmpty) return '';
+  return value
+      .split('_')
+      .map((word) => word[0].toUpperCase() + word.substring(1))
+      .join(' ');
 }

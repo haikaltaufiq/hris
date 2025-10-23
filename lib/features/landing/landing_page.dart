@@ -1,5 +1,6 @@
 // landing_page.dart
 import 'package:flutter/material.dart';
+import 'package:hr/features/landing/widgets/bg.dart';
 import 'package:hr/features/landing/widgets/content_landing.dart';
 import 'package:hr/features/landing/widgets/footer_landing.dart';
 import 'package:hr/features/landing/widgets/navbar_landing.dart';
@@ -19,7 +20,6 @@ class _LandingPageState extends State<LandingPage> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
-    // Inisialisasi GlobalKeys untuk setiap section
     _sectionKeys = {
       'home': GlobalKey(),
       'about': GlobalKey(),
@@ -38,29 +38,36 @@ class _LandingPageState extends State<LandingPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color(0xFFF7F7F7),
-      body: Column(
+      body: Stack(
         children: [
-          // Fixed Navbar
-          LandingNavbar(
-            scrollController: _scrollController,
-            sectionKeys: _sectionKeys,
+          // Background layer
+          Positioned.fill(
+            child: LandingBackground(),
           ),
 
-          // Scrollable Content
-          Expanded(
-            child: SingleChildScrollView(
-              controller: _scrollController,
-              child: Column(
-                children: [
-                  LandingContent(
-                    sectionKeys: _sectionKeys,
-                  ),
-                  LandingFooter(
-                    sectionKeys: _sectionKeys,
-                  ),
-                ],
+          // Content layer
+          Column(
+            children: [
+              LandingNavbar(
+                scrollController: _scrollController,
+                sectionKeys: _sectionKeys,
               ),
-            ),
+              Expanded(
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  child: Column(
+                    children: [
+                      LandingContent(
+                        sectionKeys: _sectionKeys,
+                      ),
+                      LandingFooter(
+                        sectionKeys: _sectionKeys,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

@@ -7,7 +7,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
-import 'package:hr/features/karyawan/karyawan_form/karyawan_form_edit.dart';
+import 'package:hr/routes/app_routes.dart';
 
 import 'package:provider/provider.dart';
 
@@ -38,7 +38,7 @@ class KaryawanTabelWeb extends StatelessWidget {
             "Email",
             "Role",
             "Position",
-            "Departemen",
+            "Department",
             "Daily Salary",
             "Gender",
             "Marriage Status",
@@ -99,13 +99,12 @@ class KaryawanTabelWeb extends StatelessWidget {
           ),
         );
       },
-      onEdit: (actualRowIndex) {
+      onEdit: (actualRowIndex) async {
         final user = users[actualRowIndex];
-        Navigator.push(
+        await Navigator.pushNamed(
           context,
-          MaterialPageRoute(
-            builder: (_) => KaryawanFormEdit(user: user),
-          ),
+          AppRoutes.karyawanEditForm,
+          arguments: user,
         );
       },
       onDelete: (actualRowIndex) async {

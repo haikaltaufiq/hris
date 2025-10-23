@@ -307,7 +307,7 @@ class _HoverCardState extends State<_HoverCard> {
             : Matrix4.identity(),
         padding: widget.padding,
         decoration: BoxDecoration(
-          color: Theme.of(context).cardColor,
+          color: widget.color,
           borderRadius: BorderRadius.circular(widget.borderRadius),
           boxShadow: [
             BoxShadow(

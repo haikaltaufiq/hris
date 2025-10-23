@@ -115,6 +115,30 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       initialDate: DateTime.now(),
       firstDate: DateTime(2000),
       lastDate: DateTime(2101),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: const Color(0xFF1F1F1F), // header & tanggal terpilih
+              onPrimary: Colors.white, // teks tanggal terpilih
+              onSurface: AppColors.hitam, // teks hari/bulan
+              secondary: AppColors.yellow, // highlight hover
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                foregroundColor: AppColors.hitam, // tombol OK & CANCEL
+              ),
+            ),
+            textTheme: GoogleFonts.poppinsTextTheme(
+              Theme.of(context).textTheme.apply(
+                    bodyColor: AppColors.hitam,
+                    displayColor: AppColors.hitam,
+                  ),
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
     if (pickedDate == null || !mounted) return;
@@ -123,6 +147,35 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     final pickedTime = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.now(),
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: true,
+          ),
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: const Color(0xFF1F1F1F),
+                onPrimary: Colors.white,
+                onSurface: AppColors.hitam,
+                secondary: AppColors.yellow,
+              ),
+              textButtonTheme: TextButtonThemeData(
+                style: TextButton.styleFrom(
+                  foregroundColor: AppColors.hitam,
+                ),
+              ),
+              textTheme: GoogleFonts.poppinsTextTheme(
+                Theme.of(context).textTheme.apply(
+                      bodyColor: AppColors.hitam,
+                      displayColor: AppColors.hitam,
+                    ),
+              ),
+            ),
+            child: child!,
+          ),
+        );
+      },
     );
 
     if (pickedTime == null) return;

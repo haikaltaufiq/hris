@@ -493,13 +493,19 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
           onEnter: (_) => setState(() {}),
           onExit: (_) => setState(() {}),
           child: InkWell(
-            onTap: widget.isCollapsed
-                ? null
-                : () {
-                    setState(() {
-                      _expandedDropdowns[index] = !isExpanded;
-                    });
-                  },
+            onTap: () {
+              if (widget.isCollapsed) {
+                // buka sidebar & expand dropdown
+                widget.onItemTapped(index); // pastikan ini buka sidebar
+                setState(() {
+                  _expandedDropdowns[index] = true;
+                });
+              } else {
+                setState(() {
+                  _expandedDropdowns[index] = !isExpanded;
+                });
+              }
+            },
             borderRadius: BorderRadius.circular(12),
             splashColor: AppColors.putih.withOpacity(0.1),
             highlightColor: Colors.transparent,
@@ -513,39 +519,45 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Row(
-                children: [
-                  FaIcon(
-                    item.icon,
-                    color: AppColors.putih.withOpacity(0.7),
-                    size: 18,
-                  ),
-                  if (!widget.isCollapsed) ...[
-                    const SizedBox(width: AppSizes.paddingM),
-                    Expanded(
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Text(
-                          item.label,
-                          style: GoogleFonts.poppins(
-                            color: AppColors.putih.withOpacity(0.7),
-                            fontSize: 14,
+              child: widget.isCollapsed
+                  ? Center(
+                      child: FaIcon(
+                        item.icon,
+                        color: AppColors.putih.withOpacity(0.7),
+                        size: 18,
+                      ),
+                    )
+                  : Row(
+                      children: [
+                        FaIcon(
+                          item.icon,
+                          color: AppColors.putih.withOpacity(0.7),
+                          size: 18,
+                        ),
+                        const SizedBox(width: AppSizes.paddingM),
+                        Expanded(
+                          child: FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: Text(
+                              item.label,
+                              style: GoogleFonts.poppins(
+                                color: AppColors.putih.withOpacity(0.7),
+                                fontSize: 14,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                        AnimatedRotation(
+                          turns: isExpanded ? 0.25 : 0,
+                          duration: const Duration(milliseconds: 200),
+                          child: Icon(
+                            Icons.keyboard_arrow_right,
+                            color: AppColors.putih.withOpacity(0.7),
+                            size: 20,
+                          ),
+                        ),
+                      ],
                     ),
-                    AnimatedRotation(
-                      turns: isExpanded ? 0.25 : 0,
-                      duration: const Duration(milliseconds: 200),
-                      child: Icon(
-                        Icons.keyboard_arrow_right,
-                        color: AppColors.putih.withOpacity(0.7),
-                        size: 20,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
             ),
           ),
         ),
@@ -668,7 +680,8 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                       if (!confirmed) return;
 
                       final prefs = await SharedPreferences.getInstance();
-                      final userId = prefs.getInt('user_id'); // simpan dulu sebelum dihapus
+                      final userId = prefs
+                          .getInt('user_id'); // simpan dulu sebelum dihapus
                       final token = prefs.getString('token');
 
                       // hapus token FCM loakl
@@ -678,7 +691,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       // panggil API logout auth
                       if (token != null) {
-                          final result = await AuthService().logout();
+                        final result = await AuthService().logout();
                         debugPrint("Logout result: $result");
                       }
 
