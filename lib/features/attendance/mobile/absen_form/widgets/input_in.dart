@@ -15,6 +15,7 @@ import 'package:hr/core/helpers/video_file_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/location_service.dart';
+// import 'package:hr/data/services/location_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:latlong2/latlong.dart';
@@ -42,7 +43,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
   static const int maxSeconds = 15;
   Timer? _timer;
   int _elapsed = 0;
-
+  Timer? _locationTimer;
   @override
   void initState() {
     super.initState();
@@ -51,13 +52,43 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       vsync: this,
       duration: const Duration(seconds: maxSeconds),
     );
-
+    _startLocationUpdates(); // ganti getCurrentPosition() langsung
     // Auto set tanggal & jam dari device
     final now = DateTime.now();
     _tanggalController.text =
         "${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}";
     _jamMulaiController.text =
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
+  }
+
+  void _startLocationUpdates() async {
+    // request lokasi pertama kali
+    await _fetchLocation();
+
+    // start periodic fetch tiap 3 detik
+    _locationTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
+      await _fetchLocation();
+    });
+  }
+
+  Future<void> _fetchLocation() async {
+    final position = await LocationService.getCurrentPosition();
+
+    if (!mounted) return;
+
+    if (position == null) {
+      _lokasiController.text = "";
+      NotificationHelper.showTopNotification(
+        context,
+        "GPS mati atau izin ditolak",
+        isSuccess: false,
+      );
+      return;
+    }
+
+    setState(() {
+      _lokasiController.text = "${position.latitude}, ${position.longitude}";
+    });
   }
 
   Future<void> _initCamera() async {
@@ -68,6 +99,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
 
   @override
   void dispose() {
+    _locationTimer?.cancel();
     _tanggalController.dispose();
     _jamMulaiController.dispose();
     _timer?.cancel();
@@ -199,91 +231,91 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(
-                        child: Container(
-                          height: 45,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                AppColors.secondary.withOpacity(0.8),
-                                AppColors.secondary,
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.secondary.withOpacity(0.3),
-                                blurRadius: 8,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Material(
-                            color: Colors.transparent,
-                            child: InkWell(
-                              onTap: () async {
-                                showDialog(
-                                  context: context,
-                                  barrierDismissible: false,
-                                  builder: (context) => Center(
-                                    child: CircularProgressIndicator(
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
-                                    ),
-                                  ),
-                                );
+                      // Expanded(
+                      //   child: Container(
+                      //     height: 45,
+                      //     decoration: BoxDecoration(
+                      //       gradient: LinearGradient(
+                      //         colors: [
+                      //           AppColors.secondary.withOpacity(0.8),
+                      //           AppColors.secondary,
+                      //         ],
+                      //       ),
+                      //       borderRadius: BorderRadius.circular(12),
+                      //       boxShadow: [
+                      //         BoxShadow(
+                      //           color: AppColors.secondary.withOpacity(0.3),
+                      //           blurRadius: 8,
+                      //           offset: const Offset(0, 4),
+                      //         ),
+                      //       ],
+                      //     ),
+                      //     child: Material(
+                      //       color: Colors.transparent,
+                      //       child: InkWell(
+                      //         onTap: () async {
+                      //           showDialog(
+                      //             context: context,
+                      //             barrierDismissible: false,
+                      //             builder: (context) => Center(
+                      //               child: CircularProgressIndicator(
+                      //                 valueColor: AlwaysStoppedAnimation<Color>(
+                      //                     Colors.white),
+                      //               ),
+                      //             ),
+                      //           );
 
-                                final position =
-                                    await LocationService.getCurrentPosition();
-                                Navigator.pop(context);
+                      //           final position =
+                      //               await LocationService.getCurrentPosition();
+                      //           Navigator.pop(context);
 
-                                if (!mounted) return;
+                      //           if (!mounted) return;
 
-                                if (position == null) {
-                                  NotificationHelper.showTopNotification(
-                                    context,
-                                    "GPS mati atau izin ditolak",
-                                    isSuccess: false,
-                                  );
-                                  return;
-                                }
+                      //           if (position == null) {
+                      //             NotificationHelper.showTopNotification(
+                      //               context,
+                      //               "GPS mati atau izin ditolak",
+                      //               isSuccess: false,
+                      //             );
+                      //             return;
+                      //           }
 
-                                setState(() {
-                                  _lokasiController.text =
-                                      "${position.latitude}, ${position.longitude}";
-                                });
+                      //           setState(() {
+                      //             _lokasiController.text =
+                      //                 "${position.latitude}, ${position.longitude}";
+                      //           });
 
-                                HapticFeedback.lightImpact();
+                      //           HapticFeedback.lightImpact();
 
-                                NotificationHelper.showTopNotification(
-                                  context,
-                                  "Lokasi berhasil didapatkan",
-                                  isSuccess: true,
-                                );
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.my_location,
-                                      color: AppColors.putih, size: 18),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    context.isIndonesian
-                                        ? "Ambil Lokasi"
-                                        : "Get Location",
-                                    style: GoogleFonts.poppins(
-                                      color: AppColors.putih,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
+                      //           NotificationHelper.showTopNotification(
+                      //             context,
+                      //             "Lokasi berhasil didapatkan",
+                      //             isSuccess: true,
+                      //           );
+                      //         },
+                      //         borderRadius: BorderRadius.circular(12),
+                      //         child: Row(
+                      //           mainAxisAlignment: MainAxisAlignment.center,
+                      //           children: [
+                      //             Icon(Icons.my_location,
+                      //                 color: AppColors.putih, size: 18),
+                      //             const SizedBox(width: 8),
+                      //             Text(
+                      //               context.isIndonesian
+                      //                   ? "Ambil Lokasi"
+                      //                   : "Get Location",
+                      //               style: GoogleFonts.poppins(
+                      //                 color: AppColors.putih,
+                      //                 fontSize: 13,
+                      //                 fontWeight: FontWeight.w600,
+                      //               ),
+                      //             ),
+                      //           ],
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Container(
@@ -778,6 +810,10 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
   }
 
   Future<void> _submitCheckIn() async {
+    // stop location updates saat submit
+    _locationTimer?.cancel();
+    _locationTimer = null;
+
     if (_lastVideo == null) {
       if (!mounted) return;
       NotificationHelper.showTopNotification(
