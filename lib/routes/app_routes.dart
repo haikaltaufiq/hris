@@ -5,6 +5,7 @@ import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/data/models/tugas_model.dart';
+import 'package:hr/data/models/user_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
@@ -18,6 +19,7 @@ import 'package:hr/features/dashboard/mobile/dashboard_page.dart';
 import 'package:hr/features/department/department_page.dart';
 import 'package:hr/features/gaji/gaji_page.dart';
 import 'package:hr/features/info_kantor/info_kantor_page.dart';
+import 'package:hr/features/karyawan/karyawan_form/karyawan_form_edit.dart';
 import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
 import 'package:hr/features/reset_device/reset_device.dart';
 import 'package:hr/on_boarding.dart';
@@ -86,6 +88,7 @@ class AppRoutes {
   static const String lemburForm = '/lembur_form';
   static const String resetDevice = '/resetDevice';
   static const String bukaAkun = '/bukaAkun';
+  static const String karyawanEditForm = '/karyawan_edit_form';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -149,6 +152,7 @@ class AppRoutes {
       lemburForm,
       resetDevice,
       bukaAkun,
+      karyawanEditForm
     ];
 
     // Jika URL dilindungi tapi belum login
@@ -232,6 +236,14 @@ class AppRoutes {
       case karyawanForm:
         return _route(
             const KaryawanForm().withMainLayout(karyawanForm), settings);
+
+      case karyawanEditForm:
+        final user = settings.arguments as UserModel;
+        return _route(
+          KaryawanFormEdit(user: user).withMainLayout(karyawanEditForm),
+          settings,
+        );
+
       case taskEdit:
         final tugas = settings.arguments as TugasModel;
         return _route(

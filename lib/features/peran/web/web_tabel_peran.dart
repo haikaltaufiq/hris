@@ -17,6 +17,13 @@ class WebTabelPeranWeb extends StatefulWidget {
   State<WebTabelPeranWeb> createState() => _WebTabelPeranWebState();
 }
 
+String formatFiturName(String value) {
+  return value
+      .split('_') // 'lihat_absensi_semua' → ['lihat','absensi','semua']
+      .map((word) => word[0].toUpperCase() + word.substring(1))
+      .join(' '); // → 'Lihat Absensi Semua'
+}
+
 class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
   void _handleView(PeranModel peran) {
     showDialog(
@@ -52,7 +59,7 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
                 ...(peran.fitur.isNotEmpty
                     ? peran.fitur.map((f) => ListTile(
                           title: Text(
-                            f.namaFitur,
+                            formatFiturName(f.namaFitur),
                             style: TextStyle(
                                 color: AppColors.putih.withOpacity(0.8)),
                           ),
