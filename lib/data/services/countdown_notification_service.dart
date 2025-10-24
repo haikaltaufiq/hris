@@ -18,7 +18,8 @@ class CountdownNotificationService {
     final totalDuration = batasWaktu.difference(DateTime.now()).inSeconds;
     int elapsed = 0;
 
-    _showCountdownNotification(tugasId, tugasJudul, totalDuration, elapsed, batasWaktu);
+    _showCountdownNotification(
+        tugasId, tugasJudul, totalDuration, elapsed, batasWaktu);
 
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       elapsed++;
@@ -30,7 +31,8 @@ class CountdownNotificationService {
       }
 
       // update tampilan countdown (termasuk overtime)
-      _showCountdownNotification(tugasId, tugasJudul, totalDuration, elapsed, batasWaktu);
+      _showCountdownNotification(
+          tugasId, tugasJudul, totalDuration, elapsed, batasWaktu);
     });
   }
 
@@ -49,7 +51,8 @@ class CountdownNotificationService {
     }
   }
 
-  Future<void> _showMilestoneNotification(int id, String title, int milestoneSeconds) async {
+  Future<void> _showMilestoneNotification(
+      int id, String title, int milestoneSeconds) async {
     String timeText;
     String emoji;
 
@@ -120,7 +123,8 @@ class CountdownNotificationService {
     final difference = batasWaktu.difference(now);
     final isOvertime = difference.isNegative;
 
-    int timeValue = isOvertime ? difference.inSeconds.abs() : difference.inSeconds;
+    int timeValue =
+        isOvertime ? difference.inSeconds.abs() : difference.inSeconds;
     final hours = (timeValue ~/ 3600).toString().padLeft(2, '0');
     final minutes = ((timeValue % 3600) ~/ 60).toString().padLeft(2, '0');
     final seconds = (timeValue % 60).toString().padLeft(2, '0');
@@ -197,7 +201,8 @@ class CountdownNotificationService {
   }
 
   String _getProgressPercentage(int total, int elapsed) {
-    final percentage = ((elapsed / total) * 100).clamp(0, 100).toStringAsFixed(0);
+    final percentage =
+        ((elapsed / total) * 100).clamp(0, 100).toStringAsFixed(0);
     return '$percentage% selesai';
   }
 
@@ -209,8 +214,11 @@ class CountdownNotificationService {
     return const Color(0xFF4CAF50).value; // Hijau
   }
 
-  void stopCountdown() {
+// Di CountdownNotificationService
+  Future<void> stopCountdown() async {
     _timer?.cancel();
-    _milestonesFired.clear();
+    _timer = null;
+    // tambahin delay mikro buat pastiin thread lama selesai
+    await Future.delayed(Duration(milliseconds: 50));
   }
 }
