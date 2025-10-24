@@ -9,6 +9,7 @@ import 'package:hr/data/services/fcm_service.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_model.dart';
+import 'package:crypto/crypto.dart';
 
 class AuthService {
   // helper ambil device info lengkap
@@ -52,6 +53,9 @@ class AuthService {
   Future<Map<String, dynamic>> login(String email, String password) async {
     final deviceInfo = await _getDeviceInfo();
 
+    // ✅ buat device_hash dari info perangkat
+    final deviceHash = _generateDeviceHash(deviceInfo);
+
     // ✅ Ambil token FCM dari FcmService
     final fcmToken = await FcmService.getToken();
 
@@ -67,13 +71,10 @@ class AuthService {
               'password': password,
               'device_id': deviceInfo["device_id"] ?? 'unknown_device',
               'device_model': deviceInfo["device_model"] ?? 'unknown_model',
-              'device_manufacturer':
-                  deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
-              'device_version':
-                  deviceInfo["device_version"] ?? 'unknown_version',
+              'device_manufacturer': deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
+              'device_version': deviceInfo["device_version"] ?? 'unknown_version',
               'platform': kIsWeb ? 'web' : 'apk',
-
-              // ✅ Tambahkan ini:
+              'device_hash': deviceHash, 
               'device_token': fcmToken,
             }),
           )
@@ -91,17 +92,14 @@ class AuthService {
         await prefs.setString('email', user.email);
         await prefs.setString('npwp', user.npwp ?? '');
         await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-        await prefs.setString(
-            'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+        await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
         await prefs.setString('jenis_kelamin', user.jenisKelamin);
         await prefs.setString('status_pernikahan', user.statusPernikahan);
-        await prefs.setDouble(
-            'gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
+        await prefs.setDouble('gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
         await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
         await prefs.setString('departemen', user.departemen.namaDepartemen);
         await prefs.setString('peran', user.peran.namaPeran);
-        await prefs.setString('fitur',
-            jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
+        await prefs.setString('fitur',jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
         // ✅ Simpan juga fcmToken agar bisa dihapus saat logout
@@ -356,5 +354,13 @@ class AuthService {
     final stored = prefs.getStringList('login_emails') ?? [];
     if (!stored.contains(email)) stored.add(email);
     await prefs.setStringList('login_emails', stored);
+  }
+
+  // buat hash unik dari kombinasi data perangkat
+  String _generateDeviceHash(Map<String, String> info) {
+    final raw = "${info['device_id']}-${info['device_model']}-${info['device_manufacturer']}-${info['device_version']}";
+    final bytes = utf8.encode(raw);
+    final hash = sha256.convert(bytes);
+    return hash.toString();
   }
 }
