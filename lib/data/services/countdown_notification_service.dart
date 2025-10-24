@@ -1,57 +1,113 @@
 // ignore_for_file: prefer_final_fields
 
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:flutter/material.dart';
+
+class _CountdownState {
+  Timer? timer;
+  Set<int> milestonesFired = {};
+  int totalSeconds = 0;
+  int elapsed = 0;
+  DateTime? batasWaktu;
+  String? title;
+}
 
 class CountdownNotificationService {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  Timer? _timer;
-  Set<int> _milestonesFired = {}; // Track milestone yang sudah dijalankan
 
   CountdownNotificationService(this.flutterLocalNotificationsPlugin);
 
-  void startCountdown(DateTime batasWaktu, String tugasJudul, int tugasId) {
-    _timer?.cancel();
-    _milestonesFired.clear();
+  // central store: one state per tugasId
+  static final Map<int, _CountdownState> _states = {};
 
-    final totalDuration = batasWaktu.difference(DateTime.now()).inSeconds;
-    int elapsed = 0;
+  /// Start or restart countdown for a specific tugasId.
+  /// This will cancel any existing countdown for the same tugasId first.
+  Future<void> startCountdown(
+      DateTime batasWaktu, String tugasJudul, int tugasId) async {
+    // cancel existing for this tugasId (if any)
+    await stopCountdown(tugasId: tugasId);
 
-    _showCountdownNotification(
-        tugasId, tugasJudul, totalDuration, elapsed, batasWaktu);
+    final state = _CountdownState()
+      ..batasWaktu = batasWaktu
+      ..title = tugasJudul;
 
-    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      elapsed++;
-      final remaining = batasWaktu.difference(DateTime.now());
+    final now = DateTime.now();
+    final total = batasWaktu.difference(now).inSeconds;
+    state.totalSeconds = total > 0 ? total : 0;
+    state.elapsed = 0;
+    _states[tugasId] = state;
 
-      if (!remaining.isNegative) {
-        final remainingSeconds = remaining.inSeconds;
-        _checkMilestone(tugasId, tugasJudul, remainingSeconds);
+    // ensure any existing notification with same id removed before showing new ongoing notif
+    try {
+      await flutterLocalNotificationsPlugin.cancel(tugasId);
+    } catch (_) {}
+
+    // show first notification immediately
+    await _showCountdownNotificationInternal(tugasId, state);
+
+    state.timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      // if state removed externally stop
+      final s = _states[tugasId];
+      if (s == null) {
+        timer.cancel();
+        return;
       }
 
-      // update tampilan countdown (termasuk overtime)
-      _showCountdownNotification(
-          tugasId, tugasJudul, totalDuration, elapsed, batasWaktu);
+      s.elapsed++;
+      final remaining = s.batasWaktu!.difference(DateTime.now());
+      final remainingSeconds =
+          remaining.isNegative ? -remaining.inSeconds : remaining.inSeconds;
+
+      // milestone check only when not overtime (or keep as before)
+      if (!remaining.isNegative) {
+        _checkMilestoneInternal(tugasId, s, remainingSeconds);
+      }
+
+      await _showCountdownNotificationInternal(tugasId, s);
     });
   }
 
-  void _checkMilestone(int id, String title, int remainingSeconds) {
-    // Milestone: 30 menit, 10 menit, 5 menit, 1 menit
-    final milestones = [1800, 600, 300, 60]; // dalam detik
+  /// Stop countdown for a specific tugasId.
+  /// If tugasId == null -> stop ALL countdowns.
+  Future<void> stopCountdown({int? tugasId}) async {
+    if (tugasId == null) {
+      // stop all
+      for (final key in _states.keys.toList()) {
+        final s = _states.remove(key);
+        s?.timer?.cancel();
+        try {
+          await flutterLocalNotificationsPlugin.cancel(key);
+        } catch (_) {}
+      }
+      return;
+    }
 
-    for (var milestone in milestones) {
-      if (remainingSeconds <= milestone &&
-          remainingSeconds > milestone - 5 &&
-          !_milestonesFired.contains(milestone)) {
-        _milestonesFired.add(milestone);
-        _showMilestoneNotification(id + 1000, title, milestone);
+    final s = _states.remove(tugasId);
+    s?.timer?.cancel();
+    try {
+      await flutterLocalNotificationsPlugin.cancel(tugasId);
+    } catch (_) {}
+    // small delay to let any running callbacks finish
+    await Future.delayed(const Duration(milliseconds: 50));
+  }
+
+  void _checkMilestoneInternal(
+      int tugasId, _CountdownState state, int remainingSeconds) {
+    final milestones = [1800, 600, 300, 60];
+    for (var m in milestones) {
+      if (remainingSeconds <= m &&
+          remainingSeconds > m - 5 &&
+          !state.milestonesFired.contains(m)) {
+        state.milestonesFired.add(m);
+        _showMilestoneNotificationInternal(
+            tugasId + 1000, state.title ?? 'Tugas', m);
         break;
       }
     }
   }
 
-  Future<void> _showMilestoneNotification(
+  Future<void> _showMilestoneNotificationInternal(
       int id, String title, int milestoneSeconds) async {
     String timeText;
     String emoji;
@@ -85,14 +141,13 @@ class CountdownNotificationService {
       priority: Priority.high,
       playSound: true,
       enableVibration: true,
-      autoCancel: true, // milestone bisa digeser (boleh dihapus)
+      autoCancel: true,
       styleInformation: BigTextStyleInformation(
-        'Tinggal $timeText lagi untuk menyelesaikan tugas ini! Segera selesaikan ya! 💪',
+        'Tinggal $timeText lagi untuk menyelesaikan tugas ini! Segera selesaikan ya!',
         htmlFormatBigText: true,
         contentTitle: '$emoji Peringatan: $title',
         htmlFormatContentTitle: true,
       ),
-      color: Color(_getMilestoneColor(milestoneSeconds)),
     );
 
     final notifDetails = NotificationDetails(android: androidDetails);
@@ -105,22 +160,10 @@ class CountdownNotificationService {
     );
   }
 
-  int _getMilestoneColor(int seconds) {
-    if (seconds <= 60) return const Color(0xFFFF0000).value; // Merah
-    if (seconds <= 300) return const Color(0xFFFF6B00).value; // Orange
-    if (seconds <= 600) return const Color(0xFFFFAA00).value; // Orange muda
-    return const Color(0xFF2196F3).value; // Biru
-  }
-
-  Future<void> _showCountdownNotification(
-    int id,
-    String title,
-    int totalSeconds,
-    int elapsedSeconds,
-    DateTime batasWaktu,
-  ) async {
+  Future<void> _showCountdownNotificationInternal(
+      int id, _CountdownState state) async {
     final now = DateTime.now();
-    final difference = batasWaktu.difference(now);
+    final difference = state.batasWaktu!.difference(now);
     final isOvertime = difference.isNegative;
 
     int timeValue =
@@ -143,7 +186,23 @@ class CountdownNotificationService {
       urgencyText = _getUrgencyText(timeValue);
     }
 
+    // warna progress bar sesuai status
+    Color color;
+    if (isOvertime) {
+      color = const Color(0xFFFF0000); // merah
+    } else if (timeValue <= 300) {
+      color = const Color(0xFFFF0000); // merah hampir habis
+    } else if (timeValue <= 900) {
+      color = const Color(0xFFFFA500); // oranye sedang
+    } else {
+      color = const Color(0xFF00C853); // hijau masih lama
+    }
+
     final body = '$emoji Sisa waktu: $timeText\n$urgencyText';
+
+    final totalSeconds = state.totalSeconds;
+    final elapsed =
+        state.elapsed.clamp(0, totalSeconds == 0 ? 0 : state.elapsed);
 
     final androidDetails = AndroidNotificationDetails(
       'countdown_channel',
@@ -151,34 +210,33 @@ class CountdownNotificationService {
       channelDescription: 'Notifikasi countdown untuk tugas',
       importance: Importance.max,
       priority: Priority.high,
-      ongoing: true, // ✅ Tidak bisa digeser/hapus manual
-      autoCancel: false, // ✅ Tetap muncul sampai tugas selesai
+      ongoing: true,
+      autoCancel: false,
       onlyAlertOnce: true,
-      showProgress: !isOvertime,
-      maxProgress: totalSeconds,
-      progress: isOvertime ? 0 : elapsedSeconds.clamp(0, totalSeconds),
+      showProgress: !isOvertime && totalSeconds > 0,
+      maxProgress: totalSeconds > 0 ? totalSeconds : 0,
+      progress: (!isOvertime && totalSeconds > 0) ? elapsed : 0,
+      color: color,
+      colorized: true,
       showWhen: false,
       enableVibration: false,
       playSound: false,
       styleInformation: BigTextStyleInformation(
         body,
         htmlFormatBigText: true,
-        contentTitle: '📋 $title',
+        contentTitle: '📋 ${state.title}',
         htmlFormatContentTitle: true,
         summaryText: isOvertime
             ? 'TERLAMBAT'
-            : _getProgressPercentage(totalSeconds, elapsedSeconds),
+            : _getProgressPercentage(totalSeconds, elapsed),
       ),
-      color: isOvertime
-          ? const Color(0xFFFF0000)
-          : Color(_getProgressColor(totalSeconds, elapsedSeconds)),
     );
 
     final notifDetails = NotificationDetails(android: androidDetails);
 
     await flutterLocalNotificationsPlugin.show(
       id,
-      title,
+      state.title,
       body,
       notifDetails,
     );
@@ -201,24 +259,9 @@ class CountdownNotificationService {
   }
 
   String _getProgressPercentage(int total, int elapsed) {
+    if (total <= 0) return '0% Waktu Berjalan';
     final percentage =
         ((elapsed / total) * 100).clamp(0, 100).toStringAsFixed(0);
-    return '$percentage% selesai';
-  }
-
-  int _getProgressColor(int total, int elapsed) {
-    final remaining = total - elapsed;
-    if (remaining <= 60) return const Color(0xFFFF0000).value; // Merah
-    if (remaining <= 300) return const Color(0xFFFF6B00).value; // Orange
-    if (remaining <= 1800) return const Color(0xFFFFAA00).value; // Orange muda
-    return const Color(0xFF4CAF50).value; // Hijau
-  }
-
-// Di CountdownNotificationService
-  Future<void> stopCountdown() async {
-    _timer?.cancel();
-    _timer = null;
-    // tambahin delay mikro buat pastiin thread lama selesai
-    await Future.delayed(Duration(milliseconds: 50));
+    return '$percentage% Waktu Berjalan';
   }
 }

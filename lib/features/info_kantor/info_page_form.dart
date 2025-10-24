@@ -82,7 +82,6 @@ class _InfoPageState extends State<InfoPage>
         latitudeController.text = kantor.lat.toString();
         longitudeController.text = kantor.lng.toString();
         radiusController.text = kantor.radiusMeter.toString();
-        jatahCutiController.text = kantor.jatahCutiTahunan.toString();
 
         // Parse jam masuk untuk set initial values
         if (kantor.jamMasuk.isNotEmpty && kantor.jamMasuk.contains(':')) {
@@ -449,7 +448,6 @@ class _InfoPageState extends State<InfoPage>
         lat: double.tryParse(latitudeController.text) ?? 0,
         lng: double.tryParse(longitudeController.text) ?? 0,
         radiusMeter: int.tryParse(radiusController.text) ?? 0,
-        jatahCutiTahunan: int.tryParse(jatahCutiController.text) ?? 0,
       );
 
       try {
@@ -683,22 +681,22 @@ class _InfoPageState extends State<InfoPage>
 
           const SizedBox(height: 14),
 
-          _buildFormField(
-            label: context.isIndonesian
-                ? "Jatah Cuti Tahunan (hari)"
-                : 'Annual Leave',
-            controller: jatahCutiController,
-            icon: Icons.date_range,
-            keyboardType: TextInputType.number,
-            validator: (v) {
-              if (v == null || v.isEmpty) return "Wajib diisi";
-              final value = int.tryParse(v);
-              if (value == null || value <= 0) {
-                return "Harus berupa angka positif";
-              }
-              return null;
-            },
-          ),
+          // _buildFormField(
+          //   label: context.isIndonesian
+          //       ? "Jatah Cuti Tahunan (hari)"
+          //       : 'Annual Leave',
+          //   controller: jatahCutiController,
+          //   icon: Icons.date_range,
+          //   keyboardType: TextInputType.number,
+          //   validator: (v) {
+          //     if (v == null || v.isEmpty) return "Wajib diisi";
+          //     final value = int.tryParse(v);
+          //     if (value == null || value <= 0) {
+          //       return "Harus berupa angka positif";
+          //     }
+          //     return null;
+          //   },
+          // ),
 
           const SizedBox(height: 14),
 

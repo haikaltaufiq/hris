@@ -6,7 +6,7 @@ class KantorModel {
   final double lat;
   final double lng;
   final int radiusMeter;
-  final int jatahCutiTahunan;
+  // final int jatahCutiTahunan;
   KantorModel({
     this.id,
     required this.jamMasuk,
@@ -15,19 +15,19 @@ class KantorModel {
     required this.lat,
     required this.lng,
     required this.radiusMeter,
-    required this.jatahCutiTahunan,
+    // required this.jatahCutiTahunan,
   });
 
   factory KantorModel.fromJson(Map<String, dynamic> json) {
     return KantorModel(
-        id: json['id'],
-        jamMasuk: json['jam_masuk'],
-        jamKeluar: json['jam_keluar'],
-        minimalKeterlambatan: json['minimal_keterlambatan'],
-        lat: double.parse(json['lat'].toString()),
-        lng: double.parse(json['lng'].toString()),
-        radiusMeter: int.parse(json['radius_meter'].toString()),
-        jatahCutiTahunan: int.parse(json['jatah_cuti_tahunan'].toString()));
+      id: json['id'],
+      jamMasuk: json['jam_masuk'],
+      jamKeluar: json['jam_keluar'],
+      minimalKeterlambatan: json['minimal_keterlambatan'],
+      lat: double.parse(json['lat'].toString()),
+      lng: double.parse(json['lng'].toString()),
+      radiusMeter: int.parse(json['radius_meter'].toString()),
+    );
   }
 
   Map<String, dynamic> toJson() {
@@ -38,7 +38,7 @@ class KantorModel {
       "lat": lat,
       "lng": lng,
       "radius_meter": radiusMeter,
-      "jatah_cuti_tahunan": jatahCutiTahunan,
+      // "jatah_cuti_tahunan": jatahCutiTahunan,
     };
   }
 }

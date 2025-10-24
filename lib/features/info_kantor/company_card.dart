@@ -262,12 +262,12 @@ class _CompanyCardState extends State<CompanyCard> {
             Expanded(
               child: Column(
                 children: [
-                  _buildInfoItem(
-                    icon: Icons.calendar_today_outlined,
-                    label:
-                        context.isIndonesian ? 'Cuti Tahunan' : 'Annual Leave',
-                    value: '${kantor!.jatahCutiTahunan} hari',
-                  ),
+                  // _buildInfoItem(
+                  //   icon: Icons.calendar_today_outlined,
+                  //   label:
+                  //       context.isIndonesian ? 'Cuti Tahunan' : 'Annual Leave',
+                  //   value: '${kantor!.jatahCutiTahunan} hari',
+                  // ),
                   const SizedBox(height: 20),
                   _buildInfoItem(
                     icon: Icons.location_on_outlined,

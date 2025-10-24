@@ -83,7 +83,7 @@ class _CutiInputState extends State<CutiInput> {
           CustomDropDownField(
             label: context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
             hint: '',
-            items: ['Tahunan', 'Sakit', 'Izin'],
+            items: ['Sakit', 'Izin'],
             labelStyle: labelStyle,
             textStyle: textStyle,
             dropdownColor: AppColors.secondary,

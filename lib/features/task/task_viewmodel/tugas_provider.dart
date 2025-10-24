@@ -195,7 +195,18 @@ class TugasProvider extends ChangeNotifier {
         note: note,
         radius: radius.toString(),
       );
-      if (result['success'] == true) await fetchTugas(forceRefresh: true);
+      if (result['success'] == true) {
+        // update cache lokal segera agar tidak terjadi race condition
+        try {
+          final box = Hive.box('tugas');
+          await box.put('batas_penugasan_$id', batasPenugasan);
+          await box.put('update_needed_$id', true);
+        } catch (e) {
+          debugPrint('Gagal update local Hive setelah updateTugas: $e');
+        }
+
+        await fetchTugas(forceRefresh: true);
+      }
       return result;
     } catch (e) {
       debugPrint("Error update tugas: $e");

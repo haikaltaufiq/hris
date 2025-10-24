@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
 import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
@@ -11,11 +12,13 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
+import 'package:hr/data/services/countdown_notification_service.dart';
 import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/info_kantor/location_dialog.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:hr/main.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -394,6 +397,29 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       );
 
       if (isSuccess && mounted) {
+        // 1) Update cache lokal segera supaya countdown baca data baru
+        try {
+          final box = Hive.box('tugas');
+          await box.put('batas_penugasan_${widget.tugas.id}', batasFormatted);
+          // set flag untuk background worker bila perlu
+          await box.put('update_needed_${widget.tugas.id}', true);
+        } catch (e) {
+          // log, tapi jangan ganggu alur success
+          print('Gagal update Hive batas_penugasan: $e');
+        }
+
+        // 2) Stop countdown lama dan start countdown baru
+        try {
+          final countdownSvc =
+              CountdownNotificationService(flutterLocalNotificationsPlugin);
+          await countdownSvc.stopCountdown();
+          final batasDate = DateTime.parse(batasFormatted);
+          countdownSvc.startCountdown(
+              batasDate, _judulTugasController.text.trim(), widget.tugas.id);
+        } catch (e) {
+          print('Gagal restart countdown: $e');
+        }
+
         Navigator.pop(context, true);
       }
     } catch (e) {
