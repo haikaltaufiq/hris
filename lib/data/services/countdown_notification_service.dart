@@ -56,8 +56,7 @@ class CountdownNotificationService {
 
       s.elapsed++;
       final remaining = s.batasWaktu!.difference(DateTime.now());
-      final remainingSeconds =
-          remaining.isNegative ? -remaining.inSeconds : remaining.inSeconds;
+      final remainingSeconds = remaining.isNegative ? -remaining.inSeconds : remaining.inSeconds;
 
       // milestone check only when not overtime (or keep as before)
       if (!remaining.isNegative) {
@@ -161,13 +160,12 @@ class CountdownNotificationService {
   }
 
   Future<void> _showCountdownNotificationInternal(
-      int id, _CountdownState state) async {
+    int id, _CountdownState state) async {
     final now = DateTime.now();
     final difference = state.batasWaktu!.difference(now);
     final isOvertime = difference.isNegative;
 
-    int timeValue =
-        isOvertime ? difference.inSeconds.abs() : difference.inSeconds;
+    int timeValue = isOvertime ? difference.inSeconds.abs() : difference.inSeconds;
     final hours = (timeValue ~/ 3600).toString().padLeft(2, '0');
     final minutes = ((timeValue % 3600) ~/ 60).toString().padLeft(2, '0');
     final seconds = (timeValue % 60).toString().padLeft(2, '0');
@@ -201,8 +199,7 @@ class CountdownNotificationService {
     final body = '$emoji Sisa waktu: $timeText\n$urgencyText';
 
     final totalSeconds = state.totalSeconds;
-    final elapsed =
-        state.elapsed.clamp(0, totalSeconds == 0 ? 0 : state.elapsed);
+    final elapsed = state.elapsed.clamp(0, totalSeconds == 0 ? 0 : state.elapsed);
 
     final androidDetails = AndroidNotificationDetails(
       'countdown_channel',
