@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/navbar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -38,11 +37,6 @@ class _MainLayoutState extends State<MainLayout>
   final GlobalKey _menuKey = GlobalKey();
   OverlayEntry? _dropdownOverlay;
   static List<String>? _cachedFitur;
-
-  // Dropdown notifikasi
-  final GlobalKey _notifKey = GlobalKey();
-  OverlayEntry? _notifOverlay;
-  bool _showNotif = false;
 
   // Map route ke index
   static const Map<String, int> _routeToIndex = {
@@ -345,111 +339,6 @@ class _MainLayoutState extends State<MainLayout>
     }
   }
 
-  void _toggleNotifDropdown() {
-    if (_showNotif) {
-      _hideNotifDropdown();
-    } else {
-      _showNotifMenu();
-    }
-  }
-
-  void _showNotifMenu() {
-    if (_notifOverlay != null) return;
-
-    final RenderBox? renderBox =
-        _notifKey.currentContext?.findRenderObject() as RenderBox?;
-    if (renderBox == null) return;
-
-    final Offset offset = renderBox.localToGlobal(Offset.zero);
-
-    _notifOverlay = OverlayEntry(
-      builder: (context) => Stack(
-        children: [
-          GestureDetector(
-            onTap: _hideNotifDropdown,
-            behavior: HitTestBehavior.translucent,
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height,
-              color: Colors.transparent,
-            ),
-          ),
-          Positioned(
-            top: offset.dy + renderBox.size.height + 8,
-            right: MediaQuery.of(context).size.width *
-                0.06, // posisinya sedikit kiri dari profile
-            child: Material(
-              color: Colors.transparent,
-              child: FadeTransition(
-                opacity: _fadeAnimation,
-                child: SizeTransition(
-                  sizeFactor: _sizeAnimation,
-                  axisAlignment: -1.0,
-                  child: Container(
-                    width: 180,
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.08),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                      border: Border.all(
-                        color: Colors.grey.withOpacity(0.1),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Center(
-                        child: Text(
-                          context.isIndonesian
-                              ? "Tidak ada notifikasi"
-                              : "No notification",
-                          style: TextStyle(
-                            color: AppColors.putih,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    Overlay.of(context).insert(_notifOverlay!);
-    _controller.forward(from: 0);
-    setState(() => _showNotif = true);
-  }
-
-  void _hideNotifDropdown() {
-    if (_notifOverlay == null || !_showNotif) return;
-    setState(() => _showNotif = false);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _controller.reverse().then((_) => _removeNotifOverlay());
-    });
-  }
-
-  void _removeNotifOverlay() {
-    if (_notifOverlay != null) {
-      _notifOverlay!.remove();
-      _notifOverlay = null;
-    }
-  }
-
   @override
   void didUpdateWidget(MainLayout oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -655,23 +544,6 @@ class _MainLayoutState extends State<MainLayout>
   Widget _buildUserActions() {
     return Row(
       children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            key: _notifKey,
-            onTap: _toggleNotifDropdown,
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              child: FaIcon(
-                FontAwesomeIcons.bell,
-                color: AppColors.putih,
-                size: 25,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
         Material(
           color: Colors.transparent,
           child: InkWell(

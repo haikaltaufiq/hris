@@ -28,14 +28,11 @@ class _LoginState extends State<Login> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-
-  // 🔥 FocusNode untuk handling keyboard events
   final _emailFocusNode = FocusNode();
   final _passwordFocusNode = FocusNode();
 
   bool _isPasswordVisible = false;
   bool _isLoading = false;
-
   List<String> _savedEmails = [];
   List<String> _filteredEmails = [];
 
@@ -62,57 +59,107 @@ class _LoginState extends State<Login> {
     });
   }
 
-  // 🔥 Method untuk handle login (extracted untuk reusability)
+  /// Optimized login flow - sequential dengan loading state
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
       final email = _emailController.text.trim();
       final password = _passwordController.text;
       final auth = AuthService();
-      final result = await auth.login(email, password);
 
-      if (result['success'] == true && result['token'] != null) {
-        final token = result['token'];
-        final user = result['user'] as UserModel?;
+      try {
+        final result = await auth.login(email, password);
 
-        if (user != null) {
-          final userBox = await Hive.openBox('user');
-          await userBox.put('token', token);
-          await userBox.put('id', user.id);
-          final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
-          await FeatureAccess.setFeatures(fiturList);
-          await FeatureAccess.init();
+        if (result['success'] == true && result['token'] != null) {
+          final token = result['token'];
+          final user = result['user'] as UserModel?;
 
-          await auth.saveEmail(user.email);
+          if (user != null && context.mounted) {
+            // Load settings DULU sebelum simpan data
+            await _loadAndApplySettings(context, token);
+
+            // Baru simpan user data & features
+            await _saveUserData(token, user, auth);
+
+            if (context.mounted) {
+              NotificationHelper.showTopNotification(
+                context,
+                result['message'],
+                isSuccess: true,
+              );
+
+              // Navigate setelah SEMUA siap - theme sudah set sebelum masuk dashboard
+              Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
+            }
+          }
+        } else {
+          if (context.mounted) {
+            NotificationHelper.showTopNotification(
+              context,
+              result['message'] ?? 'Invalid email or password',
+              isSuccess: false,
+            );
+          }
         }
-
+      } catch (e) {
         if (context.mounted) {
-          await _loadAndSyncSettings(context, token);
+          NotificationHelper.showTopNotification(
+            context,
+            'Login failed: ${e.toString()}',
+            isSuccess: false,
+          );
         }
-
-        NotificationHelper.showTopNotification(
-          context,
-          result['message'],
-          isSuccess: true,
-        );
-        Navigator.pushNamed(context, AppRoutes.dashboard);
-
-        setState(() {
-          _isLoading = false;
-        });
-      } else {
-        setState(() {
-          _isLoading = false;
-        });
-        NotificationHelper.showTopNotification(
-          context,
-          result['message'] ?? 'Invalid email or password',
-          isSuccess: false,
-        );
+      } finally {
+        if (mounted) {
+          setState(() => _isLoading = false);
+        }
       }
+    }
+  }
+
+  /// Save user data ke Hive dan set features
+  Future<void> _saveUserData(
+      String token, UserModel user, AuthService auth) async {
+    final userBox = await Hive.openBox('user');
+
+    // Batch write ke Hive
+    await userBox.putAll({
+      'token': token,
+      'id': user.id,
+    });
+
+    // Set features
+    final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
+    await FeatureAccess.setFeatures(fiturList);
+    await FeatureAccess.init();
+
+    // Save email (non-blocking)
+    auth.saveEmail(user.email);
+  }
+
+  /// Load settings dan apply langsung ke provider
+  Future<void> _loadAndApplySettings(BuildContext context, String token) async {
+    try {
+      final pengaturanService = PengaturanService();
+      final pengaturan = await pengaturanService.getPengaturan(token);
+
+      final tema = pengaturan['tema'] ?? 'terang';
+      final bahasa = pengaturan['bahasa'] ?? 'indonesia';
+
+      if (context.mounted) {
+        // Apply settings secara synchronous agar langsung aktif
+        final themeProvider =
+            Provider.of<ThemeProvider>(context, listen: false);
+        final langProvider =
+            Provider.of<LanguageProvider>(context, listen: false);
+
+        themeProvider.setDarkMode(tema == 'gelap');
+        langProvider.toggleLanguage(bahasa == 'indonesia');
+      }
+    } catch (e) {
+      debugPrint('Failed to load settings: $e');
+      // Tidak perlu show error ke user, gunakan default settings
     }
   }
 
@@ -168,7 +215,6 @@ class _LoginState extends State<Login> {
   Widget _buildDesktopLayout(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
-        // Left side - Branding
         Expanded(
           child: Container(
             color: AppColors.blue,
@@ -228,8 +274,6 @@ class _LoginState extends State<Login> {
             ),
           ),
         ),
-
-        // Right side - Login Form
         Expanded(
           child: Container(
             color: Color(0xFFF7F7F7),
@@ -257,9 +301,7 @@ class _LoginState extends State<Login> {
   Widget _buildHeader(BuildContext context, {bool showLogo = true}) {
     return Column(
       children: [
-        if (showLogo) ...[
-          const SizedBox(height: 102),
-        ],
+        if (showLogo) const SizedBox(height: 102),
         Text(
           'Welcome',
           style: TextStyle(
@@ -315,18 +357,15 @@ class _LoginState extends State<Login> {
         const SizedBox(height: 8),
         Stack(
           children: [
-            // 🔥 AutofillGroup untuk Google Password Manager
             AutofillGroup(
               child: TextFormField(
                 controller: _emailController,
                 focusNode: _emailFocusNode,
                 keyboardType: TextInputType.emailAddress,
-                // 🔥 Autofill hints untuk email
                 autofillHints: const [
                   AutofillHints.email,
                   AutofillHints.username,
                 ],
-                // 🔥 Handle Enter key - pindah ke password field
                 onFieldSubmitted: (value) {
                   FocusScope.of(context).requestFocus(_passwordFocusNode);
                 },
@@ -357,9 +396,7 @@ class _LoginState extends State<Login> {
                   }
                   return null;
                 },
-                onChanged: (val) {
-                  _filterEmails(val);
-                },
+                onChanged: _filterEmails,
               ),
             ),
             if (_filteredEmails.isNotEmpty)
@@ -378,9 +415,7 @@ class _LoginState extends State<Login> {
                               title: Text(e),
                               onTap: () {
                                 _emailController.text = e;
-                                setState(() {
-                                  _filteredEmails = [];
-                                });
+                                setState(() => _filteredEmails = []);
                               },
                             ))
                         .toList(),
@@ -406,11 +441,9 @@ class _LoginState extends State<Login> {
           ),
         ),
         const SizedBox(height: 8),
-        // 🔥 Wrap dengan RawKeyboardListener untuk custom keyboard handling
         RawKeyboardListener(
           focusNode: FocusNode(),
           onKey: (RawKeyEvent event) {
-            // Handle Enter key press
             if (event is RawKeyDownEvent &&
                 event.logicalKey == LogicalKeyboardKey.enter) {
               _handleLogin();
@@ -420,13 +453,9 @@ class _LoginState extends State<Login> {
             controller: _passwordController,
             focusNode: _passwordFocusNode,
             obscureText: !_isPasswordVisible,
-            // 🔥 Autofill hints untuk password
             autofillHints: const [AutofillHints.password],
-            // 🔥 Handle Enter key - trigger login
             textInputAction: TextInputAction.done,
-            onFieldSubmitted: (value) {
-              _handleLogin();
-            },
+            onFieldSubmitted: (value) => _handleLogin(),
             decoration: InputDecoration(
               hintText: 'Enter your password',
               prefixIcon: Icon(Icons.lock_outline, color: AppColors.blue),
@@ -436,9 +465,7 @@ class _LoginState extends State<Login> {
                   color: AppColors.blue,
                 ),
                 onPressed: () {
-                  setState(() {
-                    _isPasswordVisible = !_isPasswordVisible;
-                  });
+                  setState(() => _isPasswordVisible = !_isPasswordVisible);
                 },
               ),
               border: OutlineInputBorder(
@@ -475,9 +502,7 @@ class _LoginState extends State<Login> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => ForgetPage(),
-              ),
+              MaterialPageRoute(builder: (context) => ForgetPage()),
             );
           },
           child: Text(
@@ -528,30 +553,6 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Future<void> _loadAndSyncSettings(BuildContext context, String token) async {
-    try {
-      final pengaturanService = PengaturanService();
-      final pengaturan = await pengaturanService.getPengaturan(token);
-
-      final tema = pengaturan['tema'] ?? 'terang';
-      final bahasa = pengaturan['bahasa'] ?? 'indonesia';
-
-      print(' Login - Pengaturan loaded: tema=$tema, bahasa=$bahasa');
-
-      if (context.mounted) {
-        final themeProvider =
-            Provider.of<ThemeProvider>(context, listen: false);
-        final langProvider =
-            Provider.of<LanguageProvider>(context, listen: false);
-
-        themeProvider.setDarkMode(tema == 'gelap');
-        langProvider.toggleLanguage(bahasa == 'indonesia');
-      }
-    } catch (e) {
-      print(' Login - Gagal load pengaturan: $e');
-    }
-  }
-
   Widget _buildSignUpLink(BuildContext context) {
     return Column(
       children: [
@@ -579,9 +580,13 @@ class _LoginState extends State<Login> {
                     await launchUrl(telUri);
                   } else {
                     debugPrint("Failed to open dialer");
-                    NotificationHelper.showTopNotification(
-                        context, "Can't open the phone",
-                        isSuccess: false);
+                    if (context.mounted) {
+                      NotificationHelper.showTopNotification(
+                        context,
+                        "Can't open the phone",
+                        isSuccess: false,
+                      );
+                    }
                   }
                 },
                 child: Text(
@@ -619,11 +624,13 @@ class _LoginState extends State<Login> {
                     await launchUrl(mailUri);
                   } else {
                     debugPrint("Failed to open email client");
-                    NotificationHelper.showTopNotification(
-                      context,
-                      "Can't open the email client",
-                      isSuccess: false,
-                    );
+                    if (context.mounted) {
+                      NotificationHelper.showTopNotification(
+                        context,
+                        "Can't open the email client",
+                        isSuccess: false,
+                      );
+                    }
                   }
                 },
                 child: Row(
@@ -658,9 +665,13 @@ class _LoginState extends State<Login> {
                     await launchUrl(telUri);
                   } else {
                     debugPrint("Failed to open dialer");
-                    NotificationHelper.showTopNotification(
-                        context, "Can't open the phone",
-                        isSuccess: false);
+                    if (context.mounted) {
+                      NotificationHelper.showTopNotification(
+                        context,
+                        "Can't open the phone",
+                        isSuccess: false,
+                      );
+                    }
                   }
                 },
                 child: Row(

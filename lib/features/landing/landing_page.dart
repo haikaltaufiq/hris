@@ -1,6 +1,5 @@
 // landing_page.dart
 import 'package:flutter/material.dart';
-import 'package:hr/features/landing/widgets/bg.dart';
 import 'package:hr/features/landing/widgets/content_landing.dart';
 import 'package:hr/features/landing/widgets/footer_landing.dart';
 import 'package:hr/features/landing/widgets/navbar_landing.dart';
@@ -40,10 +39,10 @@ class _LandingPageState extends State<LandingPage> {
       backgroundColor: Color(0xFFF7F7F7),
       body: Stack(
         children: [
-          // Background layer
-          Positioned.fill(
-            child: LandingBackground(),
-          ),
+          // // Background layer
+          // Positioned.fill(
+          //   child: LandingBackground(),
+          // ),
 
           // Content layer
           Column(

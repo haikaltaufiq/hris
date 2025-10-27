@@ -212,9 +212,15 @@ class _WebTabelLogState extends State<WebTabelLog> {
           children: [
             Icon(Icons.error_outline, size: 64, color: Colors.red),
             SizedBox(height: 16),
-            Text('Gagal memuat data'),
+            Text(
+              'Gagal memuat data',
+              style: TextStyle(color: AppColors.putih),
+            ),
             SizedBox(height: 8),
-            Text(errorMessage!),
+            Text(
+              errorMessage!,
+              style: TextStyle(color: AppColors.putih),
+            ),
             SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadActivityLogs,
@@ -235,9 +241,10 @@ class _WebTabelLogState extends State<WebTabelLog> {
           children: [
             Icon(Icons.history, size: 64, color: Colors.grey),
             SizedBox(height: 16),
-            Text(context.isIndonesian
-                ? 'Belum ada activity log'
-                : 'No Activity'),
+            Text(
+              context.isIndonesian ? 'Belum ada activity log' : 'No Activity',
+              style: TextStyle(color: AppColors.putih),
+            ),
           ],
         ),
       );

@@ -115,7 +115,7 @@ class ResponsiveNavBar extends StatefulWidget {
         route: AppRoutes.payroll,
       ),
       NavItemWithFeature(
-        label: isIndonesian ? 'Log Aktifitas' : "Log Activity",
+        label: isIndonesian ? 'Log Aktivitas' : "Log Activity",
         icon: FontAwesomeIcons.history,
         requiredFeature: "log_aktifitas",
         route: AppRoutes.logActivity,

@@ -863,7 +863,10 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(child: CircularProgressIndicator()),
+      builder: (context) => Center(
+          child: CircularProgressIndicator(
+        color: AppColors.putih,
+      )),
     );
 
     try {

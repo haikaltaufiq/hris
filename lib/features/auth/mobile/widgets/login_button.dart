@@ -34,18 +34,13 @@ class _LoginButtonState extends State<LoginButton> {
   bool _isHovering = false;
   bool _isPressed = false;
 
+  static final _emailRegex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
+
   Future<void> _handleLogin(BuildContext context) async {
     final email = widget.emailController.text.trim();
     final password = widget.passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
-      widget.onError("Email dan password wajib diisi");
-      return;
-    }
-    if (!_isValidEmail(email)) {
-      widget.onError("Format email tidak valid");
-      return;
-    }
+    if (!_validateInputs(email, password)) return;
 
     setState(() => _isLoading = true);
 
@@ -57,59 +52,74 @@ class _LoginButtonState extends State<LoginButton> {
         final token = result['token'];
         final user = result['user'] as UserModel?;
 
-        if (user != null) {
-          final userBox = await Hive.openBox('user');
-          await userBox.put('token', token);
-          await userBox.put('id', user.id);
+        if (user != null && context.mounted) {
+          // Load settings FIRST untuk apply theme sebelum navigate
+          await _loadAndApplySettings(context, token);
 
-          final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
-          await FeatureAccess.setFeatures(fiturList);
-          await FeatureAccess.init();
+          // Save user data after settings loaded
+          await _saveUserData(token, user, auth);
 
-          await auth.saveEmail(user.email);
-          print(' User saved to Hive: ${userBox.toMap()}');
+          if (context.mounted) {
+            NotificationHelper.showTopNotification(
+              context,
+              result['message'] ?? "Login berhasil",
+              isSuccess: true,
+            );
+            Navigator.pushReplacementNamed(context, AppRoutes.dashboardMobile);
+          }
         } else {
-          print(' UserModel null dari backend');
-        }
-
-        if (mounted) {
-          await _loadAndSyncSettings(context, token);
-        }
-
-        NotificationHelper.showTopNotification(
-          context,
-          result['message'] ?? "Login berhasil",
-          isSuccess: true,
-        );
-
-        if (mounted) {
-          Navigator.pushNamed(context, AppRoutes.dashboardMobile);
+          debugPrint('UserModel null dari backend');
+          widget.onError("Terjadi kesalahan pada data user");
         }
       } else {
-        final backendMessage = result['message'];
-
-        final errorMessage = (backendMessage == null ||
-                backendMessage.toLowerCase().contains('password') ||
-                backendMessage.toLowerCase().contains('email') ||
-                backendMessage.toLowerCase().contains('invalid credentials'))
-            ? _mapErrorMessage(backendMessage)
-            : backendMessage;
-
-        widget.onError(errorMessage);
+        _handleLoginError(result['message']);
       }
     } on FormatException {
       widget.onError("Terjadi kesalahan pada server. Coba lagi nanti.");
     } on TimeoutException {
       widget.onError("Request timeout. Periksa koneksi internet.");
-    } catch (_) {
+    } catch (e) {
+      debugPrint('Login error: $e');
       widget.onError("Check your internet connection");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  // 🔥 Method untuk load dan sync pengaturan
-  Future<void> _loadAndSyncSettings(BuildContext context, String token) async {
+  bool _validateInputs(String email, String password) {
+    if (email.isEmpty || password.isEmpty) {
+      widget.onError("Email dan password wajib diisi");
+      return false;
+    }
+    if (!_emailRegex.hasMatch(email)) {
+      widget.onError("Format email tidak valid");
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> _saveUserData(
+      String token, UserModel user, AuthService auth) async {
+    final userBox = await Hive.openBox('user');
+
+    // Batch write untuk performa lebih baik
+    await userBox.putAll({
+      'token': token,
+      'id': user.id,
+    });
+
+    // Set features
+    final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
+    await FeatureAccess.setFeatures(fiturList);
+    await FeatureAccess.init();
+
+    // Non-blocking email save
+    auth.saveEmail(user.email);
+
+    debugPrint('User saved to Hive: ${userBox.toMap()}');
+  }
+
+  Future<void> _loadAndApplySettings(BuildContext context, String token) async {
     try {
       final pengaturanService = PengaturanService();
       final pengaturan = await pengaturanService.getPengaturan(token);
@@ -117,7 +127,8 @@ class _LoginButtonState extends State<LoginButton> {
       final tema = pengaturan['tema'] ?? 'terang';
       final bahasa = pengaturan['bahasa'] ?? 'indonesia';
 
-      print('✅ Mobile Login - Pengaturan loaded: tema=$tema, bahasa=$bahasa');
+      debugPrint(
+          'Mobile Login - Pengaturan loaded: tema=$tema, bahasa=$bahasa');
 
       if (context.mounted) {
         final themeProvider =
@@ -129,44 +140,57 @@ class _LoginButtonState extends State<LoginButton> {
         langProvider.toggleLanguage(bahasa == 'indonesia');
       }
     } catch (e) {
-      print('❌ Mobile Login - Gagal load pengaturan: $e');
+      debugPrint('Mobile Login - Gagal load pengaturan: $e');
+      // Tidak perlu show error, gunakan default settings
     }
   }
 
-  bool _isValidEmail(String email) {
-    final regex = RegExp(r'^[\w\.-]+@[\w\.-]+\.\w+$');
-    return regex.hasMatch(email);
+  void _handleLoginError(String? backendMessage) {
+    final errorMessage =
+        (backendMessage == null || _isCredentialError(backendMessage))
+            ? _mapErrorMessage(backendMessage)
+            : backendMessage;
+
+    widget.onError(errorMessage);
+  }
+
+  bool _isCredentialError(String message) {
+    final lower = message.toLowerCase();
+    return lower.contains('password') ||
+        lower.contains('email') ||
+        lower.contains('invalid credentials');
   }
 
   String _mapErrorMessage(String? raw) {
     if (raw == null) return "Terjadi kesalahan";
 
     final lower = raw.toLowerCase();
-    if (lower.contains("password")) return "Email atau Password salah";
-    if (lower.contains("email")) return "Email tidak ditemukan";
-    if (lower.contains("invalid credentials")) {
+    if (lower.contains("password") || lower.contains("invalid credentials")) {
       return "Email atau Password salah";
     }
+    if (lower.contains("email")) return "Email tidak ditemukan";
+
     return "Terjadi kesalahan. Coba lagi nanti.";
   }
 
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final isNativeMobile = context.isNativeMobile;
 
     return InkWell(
       borderRadius: BorderRadius.circular(30),
       onTap: _isLoading ? null : () => _handleLogin(context),
-      onHover: (hovering) {
-        if (!context.isNativeMobile) {
-          setState(() => _isHovering = hovering);
-        }
-      },
-      onHighlightChanged: (pressed) {
-        if (context.isNativeMobile) {
-          setState(() => _isPressed = pressed);
-        }
-      },
+      onHover: !isNativeMobile
+          ? (hovering) {
+              setState(() => _isHovering = hovering);
+            }
+          : null,
+      onHighlightChanged: isNativeMobile
+          ? (pressed) {
+              setState(() => _isPressed = pressed);
+            }
+          : null,
       child: AnimatedScale(
         scale: (_isHovering || _isPressed) && !_isLoading ? 1.05 : 1.0,
         duration: const Duration(milliseconds: 200),
@@ -176,11 +200,7 @@ class _LoginButtonState extends State<LoginButton> {
           width: screenWidth * 0.85,
           height: 60,
           decoration: BoxDecoration(
-            color: _isLoading
-                ? const Color.fromARGB(255, 12, 21, 48)
-                : (_isHovering || _isPressed
-                    ? const Color.fromARGB(255, 7, 12, 27)
-                    : const Color.fromRGBO(19, 33, 75, 1)),
+            color: _getButtonColor(),
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
@@ -213,5 +233,11 @@ class _LoginButtonState extends State<LoginButton> {
         ),
       ),
     );
+  }
+
+  Color _getButtonColor() {
+    if (_isLoading) return const Color.fromARGB(255, 12, 21, 48);
+    if (_isHovering || _isPressed) return const Color.fromARGB(255, 7, 12, 27);
+    return const Color.fromRGBO(19, 33, 75, 1);
   }
 }

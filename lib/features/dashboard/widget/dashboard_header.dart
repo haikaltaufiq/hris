@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
@@ -190,9 +191,12 @@ class _DashboardHeaderState extends State<DashboardHeader>
                               if (mounted) {
                                 Navigator.pushNamedAndRemoveUntil(
                                   context,
-                                  AppRoutes.landingPageMobile,
+                                  context.isNativeMobile
+                                      ? AppRoutes.landingPageMobile
+                                      : AppRoutes.landingPage,
                                   (route) => false,
                                 );
+
                                 _hideDropdownImmediate();
                               }
                             },

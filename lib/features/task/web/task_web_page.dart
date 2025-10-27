@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
@@ -277,37 +278,40 @@ class _TaskWebPageState extends State<TaskWebPage> {
             ],
           ),
           // Floating Action Button
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: FloatingActionButton(
-              onPressed: () async {
-                final result =
-                    await Navigator.pushNamed(context, AppRoutes.tugasForm);
-                // Kalau ada update, refresh otomatis
-                if (result == true) {
-                  tugasProvider.fetchTugas();
-                }
-                searchController.clear();
-              },
-              backgroundColor: AppColors.secondary,
-              elevation: 8,
-              shape: const CircleBorder(),
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.secondary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: FaIcon(
-                  FontAwesomeIcons.plus,
-                  color: AppColors.putih,
-                  size: 20,
+          FeatureGuard(
+            requiredFeature: "tambah_tugas",
+            child: Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: () async {
+                  final result =
+                      await Navigator.pushNamed(context, AppRoutes.tugasForm);
+                  // Kalau ada update, refresh otomatis
+                  if (result == true) {
+                    tugasProvider.fetchTugas();
+                  }
+                  searchController.clear();
+                },
+                backgroundColor: AppColors.secondary,
+                elevation: 8,
+                shape: const CircleBorder(),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.secondary.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: FaIcon(
+                    FontAwesomeIcons.plus,
+                    color: AppColors.putih,
+                    size: 20,
+                  ),
                 ),
               ),
             ),
