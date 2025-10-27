@@ -142,59 +142,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       break;
 
     case 'tugas_hapus':
-      // ✅ URUTAN PENTING: Stop countdown dulu
-      final countdownService = CountdownNotificationService(plugin);
-      await countdownService.stopCountdown(tugasId: int.parse(tugasId));
-      
-      // ✅ Delay untuk ensure countdown benar-benar stop
-      await Future.delayed(const Duration(milliseconds: 200));
-      
-      // ✅ Cancel notification
-      await plugin.cancel(int.parse(tugasId));
-      
-      // ✅ Hapus dari Hive
       await box.delete('batas_penugasan_$tugasId');
       await box.delete('update_needed_$tugasId');
-      await box.delete('uploaded_$tugasId');
-      
-      // ✅ Delay lagi sebelum show notification baru
-      await Future.delayed(const Duration(milliseconds: 100));
-      
-      // ✅ Show notification konfirmasi dengan ID BERBEDA
-      await _showNotification(
-        plugin, 
-        999000 + int.parse(tugasId), // ID berbeda penting!
-        '❌ Tugas Dihapus',
-        'Tugas "$judul" telah dihapus oleh admin.'
-      );
+      await plugin.cancel(tugasId.hashCode);
+      await _showNotification(plugin, tugasId.hashCode, '❌ Tugas Dihapus',
+          'Tugas "$judul" telah dihapus.');
       break;
 
     case 'tugas_pindah':
-      // ✅ URUTAN PENTING: Stop countdown dulu
-      final countdownServicePindah = CountdownNotificationService(plugin);
-      await countdownServicePindah.stopCountdown(tugasId: int.parse(tugasId));
-      
-      // ✅ Delay untuk ensure countdown benar-benar stop
-      await Future.delayed(const Duration(milliseconds: 200));
-      
-      // ✅ Cancel notification
-      await plugin.cancel(int.parse(tugasId));
-      
-      // ✅ Hapus dari Hive
       await box.delete('batas_penugasan_$tugasId');
       await box.delete('update_needed_$tugasId');
-      await box.delete('uploaded_$tugasId');
-      
-      // ✅ Delay lagi sebelum show notification baru
-      await Future.delayed(const Duration(milliseconds: 100));
-      
-      // ✅ Show notification konfirmasi dengan ID BERBEDA
-      await _showNotification(
-        plugin, 
-        999000 + int.parse(tugasId),
-        '👋 Tugas Dipindahkan',
-        'Tugas "$judul" sudah dipindahkan ke pengguna lain.'
-      );
+      await plugin.cancel(tugasId.hashCode);
+      await _showNotification(plugin, tugasId.hashCode, '👋 Tugas Dipindahkan',
+          'Tugas "$judul" sudah dipindahkan ke pengguna lain.');
       break;
 
     case 'tugas_lampiran':
@@ -548,7 +508,7 @@ class _MyAppState extends State<MyApp> {
         await _showNotif(
           plugin,
           999000 + tugasId,
-          '📝 Tugas Dalam Proses',
+          '📝 Setatus Tugas Proses',
           'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.',
           sound: true,
           vibration: true,
@@ -613,62 +573,28 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _handleTugasHapus(FlutterLocalNotificationsPlugin plugin,
       Box box, int tugasId, String judul) async {
-    
-    // ✅ URUTAN PENTING:
-    // 1. Stop countdown dulu
     await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
-    
-    // 2. Delay untuk ensure countdown benar-benar stop
-    await Future.delayed(const Duration(milliseconds: 200));
-    
-    // 3. Cancel notification
-    await plugin.cancel(tugasId);
-    
-    // 4. Hapus dari Hive
+    await plugin.cancel(tugasId.hashCode);
+
     await box.delete('batas_penugasan_$tugasId');
     await box.delete('update_needed_$tugasId');
     await box.delete('uploaded_$tugasId');
-    
-    // 5. Delay lagi sebelum show notification baru
-    await Future.delayed(const Duration(milliseconds: 100));
-    
-    // 6. Show notification konfirmasi dengan ID BERBEDA
-    await _showNotif(
-      plugin, 
-      999000 + tugasId, // ID berbeda penting!
-      '❌ Tugas Dihapus',
-      'Tugas "$judul" telah dihapus oleh admin.'
-    );
+
+    await _showNotif(plugin, 999000 + tugasId, '❌ Tugas Dihapus',
+        'Tugas "$judul" telah dihapus oleh admin.');
   }
 
   Future<void> _handleTugasPindah(FlutterLocalNotificationsPlugin plugin,
       Box box, int tugasId, String judul) async {
-    
-    // ✅ URUTAN PENTING:
-    // 1. Stop countdown dulu
     await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
-    
-    // 2. Delay untuk ensure countdown benar-benar stop
-    await Future.delayed(const Duration(milliseconds: 200));
-    
-    // 3. Cancel notification
-    await plugin.cancel(tugasId);
-    
-    // 4. Hapus dari Hive
+    await plugin.cancel(tugasId.hashCode);
+
     await box.delete('batas_penugasan_$tugasId');
     await box.delete('update_needed_$tugasId');
     await box.delete('uploaded_$tugasId');
-    
-    // 5. Delay lagi sebelum show notification baru
-    await Future.delayed(const Duration(milliseconds: 100));
-    
-    // 6. Show notification konfirmasi dengan ID BERBEDA
-    await _showNotif(
-      plugin, 
-      999000 + tugasId,
-      '👋 Tugas Dipindahkan',
-      'Tugas "$judul" telah dipindahkan ke pengguna lain.'
-    );
+
+    await _showNotif(plugin, 999000 + tugasId, '👋 Tugas Dipindahkan',
+        'Tugas "$judul" telah dipindahkan ke pengguna lain.');
   }
 
   Future<void> _handleLampiranDikirim(FlutterLocalNotificationsPlugin plugin,
