@@ -170,6 +170,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           'Tugas "$judul" sudah diselesaikan.');
       break;
 
+    case 'tugas_update_proses':
+      await _showNotification(
+        plugin,
+        999000 + int.parse(tugasId),
+        '📝 Perhatian',
+        'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.'
+      );
+      break;
+
     // ===== CUTI HANDLERS =====
     case 'cuti_diajukan':
       await _showNotification(
@@ -495,10 +504,15 @@ class _MyAppState extends State<MyApp> {
         await _handleTugasSelesai(plugin, box, tugasId, judul);
         break;
 
-      case 'tugas_ditolak':
-        await _showNotif(plugin, 999000 + tugasId, '❌ Tugas Ditolak',
-            'Tugas "$judul" ditolak. Silakan perbaiki dan upload ulang.',
-            sound: true, vibration: true);
+      case 'tugas_update_proses':
+        await _showNotif(
+          plugin,
+          999000 + tugasId,
+          '📝 Setatus Tugas Proses',
+          'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.',
+          sound: true,
+          vibration: true,
+        );
         break;
 
       // ===== CUTI =====
@@ -543,18 +557,58 @@ class _MyAppState extends State<MyApp> {
         'Kamu punya tugas baru: "$judul", deadline: ${batasWaktu.toLocal()}');
   }
 
-  Future<void> _handleTugasUpdate(Map<String, dynamic> data,
-      FlutterLocalNotificationsPlugin plugin, Box box, int tugasId, String judul) async {
-    final batasWaktu = DateTime.parse(data['batas_penugasan']);
-    await box.put('batas_penugasan_$tugasId', batasWaktu.toIso8601String());
-    await box.put('update_needed_$tugasId', true);
+  Future<void> _handleTugasUpdate(
+    Map<String, dynamic> data,
+    FlutterLocalNotificationsPlugin plugin,
+    Box box,
+    int tugasId,
+    String judul,
+  ) async {
+    // Ambil batas waktu lama dari Hive (kalau ada)
+    final batasLamaStr = box.get('batas_penugasan_$tugasId');
+    DateTime? batasLama = batasLamaStr != null ? DateTime.parse(batasLamaStr) : null;
 
-    await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
-    await CountdownNotificationService(plugin).startCountdown(
-        batasWaktu, judul, tugasId);
+    // Ambil batas waktu baru dari data (kalau dikirim)
+    DateTime? batasBaru;
+    if (data['batas_penugasan'] != null) {
+      batasBaru = DateTime.parse(data['batas_penugasan']);
+    }
 
-    await _showNotif(plugin, tugasId.hashCode, '⏰ Tugas Diperbarui',
-        'Deadline tugas "$judul" diubah ke ${batasWaktu.toLocal()}');
+    String pesan; // Variabel pesan yang akan dikirim ke notifikasi
+
+    if (batasBaru != null) {
+      // Simpan batas waktu baru ke Hive
+      await box.put('batas_penugasan_$tugasId', batasBaru.toIso8601String());
+      await box.put('update_needed_$tugasId', true);
+
+      // Cek apakah batas waktu benar-benar berubah
+      final berubah = batasLama == null || batasLama.isAtSameMomentAs(batasBaru) == false;
+
+      if (berubah) {
+        // Jika deadline berubah → ubah countdown & pesan
+        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        await CountdownNotificationService(plugin)
+            .startCountdown(batasBaru, judul, tugasId);
+
+        pesan = 'Deadline tugas "$judul" telah diubah ke ${batasBaru.toLocal()}.';
+      } else {
+        // Deadline sama → tidak perlu restart countdown
+        pesan = 'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
+      }
+    } else {
+      // Kalau data tidak ada field batas_penugasan
+      pesan = 'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
+    }
+
+    // Tampilkan notifikasi sesuai kondisi
+    await _showNotif(
+      plugin,
+      tugasId.hashCode,
+      '⏰ Tugas Diperbarui',
+      pesan,
+      sound: true,
+      vibration: true,
+    );
   }
 
   Future<void> _handleTugasHapus(FlutterLocalNotificationsPlugin plugin,

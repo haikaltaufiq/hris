@@ -259,11 +259,16 @@ class AuthService {
   // Logout hapus token di backend & clear prefs
   Future<Map<String, dynamic>> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
-
-    // buka hive box
     final box = Hive.box('user');
-    debugPrint("Token sebelum logout: $token"); // <--- debug
+
+    // ambil dari Hive dulu, baru fallback ke prefs
+    final token = box.get('token') ?? prefs.getString('token');
+
+    // ambil juga FCM token
+    final fcmToken = await FcmService.getToken();
+
+    debugPrint("🔐 Token auth sebelum logout: $token");
+    debugPrint("📱 FCM Token sebelum logout: $fcmToken");
 
     if (token == null) {
       await prefs.clear();
@@ -277,6 +282,9 @@ class AuthService {
       debugPrint("Logout URL: ${ApiConfig.baseUrl}/api/logout");
       debugPrint("Token: $token");
 
+      final fcmToken = await FcmService.getToken();
+      debugPrint("FCM Token sebelum logout: $fcmToken");
+
       final response = await http.post(
         Uri.parse('${ApiConfig.baseUrl}/api/logout'),
         headers: {
@@ -284,6 +292,9 @@ class AuthService {
           'Accept': 'application/json',
           'Authorization': 'Bearer $token',
         },
+        body: jsonEncode({
+          'device_token': fcmToken,
+        }),
       );
 
       debugPrint("Logout response: ${response.statusCode} - ${response.body}");

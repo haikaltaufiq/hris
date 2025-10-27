@@ -25,8 +25,12 @@ class CountdownNotificationService {
   /// This will cancel any existing countdown for the same tugasId first.
   Future<void> startCountdown(
       DateTime batasWaktu, String tugasJudul, int tugasId) async {
-    // cancel existing for this tugasId (if any)
+    
+    // ✅ PERBAIKAN: Cancel existing dulu dengan aggressive cleanup
     await stopCountdown(tugasId: tugasId);
+    
+    // ✅ Delay untuk memastikan cancel selesai
+    await Future.delayed(const Duration(milliseconds: 100));
 
     final state = _CountdownState()
       ..batasWaktu = batasWaktu
@@ -82,13 +86,19 @@ class CountdownNotificationService {
       return;
     }
 
+    // ✅ PERBAIKAN: Aggressive cleanup
     final s = _states.remove(tugasId);
     s?.timer?.cancel();
+    
+    // ✅ Cancel notification multiple times untuk ensure
     try {
       await flutterLocalNotificationsPlugin.cancel(tugasId);
+      await Future.delayed(const Duration(milliseconds: 50));
+      await flutterLocalNotificationsPlugin.cancel(tugasId);
     } catch (_) {}
-    // small delay to let any running callbacks finish
-    await Future.delayed(const Duration(milliseconds: 50));
+    
+    // ✅ Delay lebih lama untuk memastikan semua proses selesai
+    await Future.delayed(const Duration(milliseconds: 100));
   }
 
   void _checkMilestoneInternal(
