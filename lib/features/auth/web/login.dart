@@ -82,7 +82,6 @@ class _LoginState extends State<Login> {
           final userBox = await Hive.openBox('user');
           await userBox.put('token', token);
           await userBox.put('id', user.id);
-
           final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
           await FeatureAccess.setFeatures(fiturList);
           await FeatureAccess.init();

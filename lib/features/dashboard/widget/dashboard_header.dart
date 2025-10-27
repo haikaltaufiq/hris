@@ -14,6 +14,7 @@ import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:async';
 
 class DashboardHeader extends StatefulWidget {
   const DashboardHeader({
@@ -173,24 +174,18 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             () async {
                               final prefs =
                                   await SharedPreferences.getInstance();
-
-                              // simpan dulu data penting
                               final userId = prefs.getInt('user_id');
                               final token = prefs.getString('token');
 
-                              // hapus token FCM di server
                               if (userId != null) {
-                                await FcmService.deleteLocalToken;
+                                unawaited(FcmService.deleteLocalToken());
                               }
 
-                              // panggil API logout auth
                               if (token != null) {
-                                final result = await AuthService().logout();
-                                debugPrint("Logout result: $result");
+                                unawaited(AuthService().logout());
                               }
 
-                              // baru bersihkan semua prefs
-                              await prefs.clear();
+                              unawaited(prefs.clear());
 
                               if (mounted) {
                                 Navigator.pushNamedAndRemoveUntil(

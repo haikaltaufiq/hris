@@ -55,18 +55,23 @@ class _LoginButtonState extends State<LoginButton> {
 
       if (result['success'] == true && result['token'] != null) {
         final token = result['token'];
-        final box = await Hive.openBox('user');
-        await box.put('token', token);
-
         final user = result['user'] as UserModel?;
-        final userRole = user?.peran;
 
-        final fiturList = userRole?.fitur.map((f) => f.toJson()).toList() ?? [];
+        if (user != null) {
+          final userBox = await Hive.openBox('user');
+          await userBox.put('token', token);
+          await userBox.put('id', user.id);
 
-        await FeatureAccess.setFeatures(fiturList);
-        await FeatureAccess.init();
+          final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
+          await FeatureAccess.setFeatures(fiturList);
+          await FeatureAccess.init();
 
-        // 🔥 LOAD & SYNC PENGATURAN DARI DATABASE
+          await auth.saveEmail(user.email);
+          print('✅ User saved to Hive: ${userBox.toMap()}');
+        } else {
+          print('⚠️ UserModel null dari backend');
+        }
+
         if (mounted) {
           await _loadAndSyncSettings(context, token);
         }
@@ -76,6 +81,7 @@ class _LoginButtonState extends State<LoginButton> {
           result['message'] ?? "Login berhasil",
           isSuccess: true,
         );
+
         if (mounted) {
           Navigator.pushNamed(context, AppRoutes.dashboardMobile);
         }
