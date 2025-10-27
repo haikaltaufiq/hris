@@ -1,4 +1,4 @@
-// ignore_for_file: avoid_print, use_build_context_synchronously
+// ignore_for_file: avoid_print, use_build_context_synchronously, unnecessary_import
 
 import 'dart:ui';
 import 'package:firebase_core/firebase_core.dart';
@@ -265,6 +265,48 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
       ),
     );
   }
+
+  // ===============================
+  // 5️⃣ TUGAS LAMPIRAN DIKIRIM
+  // ===============================
+  else if (tipe == 'tugas_lampiran') {
+    await plugin.show(
+      tugasId.hashCode,
+      '📎 Lampiran Dikirim',
+      'Lampiran baru untuk tugas "$judul" telah dikirim.',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'tugas_channel',
+          'Tugas Reminder',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+    );
+  }
+
+  // ===============================
+  // 6️⃣ TUGAS DIHAPUS OTOMATIS (mis. karena selesai atau dibatalkan)
+  // ===============================
+  else if (tipe == 'tugas_selesai') {
+    await box.delete('batas_penugasan_$tugasId');
+    await box.delete('update_needed_$tugasId');
+    await plugin.cancel(tugasId.hashCode);
+
+    await plugin.show(
+      tugasId.hashCode,
+      '✅ Tugas Selesai',
+      'Tugas "$judul" sudah diselesaikan.',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'tugas_channel',
+          'Tugas Reminder',
+          importance: Importance.max,
+          priority: Priority.high,
+        ),
+      ),
+    );
+  }
 }
 
 class PrecacheWrapper extends StatefulWidget {
@@ -336,16 +378,16 @@ class _MyAppState extends State<MyApp> {
     _initialRoute = _getInitialRoute();
     _setupFCM();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-    final box = await Hive.openBox('tugas');
-    for (final key in box.keys) {
-      if (key.startsWith('batas_penugasan_')) {
-        final tugasId = key.replaceFirst('batas_penugasan_', '');
-        final batasWaktu = DateTime.parse(box.get(key));
-        final countdownService = CountdownNotificationService(flutterLocalNotificationsPlugin);
-        countdownService.startCountdown(batasWaktu, 'Tugas Aktif', int.parse(tugasId));
+      final box = await Hive.openBox('tugas');
+      for (final key in box.keys) {
+        if (key.startsWith('batas_penugasan_')) {
+          final tugasId = key.replaceFirst('batas_penugasan_', '');
+          final batasWaktu = DateTime.parse(box.get(key));
+          final countdownService = CountdownNotificationService(flutterLocalNotificationsPlugin);
+          countdownService.startCountdown(batasWaktu, 'Tugas Aktif', int.parse(tugasId));
+        }
       }
-    }
-  });
+    });
   }
 
   Future<void> _setupFCM() async {
@@ -363,7 +405,7 @@ class _MyAppState extends State<MyApp> {
       sound: true,
     );
 
-    // 🔹 Listener: jika pesan diterima saat app foreground
+    // Handler untuk foreground (onMessage)
     FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       final data = message.data;
       final plugin = flutterLocalNotificationsPlugin;
@@ -373,10 +415,12 @@ class _MyAppState extends State<MyApp> {
       final tugasId = int.tryParse(data['tugas_id'] ?? '') ?? 0;
       final judul = data['judul'] ?? 'Tugas';
 
+      // ====== 1. tugas baru ======
       if (tipe == 'tugas_baru') {
         final batasWaktu = DateTime.parse(data['batas_penugasan']);
         await box.put('batas_penugasan_$tugasId', batasWaktu.toIso8601String());
         CountdownNotificationService(plugin).startCountdown(batasWaktu, judul, tugasId);
+
         await plugin.show(
           tugasId.hashCode,
           '📌 Tugas Baru',
@@ -392,16 +436,16 @@ class _MyAppState extends State<MyApp> {
         );
       }
 
+      // ====== 2. tugas diperbarui ======
       else if (tipe == 'tugas_update') {
         final batasWaktu = DateTime.parse(data['batas_penugasan']);
         await box.put('batas_penugasan_$tugasId', batasWaktu.toIso8601String());
         await box.put('update_needed_$tugasId', true);
 
-        // 🚨 Stop countdown lama dulu
-        CountdownNotificationService(plugin).stopCountdown();
-
-        // 🔹 Start countdown baru sesuai batas baru
-        CountdownNotificationService(plugin).startCountdown(batasWaktu, judul, tugasId);
+        // stop countdown lama
+        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        // mulai countdown baru
+        await CountdownNotificationService(plugin).startCountdown(batasWaktu, judul, tugasId);
 
         await plugin.show(
           tugasId.hashCode,
@@ -417,6 +461,148 @@ class _MyAppState extends State<MyApp> {
           ),
         );
       }
+
+      // ====== 3. tugas dihapus oleh admin ======
+      else if (tipe == 'tugas_hapus') {
+        // CRITICAL: Stop countdown & cancel notification dulu
+        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        await plugin.cancel(tugasId.hashCode);
+        
+        // Baru hapus dari Hive
+        await box.delete('batas_penugasan_$tugasId');
+        await box.delete('update_needed_$tugasId');
+        await box.delete('uploaded_$tugasId');
+
+        // Show notification bahwa tugas dihapus
+        await plugin.show(
+          999000 + tugasId, // ID berbeda agar tidak tertimpa
+          '❌ Tugas Dihapus',
+          'Tugas "$judul" telah dihapus oleh admin.',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
+      }
+
+      // ====== 4. tugas dialihkan ke user lain ======
+      else if (tipe == 'tugas_pindah') {
+        // CRITICAL: Stop countdown & cancel notification dulu
+        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        await plugin.cancel(tugasId.hashCode);
+        
+        // Baru hapus dari Hive
+        await box.delete('batas_penugasan_$tugasId');
+        await box.delete('update_needed_$tugasId');
+        await box.delete('uploaded_$tugasId');
+
+        // Show notification bahwa tugas dipindahkan
+        await plugin.show(
+          999000 + tugasId, // ID berbeda
+          '👋 Tugas Dipindahkan',
+          'Tugas "$judul" telah dipindahkan ke pengguna lain.',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
+      }
+
+      // ====== 5. user kirim lampiran ======
+      else if (tipe == 'tugas_lampiran') {
+        await plugin.show(
+          999000 + tugasId,
+          '📎 Lampiran Dikirim',
+          'User mengirim lampiran untuk tugas "$judul".',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
+      }
+
+      // ====== 6. konfirmasi upload dari user ======
+      else if (tipe == 'tugas_lampiran_dikirim') {
+        // Stop countdown karena sudah diupload
+        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        await plugin.cancel(tugasId.hashCode);
+        
+        await box.delete('batas_penugasan_$tugasId');
+        await box.delete('update_needed_$tugasId');
+
+        await plugin.show(
+          999000 + tugasId,
+          '✅ Lampiran Terkirim',
+          'Kamu sudah mengirim lampiran tugas "$judul". Menunggu verifikasi admin.',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              importance: Importance.max,
+              priority: Priority.high,
+            ),
+          ),
+        );
+      }
+
+      // ====== 7. tugas selesai ======
+      else if (tipe == 'tugas_selesai') {
+        // Stop countdown & hapus dari Hive karena tugas sudah selesai
+        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        await plugin.cancel(tugasId.hashCode);
+        
+        await box.delete('batas_penugasan_$tugasId');
+        await box.delete('update_needed_$tugasId');
+        await box.delete('uploaded_$tugasId');
+
+        await plugin.show(
+          999000 + tugasId,
+          '✅ Tugas Selesai - Kerja Bagus!',
+          'Selamat! Tugas "$judul" telah disetujui dan diselesaikan.',
+          const NotificationDetails(
+            android: AndroidNotificationDetails(
+              'tugas_channel',
+              'Tugas Reminder',
+              importance: Importance.max,
+              priority: Priority.high,
+              playSound: true,
+              enableVibration: true,
+            ),
+          ),
+        );
+      }
+
+      // // ====== 8. tugas ditolak ======
+      // else if (tipe == 'tugas_ditolak') {
+      //   // Tugas ditolak, tapi countdown tetap jalan (bisa upload ulang)
+      //   await plugin.show(
+      //     999000 + tugasId,
+      //     '❌ Tugas Ditolak',
+      //     'Tugas "$judul" ditolak. Silakan perbaiki dan upload ulang.',
+      //     const NotificationDetails(
+      //       android: AndroidNotificationDetails(
+      //         'tugas_channel',
+      //         'Tugas Reminder',
+      //         importance: Importance.max,
+      //         priority: Priority.high,
+      //         playSound: true,
+      //         enableVibration: true,
+      //       ),
+      //     ),
+      //   );
+      // }
     });
   }
 
@@ -425,7 +611,7 @@ class _MyAppState extends State<MyApp> {
     final token = prefs.getString('token');
     final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
-    // 🔥 LOAD PENGATURAN DARI DATABASE JIKA TOKEN ADA
+    // LOAD PENGATURAN DARI DATABASE JIKA TOKEN ADA
     if (token != null && token.isNotEmpty) {
       await _loadUserSettings(token);
     }
@@ -442,7 +628,7 @@ class _MyAppState extends State<MyApp> {
     }
   }
 
-  /// 🔥 Load pengaturan user dari database dan sync ke provider
+  /// Load pengaturan user dari database dan sync ke provider
   Future<void> _loadUserSettings(String token) async {
     try {
       final pengaturanService = PengaturanService();
