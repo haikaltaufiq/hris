@@ -250,14 +250,6 @@ class _AbsenTabelState extends State<AbsenTabel> {
                 label: "Tanggal Keluar", value: absen.checkoutDate ?? "-"),
             DetailItem(label: "Absen Masuk", value: absen.checkinTime ?? "-"),
             DetailItem(label: "Absen Keluar", value: absen.checkoutTime ?? "-"),
-            DetailItem(
-              label: "Lokasi Masuk",
-              value: "${absen.checkinLat}, ${absen.checkinLng}",
-            ),
-            DetailItem(
-              label: "Lokasi Keluar",
-              value: "${absen.checkoutLat}, ${absen.checkoutLng}",
-            ),
             DetailItem(label: "Tipe", value: absen.status ?? "-"),
           ],
         ),

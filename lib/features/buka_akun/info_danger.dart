@@ -11,11 +11,8 @@ class InfoBukaAkun extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 255, 251, 235),
-        border: Border.all(
-          color: const Color.fromARGB(255, 238, 239, 154),
-          width: 1,
-        ),
+        color: AppColors.yellow.withOpacity(0.5),
+        border: Border.all(color: AppColors.yellow, width: 1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

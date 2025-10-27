@@ -42,9 +42,9 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date);
-      return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
+      return DateFormat('HH:mm \'-\' dd/MM/yyyy').format(parsed);
     } catch (_) {
-      return date; // fallback kalau parsing gagal
+      return date;
     }
   }
 
@@ -315,7 +315,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         ? [
             "Kepada",
             "Judul",
-            "Tgl Mulai",
+            "Mulai",
             "Batas Submit",
             "Radius Lokasi",
             "Lokasi Tugas",
@@ -331,7 +331,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         : [
             "To",
             "Title",
-            "Start Date",
+            "Start",
             "Deadline",
             "Location Radius",
             "Task Location",

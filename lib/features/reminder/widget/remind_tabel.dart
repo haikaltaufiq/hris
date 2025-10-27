@@ -425,7 +425,7 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
             if (viewModel.isLoading)
               Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(32),
+                  padding: const EdgeInsets.all(42),
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(AppColors.putih),
                   ),

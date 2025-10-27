@@ -40,9 +40,9 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date);
-      return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
+      return DateFormat('HH:mm \'-\' dd/MM/yyyy').format(parsed);
     } catch (_) {
-      return date; // fallback kalau parsing gagal
+      return date;
     }
   }
 
@@ -258,7 +258,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         ? [
             "Kepada",
             "Judul",
-            "Tgl Mulai",
+            "Mulai",
             "Batas Submit",
             "Radius Lokasi",
             "Lokasi Tugas",
@@ -274,7 +274,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         : [
             "To",
             "Title",
-            "Start Date",
+            "Start",
             "Deadline",
             "Location Radius",
             "Task Location",

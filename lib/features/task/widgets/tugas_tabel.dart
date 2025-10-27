@@ -135,9 +135,9 @@ class _TugasTabelState extends State<TugasTabel> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date);
-      return DateFormat('dd/MM/yyyy HH:mm').format(parsed);
+      return DateFormat('HH:mm \'-\' dd/MM/yyyy').format(parsed);
     } catch (_) {
-      return date; // fallback kalau parsing gagal
+      return date;
     }
   }
 
@@ -359,11 +359,6 @@ class _TugasTabelState extends State<TugasTabel> {
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Radius',
-              value: parseDate(tugas.radius as String?),
-            ),
-            SizedBox(height: 5),
-            DetailItem(
               label: 'Note',
               value: tugas.note ?? '-',
             ),
@@ -403,7 +398,7 @@ class _TugasTabelState extends State<TugasTabel> {
         ? [
             "Kepada",
             "Judul",
-            "Tgl Mulai",
+            "Mulai",
             "Batas Submit",
             "Radius Lokasi",
             "Lokasi Tugas",
@@ -419,7 +414,7 @@ class _TugasTabelState extends State<TugasTabel> {
         : [
             "To",
             "Title",
-            "Start Date",
+            "Start",
             "Deadline",
             "Location Radius",
             "Task Location",

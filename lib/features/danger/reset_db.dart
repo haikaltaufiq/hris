@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
-import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -111,7 +110,7 @@ class ResetDb extends StatelessWidget {
   }
 
   void _confirmReset(BuildContext context, String title) async {
-    // mapping title ke jenis
+    // Map title to jenis
     String? jenis;
     if (title == "Cuti" || title == "Leave") jenis = "cuti";
     if (title == "Gaji" || title == "Salary") jenis = "gaji";
@@ -121,13 +120,13 @@ class ResetDb extends StatelessWidget {
     if (title == "Log Aktivitas" || title == "Log Activity") jenis = "log";
 
     if (jenis == null) {
-      final confirmed = await showConfirmationDialog(
+      final confirmed = await showTypeConfirmationDialog(
         context,
-        title: "Konfirmasi",
-        content: "Yakin Reset $title? Data akan hilang permanen.",
-        confirmText: "Reset",
-        cancelText: "Batal",
-        confirmColor: AppColors.red,
+        title: context.isIndonesian ? "Konfirmasi Reset" : "Confirm Reset",
+        content: context.isIndonesian
+            ? "Yakin reset $title? Data akan hilang permanen."
+            : "Are you sure to reset $title? Data will be permanently deleted.",
+        confirmationText: "delete this data",
       );
 
       if (confirmed) {
@@ -280,16 +279,15 @@ class ResetDb extends StatelessWidget {
                                       final selectedTahun = monthData['tahun'];
 
                                       final confirmed =
-                                          await showConfirmationDialog(
+                                          await showTypeConfirmationDialog(
                                         context,
                                         title: context.isIndonesian
-                                            ? "Konfirmasi"
-                                            : "Confirmation",
-                                        content:
-                                            "Yakin reset $jenis bulan $selectedBulan tahun $selectedTahun?",
-                                        confirmText: "Reset",
-                                        cancelText: "Batal",
-                                        confirmColor: AppColors.red,
+                                            ? "Konfirmasi Reset"
+                                            : "Confirm Reset",
+                                        content: context.isIndonesian
+                                            ? "Yakin reset $jenis bulan $selectedBulan tahun $selectedTahun? Data akan hilang permanen."
+                                            : "Are you sure to reset $jenis for month $selectedBulan year $selectedTahun? Data will be permanently deleted.",
+                                        confirmationText: "delete this data",
                                       );
 
                                       if (confirmed) {
@@ -329,6 +327,194 @@ class ResetDb extends StatelessWidget {
         });
       },
     );
+  }
+
+  /// Show custom confirmation dialog requiring user to type confirmation text
+  Future<bool> showTypeConfirmationDialog(
+    BuildContext context, {
+    required String title,
+    required String content,
+    required String confirmationText,
+  }) async {
+    final textController = TextEditingController();
+    bool isMatching = false;
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Dialog(
+              backgroundColor: AppColors.primary,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              insetPadding: EdgeInsets.symmetric(
+                horizontal: context.isMobile ? 24 : 80,
+                vertical: 24,
+              ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxWidth: context.isMobile ? double.infinity : 500,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.warning_rounded,
+                            color: AppColors.red,
+                            size: 28,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              title,
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.putih,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        content,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.putih.withOpacity(0.9),
+                          height: 1.5,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        context.isIndonesian
+                            ? "Ketik '$confirmationText' untuk konfirmasi:"
+                            : "Type '$confirmationText' to confirm:",
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.putih.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: textController,
+                        style: TextStyle(color: AppColors.putih),
+                        decoration: InputDecoration(
+                          hintText: confirmationText,
+                          hintStyle: TextStyle(
+                            color: AppColors.putih.withOpacity(0.4),
+                          ),
+                          filled: true,
+                          fillColor: AppColors.bg,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: AppColors.putih.withOpacity(0.3),
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: AppColors.putih.withOpacity(0.3),
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(
+                              color: AppColors.putih,
+                              width: 2,
+                            ),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            isMatching = value == confirmationText;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(0, 48),
+                                side: BorderSide(
+                                  color: AppColors.secondary,
+                                  width: 1.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              onPressed: () {
+                                textController.dispose();
+                                Navigator.pop(context, false);
+                              },
+                              child: Text(
+                                context.isIndonesian ? "Batal" : "Cancel",
+                                style: TextStyle(
+                                  color: AppColors.putih,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                minimumSize: const Size(0, 48),
+                                backgroundColor: isMatching
+                                    ? AppColors.red
+                                    : AppColors.secondary,
+                                disabledBackgroundColor: AppColors.secondary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                elevation: 0,
+                              ),
+                              onPressed: isMatching
+                                  ? () {
+                                      textController.dispose();
+                                      Navigator.pop(context, true);
+                                    }
+                                  : null,
+                              child: Text(
+                                context.isIndonesian ? "Konfirmasi" : "Confirm",
+                                style: TextStyle(
+                                  color: AppColors.putih,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+
+    return result ?? false;
   }
 }
 
