@@ -246,9 +246,11 @@ class CustomDataTableWidget extends StatelessWidget {
         ),
       );
     }
+    final isLampiranColumn =
+        headers[colIndex].trim().toLowerCase() == 'lampiran';
 
     // Lampiran column
-    if (colIndex == 8 && value == "Lihat Lampiran" && onTapLampiran != null) {
+    if (isLampiranColumn && onTapLampiran != null) {
       return GestureDetector(
         onTap: () => onTapLampiran!(rowIndex),
         child: Text(

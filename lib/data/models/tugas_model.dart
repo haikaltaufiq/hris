@@ -13,8 +13,8 @@ class TugasModel {
   final String? note;
   final String status;
   final bool? terlambat;
-  final int? menitTerlambat;      
-  final String? waktuUpload;       
+  final int? menitTerlambat;
+  final String? waktuUpload;
   final String? lampiran;
   final UserModel? user;
 
@@ -31,8 +31,8 @@ class TugasModel {
     this.note,
     required this.status,
     this.terlambat,
-    this.menitTerlambat,  
-    this.waktuUpload,      
+    this.menitTerlambat,
+    this.waktuUpload,
     this.lampiran,
     this.user,
   });
@@ -86,8 +86,8 @@ class TugasModel {
       'instruksi_tugas': note,
       'status': status,
       'terlambat': terlambat,
-      'menit_terlambat': menitTerlambat, 
-      'waktu_upload': waktuUpload,       
+      'menit_terlambat': menitTerlambat,
+      'waktu_upload': waktuUpload,
       'lampiran': lampiran,
       'user': user?.toJson(),
     };

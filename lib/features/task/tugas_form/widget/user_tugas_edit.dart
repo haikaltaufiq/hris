@@ -49,7 +49,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
   Uint8List? _selectedBytes;
   String? _selectedFileName;
   bool _isTrackingLocation = false;
-
+  bool _isSubmitting = false;
   @override
   void initState() {
     super.initState();
@@ -361,6 +361,10 @@ class _UserEditTugasState extends State<UserEditTugas> {
         return;
       }
 
+      setState(() {
+        _isSubmitting = true;
+      });
+
       final resultUpload = await TugasService.uploadFileTugas(
         id: widget.tugas.id,
         file: kIsWeb ? null : _selectedFile,
@@ -392,6 +396,12 @@ class _UserEditTugasState extends State<UserEditTugas> {
           isSuccess: false,
         );
       }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
     }
   }
 
@@ -412,7 +422,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
   Widget build(BuildContext context) {
     return Consumer<TugasProvider>(
       builder: (context, tugasProvider, child) {
-        final isLoading = tugasProvider.isLoading;
+        final isLoading = tugasProvider.isLoading || _isSubmitting;
 
         final inputStyle = InputDecoration(
           hintStyle: TextStyle(color: AppColors.putih),

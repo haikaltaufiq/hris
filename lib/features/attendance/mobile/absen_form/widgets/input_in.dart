@@ -19,6 +19,7 @@ import 'package:hr/data/services/location_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
@@ -44,16 +45,45 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
   Timer? _timer;
   int _elapsed = 0;
   Timer? _locationTimer;
+
   @override
   void initState() {
     super.initState();
-    _initCamera();
+    _requestAllPermissions();
+
     _progressCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: maxSeconds),
     );
-    _startLocationUpdates(); // ganti getCurrentPosition() langsung
-    // Auto set tanggal & jam dari device
+
+    _autoFillDateTime();
+  }
+
+  Future<void> _requestAllPermissions() async {
+    // 1. Minta semua izin dalam urutan logis
+    final locationStatus = await Permission.location.request();
+    final cameraStatus = await Permission.camera.request();
+    final micStatus = await Permission.microphone.request();
+
+    // 2. Cek hasil
+    if (locationStatus.isGranted &&
+        cameraStatus.isGranted &&
+        micStatus.isGranted) {
+      // Semua granted → lanjut init
+      await _startLocationUpdates();
+      await _initCamera();
+    } else {
+      // Ada yang ditolak
+      if (!mounted) return;
+      NotificationHelper.showTopNotification(
+        context,
+        "Beberapa izin ditolak. Aktifkan lokasi, kamera, dan mikrofon.",
+        isSuccess: false,
+      );
+    }
+  }
+
+  void _autoFillDateTime() {
     final now = DateTime.now();
     _tanggalController.text =
         "${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}";
@@ -61,7 +91,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
   }
 
-  void _startLocationUpdates() async {
+  Future<void> _startLocationUpdates() async {
     // request lokasi pertama kali
     await _fetchLocation();
 

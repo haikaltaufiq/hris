@@ -352,18 +352,24 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",
         tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
-            ? "See Location"
+            ? context.isIndonesian
+                ? "Lihat Lokasi"
+                : "See Location"
             : '-',
         tugas.displayLokasiLampiran != null &&
                 tugas.displayLokasiLampiran != "-"
-            ? "See Location"
+            ? context.isIndonesian
+                ? "Lihat Lokasi"
+                : "See Location"
             : '-',
         tugas.status,
         tugas.displayNote,
         tugas.displayLampiran,
         tugas.displayWaktuUpload,
         tugas.menitTerlambat != null
-            ? "${tugas.menitTerlambat} menit"
+            ? context.isIndonesian
+                ? "${tugas.menitTerlambat} menit"
+                : "${tugas.menitTerlambat} minute"
             : (tugas.waktuUpload != null ? "Tepat waktu" : "-"),
         tugas.waktuUpload == null
             ? _hitungSisaWaktu(tugas.batasPenugasan)

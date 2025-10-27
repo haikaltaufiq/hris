@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/tugas_model.dart';
+import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/task/tugas_form/form_user_edit.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:latlong2/latlong.dart';
 
-class TugasUserTabel extends StatelessWidget {
+class TugasUserTabel extends StatefulWidget {
   final List<TugasModel> tugasList;
   final VoidCallback? onActionDone;
 
@@ -18,6 +21,11 @@ class TugasUserTabel extends StatelessWidget {
     this.onActionDone,
   });
 
+  @override
+  State<TugasUserTabel> createState() => _TugasUserTabelState();
+}
+
+class _TugasUserTabelState extends State<TugasUserTabel> {
   // Format HH:mm
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
@@ -44,12 +52,102 @@ class TugasUserTabel extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (_) => FormUserEdit(
-          tugas: tugasList[row],
+          tugas: widget.tugasList[row],
         ),
       ),
     );
 
-    onActionDone?.call();
+    widget.onActionDone?.call();
+  }
+
+  /// --- Lokasi tampil di BottomSheet dengan mini Map
+  void _openMap(String latlongStr) {
+    try {
+      final parts = latlongStr.split(',');
+      final lat = double.parse(parts[0].trim());
+      final lng = double.parse(parts[1].trim());
+
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: AppColors.bg,
+        isScrollControlled: true,
+        builder: (_) => DraggableScrollableSheet(
+          initialChildSize: 0.9,
+          minChildSize: 0.5,
+          maxChildSize: 1.0,
+          expand: false,
+          builder: (context, scrollController) {
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColors.bg,
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(20)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: const Offset(0, -3),
+                  )
+                ],
+              ),
+              child: Stack(
+                children: [
+                  // Konten bisa discroll
+                  Column(
+                    children: [
+                      // Handle bar
+                      Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        height: 5,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[400],
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      Text(
+                        "Lokasi",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: AppColors.putih,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+
+                      // Map full tinggi fix
+                      Expanded(
+                        child: MapPageModal(target: LatLng(lat, lng)),
+                      ),
+
+                      const SizedBox(height: 200), // dummy biar bisa full drag
+                    ],
+                  ),
+
+                  // Card info nempel di bawah
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: LocationInfoCard(
+                        target: LatLng(lat, lng),
+                        mapController: MapController(),
+                        onConfirm: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    } catch (_) {
+      debugPrint("Format latlong salah: $latlongStr");
+    }
   }
 
   // Detail dialog
@@ -190,14 +288,8 @@ class TugasUserTabel extends StatelessWidget {
             "Punctuality"
           ];
 
-    if (tugasList.isEmpty) {
-      return const Center(
-        child: Text('Belum ada tugas', style: TextStyle(color: Colors.white)),
-      );
-    }
-
     // Build rows
-    final rows = tugasList.map((tugas) {
+    final rows = widget.tugasList.map((tugas) {
       // final hasLampiran = (tugas.lampiran ?? '').toString().trim().isNotEmpty;
       return [
         tugas.displayUser,
@@ -206,19 +298,33 @@ class TugasUserTabel extends StatelessWidget {
         parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",
         tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
-            ? "See Location"
+            ? context.isIndonesian
+                ? "Lihat Lokasi"
+                : "See Location"
             : '-',
         tugas.displayLokasiLampiran != null &&
                 tugas.displayLokasiLampiran != "-"
-            ? "See Location"
+            ? context.isIndonesian
+                ? "Lihat Lokasi"
+                : "See Location"
             : '-',
         tugas.status,
         tugas.displayNote,
-        tugas.displayLampiran,
+        tugas.displayLampiran != null
+            ? context.isIndonesian
+                ? "Edit Lampiran"
+                : "Edit Attachment"
+            : "-",
         tugas.displayWaktuUpload,
         tugas.menitTerlambat != null
-            ? "${tugas.menitTerlambat} menit"
-            : (tugas.waktuUpload != null ? "Tepat waktu" : "-"),
+            ? context.isIndonesian
+                ? "${tugas.menitTerlambat} menit"
+                : "${tugas.menitTerlambat} minute"
+            : (tugas.waktuUpload != null
+                ? context.isIndonesian
+                    ? "Tepat waktu"
+                    : "On Time"
+                : "-"),
         tugas.waktuUpload == null
             ? _hitungSisaWaktu(tugas.batasPenugasan)
             : "-", // kalau sudah upload, gak perlu tampilkan countdown lagi
@@ -231,14 +337,22 @@ class TugasUserTabel extends StatelessWidget {
       rows: rows,
       statusColumnIndexes: const [7], // status di kolom ke-6
       onCellTap: (row, col) {
-        if (col == 9) {
+        final tugas = widget.tugasList[row];
+
+        if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
+          _openMap("${tugas.tugasLat},${tugas.tugasLng}");
+        }
+        if (col == 6 &&
+            tugas.lampiranLat != null &&
+            tugas.lampiranLng != null) {
+          _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");
+        } else if (col == 9) {
           // Lampiran di kolom terakhir
           _editTugas(context, row);
         }
       },
-      onView: (row) => _showDetailDialog(context, tugasList[row]),
+      onView: (row) => _showDetailDialog(context, widget.tugasList[row]),
       onEdit: (row) => _editTugas(context, row),
-      onTapLampiran: (row) => _editTugas(context, tugasList[row] as int),
     );
   }
 }

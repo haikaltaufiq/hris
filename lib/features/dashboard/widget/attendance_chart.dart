@@ -284,15 +284,6 @@ class AttendanceChart extends StatelessWidget {
                     ),
                   ],
                 ),
-
-                // overlay loading spinner
-                if (absenProvider.isLoading)
-                  SizedBox(
-                    height: _chartContentHeight + _legendHeight + _headerHeight,
-                    child: Center(
-                      child: CircularProgressIndicator(color: AppColors.putih),
-                    ),
-                  ),
               ],
             ),
           ),

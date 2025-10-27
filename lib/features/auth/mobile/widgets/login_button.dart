@@ -67,9 +67,9 @@ class _LoginButtonState extends State<LoginButton> {
           await FeatureAccess.init();
 
           await auth.saveEmail(user.email);
-          print('✅ User saved to Hive: ${userBox.toMap()}');
+          print(' User saved to Hive: ${userBox.toMap()}');
         } else {
-          print('⚠️ UserModel null dari backend');
+          print(' UserModel null dari backend');
         }
 
         if (mounted) {
