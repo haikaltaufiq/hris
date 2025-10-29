@@ -382,7 +382,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       headers: headers,
       rows: rows,
       dropdownStatusColumnIndexes: [7],
-      statusOptions: ['Selesai', 'Menunggu Admin', 'Proses'],
+      statusOptions: ['Selesai', 'Proses'],
       onStatusChanged: (rowIndex, newStatus) async {
         final tugas = widget.tugasList[rowIndex];
         final message = await context
