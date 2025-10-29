@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/forget_password_model.dart';
@@ -24,7 +25,7 @@ class _ForgetPageState extends State<ForgetPage> {
   Future<void> _submit() async {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
-      _showSnackBar("Email wajib diisi", Colors.red);
+      _showSnackBar("Email wajib diisi", "error");
       return;
     }
 
@@ -33,22 +34,17 @@ class _ForgetPageState extends State<ForgetPage> {
     final request = ForgetPasswordRequest(email: email);
     final response = await ForgetPasswordService.sendResetLink(request);
 
-    _showSnackBar(response.message,
-        response.status == "success" ? Colors.green : Colors.red);
+    _showSnackBar(response.message, response.status);
 
     setState(() => _isLoading = false);
   }
 
-  void _showSnackBar(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
-      ),
+  void _showSnackBar(String message, String status) {
+    final isSuccess = status == "success";
+    NotificationHelper.showTopNotification(
+      context,
+      message,
+      isSuccess: isSuccess,
     );
   }
 
@@ -140,7 +136,7 @@ class _ForgetPageState extends State<ForgetPage> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: const BorderSide(
-                            color: Color(0xFF1A3A52),
+                            color: Color(0xFF13214B),
                             width: 2,
                           ),
                         ),
@@ -162,7 +158,7 @@ class _ForgetPageState extends State<ForgetPage> {
                       height: 54,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1A3A52),
+                          backgroundColor: const Color(0xFF13214B),
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
