@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:hive/hive.dart';
@@ -56,7 +57,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 // ==========================================
 void callbackDispatcher() {
   if (kIsWeb) return;
-  
+
   Workmanager().executeTask((task, inputData) async {
     await Firebase.initializeApp();
     final box = await Hive.openBox('tugas');
@@ -66,7 +67,7 @@ void callbackDispatcher() {
       if (key.startsWith('update_needed_')) {
         final tugasId = key.replaceFirst('update_needed_', '');
         final batasWaktuKey = 'batas_penugasan_$tugasId';
-        
+
         if (box.containsKey(batasWaktuKey)) {
           final batasWaktu = DateTime.parse(box.get(batasWaktuKey));
           final countdownService =
@@ -172,89 +173,60 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
     case 'tugas_update_proses':
       await _showNotification(
-        plugin,
-        999000 + int.parse(tugasId),
-        '📝 Perhatian',
-        'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.'
-      );
+          plugin,
+          999000 + int.parse(tugasId),
+          '📝 Perhatian',
+          'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.');
       break;
 
     // ===== CUTI HANDLERS =====
     case 'cuti_diajukan':
-      await _showNotification(
-          plugin,
-          data['cuti_id'].hashCode,
-          '📝 Pengajuan Cuti Diterima',
-          'Pengajuan cuti berhasil dikirim.',
-          channel: 'cuti_channel',
-          channelName: 'Cuti Notifications');
+      await _showNotification(plugin, data['cuti_id'].hashCode,
+          '📝 Pengajuan Cuti Diterima', 'Pengajuan cuti berhasil dikirim.',
+          channel: 'cuti_channel', channelName: 'Cuti Notifications');
       break;
 
     case 'cuti_step1':
-      await _showNotification(
-          plugin,
-          data['cuti_id'].hashCode,
-          '✅ Cuti Disetujui Tahap Awal',
-          'Cuti Anda disetujui tahap awal.',
-          channel: 'cuti_channel',
-          channelName: 'Cuti Notifications');
+      await _showNotification(plugin, data['cuti_id'].hashCode,
+          '✅ Cuti Disetujui Tahap Awal', 'Cuti Anda disetujui tahap awal.',
+          channel: 'cuti_channel', channelName: 'Cuti Notifications');
       break;
 
     case 'cuti_disetujui':
-      await _showNotification(
-          plugin,
-          data['cuti_id'].hashCode,
-          '🎉 Cuti Disetujui Final',
-          'Selamat! Cuti Anda telah disetujui.',
-          channel: 'cuti_channel',
-          channelName: 'Cuti Notifications');
+      await _showNotification(plugin, data['cuti_id'].hashCode,
+          '🎉 Cuti Disetujui Final', 'Selamat! Cuti Anda telah disetujui.',
+          channel: 'cuti_channel', channelName: 'Cuti Notifications');
       break;
 
     case 'cuti_ditolak':
-      await _showNotification(
-          plugin, data['cuti_id'].hashCode, '❌ Cuti Ditolak', 'Cuti Anda ditolak.',
+      await _showNotification(plugin, data['cuti_id'].hashCode,
+          '❌ Cuti Ditolak', 'Cuti Anda ditolak.',
           channel: 'cuti_channel', channelName: 'Cuti Notifications');
       break;
 
     // ===== LEMBUR HANDLERS =====
     case 'lembur_diajukan':
-      await _showNotification(
-          plugin,
-          data['lembur_id'].hashCode,
-          '📝 Pengajuan Lembur Diterima',
-          'Pengajuan lembur berhasil dikirim.',
-          channel: 'lembur_channel',
-          channelName: 'Lembur Notifications');
+      await _showNotification(plugin, data['lembur_id'].hashCode,
+          '📝 Pengajuan Lembur Diterima', 'Pengajuan lembur berhasil dikirim.',
+          channel: 'lembur_channel', channelName: 'Lembur Notifications');
       break;
 
     case 'lembur_step1':
-      await _showNotification(
-          plugin,
-          data['lembur_id'].hashCode,
-          '✅ Lembur Disetujui Tahap Awal',
-          'Lembur Anda disetujui tahap awal.',
-          channel: 'lembur_channel',
-          channelName: 'Lembur Notifications');
+      await _showNotification(plugin, data['lembur_id'].hashCode,
+          '✅ Lembur Disetujui Tahap Awal', 'Lembur Anda disetujui tahap awal.',
+          channel: 'lembur_channel', channelName: 'Lembur Notifications');
       break;
 
     case 'lembur_disetujui':
-      await _showNotification(
-          plugin,
-          data['lembur_id'].hashCode,
-          '🎉 Lembur Disetujui Final',
-          'Selamat! Lembur Anda telah disetujui.',
-          channel: 'lembur_channel',
-          channelName: 'Lembur Notifications');
+      await _showNotification(plugin, data['lembur_id'].hashCode,
+          '🎉 Lembur Disetujui Final', 'Selamat! Lembur Anda telah disetujui.',
+          channel: 'lembur_channel', channelName: 'Lembur Notifications');
       break;
 
     case 'lembur_ditolak':
-      await _showNotification(
-          plugin,
-          data['lembur_id'].hashCode,
-          '❌ Lembur Ditolak',
-          'Lembur Anda ditolak.',
-          channel: 'lembur_channel',
-          channelName: 'Lembur Notifications');
+      await _showNotification(plugin, data['lembur_id'].hashCode,
+          '❌ Lembur Ditolak', 'Lembur Anda ditolak.',
+          channel: 'lembur_channel', channelName: 'Lembur Notifications');
       break;
   }
 }
@@ -288,7 +260,7 @@ Future<void> _showNotification(
 // ==========================================
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   await FeatureAccess.init();
 
   if (!kIsWeb) {
@@ -296,12 +268,14 @@ Future<void> main() async {
       callbackDispatcher,
       isInDebugMode: false,
     );
+
+    FlutterNativeSplash.preserve(
+        widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
   }
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
   const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
   const initSettings = InitializationSettings(android: androidSettings);
   await flutterLocalNotificationsPlugin.initialize(initSettings);
@@ -322,7 +296,7 @@ Future<void> main() async {
     'pengingat',
     'peran',
   ];
-  
+
   for (final box in boxes) {
     await Hive.openBox(box);
   }
@@ -380,8 +354,8 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
   }
 
   Future<void> _precacheAssets(BuildContext context) async {
-    final imageFutures = _imagesToCache
-        .map((path) => precacheImage(AssetImage(path), context));
+    final imageFutures =
+        _imagesToCache.map((path) => precacheImage(AssetImage(path), context));
     await Future.wait([...imageFutures, _precacheFonts()]);
   }
 
@@ -392,7 +366,10 @@ class _PrecacheWrapperState extends State<PrecacheWrapper> {
 
     if (context.isNativeMobile) {
       _precacheAssets(context).then((_) {
-        if (mounted) setState(() => _ready = true);
+        if (mounted) {
+          FlutterNativeSplash.remove();
+          setState(() => _ready = true);
+        }
       });
     } else {
       setState(() => _ready = true);
@@ -546,12 +523,16 @@ class _MyAppState extends State<MyApp> {
   }
 
   // ===== TUGAS HANDLERS =====
-  Future<void> _handleTugasBaru(Map<String, dynamic> data,
-      FlutterLocalNotificationsPlugin plugin, Box box, int tugasId, String judul) async {
+  Future<void> _handleTugasBaru(
+      Map<String, dynamic> data,
+      FlutterLocalNotificationsPlugin plugin,
+      Box box,
+      int tugasId,
+      String judul) async {
     final batasWaktu = DateTime.parse(data['batas_penugasan']);
     await box.put('batas_penugasan_$tugasId', batasWaktu.toIso8601String());
-    CountdownNotificationService(plugin).startCountdown(
-        batasWaktu, judul, tugasId);
+    CountdownNotificationService(plugin)
+        .startCountdown(batasWaktu, judul, tugasId);
 
     await _showNotif(plugin, tugasId.hashCode, '📌 Tugas Baru',
         'Kamu punya tugas baru: "$judul", deadline: ${batasWaktu.toLocal()}');
@@ -566,7 +547,8 @@ class _MyAppState extends State<MyApp> {
   ) async {
     // Ambil batas waktu lama dari Hive (kalau ada)
     final batasLamaStr = box.get('batas_penugasan_$tugasId');
-    DateTime? batasLama = batasLamaStr != null ? DateTime.parse(batasLamaStr) : null;
+    DateTime? batasLama =
+        batasLamaStr != null ? DateTime.parse(batasLamaStr) : null;
 
     // Ambil batas waktu baru dari data (kalau dikirim)
     DateTime? batasBaru;
@@ -582,22 +564,27 @@ class _MyAppState extends State<MyApp> {
       await box.put('update_needed_$tugasId', true);
 
       // Cek apakah batas waktu benar-benar berubah
-      final berubah = batasLama == null || batasLama.isAtSameMomentAs(batasBaru) == false;
+      final berubah =
+          batasLama == null || batasLama.isAtSameMomentAs(batasBaru) == false;
 
       if (berubah) {
         // Jika deadline berubah → ubah countdown & pesan
-        await CountdownNotificationService(plugin).stopCountdown(tugasId: tugasId);
+        await CountdownNotificationService(plugin)
+            .stopCountdown(tugasId: tugasId);
         await CountdownNotificationService(plugin)
             .startCountdown(batasBaru, judul, tugasId);
 
-        pesan = 'Deadline tugas "$judul" telah diubah ke ${batasBaru.toLocal()}.';
+        pesan =
+            'Deadline tugas "$judul" telah diubah ke ${batasBaru.toLocal()}.';
       } else {
         // Deadline sama → tidak perlu restart countdown
-        pesan = 'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
+        pesan =
+            'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
       }
     } else {
       // Kalau data tidak ada field batas_penugasan
-      pesan = 'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
+      pesan =
+          'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
     }
 
     // Tampilkan notifikasi sesuai kondisi
@@ -664,11 +651,15 @@ class _MyAppState extends State<MyApp> {
   }
 
   // ===== CUTI & LEMBUR HANDLER =====
-  Future<void> _handleCutiLemburNotif(Map<String, dynamic> data,
-      FlutterLocalNotificationsPlugin plugin, String type, String action) async {
+  Future<void> _handleCutiLemburNotif(
+      Map<String, dynamic> data,
+      FlutterLocalNotificationsPlugin plugin,
+      String type,
+      String action) async {
     final id = int.tryParse(data['${type}_id'] ?? '') ?? 0;
     final channel = '${type}_channel';
-    final channelName = type == 'cuti' ? 'Cuti Notifications' : 'Lembur Notifications';
+    final channelName =
+        type == 'cuti' ? 'Cuti Notifications' : 'Lembur Notifications';
 
     String title, body;
     bool sound = false, vibration = false;
@@ -697,7 +688,8 @@ class _MyAppState extends State<MyApp> {
         break;
       case 'ditolak':
         title = '❌ ${type == 'cuti' ? 'Cuti' : 'Lembur'} Ditolak';
-        body = '${type == 'cuti' ? 'Cuti' : 'Lembur'} Anda ditolak. Catatan: ${data['catatan_penolakan'] ?? '-'}';
+        body =
+            '${type == 'cuti' ? 'Cuti' : 'Lembur'} Anda ditolak. Catatan: ${data['catatan_penolakan'] ?? '-'}';
         sound = true;
         vibration = true;
         break;
@@ -784,7 +776,7 @@ class _MyAppState extends State<MyApp> {
       }
     } catch (e) {
       print('❌ Gagal load pengaturan: $e');
-      
+
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {
         final themeProvider =
@@ -809,7 +801,7 @@ class _MyAppState extends State<MyApp> {
         if (!snapshot.hasData) {
           return const ColoredBox(color: Colors.black);
         }
-        
+
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.currentMode,
