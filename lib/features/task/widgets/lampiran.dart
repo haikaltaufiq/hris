@@ -111,7 +111,7 @@ class ProfessionalLampiranWidget extends StatelessWidget {
           minScale: 0.5,
           maxScale: 4.0,
           child: Image.network(
-            url,
+            url, // atau getFullUrl(tugas.lampiran!) kalau dari TugasModel
             fit: BoxFit.contain,
             loadingBuilder: (context, child, loadingProgress) {
               if (loadingProgress == null) return child;
@@ -126,7 +126,9 @@ class ProfessionalLampiranWidget extends StatelessWidget {
                 ),
               );
             },
+            // <-- testing error builder
             errorBuilder: (context, error, stackTrace) {
+              debugPrint("❌ Error load image: $error"); // <-- ini akan tampil di console
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -141,6 +143,10 @@ class ProfessionalLampiranWidget extends StatelessWidget {
                         color: AppColors.putih.withOpacity(0.7),
                         fontSize: isSmallScreen ? 12 : 14,
                       ),
+                    ),
+                    Text(
+                      error.toString(), // <-- tampilkan error di UI juga supaya jelas
+                      style: TextStyle(color: Colors.red, fontSize: 10),
                     ),
                   ],
                 ),
