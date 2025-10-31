@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
+import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/task/tugas_form/form_user_edit.dart';
+import 'package:hr/features/task/widgets/lampiran.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
@@ -26,6 +29,117 @@ class TugasUserTabel extends StatefulWidget {
 }
 
 class _TugasUserTabelState extends State<TugasUserTabel> {
+  String getFullUrl(String lampiranPath) {
+    final cleaned = lampiranPath.replaceAll('\\', '');
+    final fullUrl = cleaned.startsWith('http')
+        ? cleaned
+        : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
+
+    debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
+    return fullUrl;
+  }
+
+// lampiran
+  void _showLampiranDialog(BuildContext context, TugasModel tugas) {
+    if (tugas.lampiran == null) {
+      NotificationHelper.showTopNotification(
+        context,
+        "Tidak ada lampiran untuk tugas ini",
+        isSuccess: false,
+      );
+      return;
+    }
+    final screenSize = MediaQuery.of(context).size;
+    final isSmallScreen = screenSize.width < 600;
+
+    showDialog(
+      context: context,
+      builder: (_) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.symmetric(
+          horizontal: isSmallScreen ? 16 : 40,
+          vertical: isSmallScreen ? 24 : 40,
+        ),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: 800,
+            maxHeight: screenSize.height * 0.8,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 20,
+                offset: Offset(0, 10),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Header
+              Container(
+                padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(
+                      color: AppColors.putih.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.attach_file_rounded,
+                      color: AppColors.putih,
+                      size: isSmallScreen ? 20 : 24,
+                    ),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Lampiran Tugas',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih,
+                          fontWeight: FontWeight.w600,
+                          fontSize: isSmallScreen ? 16 : 18,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: AppColors.putih,
+                        size: isSmallScreen ? 20 : 24,
+                      ),
+                      tooltip: 'Tutup',
+                    ),
+                  ],
+                ),
+              ),
+              // Content
+              Flexible(
+                child: Container(
+                  padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
+                  child: ProfessionalLampiranWidget(
+                      url: getFullUrl(tugas.lampiran!)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // Format HH:mm
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
@@ -310,11 +424,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
             : '-',
         tugas.status,
         tugas.displayNote,
-        tugas.displayLampiran != null
-            ? context.isIndonesian
-                ? "Edit Lampiran"
-                : "Edit Attachment"
-            : "-",
+        tugas.displayLampiran,
         tugas.displayWaktuUpload,
         tugas.menitTerlambat != null
             ? context.isIndonesian
@@ -336,6 +446,8 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
       headers: headers,
       rows: rows,
       statusColumnIndexes: const [7], // status di kolom ke-6
+      onTapLampiran: (row) =>
+          _showLampiranDialog(context, widget.tugasList[row]),
       onCellTap: (row, col) {
         final tugas = widget.tugasList[row];
 
@@ -346,9 +458,6 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
             tugas.lampiranLat != null &&
             tugas.lampiranLng != null) {
           _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");
-        } else if (col == 9) {
-          // Lampiran di kolom terakhir
-          _editTugas(context, row);
         }
       },
       onView: (row) => _showDetailDialog(context, widget.tugasList[row]),
