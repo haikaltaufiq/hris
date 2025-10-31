@@ -52,28 +52,6 @@
 
 Buat file `.env` di root directory:
 
-## 📊 Performance
-
-| Feature      | Benchmark   |
-| ------------ | ----------- |
-| App Launch   | < 2 seconds |
-| Navigation   | < 500ms     |
-| API Response | < 1 second  |
-| Memory Usage | < 100MB     |
-
-## 🧪 Testing
-
-```bash
-# Run unit tests
-flutter test
-
-# Run integration tests
-flutter test integration_test/
-
-# Generate coverage report
-flutter test --coverage
-```
-
 ## 📦 Build & Deploy
 
 ### Android
@@ -104,10 +82,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Haikal** - _Initial work_ - [Haikal Taufiq](https://github.com/HaikalTaufiq)
 - **Grey** - _Initial work_ - [Grey](https://github.com/Greyari)
 
-## 🙏 Acknowledgments
-
-- Hat tip to anyone whose code was used
-- Inspiration dari project-project open source lainnya
-- Thanks to the Flutter community
-
----

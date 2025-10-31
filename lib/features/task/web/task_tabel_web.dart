@@ -3,6 +3,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/widgets/lampiran.dart';
@@ -26,6 +27,16 @@ class TugasTabelWeb extends StatefulWidget {
 
   @override
   State<TugasTabelWeb> createState() => _TugasTabelWebState();
+}
+// clear string dari api
+String getFullUrl(String lampiranPath) {
+  final cleaned = lampiranPath.replaceAll('\\', '');
+  final fullUrl = cleaned.startsWith('http')
+      ? cleaned
+      : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
+
+  debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
+  return fullUrl;
 }
 
 class _TugasTabelWebState extends State<TugasTabelWeb> {
@@ -169,7 +180,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
               Flexible(
                 child: Container(
                   padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
-                  child: ProfessionalLampiranWidget(url: tugas.lampiran!),
+                  child: ProfessionalLampiranWidget(url: getFullUrl(tugas.lampiran!)),
                 ),
               ),
             ],

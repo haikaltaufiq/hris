@@ -4,17 +4,16 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/widgets/lampiran.dart';
-import 'package:hr/features/task/widgets/video.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/helpers/notification_helper.dart';
 import '../../../core/theme/app_colors.dart';
 
@@ -29,6 +28,16 @@ class TugasTabel extends StatefulWidget {
 
   @override
   State<TugasTabel> createState() => _TugasTabelState();
+}
+
+String getFullUrl(String lampiranPath) {
+  final cleaned = lampiranPath.replaceAll('\\', '');
+  final fullUrl = cleaned.startsWith('http')
+      ? cleaned
+      : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
+
+  debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
+  return fullUrl;
 }
 
 class _TugasTabelState extends State<TugasTabel> {
@@ -174,16 +183,6 @@ class _TugasTabelState extends State<TugasTabel> {
     widget.onActionDone?.call();
   }
 
-  // lampiran tipe file
-  Future<void> _downloadFile(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw 'Tidak bisa membuka $url';
-    }
-  }
-
   // lampiran
   void _showLampiranDialog(BuildContext context, TugasModel tugas) {
     if (tugas.lampiran == null) {
@@ -274,7 +273,7 @@ class _TugasTabelState extends State<TugasTabel> {
               Flexible(
                 child: Container(
                   padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
-                  child: ProfessionalLampiranWidget(url: tugas.lampiran!),
+                  child: ProfessionalLampiranWidget(url: getFullUrl(tugas.lampiran!)),
                 ),
               ),
             ],
@@ -282,26 +281,6 @@ class _TugasTabelState extends State<TugasTabel> {
         ),
       ),
     );
-  }
-
-  Widget buildLampiranWidget(String url) {
-    final ext = url.split('.').last.toLowerCase();
-    if (['mp4', 'mov', 'avi', '3gp'].contains(ext)) {
-      return VideoPlayerWidget(videoUrl: url);
-    } else if (['jpg', 'jpeg', 'png', 'gif'].contains(ext)) {
-      return Image.network(url, fit: BoxFit.contain);
-    } else if (ext == 'pdf') {
-      return Center(child: Text('PDF Viewer bisa ditambahkan di sini'));
-    } else if (['mp3', 'wav', 'm4a'].contains(ext)) {
-      return Center(child: Text('Audio Player bisa ditambahkan di sini'));
-    } else {
-      return Center(
-        child: ElevatedButton(
-          onPressed: () => _downloadFile(url),
-          child: const Text('Download Lampiran'),
-        ),
-      );
-    }
   }
 
   void _showDetailDialog(BuildContext context, TugasModel tugas) {

@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 
@@ -159,8 +160,12 @@ class _AbsenTabelState extends State<AbsenTabel> {
       return;
     }
 
-    // Hanya gunakan videoPath langsung
-    final controller = VideoPlayerController.network(videoPath);
+    // --- Tambahkan baseUrl Laravel
+    final fullUrl = videoPath.startsWith('http') 
+        ? videoPath 
+        : "${ApiConfig.baseUrl}$videoPath";
+
+    final controller = VideoPlayerController.network(fullUrl);
 
     showGeneralDialog(
       context: context,
