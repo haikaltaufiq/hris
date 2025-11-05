@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:hr/core/utils/device_size.dart';
 
 class CustomDataTableWeb extends StatefulWidget {
   final List<String> headers;
@@ -50,7 +49,6 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
     return widget.rows.sublist(start, end);
   }
 
-  /// Convert paginated row index to actual row index in full list
   int _getActualRowIndex(int paginatedRowIndex) {
     return (currentPage * rowsPerPage) + paginatedRowIndex;
   }
@@ -74,6 +72,16 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
       default:
         return Colors.grey;
     }
+  }
+
+  double _getResponsiveFontSize(BuildContext context, double baseFontSize) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 600) {
+      return baseFontSize - 2;
+    } else if (screenWidth < 1024) {
+      return baseFontSize - 1;
+    }
+    return baseFontSize;
   }
 
   void _showStatusDropdown(BuildContext context, String currentStatus,
@@ -158,7 +166,6 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    softWrap: false,
                   ),
                 ),
               ],
@@ -176,96 +183,35 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
   Widget _buildValueCell(
       BuildContext context, String value, int paginatedRowIndex, int colIndex) {
     final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
+    final fontSize = _getResponsiveFontSize(context, 12);
 
     if (widget.dropdownStatusColumnIndexes != null &&
         widget.dropdownStatusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: IntrinsicWidth(
-          child: Builder(
-            builder: (context) => Tooltip(
-              message: value,
-              waitDuration: const Duration(milliseconds: 300),
-              child: InkWell(
-                onTap: () {
-                  widget.onCellTap
-                      ?.call(paginatedRowIndex, colIndex, actualRowIndex);
-                  _showStatusDropdown(
-                      context, value, paginatedRowIndex, colIndex);
-                },
-                borderRadius: BorderRadius.circular(20),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: color, width: 1),
-                    color: color.withOpacity(0.1),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 10,
-                        height: 10,
-                        decoration: BoxDecoration(
-                          color: color,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            color: color,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            fontFamily: GoogleFonts.poppins().fontFamily,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: false,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Icon(
-                        Icons.keyboard_arrow_down,
-                        color: color,
-                        size: 16,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (widget.statusColumnIndexes != null &&
-        widget.statusColumnIndexes!.contains(colIndex)) {
-      final color = _getStatusColor(value);
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: IntrinsicWidth(
-          child: Tooltip(
-            message: value,
-            waitDuration: const Duration(milliseconds: 300),
+      return Builder(
+        builder: (context) => Tooltip(
+          message: value,
+          waitDuration: const Duration(milliseconds: 300),
+          child: InkWell(
+            onTap: () {
+              widget.onCellTap
+                  ?.call(paginatedRowIndex, colIndex, actualRowIndex);
+              _showStatusDropdown(context, value, paginatedRowIndex, colIndex);
+            },
+            borderRadius: BorderRadius.circular(20),
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: color, width: 1),
+                color: color.withOpacity(0.1),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 10,
-                    height: 10,
+                    width: 8,
+                    height: 8,
                     decoration: BoxDecoration(
                       color: color,
                       shape: BoxShape.circle,
@@ -278,17 +224,65 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                       style: TextStyle(
                         color: color,
                         fontWeight: FontWeight.bold,
-                        fontSize: 12,
+                        fontSize: fontSize,
                         fontFamily: GoogleFonts.poppins().fontFamily,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      softWrap: false,
                     ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Icons.keyboard_arrow_down,
+                    color: color,
+                    size: 14,
                   ),
                 ],
               ),
             ),
+          ),
+        ),
+      );
+    }
+
+    if (widget.statusColumnIndexes != null &&
+        widget.statusColumnIndexes!.contains(colIndex)) {
+      final color = _getStatusColor(value);
+      return Tooltip(
+        message: value,
+        waitDuration: const Duration(milliseconds: 300),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: color, width: 1),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  value,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: fontSize,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -309,9 +303,11 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
               style: TextStyle(
                 color: Colors.blue,
                 decoration: TextDecoration.underline,
+                fontSize: fontSize,
                 fontFamily: GoogleFonts.poppins().fontFamily,
               ),
-              overflow: TextOverflow.clip,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         );
@@ -328,11 +324,12 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
           value,
           style: TextStyle(
             color: AppColors.putih,
-            fontSize: 12,
+            fontSize: fontSize,
             fontWeight: FontWeight.w500,
             fontFamily: GoogleFonts.poppins().fontFamily,
           ),
-          overflow: TextOverflow.clip,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
       ),
     );
@@ -341,6 +338,9 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
   @override
   Widget build(BuildContext context) {
     final totalPages = (widget.rows.length / rowsPerPage).ceil();
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final headerFontSize = _getResponsiveFontSize(context, 13);
 
     return Column(
       children: [
@@ -391,10 +391,12 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                               entry.value,
                               style: TextStyle(
                                 color: AppColors.putih,
-                                fontSize: 13,
+                                fontSize: headerFontSize,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
@@ -404,13 +406,14 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                         widget.onEdit != null ||
                         widget.onDelete != null)
                       SizedBox(
-                        width: 120,
+                        width: isMobile ? 100 : 120,
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: Text(
                             "Action",
                             style: TextStyle(
                               color: AppColors.putih,
+                              fontSize: headerFontSize,
                               fontWeight: FontWeight.bold,
                               fontFamily: GoogleFonts.poppins().fontFamily,
                             ),
@@ -462,7 +465,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                             widget.onEdit != null ||
                             widget.onDelete != null)
                           SizedBox(
-                            width: context.isMobile ? 160 : 120,
+                            width: isMobile ? 100 : 120,
                             child: Padding(
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8.0),
@@ -476,12 +479,12 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                         icon: FaIcon(
                                           FontAwesomeIcons.eye,
                                           color: AppColors.putih,
-                                          size: 14,
+                                          size: isMobile ? 12 : 14,
                                         ),
                                         padding: const EdgeInsets.all(8),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 32,
-                                          minHeight: 32,
+                                        constraints: BoxConstraints(
+                                          minWidth: isMobile ? 28 : 32,
+                                          minHeight: isMobile ? 28 : 32,
                                         ),
                                         onPressed: () =>
                                             widget.onView!(actualRowIndex),
@@ -494,12 +497,12 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                         icon: FaIcon(
                                           FontAwesomeIcons.pen,
                                           color: AppColors.putih,
-                                          size: 14,
+                                          size: isMobile ? 12 : 14,
                                         ),
                                         padding: const EdgeInsets.all(8),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 32,
-                                          minHeight: 32,
+                                        constraints: BoxConstraints(
+                                          minWidth: isMobile ? 28 : 32,
+                                          minHeight: isMobile ? 28 : 32,
                                         ),
                                         onPressed: () =>
                                             widget.onEdit!(actualRowIndex),
@@ -512,12 +515,12 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
                                         icon: FaIcon(
                                           FontAwesomeIcons.trash,
                                           color: AppColors.putih,
-                                          size: 14,
+                                          size: isMobile ? 12 : 14,
                                         ),
                                         padding: const EdgeInsets.all(8),
-                                        constraints: const BoxConstraints(
-                                          minWidth: 32,
-                                          minHeight: 32,
+                                        constraints: BoxConstraints(
+                                          minWidth: isMobile ? 28 : 32,
+                                          minHeight: isMobile ? 28 : 32,
                                         ),
                                         onPressed: () =>
                                             widget.onDelete!(actualRowIndex),

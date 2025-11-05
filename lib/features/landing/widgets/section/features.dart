@@ -201,7 +201,7 @@ class FeaturesSection extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               duration: const Duration(milliseconds: 300),
               onEnd: () {
-                debugPrint("Semua card sudah di-swipe");
+                // debugPrint("Semua card sudah di-swipe");
               },
             ),
           ),

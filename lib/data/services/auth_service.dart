@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/fitur_model.dart';
 import 'package:hr/data/services/fcm_service.dart';
@@ -71,10 +72,12 @@ class AuthService {
               'password': password,
               'device_id': deviceInfo["device_id"] ?? 'unknown_device',
               'device_model': deviceInfo["device_model"] ?? 'unknown_model',
-              'device_manufacturer': deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
-              'device_version': deviceInfo["device_version"] ?? 'unknown_version',
+              'device_manufacturer':
+                  deviceInfo["device_manufacturer"] ?? 'unknown_manufacturer',
+              'device_version':
+                  deviceInfo["device_version"] ?? 'unknown_version',
               'platform': kIsWeb ? 'web' : 'apk',
-              'device_hash': deviceHash, 
+              'device_hash': deviceHash,
               'device_token': fcmToken,
             }),
           )
@@ -92,14 +95,17 @@ class AuthService {
         await prefs.setString('email', user.email);
         await prefs.setString('npwp', user.npwp ?? '');
         await prefs.setString('bpjs_kesehatan', user.bpjsKesehatan ?? '');
-        await prefs.setString('bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
+        await prefs.setString(
+            'bpjs_ketenagakerjaan', user.bpjsKetenagakerjaan ?? '');
         await prefs.setString('jenis_kelamin', user.jenisKelamin);
         await prefs.setString('status_pernikahan', user.statusPernikahan);
-        await prefs.setDouble('gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
+        await prefs.setDouble(
+            'gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
         await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
         await prefs.setString('departemen', user.departemen.namaDepartemen);
         await prefs.setString('peran', user.peran.namaPeran);
-        await prefs.setString('fitur',jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
+        await prefs.setString('fitur',
+            jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
         // ✅ Simpan juga fcmToken agar bisa dihapus saat logout
@@ -259,65 +265,86 @@ class AuthService {
   // Logout hapus token di backend & clear prefs
   Future<Map<String, dynamic>> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    final box = Hive.box('user');
 
-    // ambil dari Hive dulu, baru fallback ke prefs
-    final token = box.get('token') ?? prefs.getString('token');
+    // Daftar semua Hive box yang perlu di-clear
+    final boxes = [
+      'user',
+      'cuti',
+      'lembur',
+      'tugas',
+      'absen',
+      'gaji',
+      'potongan_gaji',
+      'departemen',
+      'jabatan',
+      'pengingat',
+      'peran',
+    ];
 
-    // ambil juga FCM token
+    // Ambil token auth dari box 'user' atau SharedPreferences
+    final userBox = Hive.box('user');
+    final token = userBox.get('token') ?? prefs.getString('token');
+
+    // Ambil FCM token sebelum dihapus
     final fcmToken = await FcmService.getToken();
 
-    debugPrint("🔐 Token auth sebelum logout: $token");
-    debugPrint("📱 FCM Token sebelum logout: $fcmToken");
-
-    if (token == null) {
-      await prefs.clear();
-      await box.clear();
-
-      return {'success': true, 'message': 'Sudah logout (local only)'};
-    }
+    // debugPrint("🔐 Token auth sebelum logout: $token");
+    // debugPrint("📱 FCM Token sebelum logout: $fcmToken");
 
     try {
-      // 🔍 Tambahkan debug print di sini sebelum request dikirim
-      debugPrint("Logout URL: ${ApiConfig.baseUrl}/api/logout");
-      debugPrint("Token: $token");
+      // Kirim request logout ke backend jika token tersedia
+      if (token != null) {
+        await http.post(
+          Uri.parse('${ApiConfig.baseUrl}/api/logout'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: jsonEncode({'device_token': fcmToken}),
+        );
 
-      final fcmToken = await FcmService.getToken();
-      debugPrint("FCM Token sebelum logout: $fcmToken");
-
-      final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/logout'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: jsonEncode({
-          'device_token': fcmToken,
-        }),
-      );
-
-      debugPrint("Logout response: ${response.statusCode} - ${response.body}");
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-
-        // hapus token FCM di device lokal
-        await FcmService.deleteLocalToken();
-
-        // bersihkan data lokal
-        await prefs.clear();
-        await box.clear();
-
-        return {'success': true, 'message': data['message']};
-      } else {
-        return {'success': false, 'message': 'Logout gagal'};
+        // debugPrint(
+        //     "Logout response: ${response.statusCode} - ${response.body}");
       }
-    } catch (e) {
-      // kalau error jaringan, tetap bersihkan data biar user logout lokal
+
+      // Hapus FCM token lokal & dari Firebase
+      await FcmService.deleteLocalToken();
+
+      // Bersihkan semua Hive box
+      for (final boxName in boxes) {
+        if (Hive.isBoxOpen(boxName)) {
+          final box = Hive.box(boxName);
+          await box.clear();
+        } else {
+          // kalau box belum dibuka, open dulu lalu clear
+          final box = await Hive.openBox(boxName);
+          await box.clear();
+        }
+      }
+
+      // Bersihkan SharedPreferences
       await prefs.clear();
-      await box.clear();
-      return {'success': false, 'message': e.toString()};
+      FeatureAccess.clear(); // clear in-memory
+      if (Hive.isBoxOpen('peran')) {
+        await Hive.box('peran').clear();
+      }
+      return {
+        'success': true,
+        'message': 'Logout berhasil, semua data lokal dihapus'
+      };
+    } catch (e) {
+      // Pastikan tetap bersihkan local storage walau error jaringan
+      await FcmService.deleteLocalToken();
+      await prefs.clear();
+      for (final boxName in boxes) {
+        if (Hive.isBoxOpen(boxName)) {
+          final box = Hive.box(boxName);
+          await box.clear();
+        }
+      }
+
+      return {'success': false, 'message': 'Logout gagal: ${e.toString()}'};
     }
   }
 
@@ -369,7 +396,8 @@ class AuthService {
 
   // buat hash unik dari kombinasi data perangkat
   String _generateDeviceHash(Map<String, String> info) {
-    final raw = "${info['device_id']}-${info['device_model']}-${info['device_manufacturer']}-${info['device_version']}";
+    final raw =
+        "${info['device_id']}-${info['device_model']}-${info['device_manufacturer']}-${info['device_version']}";
     final bytes = utf8.encode(raw);
     final hash = sha256.convert(bytes);
     return hash.toString();

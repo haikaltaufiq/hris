@@ -71,17 +71,17 @@ class CutiProvider with ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_cutiList.length} items');
+          // print(' Cache loaded: ${_cutiList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   /// Ambil semua data cuti dari API
   Future<void> fetchCuti({bool forceRefresh = false}) async {
-    print('🔄 fetchCuti called - forceRefresh: $forceRefresh');
+    // print(' fetchCuti called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _cutiList.isEmpty) {
@@ -92,9 +92,9 @@ class CutiProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await CutiService.fetchCuti();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _cutiList = apiData;
       sortCuti('terbaru');
@@ -107,11 +107,11 @@ class CutiProvider with ChangeNotifier {
         'cuti_list',
         _cutiList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -122,7 +122,7 @@ class CutiProvider with ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchCuti completed - items: ${_cutiList.length}');
+    // print(' fetchCuti completed - items: ${_cutiList.length}');
   }
 
   /// Searching fitur

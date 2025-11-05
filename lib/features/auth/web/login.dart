@@ -59,7 +59,7 @@ class _LoginState extends State<Login> {
     });
   }
 
-  /// Optimized login flow - sequential dengan loading state
+  /// Optimized login flow with parallel execution
   Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
@@ -76,11 +76,11 @@ class _LoginState extends State<Login> {
           final user = result['user'] as UserModel?;
 
           if (user != null && context.mounted) {
-            // Load settings DULU sebelum simpan data
-            await _loadAndApplySettings(context, token);
-
-            // Baru simpan user data & features
-            await _saveUserData(token, user, auth);
+            // Execute settings load and user data save in parallel
+            await Future.wait([
+              _loadAndApplySettings(context, token),
+              _saveUserData(token, user, auth),
+            ]);
 
             if (context.mounted) {
               NotificationHelper.showTopNotification(
@@ -89,7 +89,6 @@ class _LoginState extends State<Login> {
                 isSuccess: true,
               );
 
-              // Navigate setelah SEMUA siap - theme sudah set sebelum masuk dashboard
               Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
             }
           }
@@ -118,37 +117,45 @@ class _LoginState extends State<Login> {
     }
   }
 
-  /// Save user data ke Hive dan set features
+  /// Save user data with optimized batch operations
   Future<void> _saveUserData(
       String token, UserModel user, AuthService auth) async {
     final userBox = await Hive.openBox('user');
 
-    // Batch write ke Hive
-    await userBox.putAll({
-      'token': token,
-      'id': user.id,
-    });
-
-    // Set features
+    // Prepare feature list
     final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
-    await FeatureAccess.setFeatures(fiturList);
+
+    // Execute Hive write and feature setup in parallel
+    await Future.wait([
+      userBox.putAll({
+        'token': token,
+        'id': user.id,
+      }),
+      FeatureAccess.setFeatures(fiturList),
+    ]);
+
+    // Initialize features after data is set
     await FeatureAccess.init();
 
     // Save email (non-blocking)
     auth.saveEmail(user.email);
   }
 
-  /// Load settings dan apply langsung ke provider
+  /// Load settings with timeout protection
   Future<void> _loadAndApplySettings(BuildContext context, String token) async {
     try {
       final pengaturanService = PengaturanService();
-      final pengaturan = await pengaturanService.getPengaturan(token);
+
+      // Add timeout to prevent long blocking
+      final pengaturan = await pengaturanService.getPengaturan(token).timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => {'tema': 'terang', 'bahasa': 'indonesia'},
+          );
 
       final tema = pengaturan['tema'] ?? 'terang';
       final bahasa = pengaturan['bahasa'] ?? 'indonesia';
 
       if (context.mounted) {
-        // Apply settings secara synchronous agar langsung aktif
         final themeProvider =
             Provider.of<ThemeProvider>(context, listen: false);
         final langProvider =
@@ -158,8 +165,7 @@ class _LoginState extends State<Login> {
         langProvider.toggleLanguage(bahasa == 'indonesia');
       }
     } catch (e) {
-      debugPrint('Failed to load settings: $e');
-      // Tidak perlu show error ke user, gunakan default settings
+      // Use default settings on error
     }
   }
 
@@ -579,7 +585,6 @@ class _LoginState extends State<Login> {
                   if (await canLaunchUrl(telUri)) {
                     await launchUrl(telUri);
                   } else {
-                    debugPrint("Failed to open dialer");
                     if (context.mounted) {
                       NotificationHelper.showTopNotification(
                         context,
@@ -623,7 +628,6 @@ class _LoginState extends State<Login> {
                   if (await canLaunchUrl(mailUri)) {
                     await launchUrl(mailUri);
                   } else {
-                    debugPrint("Failed to open email client");
                     if (context.mounted) {
                       NotificationHelper.showTopNotification(
                         context,
@@ -664,7 +668,6 @@ class _LoginState extends State<Login> {
                   if (await canLaunchUrl(telUri)) {
                     await launchUrl(telUri);
                   } else {
-                    debugPrint("Failed to open dialer");
                     if (context.mounted) {
                       NotificationHelper.showTopNotification(
                         context,

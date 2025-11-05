@@ -148,7 +148,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
         ),
       );
     } catch (_) {
-      debugPrint("Format latlong salah: $latlongStr");
+      // debugPrint("Format latlong salah: $latlongStr");
     }
   }
 
@@ -161,76 +161,94 @@ class _AbsenTabelState extends State<AbsenTabel> {
     }
 
     // --- Tambahkan baseUrl Laravel
-    final fullUrl = videoPath.startsWith('http') 
-        ? videoPath 
+    final fullUrl = videoPath.startsWith('http')
+        ? videoPath
         : "${ApiConfig.baseUrl}$videoPath";
 
+    // print("=== VIDEO DEBUG START ===");
+    // print("Video path asli: $videoPath");
+    // print("Full URL: $fullUrl");
     final controller = VideoPlayerController.network(fullUrl);
-
-    showGeneralDialog(
-      context: context,
-      barrierDismissible: true,
-      barrierLabel: '',
-      pageBuilder: (_, __, ___) {
-        return FutureBuilder(
-          future: controller.initialize(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              controller.play();
-              return Scaffold(
-                backgroundColor: Colors.black.withOpacity(0.9),
-                body: Stack(
-                  children: [
-                    Center(
-                      child: AspectRatio(
-                        aspectRatio: controller.value.aspectRatio,
-                        child: VideoPlayer(controller),
+    try {
+      showGeneralDialog(
+        context: context,
+        barrierDismissible: true,
+        barrierLabel: '',
+        pageBuilder: (_, __, ___) {
+          return FutureBuilder(
+            future: controller.initialize(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                controller.play();
+                return Scaffold(
+                  backgroundColor: Colors.black.withOpacity(0.9),
+                  body: Stack(
+                    children: [
+                      Center(
+                        child: AspectRatio(
+                          aspectRatio: controller.value.aspectRatio,
+                          child: VideoPlayer(controller),
+                        ),
                       ),
-                    ),
-                    Positioned(
-                      top: 40,
-                      right: 20,
-                      child: IconButton(
-                        icon: const Icon(Icons.close,
-                            color: Colors.white, size: 32),
-                        onPressed: () {
-                          controller.dispose();
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 30,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: FloatingActionButton(
-                          backgroundColor: Colors.white,
+                      Positioned(
+                        top: 40,
+                        right: 20,
+                        child: IconButton(
+                          icon: const Icon(Icons.close,
+                              color: Colors.white, size: 32),
                           onPressed: () {
-                            setState(() {
-                              controller.value.isPlaying
-                                  ? controller.pause()
-                                  : controller.play();
-                            });
+                            controller.dispose();
+                            Navigator.pop(context);
                           },
-                          child: Icon(
-                            controller.value.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.black,
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 30,
+                        left: 0,
+                        right: 0,
+                        child: Center(
+                          child: FloatingActionButton(
+                            backgroundColor: Colors.white,
+                            onPressed: () {
+                              setState(() {
+                                controller.value.isPlaying
+                                    ? controller.pause()
+                                    : controller.play();
+                              });
+                            },
+                            child: Icon(
+                              controller.value.isPlaying
+                                  ? Icons.pause
+                                  : Icons.play_arrow,
+                              color: Colors.black,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
-            return const Center(child: LoadingWidget());
-          },
-        );
-      },
-    );
+                    ],
+                  ),
+                );
+              }
+              return const Center(child: LoadingWidget());
+            },
+          );
+        },
+      );
+    } catch (e) {
+      // print("Error initializing video controller: $e");
+      NotificationHelper.showTopNotification(context, "Gagal memuat video",
+          isSuccess: false);
+    }
+    controller.addListener(() {
+      if (controller.value.hasError) {
+        // print("Video Player Error: ${controller.value.errorDescription}");
+      }
+      if (!controller.value.isInitialized) {
+        // print("Controller belum init, state: ${controller.value}");
+      }
+    });
+
+    // print("=== VIDEO DEBUG END ===");
   }
 
   void _showDetail(BuildContext context, AbsenModel absen) {

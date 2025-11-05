@@ -927,7 +927,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       }
     } catch (e) {
       Navigator.pop(context);
-      print('Error during checkin: $e');
+      // print('Error during checkin: $e');
       NotificationHelper.showTopNotification(
         context,
         "Error: ${e.toString().replaceAll('Exception: ', '')}",

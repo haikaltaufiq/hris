@@ -58,17 +58,17 @@ class PengingatViewModel extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_pengingatList.length} items');
+          // print(' Cache loaded: ${_pengingatList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   /// Fetch awal data
   Future<void> fetchPengingat({bool forceRefresh = false}) async {
-    print('🔄 fetchPengingat called - forceRefresh: $forceRefresh');
+    // print(' fetchPengingat called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _pengingatList.isEmpty) {
@@ -79,9 +79,9 @@ class PengingatViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await PengingatService.fetchPengingat();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _pengingatList = apiData;
       sortPengingat('terdekat'); // Default sort
@@ -94,11 +94,11 @@ class PengingatViewModel extends ChangeNotifier {
         'pengingat_list',
         _pengingatList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -109,7 +109,7 @@ class PengingatViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchPengingat completed - items: ${_pengingatList.length}');
+    // print(' fetchPengingat completed - items: ${_pengingatList.length}');
   }
 
   /// Tambah pengingat
@@ -121,7 +121,7 @@ class PengingatViewModel extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
-        print("Error addPengingat: $e");
+        // print("Error addPengingat: $e");
       }
     }
   }
@@ -138,7 +138,7 @@ class PengingatViewModel extends ChangeNotifier {
       }
     } catch (e) {
       if (kDebugMode) {
-        print("Error updatePengingat: $e");
+        // print("Error updatePengingat: $e");
       }
     }
   }
@@ -164,7 +164,7 @@ class PengingatViewModel extends ChangeNotifier {
       }
     } catch (e) {
       if (kDebugMode) {
-        print("Error updateStatus: $e");
+        // print("Error updateStatus: $e");
       }
     }
   }
@@ -178,7 +178,7 @@ class PengingatViewModel extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       if (kDebugMode) {
-        print("Error deletePengingat: $e");
+        // print("Error deletePengingat: $e");
       }
     }
   }

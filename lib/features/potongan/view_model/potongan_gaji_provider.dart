@@ -33,17 +33,17 @@ class PotonganGajiProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_potonganList.length} items');
+          // print(' Cache loaded: ${_potonganList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   /// Fetch awal data
   Future<void> fetchPotonganGaji({bool forceRefresh = false}) async {
-    print('🔄 fetchPotonganGaji called - forceRefresh: $forceRefresh');
+    // print(' fetchPotonganGaji called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _potonganList.isEmpty) {
@@ -54,9 +54,9 @@ class PotonganGajiProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await PotonganGajiService.fetchPotonganGaji();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _potonganList = apiData;
       filteredPotonganGajiList.clear();
@@ -67,11 +67,11 @@ class PotonganGajiProvider extends ChangeNotifier {
         'potongan_list',
         _potonganList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -82,7 +82,7 @@ class PotonganGajiProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchPotonganGaji completed - items: ${_potonganList.length}');
+    // print(' fetchPotonganGaji completed - items: ${_potonganList.length}');
   }
 
   void filterPotonganGaji(String query) {

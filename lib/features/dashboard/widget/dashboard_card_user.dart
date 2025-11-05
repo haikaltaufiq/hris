@@ -43,7 +43,7 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
           isLoading = false;
         });
       }
-      print('Error loading kantor data: $e');
+      // print('Error loading kantor data: $e');
     }
   }
 

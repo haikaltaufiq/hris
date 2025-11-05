@@ -50,17 +50,17 @@ class JabatanViewModel extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_jabatanList.length} items');
+          // print(' Cache loaded: ${_jabatanList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   /// Fetch awal data
   Future<void> fetchJabatan({bool forceRefresh = false}) async {
-    print('🔄 fetchJabatan called - forceRefresh: $forceRefresh');
+    // print(' fetchJabatan called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _jabatanList.isEmpty) {
@@ -71,9 +71,9 @@ class JabatanViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await JabatanService.fetchJabatan();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _jabatanList = apiData;
       sortJabatan('terbaru');
@@ -85,11 +85,11 @@ class JabatanViewModel extends ChangeNotifier {
         'jabatan_list',
         _jabatanList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -100,7 +100,7 @@ class JabatanViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchJabatan completed - items: ${_jabatanList.length}');
+    // print(' fetchJabatan completed - items: ${_jabatanList.length}');
   }
 
   Future<void> createJabatan(BuildContext context, String namaJabatan) async {

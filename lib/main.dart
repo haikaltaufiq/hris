@@ -763,7 +763,7 @@ class _MyAppState extends State<MyApp> {
       final tema = pengaturan['tema'] ?? 'terang';
       final bahasa = pengaturan['bahasa'] ?? 'indonesia';
 
-      print('✅ Pengaturan loaded: tema=$tema, bahasa=$bahasa');
+      // print('✅ Pengaturan loaded: tema=$tema, bahasa=$bahasa');
 
       if (mounted) {
         final themeProvider =
@@ -775,7 +775,7 @@ class _MyAppState extends State<MyApp> {
         langProvider.toggleLanguage(bahasa == 'indonesia');
       }
     } catch (e) {
-      print('❌ Gagal load pengaturan: $e');
+      // print('❌ Gagal load pengaturan: $e');
 
       final prefs = await SharedPreferences.getInstance();
       if (mounted) {

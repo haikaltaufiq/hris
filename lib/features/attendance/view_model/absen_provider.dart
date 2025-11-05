@@ -64,13 +64,13 @@ class AbsenProvider extends ChangeNotifier {
           _hasCache = true;
           notifyListeners();
           if (kDebugMode) {
-            print('✅ Cache loaded: ${_absensi.length} items');
+            // print('✅ Cache loaded: ${_absensi.length} items');
           }
         }
       }
     } catch (e) {
       if (kDebugMode) {
-        print(' Error loading cache: $e');
+        // print(' Error loading cache: $e');
       }
     }
   }
@@ -80,7 +80,7 @@ class AbsenProvider extends ChangeNotifier {
     final userBox = await Hive.openBox('user');
     final currentUserId = userBox.get('id');
     if (kDebugMode) {
-      print(' fetchAbsen called - forceRefresh: $forceRefresh');
+      // print(' fetchAbsen called - forceRefresh: $forceRefresh');
     }
 
     // Load cache first if not force refresh
@@ -93,11 +93,11 @@ class AbsenProvider extends ChangeNotifier {
 
     try {
       if (kDebugMode) {
-        print(' Calling API...');
+        // print(' Calling API...');
       }
       final apiData = await AbsenService.fetchAbsensi();
       if (kDebugMode) {
-        print(' API success: ${apiData.length} items');
+        // print(' API success: ${apiData.length} items');
       }
 
       _allAbsensi = apiData; // TAMBAHAN: simpan semua data mentah
@@ -124,12 +124,12 @@ class AbsenProvider extends ChangeNotifier {
             .toList(), // UBAH: save dari _allAbsensi
       );
       if (kDebugMode) {
-        print(' Cache saved');
+        // print(' Cache saved');
       }
 
       _hasCache = true;
     } catch (e) {
-      print(' API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -140,7 +140,7 @@ class AbsenProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print(' fetchAbsensi completed - items: ${_absensi.length}');
+    // print(' fetchAbsensi completed - items: ${_absensi.length}');
   }
 
   /// Check-in
@@ -297,7 +297,7 @@ class AbsenProvider extends ChangeNotifier {
         }
       } catch (e) {
         if (kDebugMode) {
-          print(' Error parsing absen date: $e');
+          // print(' Error parsing absen date: $e');
         }
       }
     }

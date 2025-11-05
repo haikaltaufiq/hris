@@ -57,10 +57,17 @@ class FeatureAccess {
 
     // simpan juga ke shared preferences
     await prefs.setString('fitur', jsonEncode(fiturFromBackend));
-    debugPrint('✅ FeatureAccess updated: $_fitur');
+    // debugPrint('✅ FeatureAccess updated: $_fitur');
   }
 
   static bool has(String requiredFeature) {
     return _fitur.contains(requiredFeature);
+  }
+
+  // ✅ Tambahin ini
+  static Future<void> clear() async {
+    final prefs = await SharedPreferences.getInstance();
+    _fitur = [];
+    await prefs.remove('fitur');
   }
 }

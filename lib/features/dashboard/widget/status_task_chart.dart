@@ -371,7 +371,7 @@ class StatusTaskChart extends StatelessWidget {
           }
         }
       } catch (e) {
-        print('Error parsing tugas data: $e');
+        // print('Error parsing tugas data: $e');
       }
     }
 
@@ -407,7 +407,7 @@ class StatusTaskChart extends StatelessWidget {
       }
       return DateTime.parse(dateStr);
     } catch (e) {
-      print('Date parsing error: $e');
+      // print('Date parsing error: $e');
       return null;
     }
   }

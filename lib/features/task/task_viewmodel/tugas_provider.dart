@@ -49,11 +49,11 @@ class TugasProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners();
-          print('✅ Cache loaded: ${_tugasList.length} items');
+          // print(' Cache loaded: ${_tugasList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
@@ -159,7 +159,7 @@ class TugasProvider extends ChangeNotifier {
       if (result['success'] == true) await fetchTugas(forceRefresh: true);
       return result;
     } catch (e) {
-      debugPrint("Error create tugas: $e");
+      // debugPrint("Error create tugas: $e");
       return {'success': false, 'message': 'Terjadi Kegagalan'};
     } finally {
       _setLoading(false);
@@ -202,14 +202,14 @@ class TugasProvider extends ChangeNotifier {
           await box.put('batas_penugasan_$id', batasPenugasan);
           await box.put('update_needed_$id', true);
         } catch (e) {
-          debugPrint('Gagal update local Hive setelah updateTugas: $e');
+          // debugPrint('Gagal update local Hive setelah updateTugas: $e');
         }
 
         await fetchTugas(forceRefresh: true);
       }
       return result;
     } catch (e) {
-      debugPrint("Error update tugas: $e");
+      // debugPrint("Error update tugas: $e");
       return {'success': false, 'message': 'Terjadi kesalahan'};
     } finally {
       _setLoading(false);
@@ -225,7 +225,7 @@ class TugasProvider extends ChangeNotifier {
       filterTugas(_currentSearch);
       return result['message'];
     } catch (e) {
-      debugPrint("Error delete tugas: $e");
+      // debugPrint("Error delete tugas: $e");
       return null;
     } finally {
       _setLoading(false);
@@ -274,7 +274,7 @@ class TugasProvider extends ChangeNotifier {
         else
           attendanceRate[monthIndex] += 1;
       } catch (e) {
-        print('Error parsing tugas tanggalPenugasan: $e');
+        // print('Error parsing tugas tanggalPenugasan: $e');
       }
     }
 

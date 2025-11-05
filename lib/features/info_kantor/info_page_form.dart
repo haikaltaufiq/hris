@@ -100,7 +100,7 @@ class _InfoPageState extends State<InfoPage>
         }
       }
     } catch (e) {
-      print('Error loading kantor data: $e');
+      // print('Error loading kantor data: $e');
       // // Set default values if loading fails
       // jamMasukController.text = "08:00";
       // minimalKeterlambatanController.text = "15 menit";

@@ -59,17 +59,17 @@ class DepartmentViewModel extends ChangeNotifier {
           // 🔥 INI YANG PENTING - Trigger rebuild segera
           notifyListeners();
 
-          print('✅ Cache loaded: ${_departemenList.length} items');
+          // print(' Cache loaded: ${_departemenList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   /// Fetch awal data
   Future<void> fetchDepartemen({bool forceRefresh = false}) async {
-    print('🔄 fetchDepartemen called - forceRefresh: $forceRefresh');
+    // print(' fetchDepartemen called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _departemenList.isEmpty) {
@@ -80,9 +80,9 @@ class DepartmentViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await DepartemenService.fetchDepartemen();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _departemenList = apiData;
       sortDepartemen('terbaru');
@@ -94,11 +94,11 @@ class DepartmentViewModel extends ChangeNotifier {
         'departemen_list',
         _departemenList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -109,7 +109,7 @@ class DepartmentViewModel extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
-    print('🏁 fetchDepartemen completed - items: ${_departemenList.length}');
+    // print(' fetchDepartemen completed - items: ${_departemenList.length}');
   }
 
   /// Create departemen

@@ -133,17 +133,17 @@ class UserProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_users.length} items');
+          // print(' Cache loaded: ${_users.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      print(' Error loading cache: $e');
     }
   }
 
   // ===== CRUD Users =====
   Future<void> fetchUsers({bool forceRefresh = false}) async {
-    print('🔄 fetchUsers called - forceRefresh: $forceRefresh');
+    // print(' fetchUsers called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _users.isEmpty) {
@@ -154,9 +154,9 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await UserService.fetchUsers();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _users = apiData;
       _filteredUsers.clear();
@@ -167,11 +167,11 @@ class UserProvider extends ChangeNotifier {
         'user_list',
         _users.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -182,7 +182,7 @@ class UserProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchUsers completed - items: ${_users.length}');
+    // print(' fetchUsers completed - items: ${_users.length}');
   }
 
   Future<void> createUser(Map<String, dynamic> data) async {

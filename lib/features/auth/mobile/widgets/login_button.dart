@@ -53,11 +53,11 @@ class _LoginButtonState extends State<LoginButton> {
         final user = result['user'] as UserModel?;
 
         if (user != null && context.mounted) {
-          // Load settings FIRST untuk apply theme sebelum navigate
-          await _loadAndApplySettings(context, token);
-
-          // Save user data after settings loaded
-          await _saveUserData(token, user, auth);
+          // Execute settings load and user data save in parallel
+          await Future.wait([
+            _loadAndApplySettings(context, token),
+            _saveUserData(token, user, auth),
+          ]);
 
           if (context.mounted) {
             NotificationHelper.showTopNotification(
@@ -68,7 +68,6 @@ class _LoginButtonState extends State<LoginButton> {
             Navigator.pushReplacementNamed(context, AppRoutes.dashboardMobile);
           }
         } else {
-          debugPrint('UserModel null dari backend');
           widget.onError("Terjadi kesalahan pada data user");
         }
       } else {
@@ -79,7 +78,6 @@ class _LoginButtonState extends State<LoginButton> {
     } on TimeoutException {
       widget.onError("Request timeout. Periksa koneksi internet.");
     } catch (e) {
-      debugPrint('Login error: $e');
       widget.onError("Check your internet connection");
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -98,37 +96,43 @@ class _LoginButtonState extends State<LoginButton> {
     return true;
   }
 
+  /// Save user data with optimized batch operations
   Future<void> _saveUserData(
       String token, UserModel user, AuthService auth) async {
     final userBox = await Hive.openBox('user');
 
-    // Batch write untuk performa lebih baik
-    await userBox.putAll({
-      'token': token,
-      'id': user.id,
-    });
-
-    // Set features
+    // Prepare feature list
     final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
-    await FeatureAccess.setFeatures(fiturList);
+
+    // Execute Hive write and feature setup in parallel
+    await Future.wait([
+      userBox.putAll({
+        'token': token,
+        'id': user.id,
+      }),
+      FeatureAccess.setFeatures(fiturList),
+    ]);
+
+    // Initialize features after data is set
     await FeatureAccess.init();
 
     // Non-blocking email save
     auth.saveEmail(user.email);
-
-    debugPrint('User saved to Hive: ${userBox.toMap()}');
   }
 
+  /// Load settings with timeout protection
   Future<void> _loadAndApplySettings(BuildContext context, String token) async {
     try {
       final pengaturanService = PengaturanService();
-      final pengaturan = await pengaturanService.getPengaturan(token);
+
+      // Add timeout to prevent long blocking
+      final pengaturan = await pengaturanService.getPengaturan(token).timeout(
+            const Duration(seconds: 3),
+            onTimeout: () => {'tema': 'terang', 'bahasa': 'indonesia'},
+          );
 
       final tema = pengaturan['tema'] ?? 'terang';
       final bahasa = pengaturan['bahasa'] ?? 'indonesia';
-
-      debugPrint(
-          'Mobile Login - Pengaturan loaded: tema=$tema, bahasa=$bahasa');
 
       if (context.mounted) {
         final themeProvider =
@@ -140,8 +144,7 @@ class _LoginButtonState extends State<LoginButton> {
         langProvider.toggleLanguage(bahasa == 'indonesia');
       }
     } catch (e) {
-      debugPrint('Mobile Login - Gagal load pengaturan: $e');
-      // Tidak perlu show error, gunakan default settings
+      // Use default settings on error
     }
   }
 

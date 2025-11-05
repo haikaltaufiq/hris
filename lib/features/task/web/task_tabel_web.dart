@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:hr/features/task/tugas_form/form_user_edit.dart';
 import 'package:hr/features/task/widgets/lampiran.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
@@ -28,6 +30,7 @@ class TugasTabelWeb extends StatefulWidget {
   @override
   State<TugasTabelWeb> createState() => _TugasTabelWebState();
 }
+
 // clear string dari api
 String getFullUrl(String lampiranPath) {
   final cleaned = lampiranPath.replaceAll('\\', '');
@@ -35,7 +38,7 @@ String getFullUrl(String lampiranPath) {
       ? cleaned
       : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
 
-  debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
+  // debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
   return fullUrl;
 }
 
@@ -60,11 +63,24 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
   }
 
   Future<void> _editTugas(BuildContext context, int row) async {
-    await Navigator.pushNamed(
-      context,
-      AppRoutes.taskEdit,
-      arguments: widget.tugasList[row], // passing data tugas
-    );
+    final tugas = widget.tugasList[row];
+    final canAccess = await FeatureAccess.has("tambah_tugas");
+
+    if (canAccess) {
+      await Navigator.pushNamed(
+        context,
+        AppRoutes.taskEdit,
+        arguments: tugas,
+      );
+    } else {
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FormUserEdit(tugas: tugas),
+        ),
+      );
+    }
+
     widget.onActionDone?.call();
   }
 
@@ -180,7 +196,8 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
               Flexible(
                 child: Container(
                   padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
-                  child: ProfessionalLampiranWidget(url: getFullUrl(tugas.lampiran!)),
+                  child: ProfessionalLampiranWidget(
+                      url: getFullUrl(tugas.lampiran!)),
                 ),
               ),
             ],
@@ -389,23 +406,28 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       ];
     }).toList();
 
+    final bool hasAccess = FeatureAccess.has("tambah_tugas");
+
     return CustomDataTableWeb(
       headers: headers,
       rows: rows,
-      dropdownStatusColumnIndexes: [7],
-      statusOptions: ['Selesai', 'Proses'],
-      onStatusChanged: (rowIndex, newStatus) async {
-        final tugas = widget.tugasList[rowIndex];
-        final message = await context
-            .read<TugasProvider>()
-            .updateTugasStatus(tugas.id, newStatus);
+      dropdownStatusColumnIndexes: hasAccess ? [7] : null,
+      statusColumnIndexes: hasAccess ? null : [7],
+      statusOptions: hasAccess ? ['Selesai', 'Proses'] : null,
+      onStatusChanged: hasAccess
+          ? (rowIndex, newStatus) async {
+              final tugas = widget.tugasList[rowIndex];
+              final message = await context
+                  .read<TugasProvider>()
+                  .updateTugasStatus(tugas.id, newStatus);
 
-        NotificationHelper.showTopNotification(
-          context,
-          message ?? 'Gagal update status',
-          isSuccess: message != null,
-        );
-      },
+              NotificationHelper.showTopNotification(
+                context,
+                message ?? 'Gagal update status',
+                isSuccess: message != null,
+              );
+            }
+          : null,
       onView: (actualRowIndex) =>
           _showDetailDialog(context, widget.tugasList[actualRowIndex]),
       onEdit: (actualRowIndex) => _editTugas(context, actualRowIndex),

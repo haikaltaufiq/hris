@@ -69,7 +69,7 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
       Navigator.pushNamed(context, AppRoutes.mapPage,
           arguments: LatLng(lat, lng));
     } catch (_) {
-      debugPrint("Format latlong salah: $latlongStr");
+      // debugPrint("Format latlong salah: $latlongStr");
     }
   }
 

@@ -36,7 +36,7 @@ String getFullUrl(String lampiranPath) {
       ? cleaned
       : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
 
-  debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
+  // debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
   return fullUrl;
 }
 
@@ -136,7 +136,7 @@ class _TugasTabelState extends State<TugasTabel> {
         ),
       );
     } catch (_) {
-      debugPrint("Format latlong salah: $latlongStr");
+      // debugPrint("Format latlong salah: $latlongStr");
     }
   }
 

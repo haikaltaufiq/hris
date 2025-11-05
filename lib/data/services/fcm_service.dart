@@ -1,5 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class FcmService {
@@ -17,14 +17,14 @@ class FcmService {
 
       if (token != null) {
         await prefs.setString(_fcmKey, token);
-        if (kDebugMode) print('🔐 FCM Token aktif: $token');
+        // if (kDebugMode) print('🔐 FCM Token aktif: $token');
       } else {
-        if (kDebugMode) print('⚠️ Token FCM null');
+        // if (kDebugMode) print('⚠️ Token FCM null');
       }
 
       return token;
     } catch (e) {
-      if (kDebugMode) print('❌ Gagal ambil token FCM: $e');
+      // if (kDebugMode) print('❌ Gagal ambil token FCM: $e');
       return null;
     }
   }
@@ -35,9 +35,9 @@ class FcmService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_fcmKey);
       await _fcm.deleteToken();
-      if (kDebugMode) print('🧹 Token FCM lokal dihapus');
+      // if (kDebugMode) print('🧹 Token FCM lokal dihapus');
     } catch (e) {
-      if (kDebugMode) print('⚠️ Gagal hapus token lokal: $e');
+      // if (kDebugMode) print('⚠️ Gagal hapus token lokal: $e');
     }
   }
 }

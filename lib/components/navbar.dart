@@ -664,7 +664,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                   ),
                   onSelected: (value) async {
                     if (value == 'settings') {
-                      debugPrint("Settings diklik");
+                      // debugPrint("Settings diklik");
                       Navigator.pushNamed(context, AppRoutes.pengaturan);
                     } else if (value == 'logout') {
                       final confirmed = await showConfirmationDialog(
@@ -691,8 +691,8 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       // panggil API logout auth
                       if (token != null) {
-                        final result = await AuthService().logout();
-                        debugPrint("Logout result: $result");
+                        await AuthService().logout();
+                        // debugPrint("Logout result: $result");
                       }
 
                       // baru bersihkan data lokal

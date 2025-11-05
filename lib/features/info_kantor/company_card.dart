@@ -38,7 +38,7 @@ class _CompanyCardState extends State<CompanyCard> {
           isLoading = false;
         });
       }
-      print('Error loading kantor data: $e');
+      // print('Error loading kantor data: $e');
     }
   }
 

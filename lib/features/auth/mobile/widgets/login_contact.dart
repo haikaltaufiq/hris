@@ -18,7 +18,7 @@ class LoginContact extends StatelessWidget {
             if (await canLaunchUrl(telUri)) {
               await launchUrl(telUri);
             } else {
-              debugPrint("Failed to open dialer");
+              // debugPrint("Failed to open dialer");
               NotificationHelper.showTopNotification(
                   context, "Can't open the phone",
                   isSuccess: false);

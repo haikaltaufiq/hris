@@ -15,8 +15,8 @@ class PengaturanService {
         },
       ).timeout(const Duration(seconds: 10));
 
-      print('GET Pengaturan - Status: ${response.statusCode}');
-      print('GET Pengaturan - Body: ${response.body}');
+      // print('GET Pengaturan - Status: ${response.statusCode}');
+      // print('GET Pengaturan - Body: ${response.body}');
 
       if (response.statusCode == 200) {
         final json = jsonDecode(response.body);
@@ -27,7 +27,7 @@ class PengaturanService {
         final tema = data['tema'] ?? 'terang';
         final bahasa = data['bahasa'] ?? 'indonesia';
 
-        print('Pengaturan parsed: tema=$tema, bahasa=$bahasa');
+        // print('Pengaturan parsed: tema=$tema, bahasa=$bahasa');
 
         return {
           'tema': tema,
@@ -35,13 +35,13 @@ class PengaturanService {
         };
       } else if (response.statusCode == 404) {
         // Jika pengaturan belum ada, create default
-        print('Pengaturan belum ada, akan create default');
+        // print('Pengaturan belum ada, akan create default');
         return await _createDefaultPengaturan(token);
       } else {
         throw Exception('Gagal ambil pengaturan: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error getPengaturan: $e');
+      // print('Error getPengaturan: $e');
       // Return default settings instead of throwing
       return {
         'tema': 'terang',
@@ -74,7 +74,7 @@ class PengaturanService {
         };
       }
     } catch (e) {
-      print('Error creating default pengaturan: $e');
+      // print('Error creating default pengaturan: $e');
     }
 
     return {
@@ -90,7 +90,7 @@ class PengaturanService {
     required String bahasa,
   }) async {
     try {
-      print('Update Pengaturan: tema=$tema, bahasa=$bahasa');
+      // print('Update Pengaturan: tema=$tema, bahasa=$bahasa');
 
       final response = await http
           .post(
@@ -106,8 +106,8 @@ class PengaturanService {
           )
           .timeout(const Duration(seconds: 10));
 
-      print('Update Pengaturan - Status: ${response.statusCode}');
-      print('Update Pengaturan - Body: ${response.body}');
+      // print('Update Pengaturan - Status: ${response.statusCode}');
+      // print('Update Pengaturan - Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final json = jsonDecode(response.body);
@@ -118,7 +118,7 @@ class PengaturanService {
         await prefs.setBool('isDarkMode', tema == 'gelap');
         await prefs.setString('bahasa', bahasa);
 
-        print('Pengaturan updated successfully');
+        // print('Pengaturan updated successfully');
 
         return {
           'tema': data['tema'] ?? tema,
@@ -128,7 +128,7 @@ class PengaturanService {
         throw Exception('Gagal update pengaturan: ${response.statusCode}');
       }
     } catch (e) {
-      print('Error updatePengaturan: $e');
+      // print('Error updatePengaturan: $e');
       throw Exception('Gagal update pengaturan: $e');
     }
   }

@@ -68,7 +68,7 @@ class _PengaturanPageState extends State<PengaturanPage>
       final tema = pengaturan['tema'] ?? 'terang';
       final bahasa = pengaturan['bahasa'] ?? 'indonesia';
 
-      print('✅ Pengaturan Page - Loaded: tema=$tema, bahasa=$bahasa');
+      // print(' Pengaturan Page - Loaded: tema=$tema, bahasa=$bahasa');
 
       final isDark = tema == 'gelap';
       final isID = bahasa == 'indonesia';
@@ -86,7 +86,7 @@ class _PengaturanPageState extends State<PengaturanPage>
         });
       }
     } catch (e) {
-      print('❌ Pengaturan Page - Error loading: $e');
+      // print(' Pengaturan Page - Error loading: $e');
       if (mounted) {
         setState(() => _isLoading = false);
       }
@@ -120,9 +120,9 @@ class _PengaturanPageState extends State<PengaturanPage>
         tema: newDark ? 'gelap' : 'terang',
         bahasa: langProvider.isIndonesian ? 'indonesia' : 'inggris',
       );
-      print('✅ Tema updated to: ${newDark ? "gelap" : "terang"}');
+      // print(' Tema updated to: ${newDark ? "gelap" : "terang"}');
     } catch (e) {
-      print('❌ Gagal update tema: $e');
+      // print(' Gagal update tema: $e');
       // Revert on error
       themeProvider.setDarkMode(!newDark);
       newDark
@@ -150,9 +150,9 @@ class _PengaturanPageState extends State<PengaturanPage>
         tema: themeProvider.isDarkMode ? 'gelap' : 'terang',
         bahasa: newLang ? 'indonesia' : 'inggris',
       );
-      print('✅ Bahasa updated to: ${newLang ? "indonesia" : "inggris"}');
+      // print(' Bahasa updated to: ${newLang ? "indonesia" : "inggris"}');
     } catch (e) {
-      print('❌ Gagal update bahasa: $e');
+      // print(' Gagal update bahasa: $e');
       // Revert on error
       langProvider.toggleLanguage(!newLang);
       newLang

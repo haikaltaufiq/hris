@@ -123,18 +123,18 @@ class _WebPageGajiState extends State<WebPageGaji> {
           child: GajiTabelWeb(
             gajiList: provider.displayedList,
             onReload: (gajiId, newStatus) async {
-              print('🔄 WebPageGaji onReload called');
-              print('gajiId: $gajiId, newStatus: $newStatus');
+              // print(' WebPageGaji onReload called');
+              // print('gajiId: $gajiId, newStatus: $newStatus');
 
               try {
                 await GajiService.updateStatus(gajiId, newStatus);
-                print('✅ Status updated in DB');
+                // print(' Status updated in DB');
 
                 // PENTING: refresh data dari server
                 await provider.fetchGaji();
-                print('✅ Data refreshed from server');
+                // print(' Data refreshed from server');
               } catch (e) {
-                print('❌ Error: $e');
+                // print(' Error: $e');
                 // Tampilkan error ke user
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(

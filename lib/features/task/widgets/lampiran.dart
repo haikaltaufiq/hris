@@ -128,7 +128,7 @@ class ProfessionalLampiranWidget extends StatelessWidget {
             },
             // <-- testing error builder
             errorBuilder: (context, error, stackTrace) {
-              debugPrint("❌ Error load image: $error"); // <-- ini akan tampil di console
+              // debugPrint("❌ Error load image: $error"); // <-- ini akan tampil di console
               return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,

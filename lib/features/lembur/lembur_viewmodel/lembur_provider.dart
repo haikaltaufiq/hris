@@ -74,17 +74,17 @@ class LemburProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI immediately
-          print('✅ Cache loaded: ${_lemburList.length} items');
+          // print(' Cache loaded: ${_lemburList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   // Fetch semua lembur
   Future<void> fetchLembur({bool forceRefresh = false}) async {
-    print('🔄 fetchLembur called - forceRefresh: $forceRefresh');
+    // print(' fetchLembur called - forceRefresh: $forceRefresh');
 
     // Load cache first if not force refresh
     if (!forceRefresh && _lemburList.isEmpty) {
@@ -95,9 +95,9 @@ class LemburProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await LemburService.fetchLembur();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _lemburList = apiData;
       sortLembur('terbaru');
@@ -110,11 +110,11 @@ class LemburProvider extends ChangeNotifier {
         'lembur_list',
         _lemburList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // If no data and cache exists, load cache
@@ -125,7 +125,7 @@ class LemburProvider extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchLembur completed - items: ${_lemburList.length}');
+    // print(' fetchLembur completed - items: ${_lemburList.length}');
   }
 
   /// Searching fitur

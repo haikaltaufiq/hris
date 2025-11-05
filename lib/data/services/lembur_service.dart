@@ -33,7 +33,7 @@ class LemburService {
       final List lemburList = jsonData['data'];
       return lemburList.map((json) => LemburModel.fromJson(json)).toList();
     } else {
-      print('Gagal fetch lembur: ${response.statusCode} ${response.body}');
+      // print('Gagal fetch lembur: ${response.statusCode} ${response.body}');
       throw Exception('Gagal memuat data lembur');
     }
   }
@@ -215,7 +215,7 @@ class LemburService {
     if (response.statusCode == 200) {
       return json.decode(response.body)['message'];
     } else {
-      print('Gagal menyetujui cuti: ${response.statusCode} ${response.body}');
+      // print('Gagal menyetujui cuti: ${response.statusCode} ${response.body}');
       return null;
     }
   }
@@ -244,7 +244,7 @@ class LemburService {
     if (response.statusCode == 200) {
       return responseData['message'] ?? "Lembur berhasil ditolak";
     } else {
-      print('❌ Gagal menolak lembur: ${response.statusCode} ${response.body}');
+      // print('❌ Gagal menolak lembur: ${response.statusCode} ${response.body}');
       return responseData['message'] ?? "Gagal menolak lembur";
     }
   }

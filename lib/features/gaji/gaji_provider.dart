@@ -42,17 +42,17 @@ class GajiProvider extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners();
-          print('✅ Cache loaded: ${_gajiList.length} items');
+          // print(' Cache loaded: ${_gajiList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   // ================= FETCH DATA ================= //
   Future<void> fetchGaji({bool forceRefresh = false}) async {
-    print('🔄 fetchGaji called - forceRefresh: $forceRefresh');
+    // print(' fetchGaji called - forceRefresh: $forceRefresh');
 
     if (!forceRefresh && _gajiList.isEmpty) {
       loadCacheFirst();
@@ -62,7 +62,7 @@ class GajiProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Fetching gaji...');
+      // print(' Fetching gaji...');
       final apiData = await GajiService.fetchGaji();
       _gajiList = apiData;
       _filteredList.clear();
@@ -75,9 +75,9 @@ class GajiProvider extends ChangeNotifier {
       );
 
       _hasCache = true;
-      print('💾 Cache updated (${_gajiList.length} items)');
+      // print(' Cache updated (${_gajiList.length} items)');
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       if (_gajiList.isEmpty) {

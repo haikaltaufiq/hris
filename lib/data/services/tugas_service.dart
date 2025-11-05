@@ -46,7 +46,7 @@ class TugasService {
 
       throw FormatException("Format tanggal tidak dikenali: '$input'");
     } catch (e) {
-      print("⚠️ Format tanggal tidak valid: $input ($e)");
+      // print("⚠️ Format tanggal tidak valid: $input ($e)");
       return "0000-00-00 00:00:00";
     }
   }
@@ -65,8 +65,8 @@ class TugasService {
       },
     );
 
-    print("FETCH STATUS: ${response.statusCode}");
-    print("FETCH BODY: ${response.body}");
+    // print("FETCH STATUS: ${response.statusCode}");
+    // print("FETCH BODY: ${response.body}");
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
@@ -74,7 +74,7 @@ class TugasService {
         final List tugasList = jsonData['data'];
         return tugasList.map((item) => TugasModel.fromJson(item)).toList();
       } else {
-        print("API tidak mengembalikan key 'data'");
+        // print("API tidak mengembalikan key 'data'");
         return [];
       }
     } else {
@@ -113,7 +113,7 @@ class TugasService {
 
     if (person != null) requestBody['user_id'] = person;
 
-    print("CREATE DATA KIRIM: $requestBody");
+    // print("CREATE DATA KIRIM: $requestBody");
 
     try {
       final response = await http.post(
@@ -126,8 +126,8 @@ class TugasService {
         body: jsonEncode(requestBody),
       );
 
-      print("CREATE STATUS: ${response.statusCode}");
-      print("CREATE RESPON: ${response.body}");
+      // print("CREATE STATUS: ${response.statusCode}");
+      // print("CREATE RESPON: ${response.body}");
 
       final responseBody = json.decode(response.body);
 
@@ -135,9 +135,9 @@ class TugasService {
         'success': response.statusCode == 200 || response.statusCode == 201,
         'message': responseBody['message'] ?? 'Gagal membuat tugas',
       };
-    } catch (e, st) {
-      print("ERROR CREATE TUGAS: $e");
-      print(st);
+    } catch (e) {
+      // print("ERROR CREATE TUGAS: $e");
+      // print(st);
       return {'success': false, 'message': 'Terjadi error: $e'};
     }
   }
@@ -174,7 +174,7 @@ class TugasService {
 
     if (person != null) requestBody['user_id'] = person;
 
-    print("UPDATE DATA KIRIM: $requestBody");
+    // print("UPDATE DATA KIRIM: $requestBody");
 
     final response = await http.put(
       Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
@@ -186,8 +186,8 @@ class TugasService {
       body: jsonEncode(requestBody),
     );
 
-    print("UPDATE STATUS: ${response.statusCode}");
-    print("UPDATE RESPON: ${response.body}");
+    // print("UPDATE STATUS: ${response.statusCode}");
+    // print("UPDATE RESPON: ${response.body}");
 
     final responseBody = json.decode(response.body);
 
@@ -211,8 +211,8 @@ class TugasService {
       },
     );
 
-    print("DELETE STATUS: ${response.statusCode}");
-    print("DELETE RESPON: ${response.body}");
+    // print("DELETE STATUS: ${response.statusCode}");
+    // print("DELETE RESPON: ${response.body}");
 
     final body = json.decode(response.body);
 
@@ -312,8 +312,8 @@ class TugasService {
       body: jsonEncode({'status': status}),
     );
 
-    print("UPDATE STATUS CODE: ${response.statusCode}");
-    print("UPDATE STATUS BODY: ${response.body}");
+    // print("UPDATE STATUS CODE: ${response.statusCode}");
+    // print("UPDATE STATUS BODY: ${response.body}");
 
     final body = json.decode(response.body);
 

@@ -27,7 +27,7 @@ class _DashboardState extends State<Dashboard> {
     final userId = userBox.get('id');
 
     if (userId == null || token == null) {
-      debugPrint("User belum login. Skip init FCM.");
+      // debugPrint("User belum login. Skip init FCM.");
       return;
     }
   }

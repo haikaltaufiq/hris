@@ -35,7 +35,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         ? cleaned
         : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
 
-    debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
+    // debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
     return fullUrl;
   }
 
@@ -260,7 +260,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         ),
       );
     } catch (_) {
-      debugPrint("Format latlong salah: $latlongStr");
+      // debugPrint("Format latlong salah: $latlongStr");
     }
   }
 

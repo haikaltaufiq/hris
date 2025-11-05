@@ -182,7 +182,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
         );
       }
     } catch (e) {
-      print("Error tracking location: $e");
+      // print("Error tracking location: $e");
       if (mounted) {
         NotificationHelper.showTopNotification(
           context,
@@ -303,7 +303,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
         );
       }
     } catch (e) {
-      print("Error showing map: $e");
+      // print("Error showing map: $e");
       NotificationHelper.showTopNotification(
         context,
         context.isIndonesian

@@ -36,7 +36,7 @@ class PeranViewModel extends ChangeNotifier {
           break;
       }
     } catch (e) {
-      print('⚠️ Sort error: $e');
+      // print(' Sort error: $e');
     }
 
     notifyListeners();
@@ -57,17 +57,17 @@ class PeranViewModel extends ChangeNotifier {
               .toList();
           _hasCache = true;
           notifyListeners(); // Update UI segera
-          print('✅ Cache loaded: ${_peranList.length} items');
+          // print(' Cache loaded: ${_peranList.length} items');
         }
       }
     } catch (e) {
-      print('❌ Error loading cache: $e');
+      // print(' Error loading cache: $e');
     }
   }
 
   /// Fetch daftar peran
   Future<void> fetchPeran({bool forceRefresh = false}) async {
-    print('🔄 fetchPeran called - forceRefresh: $forceRefresh');
+    // print(' fetchPeran called - forceRefresh: $forceRefresh');
 
     // Load cache dulu kalau gak force refresh
     if (!forceRefresh && _peranList.isEmpty) {
@@ -78,9 +78,9 @@ class PeranViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      print('🌐 Calling API...');
+      // print(' Calling API...');
       final apiData = await PeranService.fetchPeran();
-      print('✅ API success: ${apiData.length} items');
+      // print(' API success: ${apiData.length} items');
 
       _peranList = apiData;
       sortPeran('terbaru');
@@ -92,11 +92,11 @@ class PeranViewModel extends ChangeNotifier {
         'peran_list',
         _peranList.map((c) => c.toJson()).toList(),
       );
-      print('💾 Cache saved');
+      // print(' Cache saved');
 
       _hasCache = true;
     } catch (e) {
-      print('❌ API Error: $e');
+      // print(' API Error: $e');
       _errorMessage = e.toString();
 
       // Kalau gak ada data dan cache ada, load cache
@@ -107,7 +107,7 @@ class PeranViewModel extends ChangeNotifier {
 
     _isLoading = false;
     notifyListeners();
-    print('🏁 fetchPeran completed - items: ${_peranList.length}');
+    // print(' fetchPeran completed - items: ${_peranList.length}');
   }
 
   /// Tambah peran
@@ -125,9 +125,9 @@ class PeranViewModel extends ChangeNotifier {
       );
 
       notifyListeners();
-      print('✅ Peran created: ${newPeran.namaPeran}');
+      // print(' Peran created: ${newPeran.namaPeran}');
     } catch (e) {
-      print('❌ Create error: $e');
+      // print(' Create error: $e');
       _errorMessage = e.toString();
       notifyListeners();
       rethrow;
@@ -155,9 +155,9 @@ class PeranViewModel extends ChangeNotifier {
       );
 
       notifyListeners();
-      print('✅ Peran updated: ${updatedPeran.namaPeran}');
+      // print(' Peran updated: ${updatedPeran.namaPeran}');
     } catch (e) {
-      print('❌ Update error: $e');
+      // print(' Update error: $e');
       _errorMessage = e.toString();
       notifyListeners();
       rethrow;
@@ -182,9 +182,9 @@ class PeranViewModel extends ChangeNotifier {
       );
 
       notifyListeners();
-      print('✅ Peran deleted - id: $id');
+      // print(' Peran deleted - id: $id');
     } catch (e) {
-      print('❌ Delete error: $e');
+      // print(' Delete error: $e');
       _errorMessage = e.toString();
       notifyListeners();
       rethrow;

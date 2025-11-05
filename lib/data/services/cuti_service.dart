@@ -34,7 +34,7 @@ class CutiService {
       final List cutiList = jsonData['data'];
       return cutiList.map((json) => CutiModel.fromJson(json)).toList();
     } else {
-      print('Gagal fetch cuti: ${response.statusCode} ${response.body}');
+      // print('Gagal fetch cuti: ${response.statusCode} ${response.body}');
       throw Exception('Gagal memuat data cuti');
     }
   }
@@ -230,7 +230,7 @@ class CutiService {
     if (response.statusCode == 200) {
       return responseData['message'] ?? "Cuti berhasil ditolak";
     } else {
-      print('❌ Gagal menolak cuti: ${response.statusCode} ${response.body}');
+      // print('❌ Gagal menolak cuti: ${response.statusCode} ${response.body}');
       return responseData['message'] ?? "Gagal menolak cuti";
     }
   }

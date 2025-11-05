@@ -265,8 +265,8 @@ class _MainLayoutState extends State<MainLayout>
 
                               // panggil API logout auth
                               if (token != null) {
-                                final result = await AuthService().logout();
-                                debugPrint("Logout result: $result");
+                                await AuthService().logout();
+                                // debugPrint("Logout result: $result");
                               }
 
                               // baru bersihkan semua prefs
