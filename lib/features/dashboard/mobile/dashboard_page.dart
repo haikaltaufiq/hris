@@ -39,15 +39,20 @@ class _DashboardMobileState extends State<DashboardMobile> {
               child: DashboardHeader(),
             ),
             FeatureGuard(
-              requiredFeature: 'karyawan',
+              requiredFeature: ['karyawan'],
               child: DashboardCard(),
             ),
             FeatureGuard(
-              requiredFeature: 'tambah_lampiran_tugas',
+                requiredFeature: ["karyawan", "absensi"],
+                child: SizedBox(
+                  height: 12,
+                )),
+            FeatureGuard(
+              requiredFeature: ['absensi'],
               child: const DashboardCardUser(),
             ),
             FeatureGuard(
-              requiredFeature: 'karyawan',
+              requiredFeature: ['karyawan'],
               child: DashboardMenu(
                 items: [
                   DashboardMenuItem(

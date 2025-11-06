@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
 class FeatureGuard extends StatefulWidget {
-  final String requiredFeature;
+  final dynamic requiredFeature;
   final Widget child;
 
   const FeatureGuard({
@@ -19,7 +19,18 @@ class FeatureGuard extends StatefulWidget {
 class _FeatureGuardState extends State<FeatureGuard> {
   @override
   Widget build(BuildContext context) {
-    final hasAccess = FeatureAccess.has(widget.requiredFeature);
+    final required = widget.requiredFeature;
+
+    bool hasAccess = false;
+
+    if (required is String) {
+      hasAccess = FeatureAccess.has(required);
+    } else if (required is List<String>) {
+      hasAccess = required.every(FeatureAccess.has);
+    } else {
+      hasAccess = false;
+    }
+
     return hasAccess ? widget.child : const SizedBox.shrink();
   }
 }
@@ -36,6 +47,10 @@ class FeatureAccess {
     } else {
       _fitur = [];
     }
+  }
+
+  static void reset() {
+    _fitur = [];
   }
 
   // lebih aman

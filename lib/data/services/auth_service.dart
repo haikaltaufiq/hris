@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
-import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/fitur_model.dart';
 import 'package:hr/data/services/fcm_service.dart';
@@ -325,10 +324,7 @@ class AuthService {
 
       // Bersihkan SharedPreferences
       await prefs.clear();
-      FeatureAccess.clear(); // clear in-memory
-      if (Hive.isBoxOpen('peran')) {
-        await Hive.box('peran').clear();
-      }
+
       return {
         'success': true,
         'message': 'Logout berhasil, semua data lokal dihapus'
