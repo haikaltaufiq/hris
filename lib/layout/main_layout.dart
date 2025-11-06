@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:hr/components/navbar.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
@@ -139,16 +138,11 @@ class _MainLayoutState extends State<MainLayout>
 
   // ambil fitur dari shared preferences
   Future<void> _loadFitur() async {
-    final prefs = await SharedPreferences.getInstance();
-    final fiturString = prefs.getString('fitur');
-    if (fiturString != null) {
-      final List<dynamic> decoded = jsonDecode(fiturString);
-      _cachedFitur = decoded.map((f) => f['nama_fitur'].toString()).toList();
-      if (mounted) {
-        setState(() {
-          _userFitur = _cachedFitur!;
-        });
-      }
+    await FeatureAccess.init();
+    if (mounted) {
+      setState(() {
+        _userFitur = FeatureAccess.fitur;
+      });
     }
   }
 

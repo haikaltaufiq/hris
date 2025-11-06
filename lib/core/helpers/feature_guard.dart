@@ -53,6 +53,7 @@ class FeatureAccess {
     _fitur = [];
   }
 
+  static List<String> get fitur => _fitur;
   // lebih aman
   static Future<void> setFeatures(List<dynamic>? fiturFromBackend) async {
     final prefs = await SharedPreferences.getInstance();
