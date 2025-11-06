@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class MainLayout extends StatefulWidget {
   final Widget child;
   final String currentRoute;
+  static Future<void> Function()? onClearFeatureCache;
 
   const MainLayout({
     super.key,
@@ -36,8 +37,8 @@ class _MainLayoutState extends State<MainLayout>
   final GlobalKey _menuKey = GlobalKey();
   OverlayEntry? _dropdownOverlay;
   static List<String>? _cachedFitur;
-
   // Map route ke index
+
   static const Map<String, int> _routeToIndex = {
     AppRoutes.dashboard: 0,
     AppRoutes.dashboardMobile: 0,
@@ -114,6 +115,7 @@ class _MainLayoutState extends State<MainLayout>
   void initState() {
     super.initState();
     selectedIndex = _routeToIndex[widget.currentRoute] ?? 0;
+    MainLayout.onClearFeatureCache = clearFeatureCache;
 
     _controller = AnimationController(
       vsync: this,
@@ -129,21 +131,33 @@ class _MainLayoutState extends State<MainLayout>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    if (_cachedFitur != null) {
+    // 🔹 kalau udah pernah cache fitur, pakai langsung
+    if (_cachedFitur != null && _cachedFitur!.isNotEmpty) {
       _userFitur = _cachedFitur!;
     } else {
-      _loadFitur();
+      _loadFiturOnce();
     }
   }
 
   // ambil fitur dari shared preferences
-  Future<void> _loadFitur() async {
+  Future<void> _loadFiturOnce() async {
     await FeatureAccess.init();
+    final fiturList = FeatureAccess.fitur;
+
+    _cachedFitur = fiturList; // simpan cache global biar gak reload tiap route
     if (mounted) {
       setState(() {
-        _userFitur = FeatureAccess.fitur;
+        _userFitur = fiturList;
       });
     }
+  }
+
+  Future<void> clearFeatureCache() async {
+    await FeatureAccess.clear();
+    setState(() {
+      _cachedFitur = null;
+      _userFitur = [];
+    });
   }
 
   void _toggleDropdown() {
@@ -262,6 +276,11 @@ class _MainLayoutState extends State<MainLayout>
                                 await AuthService().logout();
                                 // debugPrint("Logout result: $result");
                               }
+                              // 🔹 Bersihin cache fitur dan local storage
+                              await FeatureAccess.clear();
+                              _cachedFitur = null; // 🔥 reset cache global
+                              _userFitur =
+                                  []; // optional, biar state kosong juga
 
                               // baru bersihkan semua prefs
                               await prefs.clear();
@@ -361,6 +380,8 @@ class _MainLayoutState extends State<MainLayout>
 
   @override
   void dispose() {
+    MainLayout.onClearFeatureCache = null;
+
     _removeOverlay();
     _controller.dispose();
     super.dispose();
@@ -434,6 +455,40 @@ class _MainLayoutState extends State<MainLayout>
                 onItemTapped: _onNavItemTapped,
                 isCollapsed: isCollapsed,
                 userFitur: _userFitur,
+                onLogout: () async {
+                  // 🔥 inilah yang sinkron sama state MainLayout
+                  await FeatureAccess.clear();
+                  setState(() {
+                    _cachedFitur = null;
+                    _userFitur = [];
+                  });
+
+                  final prefs = await SharedPreferences.getInstance();
+                  final userId =
+                      prefs.getInt('user_id'); // simpan dulu sebelum dihapus
+                  final token = prefs.getString('token');
+
+                  // hapus token FCM loakl
+                  if (userId != null) {
+                    await FcmService.deleteLocalToken;
+                  }
+
+                  // panggil API logout auth
+                  if (token != null) {
+                    await AuthService().logout();
+                    // debugPrint("Logout result: $result");
+                  }
+                  // baru bersihkan data lokal
+                  await prefs.clear();
+
+                  if (mounted) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      AppRoutes.login,
+                      (route) => false,
+                    );
+                  }
+                },
               ),
             ),
             //main content

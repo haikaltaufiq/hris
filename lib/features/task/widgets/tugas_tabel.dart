@@ -273,7 +273,8 @@ class _TugasTabelState extends State<TugasTabel> {
               Flexible(
                 child: Container(
                   padding: EdgeInsets.all(isSmallScreen ? 16 : 20),
-                  child: ProfessionalLampiranWidget(url: getFullUrl(tugas.lampiran!)),
+                  child: ProfessionalLampiranWidget(
+                      url: getFullUrl(tugas.lampiran!)),
                 ),
               ),
             ],
@@ -381,7 +382,7 @@ class _TugasTabelState extends State<TugasTabel> {
             "Batas Submit",
             "Radius Lokasi",
             "Lokasi Tugas",
-            "Lokasi Lampiran",
+            "Lokasi Upload",
             "Status",
             "Catatan",
             "Lampiran",
@@ -397,7 +398,7 @@ class _TugasTabelState extends State<TugasTabel> {
             "Deadline",
             "Location Radius",
             "Task Location",
-            "Attachment Location",
+            "Upload Location",
             "Status",
             "Note",
             "Attachment",

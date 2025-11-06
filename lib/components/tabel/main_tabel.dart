@@ -246,8 +246,9 @@ class CustomDataTableWidget extends StatelessWidget {
         ),
       );
     }
+    final headerText = headers[colIndex].trim().toLowerCase();
     final isLampiranColumn =
-        headers[colIndex].trim().toLowerCase() == 'lampiran';
+        headerText.contains('lampiran') || headerText.contains('attachment');
 
     // Lampiran column
     if (isLampiranColumn && onTapLampiran != null) {

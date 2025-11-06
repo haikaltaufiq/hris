@@ -12,6 +12,7 @@ import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/data/services/fcm_service.dart';
+import 'package:hr/layout/main_layout.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -185,6 +186,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                               if (token != null) {
                                 unawaited(AuthService().logout());
                               }
+                              await MainLayout.onClearFeatureCache?.call();
 
                               unawaited(prefs.clear());
 

@@ -8,8 +8,6 @@ import 'package:hr/core/const/app_size.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
-import 'package:hr/data/services/auth_service.dart';
-import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,13 +17,14 @@ class ResponsiveNavBar extends StatefulWidget {
   final Function(int) onItemTapped;
   final bool isCollapsed;
   final List<String> userFitur;
-
+  final Future<void> Function()? onLogout;
   const ResponsiveNavBar({
     super.key,
     required this.selectedIndex,
     required this.onItemTapped,
     this.isCollapsed = false,
     required this.userFitur,
+    this.onLogout,
   });
 
   // Definisi semua menu
@@ -679,31 +678,10 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       if (!confirmed) return;
 
-                      final prefs = await SharedPreferences.getInstance();
-                      final userId = prefs
-                          .getInt('user_id'); // simpan dulu sebelum dihapus
-                      final token = prefs.getString('token');
-
-                      // hapus token FCM loakl
-                      if (userId != null) {
-                        await FcmService.deleteLocalToken;
-                      }
-
-                      // panggil API logout auth
-                      if (token != null) {
-                        await AuthService().logout();
-                        // debugPrint("Logout result: $result");
-                      }
-
-                      // baru bersihkan data lokal
-                      await prefs.clear();
-
-                      if (mounted) {
-                        Navigator.pushNamedAndRemoveUntil(
-                          context,
-                          AppRoutes.login,
-                          (route) => false,
-                        );
+                      //  kalo parent (MainLayout) punya callback logout, panggil langsung
+                      if (widget.onLogout != null) {
+                        await widget.onLogout!();
+                        return;
                       }
                     }
                   },
