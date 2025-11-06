@@ -198,7 +198,6 @@ class _BukaAkunState extends State<BukaAkun> {
                                 ),
                               ),
                               onPressed: () {
-                                textController.dispose();
                                 Navigator.pop(context, false);
                               },
                               child: Text(
@@ -226,7 +225,6 @@ class _BukaAkunState extends State<BukaAkun> {
                               ),
                               onPressed: isMatching
                                   ? () {
-                                      textController.dispose();
                                       Navigator.pop(context, true);
                                     }
                                   : null,

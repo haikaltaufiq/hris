@@ -198,7 +198,6 @@ class _ResetDeviceState extends State<ResetDevice> {
                                 ),
                               ),
                               onPressed: () {
-                                textController.dispose();
                                 Navigator.pop(context, false);
                               },
                               child: Text(
@@ -226,7 +225,6 @@ class _ResetDeviceState extends State<ResetDevice> {
                               ),
                               onPressed: isMatching
                                   ? () {
-                                      textController.dispose();
                                       Navigator.pop(context, true);
                                     }
                                   : null,

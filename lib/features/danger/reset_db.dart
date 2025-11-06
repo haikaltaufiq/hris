@@ -8,9 +8,14 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/danger_service.dart';
 
-class ResetDb extends StatelessWidget {
+class ResetDb extends StatefulWidget {
   const ResetDb({super.key});
 
+  @override
+  State<ResetDb> createState() => _ResetDbState();
+}
+
+class _ResetDbState extends State<ResetDb> {
   @override
   Widget build(BuildContext context) {
     final List<Map<String, String>> resetItems = context.isIndonesian
@@ -461,7 +466,6 @@ class ResetDb extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                textController.dispose();
                                 Navigator.pop(context, false);
                               },
                               child: Text(
@@ -489,7 +493,6 @@ class ResetDb extends StatelessWidget {
                               ),
                               onPressed: isMatching
                                   ? () {
-                                      textController.dispose();
                                       Navigator.pop(context, true);
                                     }
                                   : null,
