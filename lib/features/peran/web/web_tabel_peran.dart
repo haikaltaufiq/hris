@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/features/peran/peran_viewmodel.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -19,9 +21,9 @@ class WebTabelPeranWeb extends StatefulWidget {
 
 String formatFiturName(String value) {
   return value
-      .split('_') // 'lihat_absensi_semua' → ['lihat','absensi','semua']
+      .split('_')
       .map((word) => word[0].toUpperCase() + word.substring(1))
-      .join(' '); // → 'Lihat Absensi Semua'
+      .join(' ');
 }
 
 class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
@@ -210,6 +212,141 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
     }
   }
 
+  Widget _buildMobileTable(List<PeranModel> peranList) {
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width * 0.02,
+        vertical: MediaQuery.of(context).size.height * 0.01,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 4,
+              spreadRadius: 0,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  child: Text(
+                    context.isIndonesian ? 'Nama Peran' : 'Role Name',
+                    style: TextStyle(
+                      color: AppColors.putih,
+                      fontWeight: FontWeight.bold,
+                      fontSize: context.isMobile ? 15 : 13,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 20),
+                  child: Text(
+                    context.isIndonesian ? 'Aksi' : 'Action',
+                    style: TextStyle(
+                      color: AppColors.putih,
+                      fontWeight: FontWeight.bold,
+                      fontSize: context.isMobile ? 15 : 13,
+                      fontFamily: GoogleFonts.poppins().fontFamily,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Align(
+              alignment: Alignment.center,
+              child: FractionallySizedBox(
+                widthFactor: 1.0,
+                child: Divider(
+                  color: AppColors.secondary,
+                  thickness: 1,
+                ),
+              ),
+            ),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: peranList.length,
+              separatorBuilder: (_, __) =>
+                  Divider(color: AppColors.secondary, thickness: 1),
+              itemBuilder: (context, index) {
+                final peran = peranList[index];
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: Text(
+                          peran.namaPeran,
+                          style: TextStyle(
+                            color: AppColors.putih,
+                            fontSize: context.isMobile ? 15 : 12,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: () => _handleView(peran),
+                                child: FaIcon(
+                                  FontAwesomeIcons.eye,
+                                  color: AppColors.putih,
+                                  size: 15,
+                                ),
+                              ),
+                              const SizedBox(width: 15),
+                              GestureDetector(
+                                onTap: () => _handleEdit(peran),
+                                child: FaIcon(
+                                  FontAwesomeIcons.pen,
+                                  color: AppColors.putih,
+                                  size: 15,
+                                ),
+                              ),
+                              const SizedBox(width: 15),
+                              GestureDetector(
+                                onTap: () => _hapusPeran(peran),
+                                child: FaIcon(
+                                  FontAwesomeIcons.trash,
+                                  color: AppColors.putih,
+                                  size: 15,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<PeranViewModel>(
@@ -222,6 +359,10 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
             child: Text('Belum ada peran',
                 style: TextStyle(color: AppColors.putih)),
           );
+        }
+
+        if (context.isMobile) {
+          return _buildMobileTable(peranList);
         }
 
         final headers = context.isIndonesian ? ['Nama Peran'] : ["Role Name"];

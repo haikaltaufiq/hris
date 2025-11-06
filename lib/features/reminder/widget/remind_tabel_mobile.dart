@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -214,11 +215,26 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
         final reminders = displayList;
         if (reminders.isEmpty) {
           return Center(
-            child: Text(
-              context.isIndonesian
-                  ? 'Belum ada pengingat'
-                  : 'No reminder available',
-              style: TextStyle(color: AppColors.putih),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.notifications_none,
+                  size: 48,
+                  color: AppColors.putih.withOpacity(0.7),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  context.isIndonesian
+                      ? 'Belum ada pengingat'
+                      : 'No reminder available',
+                  style: TextStyle(
+                    color: AppColors.putih,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
             ),
           );
         }
@@ -241,8 +257,18 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
             _handleView(reminder);
           },
           onDelete: (rowIndex) async {
-            final reminder = reminders[rowIndex];
-            await viewModel.deletePengingat(reminder.id);
+            final confirmed = await showConfirmationDialog(
+              context,
+              title: "Konfirmasi Hapus",
+              content: "Apakah Anda yakin ingin menghapus pengingat ini?",
+              confirmText: "Hapus",
+              cancelText: "Batal",
+              confirmColor: AppColors.red,
+            );
+            if (confirmed) {
+              final reminder = reminders[rowIndex];
+              await viewModel.deletePengingat(reminder.id);
+            }
           },
           onEdit: (rowIndex) async {
             final reminder = reminders[rowIndex];

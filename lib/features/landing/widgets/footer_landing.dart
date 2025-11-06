@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/utils/device_size.dart';
 
 class LandingFooter extends StatelessWidget {
@@ -58,20 +59,15 @@ class LandingFooter extends StatelessWidget {
           flex: 2,
           child: _buildBrandColumn(context),
         ),
-        const SizedBox(width: 48),
-        Expanded(
-          child: _buildFooterColumn(
-            context,
-            'Product',
-            ['Features', 'Pricing', 'Documentation', 'Support'],
-          ),
-        ),
         const SizedBox(width: 32),
         Expanded(
           child: _buildFooterColumn(
             context,
-            'Company',
-            ['About Us', 'Careers', 'Blog'],
+            'Product',
+            [
+              {'text': 'About Us', 'section': 'about'},
+              {'text': 'Features', 'section': 'features'},
+            ],
           ),
         ),
         const SizedBox(width: 32),
@@ -79,7 +75,10 @@ class LandingFooter extends StatelessWidget {
           child: _buildFooterColumn(
             context,
             'Contact Us',
-            ['hris.ksi@kreatifsystem.com', '0778 214 0088'],
+            [
+              {'text': 'hris.ksi@kreatifsystem.com', 'section': null},
+              {'text': '0778 214 0088', 'section': null},
+            ],
           ),
         ),
       ],
@@ -155,7 +154,7 @@ class LandingFooter extends StatelessWidget {
   Widget _buildFooterColumn(
     BuildContext context,
     String title,
-    List<String> items,
+    List<Map<String, String?>> items,
   ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,18 +169,25 @@ class LandingFooter extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         ...items.map((item) {
+          final text = item['text']!;
+          final section = item['section'];
           IconData? icon;
+          VoidCallback? onTapAction;
 
-          if (item.contains('@')) {
+          if (text.contains('@')) {
             icon = Icons.email;
-          } else if (RegExp(r'^[0-9+ ]+$').hasMatch(item)) {
+            onTapAction = () => _launchEmail(text);
+          } else if (RegExp(r'^[0-9+ ]+$').hasMatch(text)) {
             icon = Icons.phone;
+            onTapAction = () => _launchPhone(text);
+          } else if (section != null) {
+            onTapAction = () => _scrollToSection(section);
           }
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 12),
             child: InkWell(
-              onTap: () {},
+              onTap: onTapAction,
               child: Row(
                 children: [
                   if (icon != null) ...[
@@ -189,11 +195,14 @@ class LandingFooter extends StatelessWidget {
                     const SizedBox(width: 6),
                   ],
                   Text(
-                    item,
+                    text,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white,
                       height: 1.4,
+                      decoration: onTapAction != null
+                          ? TextDecoration.underline
+                          : TextDecoration.none,
                     ),
                   ),
                 ],
@@ -207,12 +216,9 @@ class LandingFooter extends StatelessWidget {
 
   Widget _buildMobileLinks(BuildContext context) {
     final links = [
-      'Features',
-      'Pricing',
-      'About Us',
-      'Contact',
-      'Privacy Policy',
-      'Terms of Service'
+      {'text': 'Features', 'section': 'features'},
+      {'text': 'About Us', 'section': 'about'},
+      {'text': 'Contact', 'section': 'contact'},
     ];
 
     return Wrap(
@@ -221,17 +227,52 @@ class LandingFooter extends StatelessWidget {
       runSpacing: 16,
       children: links
           .map((link) => InkWell(
-                onTap: () {},
+                onTap: () => _scrollToSection(link['section']!),
                 child: Text(
-                  link,
+                  link['text']!,
                   style: TextStyle(
                     fontSize: 14,
-                    color: const Color.fromARGB(62, 255, 255, 255),
+                    color: Colors.white,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
               ))
           .toList(),
     );
+  }
+
+  /// Scroll to target section
+  void _scrollToSection(String sectionKey) {
+    final key = sectionKeys[sectionKey];
+    if (key?.currentContext != null) {
+      Scrollable.ensureVisible(
+        key!.currentContext!,
+        duration: const Duration(milliseconds: 800),
+        curve: Curves.easeInOut,
+        alignment: 0.0,
+      );
+    }
+  }
+
+  /// Launch email client
+  Future<void> _launchEmail(String email) async {
+    final Uri emailUri = Uri(
+      scheme: 'mailto',
+      path: email,
+    );
+    if (await canLaunchUrl(emailUri)) {
+      await launchUrl(emailUri);
+    }
+  }
+
+  /// Launch phone dialer
+  Future<void> _launchPhone(String phone) async {
+    final Uri phoneUri = Uri(
+      scheme: 'tel',
+      path: phone.replaceAll(' ', ''),
+    );
+    if (await canLaunchUrl(phoneUri)) {
+      await launchUrl(phoneUri);
+    }
   }
 }

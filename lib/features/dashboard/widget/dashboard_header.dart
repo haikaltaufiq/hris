@@ -34,7 +34,8 @@ class _DashboardHeaderState extends State<DashboardHeader>
   late AnimationController _controller;
   late Animation<double> _sizeAnimation;
   late Animation<double> _fadeAnimation;
-
+  static String? cachedNama;
+  static String? cachedPeran;
   String _nama = "";
   String _peran = "";
 
@@ -58,15 +59,35 @@ class _DashboardHeaderState extends State<DashboardHeader>
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
-    _loadUserData();
+    _loadCachedUser();
+    _preloadProviders();
   }
 
-  Future<void> _loadUserData() async {
+  void _loadCachedUser() async {
+    if (cachedNama != null && cachedPeran != null) {
+      // langsung pakai cache tanpa delay
+      _nama = cachedNama!;
+      _peran = cachedPeran!;
+      setState(() {});
+      return;
+    }
+
     final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _nama = prefs.getString('nama') ?? '';
-      _peran = prefs.getString('peran') ?? '';
-    });
+    final nama = prefs.getString('nama') ?? '';
+    final peran = prefs.getString('peran') ?? '';
+
+    cachedNama = nama;
+    cachedPeran = peran;
+
+    if (mounted) {
+      setState(() {
+        _nama = nama;
+        _peran = peran;
+      });
+    }
+  }
+
+  Future<void> _preloadProviders() async {
     await Future.microtask(() {
       context.read<AbsenProvider>().fetchAbsensi();
       context.read<TugasProvider>().fetchTugas();

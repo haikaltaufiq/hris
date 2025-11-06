@@ -27,12 +27,13 @@ class _DangerPageState extends State<DangerPage> {
           if (context.isMobile)
             Align(
               alignment: Alignment.bottomLeft,
-              child: Header(title: context.isIndonesian ? "Bahaya" : "Danger"),
+              child: Header(
+                  title: context.isIndonesian ? "Reset Data" : "Reset Data"),
             ),
           Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: context.isMobile ? 4.0 : 30.0,
-            ),
+                horizontal: context.isMobile ? 4.0 : 30.0,
+                vertical: context.isMobile ? 12.0 : 0),
             child: InfoDanger(),
           ),
           Padding(

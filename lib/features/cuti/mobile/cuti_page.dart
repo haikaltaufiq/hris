@@ -274,8 +274,12 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                             const SizedBox(height: 16),
                             Text(
                               cutiProvider.errorMessage != null
-                                  ? 'Gagal memuat data'
-                                  : 'Belum ada pengajuan',
+                                  ? context.isIndonesian
+                                      ? 'Gagal memuat data'
+                                      : 'Failed to load data'
+                                  : context.isIndonesian
+                                      ? 'Belum ada pengajuan'
+                                      : 'No leave proposals yet',
                               style: TextStyle(
                                 color: AppColors.putih,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
@@ -286,8 +290,12 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                             const SizedBox(height: 8),
                             Text(
                               cutiProvider.errorMessage != null
-                                  ? 'Tarik ke bawah untuk refresh'
-                                  : 'Tap tombol + untuk menambah pengajuan baru',
+                                  ? context.isIndonesian
+                                      ? 'Tarik ke bawah untuk refresh'
+                                      : 'Pull down to refresh'
+                                  : context.isIndonesian
+                                      ? 'Tap tombol + untuk menambah pengajuan baru'
+                                      : 'Tap the + button to add a new leave proposal',
                               style: TextStyle(
                                 color: AppColors.putih.withOpacity(0.7),
                                 fontFamily: GoogleFonts.poppins().fontFamily,

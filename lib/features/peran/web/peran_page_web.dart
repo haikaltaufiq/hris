@@ -17,61 +17,44 @@ class PeranPageWeb extends StatefulWidget {
 }
 
 class _PeranPageWebState extends State<PeranPageWeb> {
+  late PeranViewModel viewModel;
+
   @override
   void initState() {
     super.initState();
+    viewModel = PeranViewModel();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final provider = context.read<PeranViewModel>();
-      if (provider.peranList.isEmpty) {
-        provider.loadCacheFirst();
-        provider.fetchPeran();
-      }
+      viewModel.loadCacheFirst();
+      viewModel.fetchPeran();
     });
+  }
+
+  Future<void> _handleRefresh() async {
+    await viewModel.fetchPeran();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: ChangeNotifierProvider(
-        create: (_) =>
-            PeranViewModel()..fetchPeran(), // bjir ini harus fetch data
-        child: Padding(
+    return ChangeNotifierProvider.value(
+      value: viewModel,
+      child: Scaffold(
+        backgroundColor: AppColors.bg,
+        body: Padding(
           padding: const EdgeInsets.all(16),
           child: Stack(
             children: [
-              ListView(
-                children: [
-                  if (context.isMobile)
-                    Header(
+              RefreshIndicator(
+                onRefresh: _handleRefresh,
+                child: ListView(
+                  children: [
+                    if (context.isMobile)
+                      Header(
                         title:
-                            context.isIndonesian ? "Data Peran" : "Role Data"),
-                  // SearchingBar(
-                  //   controller: SearchController(),
-                  //   onFilter1Tap: () async {
-                  //     final provider = context.read<PeranViewModel>();
-
-                  //     final selected = await showSortDialog(
-                  //       context: context,
-                  //       title: 'Urutkan Peran Berdasarkan',
-                  //       currentValue: provider.currentSortField,
-                  //       options: [
-                  //         {'value': 'terbaru', 'label': 'Terbaru'},
-                  //         {'value': 'terlama', 'label': 'Terlama'},
-                  //       ],
-                  //     );
-
-                  //     if (selected != null) {
-                  //       provider.sortPeran(selected);
-                  //     }
-
-                  //     if (selected != null) {
-                  //       provider.sortPeran(selected);
-                  //     }
-                  //   },
-                  // ),
-                  WebTabelPeranWeb(), // Expanded biar tabel bisa render full height
-                ],
+                            context.isIndonesian ? "Data Peran" : "Role Data",
+                      ),
+                    WebTabelPeranWeb(),
+                  ],
+                ),
               ),
               Positioned(
                 bottom: 16,
@@ -80,9 +63,8 @@ class _PeranPageWebState extends State<PeranPageWeb> {
                   onPressed: () async {
                     final result =
                         await Navigator.pushNamed(context, AppRoutes.peranForm);
-                    if (result == true) {
-                      final viewModel = context.read<PeranViewModel>();
-                      await viewModel.fetchPeran();
+                    if (result == true && mounted) {
+                      await _handleRefresh(); // langsung refresh realtime
                     }
                   },
                   backgroundColor: AppColors.secondary,

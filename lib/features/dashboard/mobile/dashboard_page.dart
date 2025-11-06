@@ -119,7 +119,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                     },
                   ),
                   DashboardMenuItem(
-                    label: "Danger",
+                    label: "Reset Data",
                     icon: FontAwesomeIcons.triangleExclamation,
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.danger);

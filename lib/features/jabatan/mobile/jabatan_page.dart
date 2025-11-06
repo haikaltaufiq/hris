@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/custom/loading.dart';
 import 'package:hr/components/custom/sorting.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/search_bar/search_bar.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -161,9 +162,27 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
                       const Center(child: LoadingWidget())
                     else if (vm.jabatanList.isEmpty)
                       Center(
-                          child: Text(context.isIndonesian
-                              ? 'Tidak ada data jabatan'
-                              : 'No position available'))
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.work_outline,
+                              size: 48,
+                              color: Colors.grey,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              context.isIndonesian
+                                  ? 'Tidak ada data jabatan'
+                                  : 'No position available',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     else
                       JabatanTabel(
                         jabatanList: vm.jabatanList,
@@ -183,8 +202,19 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
                             ),
                           );
                         },
-                        onDelete: (id) {
-                          vm.deleteJabatan(context, id);
+                        onDelete: (id) async {
+                          final confirmed = await showConfirmationDialog(
+                            context,
+                            title: "Konfirmasi Hapus",
+                            content:
+                                "Apakah Anda yakin ingin menghapus jabatan ini?",
+                            confirmText: "Hapus",
+                            cancelText: "Batal",
+                            confirmColor: AppColors.red,
+                          );
+                          if (confirmed == true) {
+                            vm.deleteJabatan(context, id);
+                          }
                         },
                       ),
                   ],
