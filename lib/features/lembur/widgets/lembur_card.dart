@@ -88,7 +88,11 @@ class LemburCard extends StatelessWidget {
                                 value:
                                     FormatTime().formatTime(lembur.jamSelesai)),
                             DetailItem(
-                                label: 'Alasan', value: lembur.deskripsi),
+                              label: 'Alasan',
+                              value: lembur.status.toLowerCase() == 'ditolak'
+                                  ? lembur.shortCatatanPenolakan
+                                  : lembur.deskripsi,
+                            ),
                           ],
                         ),
                         actions: [
@@ -169,7 +173,9 @@ class LemburCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       // Deskripsi singkat
                       Text(
-                        lembur.shortDeskripsi,
+                        lembur.status.toLowerCase() == 'ditolak'
+                            ? lembur.shortCatatanPenolakan
+                            : lembur.shortDeskripsi,
                         style: GoogleFonts.poppins(
                           color: AppColors.putih,
                           fontSize: 14,

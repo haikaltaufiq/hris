@@ -87,6 +87,11 @@ class _DashboardHeaderState extends State<DashboardHeader>
     }
   }
 
+  static void clearUserCache() {
+    cachedNama = null;
+    cachedPeran = null;
+  }
+
   Future<void> _preloadProviders() async {
     await Future.microtask(() {
       context.read<AbsenProvider>().fetchAbsensi();
@@ -207,6 +212,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
                               if (token != null) {
                                 unawaited(AuthService().logout());
                               }
+                              clearUserCache();
                               await MainLayout.onClearFeatureCache?.call();
 
                               unawaited(prefs.clear());

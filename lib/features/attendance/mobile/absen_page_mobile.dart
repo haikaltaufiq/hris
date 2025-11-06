@@ -245,7 +245,7 @@ class _AbsenMobileState extends State<AbsenMobile> {
 
           // Floating Action Button
           FeatureGuard(
-            requiredFeature: 'lihat_absensi_sendiri',
+            requiredFeature: 'absensi',
             child: Positioned(
               bottom: 16,
               right: 16,

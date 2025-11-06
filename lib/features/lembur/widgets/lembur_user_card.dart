@@ -48,7 +48,7 @@ class UserLemburTabel extends StatelessWidget {
         String kolom8 = '-';
 
         // kalau status ditolak → kolom 7 kosong, kolom 8 isi keterangan_status
-        if (status == 'ditolak') {
+        if (status.toLowerCase() == 'ditolak') {
           kolom7 = c.catatan_penolakan;
           kolom8 = c.keteranganStatus;
         }
@@ -98,7 +98,12 @@ class UserLemburTabel extends StatelessWidget {
                 DetailItem(
                     label: 'Jam Selesai',
                     value: FormatTime().formatTime(c.jamSelesai)),
-                DetailItem(label: 'Deskripsi', value: c.deskripsi),
+                DetailItem(
+                  label: 'Deskripsi',
+                  value: c.status == 'ditolak'
+                      ? c.catatan_penolakan
+                      : c.keteranganStatus,
+                ),
               ],
             ),
             actions: [

@@ -93,7 +93,9 @@ class CutiCard extends StatelessWidget {
                             DetailItem(
                                 label:
                                     context.isIndonesian ? 'Alasan' : "Reason",
-                                value: cuti.alasan),
+                                value: cuti.status.toLowerCase() == 'ditolak'
+                                    ? cuti.catatan_penolakan
+                                    : cuti.alasan),
                           ],
                         ),
                         actions: [
@@ -162,7 +164,10 @@ class CutiCard extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                           )),
                       const SizedBox(height: 8),
-                      Text(cuti.shortAlasan,
+                      Text(
+                          cuti.status.toLowerCase() == 'ditolak'
+                              ? cuti.catatan_penolakan
+                              : cuti.shortAlasan,
                           style: GoogleFonts.poppins(
                             color: AppColors.putih,
                             fontSize: 14,

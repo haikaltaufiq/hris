@@ -118,7 +118,7 @@ class _PeranFormPageState extends State<PeranFormPage> {
 
   // 🎯 PAKETAN FITUR
   final Map<String, List<String>> _fiturPackages = {
-    'Super Admin': [
+    'Admin Super': [
       'web',
       'lihat_lembur', //lembur
       'lihat_semua_lembur',

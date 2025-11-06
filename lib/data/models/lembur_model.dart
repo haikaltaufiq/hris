@@ -81,6 +81,13 @@ class LemburModel {
   bool get isApproved => status.toLowerCase() == 'disetujui';
   bool get isDitolak => status.toLowerCase() == 'ditolak';
 
+  String get shortCatatanPenolakan {
+    if (catatan_penolakan == null || catatan_penolakan.isEmpty) return '-';
+    return catatan_penolakan.length > 50
+        ? '${catatan_penolakan.substring(0, 50)}...'
+        : catatan_penolakan;
+  }
+
   Color get statusColor {
     switch (status.toLowerCase()) {
       case 'disetujui':

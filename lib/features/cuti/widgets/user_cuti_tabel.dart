@@ -47,7 +47,7 @@ class UserCutiTabel extends StatelessWidget {
         String kolom8 = '-';
 
         // kalau status ditolak → kolom 7 kosong, kolom 8 isi keterangan_status
-        if (status == 'ditolak') {
+        if (status.toLowerCase() == 'ditolak') {
           kolom7 = c.catatan_penolakan;
           kolom8 = c.keterangan_status;
         }
@@ -95,7 +95,11 @@ class UserCutiTabel extends StatelessWidget {
                 DetailItem(
                     label: 'Tanggal Selesai',
                     value: DateHelper.format(c.tanggal_selesai)),
-                DetailItem(label: 'Alasan', value: c.alasan),
+                DetailItem(
+                    label: 'Alasan',
+                    value: c.status.toLowerCase() == 'ditolak'
+                        ? c.catatan_penolakan
+                        : c.keterangan_status),
               ],
             ),
             actions: [
