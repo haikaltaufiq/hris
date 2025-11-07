@@ -72,10 +72,6 @@ class CutiCard extends StatelessWidget {
                           children: [
                             DetailItem(label: 'Nama', value: cuti.user['nama']),
                             DetailItem(
-                                label: 'Status',
-                                value: cuti.status,
-                                color: cuti.statusColor),
-                            DetailItem(
                                 label: context.isIndonesian
                                     ? 'Tipe Cuti'
                                     : "Leave Type",
@@ -90,12 +86,18 @@ class CutiCard extends StatelessWidget {
                                     ? 'Tanggal Selesai'
                                     : "End Date",
                                 value: DateHelper.format(cuti.tanggal_selesai)),
+                            DetailItem(label: 'Alasan', value: cuti.alasan),
                             DetailItem(
-                                label:
-                                    context.isIndonesian ? 'Alasan' : "Reason",
+                                label: 'Status',
+                                value: cuti.status,
+                                color: cuti.statusColor),
+                            DetailItem(
+                                label: context.isIndonesian
+                                    ? 'Keterangan'
+                                    : "Description",
                                 value: cuti.status.toLowerCase() == 'ditolak'
                                     ? cuti.catatan_penolakan
-                                    : cuti.alasan),
+                                    : cuti.keterangan_status),
                           ],
                         ),
                         actions: [
@@ -164,10 +166,17 @@ class CutiCard extends StatelessWidget {
                             fontWeight: FontWeight.w400,
                           )),
                       const SizedBox(height: 8),
+                      Text(cuti.shortAlasan,
+                          style: GoogleFonts.poppins(
+                            color: AppColors.putih,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                          )),
+                      const SizedBox(height: 8),
                       Text(
                           cuti.status.toLowerCase() == 'ditolak'
-                              ? cuti.catatan_penolakan
-                              : cuti.shortAlasan,
+                              ? cuti.shortCatatanPenolakan
+                              : cuti.keterangan_status,
                           style: GoogleFonts.poppins(
                             color: AppColors.putih,
                             fontSize: 14,

@@ -64,7 +64,8 @@ class CutiModel {
   }
 
 //Baca nama user
-  String get nama => (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
+  String get nama =>
+      (user['nama'] ?? user['name'] ?? user['full_name'] ?? '').toString();
   bool get isPending => status.toLowerCase() == 'pending';
   bool get isProses => status.toLowerCase() == 'proses';
   bool get isApproved => status.toLowerCase() == 'disetujui';
@@ -72,6 +73,13 @@ class CutiModel {
 //Motong alasan kepanjangan
   String get shortAlasan =>
       alasan.length > 20 ? '${alasan.substring(0, 20)}...' : alasan;
+
+  String get shortCatatanPenolakan {
+    if (catatan_penolakan == null || catatan_penolakan.isEmpty) return '-';
+    return catatan_penolakan.length > 20
+        ? '${catatan_penolakan.substring(0, 20)}...'
+        : catatan_penolakan;
+  }
 
 //kondisi warna status
   Color get statusColor {

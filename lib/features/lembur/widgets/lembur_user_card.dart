@@ -98,9 +98,10 @@ class UserLemburTabel extends StatelessWidget {
                 DetailItem(
                     label: 'Jam Selesai',
                     value: FormatTime().formatTime(c.jamSelesai)),
+                DetailItem(label: 'Alasan', value: c.deskripsi),
                 DetailItem(
                   label: 'Deskripsi',
-                  value: c.status == 'ditolak'
+                  value: c.status.toString() == 'ditolak'
                       ? c.catatan_penolakan
                       : c.keteranganStatus,
                 ),

@@ -47,6 +47,8 @@ class WebTabelLembur extends StatelessWidget {
               'Description',
             ],
       rows: lemburList.map((c) {
+        final keterangan =
+            c.isDitolak ? c.catatan_penolakan : c.keteranganStatus;
         return [
           c.user['nama']?.toString() ?? '',
           DateHelper.format(c.tanggal).toString(),
@@ -54,7 +56,7 @@ class WebTabelLembur extends StatelessWidget {
           FormatTime().formatTime(c.jamSelesai).toString(),
           c.shortDeskripsi.toString(),
           c.status.toString(),
-          c.keteranganStatus,
+          keterangan
         ];
       }).toList(),
       statusColumnIndexes: [5],
@@ -81,8 +83,6 @@ class WebTabelLembur extends StatelessWidget {
               children: [
                 DetailItem(label: 'Nama', value: c.user['nama']),
                 DetailItem(
-                    label: 'Status', value: c.status, color: c.statusColor),
-                DetailItem(
                     label: 'Tanggal Lembur',
                     value: DateHelper.format(c.tanggal)),
                 DetailItem(
@@ -91,7 +91,13 @@ class WebTabelLembur extends StatelessWidget {
                 DetailItem(
                     label: 'Jam Selesai',
                     value: FormatTime().formatTime(c.jamSelesai)),
-                DetailItem(label: 'Deskripsi', value: c.deskripsi),
+                DetailItem(label: 'Alasan', value: c.deskripsi),
+                DetailItem(
+                    label: 'Status', value: c.status, color: c.statusColor),
+                DetailItem(
+                    label: 'Deskripsi',
+                    value:
+                        c.isDitolak ? c.catatan_penolakan : c.keteranganStatus),
               ],
             ),
             actions: [

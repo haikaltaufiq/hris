@@ -73,10 +73,6 @@ class LemburCard extends StatelessWidget {
                             DetailItem(
                                 label: 'Nama', value: lembur.user['nama']),
                             DetailItem(
-                                label: 'Status',
-                                value: lembur.status,
-                                color: lembur.statusColor),
-                            DetailItem(
                                 label: 'Tanggal Mulai',
                                 value: DateHelper.format(lembur.tanggal)),
                             DetailItem(
@@ -88,10 +84,16 @@ class LemburCard extends StatelessWidget {
                                 value:
                                     FormatTime().formatTime(lembur.jamSelesai)),
                             DetailItem(
-                              label: 'Alasan',
+                                label: 'Alasan', value: lembur.shortDeskripsi),
+                            DetailItem(
+                                label: 'Status',
+                                value: lembur.status,
+                                color: lembur.statusColor),
+                            DetailItem(
+                              label: 'Keterangan',
                               value: lembur.status.toLowerCase() == 'ditolak'
-                                  ? lembur.shortCatatanPenolakan
-                                  : lembur.deskripsi,
+                                  ? lembur.catatan_penolakan
+                                  : lembur.keteranganStatus,
                             ),
                           ],
                         ),
@@ -171,11 +173,20 @@ class LemburCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      Text(
+                        lembur.shortDeskripsi,
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       // Deskripsi singkat
                       Text(
                         lembur.status.toLowerCase() == 'ditolak'
                             ? lembur.shortCatatanPenolakan
-                            : lembur.shortDeskripsi,
+                            : lembur.keteranganStatus,
                         style: GoogleFonts.poppins(
                           color: AppColors.putih,
                           fontSize: 14,

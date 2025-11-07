@@ -86,8 +86,6 @@ class UserCutiTabel extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 DetailItem(label: 'Nama', value: c.user['nama']),
-                DetailItem(
-                    label: 'Status', value: c.status, color: c.statusColor),
                 DetailItem(label: 'Tipe Cuti', value: c.tipe_cuti),
                 DetailItem(
                     label: 'Tanggal Mulai',
@@ -95,8 +93,11 @@ class UserCutiTabel extends StatelessWidget {
                 DetailItem(
                     label: 'Tanggal Selesai',
                     value: DateHelper.format(c.tanggal_selesai)),
+                DetailItem(label: 'Alasan', value: c.alasan),
                 DetailItem(
-                    label: 'Alasan',
+                    label: 'Status', value: c.status, color: c.statusColor),
+                DetailItem(
+                    label: 'Keterangan',
                     value: c.status.toLowerCase() == 'ditolak'
                         ? c.catatan_penolakan
                         : c.keterangan_status),

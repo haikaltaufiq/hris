@@ -175,8 +175,9 @@ class _LemburMobileState extends State<LemburMobile> {
     );
 
     if (confirmed) {
-      final message =
-          await context.read<LemburProvider>().declineLembur(lembur.id, "");
+      final message = await context
+          .read<LemburProvider>()
+          .declineLembur(lembur.id, catatanPenolakan!);
       searchController.clear();
 
       NotificationHelper.showTopNotification(

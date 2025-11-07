@@ -83,8 +83,8 @@ class LemburModel {
 
   String get shortCatatanPenolakan {
     if (catatan_penolakan == null || catatan_penolakan.isEmpty) return '-';
-    return catatan_penolakan.length > 50
-        ? '${catatan_penolakan.substring(0, 50)}...'
+    return catatan_penolakan.length > 20
+        ? '${catatan_penolakan.substring(0, 20)}...'
         : catatan_penolakan;
   }
 
