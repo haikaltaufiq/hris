@@ -232,25 +232,22 @@ class _CutiWebPageState extends State<CutiWebPage> {
                   }
                 },
               ),
-              if (cutiProvider.isLoading && displayedList.isEmpty)
+              if (cutiProvider.isLoading)
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.6,
                   child: const Center(child: LoadingWidget()),
                 )
               else if (cutiProvider.errorMessage != null)
                 Center(child: Text('Error: ${cutiProvider.errorMessage}'))
-              else if (cutiProvider.cutiList.isEmpty && !cutiProvider.isLoading)
+              else if (displayedList.isEmpty)
                 SizedBox(
                   height: MediaQuery.of(context).size.height * 0.6,
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.hourglass_empty,
-                          size: 64,
-                          color: AppColors.putih.withOpacity(0.5),
-                        ),
+                        Icon(Icons.hourglass_empty,
+                            size: 64, color: AppColors.putih.withOpacity(0.5)),
                         const SizedBox(height: 16),
                         Text(
                           context.isIndonesian
@@ -262,22 +259,11 @@ class _CutiWebPageState extends State<CutiWebPage> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          context.isIndonesian
-                              ? 'Tap tombol + untuk menambah pengajuan baru'
-                              : 'Press + button to add new proposal',
-                          style: TextStyle(
-                            color: AppColors.putih.withOpacity(0.7),
-                            fontSize: 14,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
                       ],
                     ),
                   ),
                 )
-              else if (displayedList.isNotEmpty)
+              else
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: WebTabelCuti(
