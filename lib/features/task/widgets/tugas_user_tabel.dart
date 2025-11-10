@@ -405,6 +405,13 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
     // Build rows
     final rows = widget.tugasList.map((tugas) {
       // final hasLampiran = (tugas.lampiran ?? '').toString().trim().isNotEmpty;
+
+      final lampiranLabel =
+          (tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty)
+              ? tugas.displayLampiran
+              : context.isIndonesian
+                  ? "Upload Lampiran"
+                  : "Upload Attachment";
       return [
         tugas.displayUser,
         tugas.shortTugas,
@@ -424,7 +431,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
             : '-',
         tugas.status,
         tugas.displayNote,
-        tugas.displayLampiran,
+        lampiranLabel,
         tugas.displayWaktuUpload,
         tugas.menitTerlambat != null
             ? context.isIndonesian
@@ -446,8 +453,14 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
       headers: headers,
       rows: rows,
       statusColumnIndexes: const [7], // status di kolom ke-6
-      onTapLampiran: (row) =>
-          _showLampiranDialog(context, widget.tugasList[row]),
+      onTapLampiran: (row) {
+        final tugas = widget.tugasList[row];
+        if (tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty) {
+          _showLampiranDialog(context, tugas);
+        } else {
+          _editTugas(context, row);
+        }
+      },
       onCellTap: (row, col) {
         final tugas = widget.tugasList[row];
 
