@@ -59,20 +59,31 @@ class _UserEditTugasState extends State<UserEditTugas> {
     _noteController.text = widget.tugas.note ?? '';
 
     // Tanggal dari API (yyyy-MM-dd) → Form (dd / MM / yyyy)
-    if (widget.tugas.tanggalPenugasan != null &&
-        widget.tugas.tanggalPenugasan.isNotEmpty) {
-      final parts = widget.tugas.tanggalPenugasan.split('-');
-      if (parts.length == 3) {
+    if (widget.tugas.tanggalPenugasan.isNotEmpty) {
+      try {
+        final date = DateTime.parse(widget.tugas.tanggalPenugasan).toLocal();
         _tanggalPenugasanController.text =
-            "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
+            "${date.day.toString().padLeft(2, '0')}/"
+            "${date.month.toString().padLeft(2, '0')}/"
+            "${date.year} "
+            "${date.hour.toString().padLeft(2, '0')}:"
+            "${date.minute.toString().padLeft(2, '0')}";
+      } catch (_) {
+        _tanggalPenugasanController.text = '';
       }
     }
-    if (widget.tugas.batasPenugasan != null &&
-        widget.tugas.batasPenugasan.isNotEmpty) {
-      final parts = widget.tugas.batasPenugasan.split('-');
-      if (parts.length == 3) {
+
+    if (widget.tugas.batasPenugasan.isNotEmpty) {
+      try {
+        final date = DateTime.parse(widget.tugas.batasPenugasan).toLocal();
         _batasPenugasanController.text =
-            "${parts[2].padLeft(2, '0')} / ${parts[1].padLeft(2, '0')} / ${parts[0]}";
+            "${date.day.toString().padLeft(2, '0')}/"
+            "${date.month.toString().padLeft(2, '0')}/"
+            "${date.year} "
+            "${date.hour.toString().padLeft(2, '0')}:"
+            "${date.minute.toString().padLeft(2, '0')}";
+      } catch (_) {
+        _batasPenugasanController.text = '';
       }
     }
 
@@ -605,6 +616,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
                       controller: _latitudeUploadController,
                       labelStyle: labelStyle,
                       textStyle: textStyle,
+                      onTapIcon: () {},
                       inputStyle: inputStyle,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),
@@ -618,6 +630,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
                       controller: _longitudeUploadController,
                       labelStyle: labelStyle,
                       textStyle: textStyle,
+                      onTapIcon: () {},
                       inputStyle: inputStyle,
                       keyboardType:
                           const TextInputType.numberWithOptions(decimal: true),

@@ -153,7 +153,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
   String parseDate(String? date) {
     if (date == null || date.isEmpty) return '';
     try {
-      final parsed = DateTime.parse(date);
+      final parsed = DateTime.parse(date).toLocal();
       return DateFormat('HH:mm \'-\' dd/MM/yyyy').format(parsed);
     } catch (_) {
       return date;

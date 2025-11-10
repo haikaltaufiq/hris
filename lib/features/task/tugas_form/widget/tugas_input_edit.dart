@@ -56,7 +56,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     // tanggal
     if (widget.tugas.tanggalPenugasan.isNotEmpty) {
       try {
-        final date = DateTime.parse(widget.tugas.tanggalPenugasan);
+        final date = DateTime.parse(widget.tugas.tanggalPenugasan).toLocal();
         _tanggalPenugasanController.text =
             "${date.day.toString().padLeft(2, '0')}/"
             "${date.month.toString().padLeft(2, '0')}/"
@@ -70,7 +70,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
 
     if (widget.tugas.batasPenugasan.isNotEmpty) {
       try {
-        final date = DateTime.parse(widget.tugas.batasPenugasan);
+        final date = DateTime.parse(widget.tugas.batasPenugasan).toLocal();
         _batasPenugasanController.text =
             "${date.day.toString().padLeft(2, '0')}/"
             "${date.month.toString().padLeft(2, '0')}/"
