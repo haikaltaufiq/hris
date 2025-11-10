@@ -1,4 +1,5 @@
 import 'package:hr/data/models/user_model.dart';
+import 'package:intl/intl.dart';
 
 class TugasModel {
   final int id;
@@ -117,8 +118,15 @@ extension TugasTableGetter on TugasModel {
   String get shortTugas =>
       namaTugas.length > 20 ? '${namaTugas.substring(0, 20)}...' : namaTugas;
 
-  String get displayWaktuUpload =>
-      waktuUpload != null ? waktuUpload!.replaceAll('T', ' ') : '-';
+  String get displayWaktuUpload {
+    if (waktuUpload == null) return '-';
+    try {
+      final dt = DateTime.parse(waktuUpload!).toLocal();
+      return DateFormat('HH:mm - dd/MM/yyyy').format(dt);
+    } catch (_) {
+      return waktuUpload!;
+    }
+  }
 
   String get displayMenitTerlambat {
     if (menitTerlambat == null) return '-';
