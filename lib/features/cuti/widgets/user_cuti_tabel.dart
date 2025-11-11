@@ -85,19 +85,29 @@ class UserCutiTabel extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DetailItem(label: 'Nama', value: c.user['nama']),
-                DetailItem(label: 'Tipe Cuti', value: c.tipe_cuti),
                 DetailItem(
-                    label: 'Tanggal Mulai',
+                    label: context.isIndonesian ? 'Nama' : 'Name',
+                    value: c.user['nama']),
+                DetailItem(
+                    label: context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
+                    value: c.tipe_cuti),
+                DetailItem(
+                    label:
+                        context.isIndonesian ? 'Tanggal Mulai' : 'Start Date',
                     value: DateHelper.format(c.tanggal_mulai)),
                 DetailItem(
-                    label: 'Tanggal Selesai',
+                    label:
+                        context.isIndonesian ? 'Tanggal Selesai' : 'End Date',
                     value: DateHelper.format(c.tanggal_selesai)),
-                DetailItem(label: 'Alasan', value: c.alasan),
                 DetailItem(
-                    label: 'Status', value: c.status, color: c.statusColor),
+                    label: context.isIndonesian ? 'Alasan' : 'Reason',
+                    value: c.alasan),
                 DetailItem(
-                    label: 'Keterangan',
+                    label: context.isIndonesian ? 'Status' : 'Status',
+                    value: c.status,
+                    color: c.statusColor),
+                DetailItem(
+                    label: context.isIndonesian ? 'Keterangan' : 'Description',
                     value: c.status.toLowerCase() == 'ditolak'
                         ? c.catatan_penolakan
                         : c.keterangan_status),

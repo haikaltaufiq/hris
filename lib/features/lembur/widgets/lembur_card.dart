@@ -7,6 +7,7 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/format_time.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/lembur_model.dart';
 import 'package:hr/features/lembur/lembur_viewmodel/lembur_provider.dart';
 import 'package:provider/provider.dart';
@@ -71,26 +72,38 @@ class LemburCard extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             DetailItem(
-                                label: 'Nama', value: lembur.user['nama']),
+                                label: context.isIndonesian ? 'Nama' : 'Name',
+                                value: lembur.user['nama']),
                             DetailItem(
-                                label: 'Tanggal Mulai',
+                                label: context.isIndonesian
+                                    ? 'Tanggal Mulai'
+                                    : 'Start Date',
                                 value: DateHelper.format(lembur.tanggal)),
                             DetailItem(
-                                label: 'Jam Mulai',
+                                label: context.isIndonesian
+                                    ? 'Jam Mulai'
+                                    : 'Start Time',
                                 value:
                                     FormatTime().formatTime(lembur.jamMulai)),
                             DetailItem(
-                                label: 'Jam Selesai',
+                                label: context.isIndonesian
+                                    ? 'Jam Selesai'
+                                    : 'End Time',
                                 value:
                                     FormatTime().formatTime(lembur.jamSelesai)),
                             DetailItem(
-                                label: 'Alasan', value: lembur.shortDeskripsi),
+                                label:
+                                    context.isIndonesian ? 'Alasan' : 'Reason',
+                                value: lembur.shortDeskripsi),
                             DetailItem(
-                                label: 'Status',
+                                label:
+                                    context.isIndonesian ? 'Status' : 'Status',
                                 value: lembur.status,
                                 color: lembur.statusColor),
                             DetailItem(
-                              label: 'Keterangan',
+                              label: context.isIndonesian
+                                  ? 'Keterangan'
+                                  : 'Description',
                               value: lembur.status.toLowerCase() == 'ditolak'
                                   ? lembur.catatan_penolakan
                                   : lembur.keteranganStatus,
@@ -101,7 +114,7 @@ class LemburCard extends StatelessWidget {
                           TextButton(
                             onPressed: () => Navigator.pop(context),
                             child: Text(
-                              'Tutup',
+                              context.isIndonesian ? 'Tutup' : 'Close',
                               style: GoogleFonts.poppins(
                                 color: AppColors.putih,
                                 fontSize: 16,

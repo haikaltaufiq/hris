@@ -86,21 +86,27 @@ class UserLemburTabel extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DetailItem(label: 'Nama', value: c.user['nama']),
                 DetailItem(
-                    label: 'Status', value: c.status, color: c.statusColor),
+                    label: context.isIndonesian ? 'Nama' : 'Name',
+                    value: c.user['nama']),
                 DetailItem(
-                    label: 'Tanggal Lembur',
+                    label: context.isIndonesian ? 'Status' : 'Status',
+                    value: c.status,
+                    color: c.statusColor),
+                DetailItem(
+                    label: context.isIndonesian ? 'Tanggal Lembur' : 'Date',
                     value: DateHelper.format(c.tanggal)),
                 DetailItem(
-                    label: 'Jam Mulai',
+                    label: context.isIndonesian ? 'Jam Mulai' : 'Start Time',
                     value: FormatTime().formatTime(c.jamMulai)),
                 DetailItem(
-                    label: 'Jam Selesai',
+                    label: context.isIndonesian ? 'Jam Selesai' : 'End Time',
                     value: FormatTime().formatTime(c.jamSelesai)),
-                DetailItem(label: 'Alasan', value: c.deskripsi),
                 DetailItem(
-                  label: 'Deskripsi',
+                    label: context.isIndonesian ? 'Alasan' : 'Reason',
+                    value: c.deskripsi),
+                DetailItem(
+                  label: context.isIndonesian ? 'Deskripsi' : 'Description',
                   value: c.status.toString() == 'ditolak'
                       ? c.catatan_penolakan
                       : c.keteranganStatus,
@@ -110,7 +116,7 @@ class UserLemburTabel extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Tutup',
+                child: Text(context.isIndonesian ? 'Tutup' : 'Close',
                     style: GoogleFonts.poppins(
                       color: AppColors.putih,
                       fontSize: 16,

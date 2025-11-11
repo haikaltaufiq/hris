@@ -138,10 +138,12 @@ class _GajiTabelWebState extends State<GajiTabelWeb> {
 
         if (widget.onReload != null) {
           await widget.onReload!(gaji.id, newStatus);
-
+          final message = context.isIndonesian
+              ? "Status gaji berhasil diubah"
+              : "Salary status updated successfully";
           NotificationHelper.showTopNotification(
             context,
-            "Status gaji berhasil diubah",
+            message,
             isSuccess: true,
           );
         }

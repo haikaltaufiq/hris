@@ -78,8 +78,8 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
       content: context.isIndonesian
           ? "Apakah Anda yakin ingin menyetujui cuti ini?"
           : "Are you sure want to approve this leave proposal?",
-      confirmText: "Setuju",
-      cancelText: "Batal",
+      confirmText: context.isIndonesian ? "Setuju" : "Approve",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
       confirmColor: AppColors.green,
     );
 
@@ -192,10 +192,12 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
           .declineCuti(cuti.id, catatanPenolakan!);
 
       searchController.clear();
-
+      final messages = context.isIndonesian
+          ? 'Gagal menolak Cuti'
+          : 'Failed to reject Leave';
       NotificationHelper.showTopNotification(
         context,
-        message ?? 'Gagal menolak Cuti',
+        message ?? messages,
         isSuccess: message != null,
       );
     }
@@ -235,16 +237,48 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                     onFilter1Tap: () async {
                       final provider = context.read<CutiProvider>();
 
+                      // bangun dulu options
+                      final options = [
+                        {
+                          'value': 'terbaru',
+                          'label': context.isIndonesian ? 'Terbaru' : 'Newest',
+                        },
+                        {
+                          'value': 'terlama',
+                          'label': context.isIndonesian ? 'Terlama' : 'Oldest',
+                        },
+                        {
+                          'value': 'status',
+                          'label': 'Status',
+                        },
+                      ];
+
+                      // guard fitur
+                      if (FeatureAccess.has('approve_cuti')) {
+                        options.add({
+                          'value': 'per-orang',
+                          'label':
+                              context.isIndonesian ? 'Per-orang' : 'By Person',
+                        });
+                      }
+
+                      if (FeatureAccess.has('approve_cuti')) {
+                        options.add({
+                          'value': 'nama',
+                          'label': context.isIndonesian
+                              ? 'Nama Karyawan'
+                              : 'Employee Name',
+                        });
+                      }
+
+                      // baru panggil dialog
                       final selected = await showSortDialog(
                         context: context,
-                        title: 'Urutkan Cuti Berdasarkan',
+                        title: context.isIndonesian
+                            ? 'Urutkan Berdasarkan'
+                            : 'Sort Leave By',
                         currentValue: provider.currentSortField,
-                        options: [
-                          {'value': 'terbaru', 'label': 'Terbaru'},
-                          {'value': 'terlama', 'label': 'Terlama'},
-                          {'value': 'nama', 'label': 'Nama Karyawan'},
-                          {'value': 'status', 'label': 'Status'},
-                        ],
+                        options: options,
                       );
 
                       if (selected != null) {

@@ -34,8 +34,10 @@ class _ResetDeviceState extends State<ResetDevice> {
       });
     } catch (e) {
       setState(() => loading = false);
-
-      NotificationHelper.showTopNotification(context, 'Gagal ambil device: $e',
+      final message = context.isIndonesian
+          ? 'Gagal ambil data device: $e'
+          : 'Failed to fetch device data: $e';
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
     }
   }
@@ -55,14 +57,18 @@ class _ResetDeviceState extends State<ResetDevice> {
     try {
       final success = await DeviceService.resetDevice(userId);
       if (success) {
-        NotificationHelper.showTopNotification(
-            context, 'Device berhasil direset',
+        final message = context.isIndonesian
+            ? 'Device berhasil direset'
+            : 'Device reset successfully';
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: true);
 
         _loadDevices();
       }
     } catch (e) {
-      NotificationHelper.showTopNotification(context, 'Gagal reset: $e',
+      final message =
+          context.isIndonesian ? 'Gagal reset: $e' : 'Failed to reset: $e';
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
     }
   }

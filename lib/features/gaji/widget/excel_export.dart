@@ -31,9 +31,12 @@ class _ExcelExportState extends State<ExcelExport> {
         _availablePeriods = periods;
       });
     } catch (e) {
+      final message = context.isIndonesian
+          ? "Gagal memuat periode: $e"
+          : "Failed to load periods: $e";
       NotificationHelper.showTopNotification(
         context,
-        "Gagal memuat periode: $e",
+        message,
         isSuccess: false,
       );
     }
@@ -41,9 +44,12 @@ class _ExcelExportState extends State<ExcelExport> {
 
   Future<void> _exportExcel() async {
     if (_selectedPeriod == null) {
+      final message = context.isIndonesian
+          ? "Pilih periode terlebih dahulu"
+          : "Select a period first";
       NotificationHelper.showTopNotification(
         context,
-        "Pilih periode terlebih dahulu",
+        message,
         isSuccess: false,
       );
       return;
@@ -63,9 +69,11 @@ class _ExcelExportState extends State<ExcelExport> {
         isSuccess: true,
       );
     } catch (e) {
+      final message =
+          context.isIndonesian ? "Export gagal: $e" : "Export failed: $e";
       NotificationHelper.showTopNotification(
         context,
-        "Export gagal: $e",
+        message,
         isSuccess: false,
       );
     }

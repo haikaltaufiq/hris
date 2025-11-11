@@ -70,7 +70,9 @@ class CutiCard extends StatelessWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            DetailItem(label: 'Nama', value: cuti.user['nama']),
+                            DetailItem(
+                                label: context.isIndonesian ? 'Nama' : 'Name',
+                                value: cuti.user['nama']),
                             DetailItem(
                                 label: context.isIndonesian
                                     ? 'Tipe Cuti'
@@ -86,7 +88,10 @@ class CutiCard extends StatelessWidget {
                                     ? 'Tanggal Selesai'
                                     : "End Date",
                                 value: DateHelper.format(cuti.tanggal_selesai)),
-                            DetailItem(label: 'Alasan', value: cuti.alasan),
+                            DetailItem(
+                                label:
+                                    context.isIndonesian ? 'Alasan' : 'Reason',
+                                value: cuti.alasan),
                             DetailItem(
                                 label: 'Status',
                                 value: cuti.status,

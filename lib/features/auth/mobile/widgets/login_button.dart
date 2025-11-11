@@ -60,9 +60,11 @@ class _LoginButtonState extends State<LoginButton> {
           ]);
 
           if (context.mounted) {
+            final message =
+                context.isIndonesian ? "Login berhasil" : "Login success";
             NotificationHelper.showTopNotification(
               context,
-              result['message'] ?? "Login berhasil",
+              result['message'] ?? message,
               isSuccess: true,
             );
             Navigator.pushReplacementNamed(context, AppRoutes.dashboardMobile);

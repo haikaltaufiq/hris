@@ -111,9 +111,12 @@ class _InfoPageState extends State<InfoPage>
 
   void _lihatMap() {
     if (latitudeController.text.isEmpty || longitudeController.text.isEmpty) {
+      final message = context.isIndonesian
+          ? "Harap isi koordinat terlebih dahulu"
+          : "Please fill in the coordinates first";
       NotificationHelper.showTopNotification(
         context,
-        "Harap isi koordinat terlebih dahulu",
+        message,
         isSuccess: false,
       );
       return;
@@ -220,9 +223,12 @@ class _InfoPageState extends State<InfoPage>
         );
       }
     } catch (e) {
+      final message = context.isIndonesian
+          ? "Format koordinat tidak valid"
+          : "Invalid coordinate format";
       NotificationHelper.showTopNotification(
         context,
-        "Format koordinat tidak valid",
+        message,
         isSuccess: false,
       );
     }

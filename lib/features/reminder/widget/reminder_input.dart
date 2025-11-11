@@ -52,9 +52,12 @@ class _ReminderInputState extends State<ReminderInput> {
         setState(() {
           _isLoadingPeran = false;
         });
+        final message = context.isIndonesian
+            ? 'Gagal memuat data peran: $e'
+            : 'Failed to load roles data: $e';
         NotificationHelper.showTopNotification(
           context,
-          'Gagal memuat data peran: $e',
+          message,
           isSuccess: false,
         );
       }
@@ -200,9 +203,12 @@ class _ReminderInputState extends State<ReminderInput> {
                       if (_reminderNameController.text.isEmpty ||
                           _tanggalController.text.isEmpty ||
                           _selectedPeran == null) {
+                        final message = context.isIndonesian
+                            ? 'Harap isi semua data'
+                            : 'Please fill in all data';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Harap isi semua data',
+                          message,
                           isSuccess: false,
                         );
                         return;
@@ -229,9 +235,12 @@ class _ReminderInputState extends State<ReminderInput> {
                         await PengingatService.createPengingat(reminder);
 
                         if (mounted) {
+                          final message = context.isIndonesian
+                              ? 'Reminder berhasil ditambahkan'
+                              : 'Reminder added successfully';
                           NotificationHelper.showTopNotification(
                             context,
-                            'Reminder berhasil ditambahkan',
+                            message,
                             isSuccess: true,
                           );
                           Navigator.pop(context, true);
@@ -244,9 +253,12 @@ class _ReminderInputState extends State<ReminderInput> {
                         }
                       } catch (e) {
                         if (mounted) {
+                          final message = context.isIndonesian
+                              ? 'Gagal menambahkan reminder: $e'
+                              : 'Failed to add reminder: $e';
                           NotificationHelper.showTopNotification(
                             context,
-                            'Gagal menambahkan reminder: $e',
+                            message,
                             isSuccess: false,
                           );
                         }

@@ -479,8 +479,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 final oldPassword = passwordController.text.trim();
 
                 if (newEmail.isEmpty || oldPassword.isEmpty) {
-                  NotificationHelper.showTopNotification(
-                      context, 'Email dan password wajib diisi',
+                  final message = context.isIndonesian
+                      ? 'Email dan password wajib diisi'
+                      : 'Email and password must be filled';
+                  NotificationHelper.showTopNotification(context, message,
                       isSuccess: false);
                   return;
                 }
@@ -507,7 +509,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   );
                 }
               },
-              child: Text('Simpan',
+              child: Text(context.isIndonesian ? 'Simpan' : 'Save',
                   style: GoogleFonts.poppins(
                       fontWeight: FontWeight.bold, color: AppColors.putih)),
             ),
@@ -701,18 +703,24 @@ class _ProfilePageState extends State<ProfilePage> {
                       if (oldPassword.isEmpty ||
                           newPassword.isEmpty ||
                           confirmPassword.isEmpty) {
+                        final message = context.isIndonesian
+                            ? 'Semua field wajib diisi'
+                            : 'All fields are required';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Semua field wajib diisi',
+                          message,
                           isSuccess: false,
                         );
                         return;
                       }
 
                       if (newPassword != confirmPassword) {
+                        final message = context.isIndonesian
+                            ? 'Konfirmasi password tidak cocok'
+                            : 'Password confirmation does not match';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Konfirmasi password tidak cocok',
+                          message,
                           isSuccess: false,
                         );
                         return;
@@ -737,7 +745,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       }
                     },
                     child: Text(
-                      'Simpan',
+                      context.isIndonesian ? 'Simpan' : 'Save',
                       style: GoogleFonts.poppins(
                         fontWeight: FontWeight.bold,
                         color: AppColors.putih,

@@ -94,18 +94,24 @@ class _LoginState extends State<Login> {
           }
         } else {
           if (context.mounted) {
+            final message = context.isIndonesian
+                ? 'Email atau password salah'
+                : 'Invalid email or password';
             NotificationHelper.showTopNotification(
               context,
-              result['message'] ?? 'Invalid email or password',
+              result['message'] ?? message,
               isSuccess: false,
             );
           }
         }
       } catch (e) {
         if (context.mounted) {
+          final message = context.isIndonesian
+              ? 'Login gagal: ${e.toString()}'
+              : 'Login failed: ${e.toString()}';
           NotificationHelper.showTopNotification(
             context,
-            'Login failed: ${e.toString()}',
+            message,
             isSuccess: false,
           );
         }
@@ -586,9 +592,12 @@ class _LoginState extends State<Login> {
                     await launchUrl(telUri);
                   } else {
                     if (context.mounted) {
+                      final message = context.isIndonesian
+                          ? "Tidak dapat membuka dialer"
+                          : "Can't open the phone";
                       NotificationHelper.showTopNotification(
                         context,
-                        "Can't open the phone",
+                        message,
                         isSuccess: false,
                       );
                     }
@@ -629,9 +638,12 @@ class _LoginState extends State<Login> {
                     await launchUrl(mailUri);
                   } else {
                     if (context.mounted) {
+                      final message = context.isIndonesian
+                          ? "Tidak dapat membuka email client"
+                          : "Can't open the email client";
                       NotificationHelper.showTopNotification(
                         context,
-                        "Can't open the email client",
+                        message,
                         isSuccess: false,
                       );
                     }

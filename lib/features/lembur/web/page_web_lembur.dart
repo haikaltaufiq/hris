@@ -65,10 +65,14 @@ class _LemburWebPageState extends State<LemburWebPage> {
   Future<void> _approveLembur(LemburModel lembur) async {
     final confirmed = await showConfirmationDialog(
       context,
-      title: "Konfirmasi Persetujuan",
-      content: "Apakah Anda yakin ingin menyetujui lembur ini?",
-      confirmText: "Setuju",
-      cancelText: "Batal",
+      title: context.isIndonesian
+          ? "Konfirmasi Persetujuan"
+          : "Approval Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin menyetujui lembur ini?"
+          : "Are you sure you want to approve this overtime?",
+      confirmText: context.isIndonesian ? "Setuju" : "Approve",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
       confirmColor: AppColors.green,
     );
 
@@ -164,10 +168,14 @@ class _LemburWebPageState extends State<LemburWebPage> {
 
     final confirmed = await showConfirmationDialog(
       context,
-      title: "Konfirmasi Penolakan",
-      content: "Apakah Anda yakin ingin menolak lembur ini?",
-      confirmText: "Tolak",
-      cancelText: "Batal",
+      title: context.isIndonesian
+          ? "Konfirmasi Penolakan"
+          : "Rejection Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin menolak lembur ini?"
+          : "Are you sure you want to reject this overtime?",
+      confirmText: context.isIndonesian ? "Tolak" : "Reject",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
       confirmColor: AppColors.red,
     );
 
@@ -206,16 +214,39 @@ class _LemburWebPageState extends State<LemburWebPage> {
                 onFilter1Tap: () async {
                   final provider = context.read<LemburProvider>();
 
+                  // bangun dulu options
+                  final options = [
+                    {
+                      'value': 'terbaru',
+                      'label': context.isIndonesian ? 'Terbaru' : 'Newest',
+                    },
+                    {
+                      'value': 'terlama',
+                      'label': context.isIndonesian ? 'Terlama' : 'Oldest',
+                    },
+                    {
+                      'value': 'status',
+                      'label': 'Status',
+                    },
+                  ];
+
+                  if (FeatureAccess.has('approve_lembur')) {
+                    options.add({
+                      'value': 'nama',
+                      'label': context.isIndonesian
+                          ? 'Nama Karyawan'
+                          : 'Employee Name',
+                    });
+                  }
+
+                  // baru panggil dialog
                   final selected = await showSortDialog(
                     context: context,
-                    title: 'Urutkan Lembur Berdasarkan',
+                    title: context.isIndonesian
+                        ? 'Urutkan Berdasarkan'
+                        : 'Sort By',
                     currentValue: provider.currentSortField,
-                    options: [
-                      {'value': 'terbaru', 'label': 'Terbaru'},
-                      {'value': 'terlama', 'label': 'Terlama'},
-                      {'value': 'nama', 'label': 'Nama Karyawan'},
-                      {'value': 'status', 'label': 'Status'},
-                    ],
+                    options: options,
                   );
 
                   if (selected != null) {

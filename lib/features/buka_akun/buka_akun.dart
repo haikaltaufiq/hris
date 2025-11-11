@@ -34,7 +34,10 @@ class _BukaAkunState extends State<BukaAkun> {
       });
     } catch (e) {
       setState(() => loading = false);
-      NotificationHelper.showTopNotification(context, 'Gagal ambil akun: $e',
+      final message = context.isIndonesian
+          ? 'Gagal ambil akun: $e'
+          : 'Failed to fetch accounts: $e';
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
     }
   }
@@ -56,13 +59,19 @@ class _BukaAkunState extends State<BukaAkun> {
     try {
       final success = await AkunService.unlockUser(userId);
       if (success) {
-        NotificationHelper.showTopNotification(context, 'Akun berhasil dibuka',
+        final message = context.isIndonesian
+            ? 'Akun berhasil dibuka'
+            : 'Account successfully unlocked';
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: true);
 
         _loadUsers();
       }
     } catch (e) {
-      NotificationHelper.showTopNotification(context, 'Gagal buka akun: $e',
+      final message = context.isIndonesian
+          ? 'Gagal buka akun: $e'
+          : 'Failed to unlock account: $e';
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
     }
   }

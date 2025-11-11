@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/jabatan_model.dart';
 import 'package:hr/data/services/jabatan_service.dart';
 import 'package:hive/hive.dart';
@@ -105,8 +106,10 @@ class JabatanViewModel extends ChangeNotifier {
 
   Future<void> createJabatan(BuildContext context, String namaJabatan) async {
     if (namaJabatan.trim().isEmpty) {
-      NotificationHelper.showTopNotification(
-          context, 'Nama jabatan tidak boleh kosong');
+      final message = context.isIndonesian
+          ? 'Nama jabatan tidak boleh kosong'
+          : 'Jabatan name cannot be empty';
+      NotificationHelper.showTopNotification(context, message);
       return;
     }
 
@@ -129,8 +132,11 @@ class JabatanViewModel extends ChangeNotifier {
   Future<void> updateJabatan(
       BuildContext context, int id, String namaJabatan) async {
     if (namaJabatan.trim().isEmpty) {
-      NotificationHelper.showTopNotification(
-          context, 'Nama jabatan tidak boleh kosong');
+      final message = context.isIndonesian
+          ? 'Nama jabatan tidak boleh kosong'
+          : 'Jabatan name cannot be empty';
+      NotificationHelper.showTopNotification(context, message,
+          isSuccess: false);
       return;
     }
 

@@ -338,10 +338,13 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
                                                 .fetchAbsensi();
                                           }
                                         } else {
-                                          NotificationHelper.showTopNotification(
-                                              context,
-                                              "Anda Sudah Check-in hari ini",
-                                              isSuccess: false);
+                                          final message = context.isIndonesian
+                                              ? "Anda Sudah Check-in hari ini"
+                                              : "You have checked in today";
+                                          NotificationHelper
+                                              .showTopNotification(
+                                                  context, message,
+                                                  isSuccess: false);
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(16),
@@ -452,10 +455,13 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
                                                 .fetchAbsensi();
                                           }
                                         } else {
-                                          NotificationHelper.showTopNotification(
-                                              context,
-                                              "Anda Belum Check-in hari ini",
-                                              isSuccess: false);
+                                          final message = context.isIndonesian
+                                              ? "Anda Belum Check-in hari ini"
+                                              : "You haven't checked in today";
+                                          NotificationHelper
+                                              .showTopNotification(
+                                                  context, message,
+                                                  isSuccess: false);
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(16),

@@ -199,9 +199,12 @@ class _InputOutState extends State<InputOut> {
             if (!mounted) return;
 
             if (position == null) {
+              final message = context.isIndonesian
+                  ? "GPS mati atau izin ditolak"
+                  : "GPS is off or permission denied";
               NotificationHelper.showTopNotification(
                 context,
-                "GPS mati atau izin ditolak",
+                message,
                 isSuccess: false,
               );
               return;
@@ -213,9 +216,12 @@ class _InputOutState extends State<InputOut> {
             });
 
             HapticFeedback.lightImpact();
+            final successMessage = context.isIndonesian
+                ? "Lokasi berhasil didapatkan"
+                : "Location successfully obtained";
             NotificationHelper.showTopNotification(
               context,
-              "Lokasi berhasil didapatkan",
+              successMessage,
               isSuccess: true,
             );
           },
@@ -256,9 +262,12 @@ class _InputOutState extends State<InputOut> {
         child: InkWell(
           onTap: () {
             if (_lokasiController.text.isEmpty) {
+              final message = context.isIndonesian
+                  ? "Ambil lokasi terlebih dahulu"
+                  : "Take location first";
               NotificationHelper.showTopNotification(
                 context,
-                "Ambil lokasi terlebih dahulu",
+                message,
                 isSuccess: false,
               );
               return;
@@ -349,9 +358,12 @@ class _InputOutState extends State<InputOut> {
                 ),
               );
             } catch (e) {
+              final message = context.isIndonesian
+                  ? "Format lokasi tidak valid"
+                  : "Invalid location format";
               NotificationHelper.showTopNotification(
                 context,
-                "Format lokasi tidak valid",
+                message,
                 isSuccess: false,
               );
             }
@@ -381,9 +393,12 @@ class _InputOutState extends State<InputOut> {
   Future<void> _submitCheckOut() async {
     if (_lokasiController.text.isEmpty) {
       if (!mounted) return;
+      final message = context.isIndonesian
+          ? "Ambil lokasi dulu sebelum submit"
+          : "Take location first before submitting";
       NotificationHelper.showTopNotification(
         context,
-        "Ambil lokasi dulu sebelum submit",
+        message,
         isSuccess: false,
       );
       return;
@@ -415,8 +430,10 @@ class _InputOutState extends State<InputOut> {
 
       if (!mounted) return;
       final success = absenProvider.lastCheckoutResult?['success'] ?? false;
+      final successMessage =
+          context.isIndonesian ? "Checkout berhasil" : "Checkout success";
       final message =
-          absenProvider.lastCheckoutResult?['message'] ?? 'Checkout gagal';
+          absenProvider.lastCheckoutResult?['message'] ?? successMessage;
       NotificationHelper.showTopNotification(
         context,
         message,

@@ -73,11 +73,19 @@ class _ReminderPageState extends State<ReminderPage> {
 
                     final selected = await showSortDialog(
                       context: context,
-                      title: 'Urutkan Pengingat Berdasarkan',
+                      title: context.isIndonesian
+                          ? 'Urutkan Berdasarkan'
+                          : 'Sort By',
                       currentValue: provider.currentSortField,
                       options: [
-                        {'value': 'terdekat', 'label': 'Terdekat'},
-                        {'value': 'terlama', 'label': 'Terlama'},
+                        {
+                          'value': 'terdekat',
+                          'label': context.isIndonesian ? 'Terbaru' : 'Newest'
+                        },
+                        {
+                          'value': 'terlama',
+                          'label': context.isIndonesian ? 'Terlama' : 'Oldest'
+                        },
                       ],
                     );
 

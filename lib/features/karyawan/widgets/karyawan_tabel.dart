@@ -122,24 +122,32 @@ class KaryawanTabel extends StatelessWidget {
 
         final confirmed = await showConfirmationDialog(
           context,
-          title: 'Konfirmasi',
-          content: 'Yakin ingin menghapus karyawan ini?',
+          title: context.isIndonesian ? 'Konfirmasi' : 'Confirmation',
+          content: context.isIndonesian
+              ? 'Yakin ingin menghapus karyawan ini?'
+              : 'Are you sure you want to delete this employee?',
         );
 
         if (!confirmed) return;
 
         try {
           await userProvider.deleteUser(user.id); // pake provider
+          final message = context.isIndonesian
+              ? 'Karyawan berhasil dihapus'
+              : 'Employee deleted successfully';
           NotificationHelper.showTopNotification(
             context,
-            'Karyawan berhasil dihapus',
+            message,
             isSuccess: true,
           );
           // users list otomatis ke-refresh karena provider notifyListeners
         } catch (e) {
+          final message = context.isIndonesian
+              ? 'Gagal menghapus karyawan: $e'
+              : 'Failed to delete employee: $e';
           NotificationHelper.showTopNotification(
             context,
-            'Gagal menghapus karyawan: $e',
+            message,
             isSuccess: false,
           );
         }

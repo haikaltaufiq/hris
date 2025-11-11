@@ -76,12 +76,27 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
 
                           final selected = await showSortDialog(
                             context: context,
-                            title: 'Urutkan User Berdasarkan',
+                            title: context.isIndonesian
+                                ? 'Urutkan Berdasarkan'
+                                : 'Sort By',
                             currentValue: provider.currentSortField,
                             options: [
-                              {'value': 'terbaru', 'label': 'Terbaru'},
-                              {'value': 'terlama', 'label': 'Terlama'},
-                              {'value': 'departemen', 'label': 'Departemen'},
+                              {
+                                'value': 'terbaru',
+                                'label':
+                                    context.isIndonesian ? 'Terbaru' : 'Newest'
+                              },
+                              {
+                                'value': 'terlama',
+                                'label':
+                                    context.isIndonesian ? 'Terlama' : 'Oldest'
+                              },
+                              {
+                                'value': 'departemen',
+                                'label': context.isIndonesian
+                                    ? 'Departemen'
+                                    : 'Department'
+                              },
                               {'value': 'peran', 'label': 'Peran'},
                             ],
                           );

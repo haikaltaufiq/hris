@@ -68,11 +68,19 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
 
                       final selected = await showSortDialog(
                         context: context,
-                        title: 'Urutkan Departemen Berdasarkan',
+                        title: context.isIndonesian
+                            ? 'Urutkan Berdasarkan'
+                            : 'Sort By',
                         currentValue: provider.currentSortField,
                         options: [
-                          {'value': 'terbaru', 'label': 'Terbaru'},
-                          {'value': 'terlama', 'label': 'Terlama'},
+                          {
+                            'value': 'terbaru',
+                            'label': context.isIndonesian ? 'Terbaru' : 'Newest'
+                          },
+                          {
+                            'value': 'terlama',
+                            'label': context.isIndonesian ? 'Terlama' : 'Oldest'
+                          },
                         ],
                       );
 
@@ -126,10 +134,12 @@ class _WebPageDepartmentState extends State<WebPageDepartment> {
                           title: context.isIndonesian
                               ? "Konfirmasi Hapus"
                               : 'Delete Confirmation',
-                          content:
-                              "Apakah Anda yakin ingin menghapus departemen ini?",
-                          confirmText: "Hapus",
-                          cancelText: "Batal",
+                          content: context.isIndonesian
+                              ? "Apakah Anda yakin ingin menghapus departemen ini?"
+                              : "Are you sure you want to delete this department?",
+                          confirmText:
+                              context.isIndonesian ? "Hapus" : "Delete",
+                          cancelText: context.isIndonesian ? "Batal" : "Cancel",
                           confirmColor: AppColors.red,
                         );
                         if (confirmed) {

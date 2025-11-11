@@ -247,16 +247,19 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
                     .read<PengingatViewModel>()
                     .deletePengingat(reminder.id);
                 if (mounted) {
+                  final message = context.isIndonesian
+                      ? 'Reminder berhasil dihapus'
+                      : 'Reminder deleted successfully';
                   NotificationHelper.showTopNotification(
                     context,
-                    'Reminder berhasil dihapus',
+                    message,
                     isSuccess: true,
                   );
                 }
                 Navigator.of(context).pop();
               },
               child: Text(
-                'Hapus',
+                context.isIndonesian ? 'Hapus' : 'Delete',
                 style: TextStyle(
                   color: AppColors.red,
                   fontFamily: GoogleFonts.poppins().fontFamily,

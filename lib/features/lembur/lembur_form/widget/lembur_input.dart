@@ -356,9 +356,12 @@ class _LemburInputState extends State<LemburInput> {
                           _jamMulaiController.text.isEmpty ||
                           _jamSelesaiController.text.isEmpty ||
                           _deskripsiController.text.isEmpty) {
+                        final message = context.isIndonesian
+                            ? 'Semua field wajib diisi!'
+                            : 'All fields are required!';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Semua field wajib diisi!',
+                          message,
                           isSuccess: false,
                         );
                         return; // stop submit
@@ -376,18 +379,26 @@ class _LemburInputState extends State<LemburInput> {
                         if (!mounted) return;
 
                         if (result['success'] == true) {
+                          final message = context.isIndonesian
+                              ? 'Lembur berhasil diajukan'
+                              : 'Overtime proposal submitted successfully';
                           NotificationHelper.showTopNotification(
-                              context, 'Lembur berhasil diajukan');
+                              context, message);
                           Navigator.of(context).pop(true);
                         } else {
-                          NotificationHelper.showTopNotification(context,
-                              result['message'] ?? 'Gagal mengajukan lembur',
+                          final message = context.isIndonesian
+                              ? 'Gagal mengajukan lembur'
+                              : 'Failed to submit overtime proposal';
+                          NotificationHelper.showTopNotification(
+                              context, result['message'] ?? message,
                               isSuccess: false);
                         }
                       } catch (e) {
                         if (!mounted) return;
-                        NotificationHelper.showTopNotification(
-                            context, 'Terjadi kesalahan: $e',
+                        final message = context.isIndonesian
+                            ? 'Terjadi kesalahan: $e'
+                            : 'An error occurred: $e';
+                        NotificationHelper.showTopNotification(context, message,
                             isSuccess: false);
                       } finally {
                         if (mounted) {

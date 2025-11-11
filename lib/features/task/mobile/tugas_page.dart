@@ -77,7 +77,9 @@ class _TugasMobileState extends State<TugasMobile> {
                           return AlertDialog(
                             backgroundColor: AppColors.primary,
                             title: Text(
-                              'Urutkan Berdasarkan',
+                              context.isIndonesian
+                                  ? 'Urutkan Berdasarkan'
+                                  : 'Sort By',
                               style: TextStyle(color: AppColors.putih),
                             ),
                             content: StatefulBuilder(
@@ -90,7 +92,9 @@ class _TugasMobileState extends State<TugasMobile> {
                                     onChanged: (v) =>
                                         setState(() => selected = v!),
                                     title: Text(
-                                      'Terbaru',
+                                      context.isIndonesian
+                                          ? 'Terbaru'
+                                          : 'Newest',
                                       style: TextStyle(color: AppColors.putih),
                                     ),
                                     activeColor: AppColors.putih,
@@ -101,21 +105,29 @@ class _TugasMobileState extends State<TugasMobile> {
                                     onChanged: (v) =>
                                         setState(() => selected = v!),
                                     title: Text(
-                                      'Terlama',
+                                      context.isIndonesian
+                                          ? 'Terlama'
+                                          : 'Oldest',
                                       style: TextStyle(color: AppColors.putih),
                                     ),
                                     activeColor: AppColors.putih,
                                   ),
-                                  RadioListTile<String>(
-                                    value: 'nama',
-                                    groupValue: selected,
-                                    onChanged: (v) =>
-                                        setState(() => selected = v!),
-                                    title: Text(
-                                      'Per-orang',
-                                      style: TextStyle(color: AppColors.putih),
+                                  FeatureGuard(
+                                    requiredFeature: 'tambah_tugas',
+                                    child: RadioListTile<String>(
+                                      value: 'nama',
+                                      groupValue: selected,
+                                      onChanged: (v) =>
+                                          setState(() => selected = v!),
+                                      title: Text(
+                                        context.isIndonesian
+                                            ? 'Per-orang'
+                                            : 'By Person',
+                                        style:
+                                            TextStyle(color: AppColors.putih),
+                                      ),
+                                      activeColor: AppColors.putih,
                                     ),
-                                    activeColor: AppColors.putih,
                                   ),
                                   RadioListTile<String>(
                                     value: 'status',
@@ -146,7 +158,9 @@ class _TugasMobileState extends State<TugasMobile> {
                                         minimumSize: const Size.fromHeight(
                                             50), // samakan tinggi
                                       ),
-                                      child: const Text('Batal'),
+                                      child: Text(context.isIndonesian
+                                          ? 'Batal'
+                                          : 'Cancel'),
                                     ),
                                   ),
                                   Expanded(
@@ -170,7 +184,9 @@ class _TugasMobileState extends State<TugasMobile> {
                                               BorderRadius.circular(8),
                                         ),
                                       ),
-                                      child: const Text('Terapkan'),
+                                      child: Text(context.isIndonesian
+                                          ? 'Terapkan'
+                                          : 'Apply'),
                                     ),
                                   ),
                                 ],

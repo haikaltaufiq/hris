@@ -39,10 +39,12 @@ class PotonganTabel extends StatelessWidget {
     // Tampilkan dialog konfirmasi dan tunggu hasil
     final confirmed = await showConfirmationDialog(
       context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus potongan ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
+      title: context.isIndonesian ? "Konfirmasi Hapus" : "Delete Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin menghapus potongan ini?"
+          : "Are you sure you want to delete this deduction?",
+      confirmText: context.isIndonesian ? "Hapus" : "Delete",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
       confirmColor: AppColors.red,
     );
 
@@ -53,17 +55,22 @@ class PotonganTabel extends StatelessWidget {
             .read<PotonganGajiProvider>()
             .deletePotonganGaji(potongan.id!, "");
         // Tampilkan SnackBar sukses
-
+        final message = context.isIndonesian
+            ? 'Potongan berhasil dihapus'
+            : 'Deduction deleted successfully';
         NotificationHelper.showTopNotification(
           context,
-          "Potongan berhasil dihapus",
+          message,
           isSuccess: true,
         );
       } catch (e) {
+        final message = context.isIndonesian
+            ? 'Gagal menghapus potongan: $e'
+            : 'Failed to delete deduction: $e';
         // Tampilkan SnackBar gagal
         NotificationHelper.showTopNotification(
           context,
-          "Gagal menghapus potongan: $e",
+          message,
           isSuccess: false,
         );
       }
@@ -114,14 +121,20 @@ class PotonganTabel extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DetailItem(label: 'Nama Potongan', value: c.namaPotongan),
-                DetailItem(label: 'Nominal', value: c.nominal.toString()),
+                DetailItem(
+                    label: context.isIndonesian
+                        ? 'Nama Potongan'
+                        : 'Deduction Name',
+                    value: c.namaPotongan),
+                DetailItem(
+                    label: context.isIndonesian ? 'Nominal' : 'Amount',
+                    value: c.nominal.toString()),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Tutup',
+                child: Text(context.isIndonesian ? 'Tutup' : 'Close',
                     style: GoogleFonts.poppins(
                       color: AppColors.putih,
                       fontSize: 16,

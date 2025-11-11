@@ -75,9 +75,12 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
     } else {
       // Ada yang ditolak
       if (!mounted) return;
+      final message = context.isIndonesian
+          ? "Beberapa izin ditolak. Aktifkan lokasi, kamera, dan mikrofon."
+          : "Some permissions were denied. Please enable location, camera, and microphone.";
       NotificationHelper.showTopNotification(
         context,
-        "Beberapa izin ditolak. Aktifkan lokasi, kamera, dan mikrofon.",
+        message,
         isSuccess: false,
       );
     }
@@ -108,9 +111,12 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
 
     if (position == null) {
       _lokasiController.text = "";
+      final message = context.isIndonesian
+          ? "GPS mati atau izin ditolak"
+          : "GPS is off or permission denied";
       NotificationHelper.showTopNotification(
         context,
-        "GPS mati atau izin ditolak",
+        message,
         isSuccess: false,
       );
       return;
@@ -363,9 +369,12 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                             child: InkWell(
                               onTap: () {
                                 if (_lokasiController.text.isEmpty) {
+                                  final message = context.isIndonesian
+                                      ? "Ambil lokasi terlebih dahulu"
+                                      : "Get location first";
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    "Ambil lokasi terlebih dahulu",
+                                    message,
                                     isSuccess: false,
                                   );
                                   return;
@@ -471,9 +480,12 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                                     ),
                                   );
                                 } catch (e) {
+                                  final message = context.isIndonesian
+                                      ? "Format lokasi tidak valid"
+                                      : "Invalid location format";
                                   NotificationHelper.showTopNotification(
                                     context,
-                                    "Format lokasi tidak valid",
+                                    message,
                                     isSuccess: false,
                                   );
                                 }
@@ -764,8 +776,12 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
                             setState(() => _lastVideo = null);
                             _inlinePlayer?.dispose();
                             _inlinePlayer = null;
+
+                            final message = context.isIndonesian
+                                ? "Video dihapus, siap merekam ulang"
+                                : "Video deleted, ready to record again";
                             NotificationHelper.showTopNotification(
-                                context, "Video dihapus, siap merekam ulang",
+                                context, message,
                                 isSuccess: true);
                           },
                           child: Text(
@@ -846,15 +862,19 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
 
     if (_lastVideo == null) {
       if (!mounted) return;
-      NotificationHelper.showTopNotification(
-          context, "Harap rekam video dahulu sebelum submit",
+      final message = context.isIndonesian
+          ? "Harap rekam video dahulu sebelum submit"
+          : "Please record a video before submitting";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return;
     }
     if (_lokasiController.text.isEmpty) {
       if (!mounted) return;
-      NotificationHelper.showTopNotification(
-          context, "Ambil lokasi dulu sebelum submit",
+      final message = context.isIndonesian
+          ? "Ambil lokasi dulu sebelum submit"
+          : "Get location first before submitting";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return;
     }
@@ -878,8 +898,10 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
         if (!await VideoFileHelper.isVideoSizeValid(_lastVideo!,
             maxSizeInMB: 50)) {
           Navigator.pop(context);
-          NotificationHelper.showTopNotification(
-              context, "Ukuran video terlalu besar (max 50MB)",
+          final message = context.isIndonesian
+              ? "Ukuran video terlalu besar (max 50MB)"
+              : "Video size is too large (max 50MB)";
+          NotificationHelper.showTopNotification(context, message,
               isSuccess: false);
           return;
         }
@@ -905,9 +927,11 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       Navigator.pop(context); // tutup loading
 
       if (absenProvider.lastCheckinResult?['success'] == true) {
+        final message =
+            context.isIndonesian ? "Check-in berhasil" : "Check-in success";
         NotificationHelper.showTopNotification(
           context,
-          absenProvider.lastCheckinResult?['message'] ?? "Check-in berhasil",
+          absenProvider.lastCheckinResult?['message'] ?? message,
           isSuccess: true,
         );
         Navigator.of(context).pop(true);
@@ -919,9 +943,11 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
         _inlinePlayer?.dispose();
         _inlinePlayer = null;
       } else {
+        final message =
+            context.isIndonesian ? "Check-in gagal" : "Check-in failed";
         NotificationHelper.showTopNotification(
           context,
-          absenProvider.lastCheckinResult?['message'] ?? "Check-in gagal",
+          absenProvider.lastCheckinResult?['message'] ?? message,
           isSuccess: false,
         );
       }

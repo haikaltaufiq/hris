@@ -5,6 +5,7 @@ import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
@@ -155,7 +156,9 @@ class _AbsenTabelState extends State<AbsenTabel> {
   /// --- Video tampil di Fullscreen Dialog Stylish
   void _openVideo(String? videoPath) {
     if (videoPath == null || videoPath.isEmpty) {
-      NotificationHelper.showTopNotification(context, "Tidak ada video",
+      final message =
+          context.isIndonesian ? "Tidak ada video" : "No video available";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return;
     }
@@ -236,7 +239,9 @@ class _AbsenTabelState extends State<AbsenTabel> {
       );
     } catch (e) {
       // print("Error initializing video controller: $e");
-      NotificationHelper.showTopNotification(context, "Gagal memuat video",
+      final message =
+          context.isIndonesian ? "Gagal memuat video" : "Failed to load video";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
     }
     controller.addListener(() {
@@ -267,12 +272,22 @@ class _AbsenTabelState extends State<AbsenTabel> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DetailItem(label: "Nama", value: absen.user?.nama ?? "-"),
-            DetailItem(label: "Tanggal Masuk", value: absen.checkinDate ?? "-"),
             DetailItem(
-                label: "Tanggal Keluar", value: absen.checkoutDate ?? "-"),
-            DetailItem(label: "Absen Masuk", value: absen.checkinTime ?? "-"),
-            DetailItem(label: "Absen Keluar", value: absen.checkoutTime ?? "-"),
+                label: context.isIndonesian ? "Nama" : "Name",
+                value: absen.user?.nama ?? "-"),
+            DetailItem(
+                label: context.isIndonesian ? "Tanggal Masuk" : "Check-in Date",
+                value: absen.checkinDate ?? "-"),
+            DetailItem(
+                label:
+                    context.isIndonesian ? "Tanggal Keluar" : "Check-out Date",
+                value: absen.checkoutDate ?? "-"),
+            DetailItem(
+                label: context.isIndonesian ? "Absen Masuk" : "Check-in Time",
+                value: absen.checkinTime ?? "-"),
+            DetailItem(
+                label: context.isIndonesian ? "Absen Keluar" : "Check-out Time",
+                value: absen.checkoutTime ?? "-"),
             DetailItem(label: "Tipe", value: absen.status ?? "-"),
           ],
         ),
@@ -280,7 +295,7 @@ class _AbsenTabelState extends State<AbsenTabel> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Tutup',
+              context.isIndonesian ? "Tutup" : "Close",
               style: TextStyle(color: AppColors.putih),
             ),
           ),

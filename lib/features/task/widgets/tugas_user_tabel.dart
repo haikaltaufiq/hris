@@ -42,9 +42,12 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
 // lampiran
   void _showLampiranDialog(BuildContext context, TugasModel tugas) {
     if (tugas.lampiran == null) {
+      final message = context.isIndonesian
+          ? "Tidak ada lampiran untuk tugas ini"
+          : "No attachment for this task";
       NotificationHelper.showTopNotification(
         context,
-        "Tidak ada lampiran untuk tugas ini",
+        message,
         isSuccess: false,
       );
       return;
@@ -306,25 +309,35 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
             itemBuilder: (context, index) {
               switch (index) {
                 case 0:
-                  return DetailItem(label: 'Kepada', value: tugas.displayUser);
+                  return DetailItem(
+                      label: context.isIndonesian ? 'Kepada' : 'To',
+                      value: tugas.displayUser);
                 case 1:
-                  return DetailItem(label: 'Judul', value: tugas.namaTugas);
+                  return DetailItem(
+                      label: context.isIndonesian ? 'Judul' : 'Title',
+                      value: tugas.namaTugas);
                 case 2:
                   return DetailItem(
-                      label: 'Tanggal Mulai',
+                      label:
+                          context.isIndonesian ? 'Tanggal Mulai' : 'Start Date',
                       value: parseDate(tugas.tanggalPenugasan));
                 case 3:
                   return DetailItem(
-                      label: 'Batas Submit',
+                      label: context.isIndonesian ? 'Batas Submit' : 'Deadline',
                       value: parseDate(tugas.batasPenugasan));
                 case 4:
                   return DetailItem(
-                      label: 'Lokasi', value: tugas.displayLokasiTugas);
+                      label: context.isIndonesian ? 'Lokasi' : 'Location',
+                      value: tugas.displayLokasiTugas);
                 case 5:
-                  return DetailItem(label: 'Note', value: tugas.displayNote);
+                  return DetailItem(
+                      label: context.isIndonesian ? 'Catatan' : 'Note',
+                      value: tugas.displayNote);
                 case 6:
                   return DetailItem(
-                      label: 'Status', value: tugas.status, color: statusColor);
+                      label: context.isIndonesian ? 'Status' : 'Status',
+                      value: tugas.status,
+                      color: statusColor);
                 default:
                   return const SizedBox();
               }
@@ -335,7 +348,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Tutup',
+              context.isIndonesian ? 'Tutup' : 'Close',
               style: GoogleFonts.poppins(
                 color: AppColors.putih,
                 fontSize: 16,
@@ -355,11 +368,15 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
       final diff = deadline.difference(now);
 
       if (diff.isNegative) {
-        return "Lewat ${diff.inMinutes.abs()} menit";
+        return context.isIndonesian
+            ? "Lewat ${diff.inMinutes.abs()} menit"
+            : "Overdue by ${diff.inMinutes.abs()} minutes";
       } else {
         final jam = diff.inHours;
         final menit = diff.inMinutes.remainder(60);
-        return "$jam jam $menit menit lagi";
+        return context.isIndonesian
+            ? "$jam jam $menit menit lagi"
+            : "$jam hours $menit minutes left";
       }
     } catch (_) {
       return "-";

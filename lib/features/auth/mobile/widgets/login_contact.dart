@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginContact extends StatelessWidget {
@@ -18,9 +19,11 @@ class LoginContact extends StatelessWidget {
             if (await canLaunchUrl(telUri)) {
               await launchUrl(telUri);
             } else {
+              final message = context.isIndonesian
+                  ? "Tidak dapat membuka dialer"
+                  : "Can't open the phone";
               // debugPrint("Failed to open dialer");
-              NotificationHelper.showTopNotification(
-                  context, "Can't open the phone",
+              NotificationHelper.showTopNotification(context, message,
                   isSuccess: false);
             }
           },

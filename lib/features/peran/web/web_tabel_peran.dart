@@ -202,11 +202,17 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
       try {
         final viewModel = Provider.of<PeranViewModel>(context, listen: false);
         await viewModel.deletePeran(peran.id);
+        final message = context.isIndonesian
+            ? 'Peran berhasil dihapus'
+            : 'Role deleted successfully';
         NotificationHelper.showTopNotification(
-            context, 'Peran berhasil dihapus',
+            context, message,
             isSuccess: true);
       } catch (e) {
-        NotificationHelper.showTopNotification(context, 'Gagal menghapus: $e',
+        final message = context.isIndonesian
+            ? 'Gagal menghapus: $e'
+            : 'Failed to delete: $e';
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: false);
       }
     }

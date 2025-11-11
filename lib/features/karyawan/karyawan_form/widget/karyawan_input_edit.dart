@@ -97,8 +97,10 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
       if (mounted) {
         // ✅ Safety check
         setState(() => _isLoadingJabatan = false);
-        NotificationHelper.showTopNotification(
-            context, "Gagal memuat jabatan: $e",
+        final message = context.isIndonesian
+            ? "Gagal memuat jabatan: $e"
+            : "Failed to load positions: $e";
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: false);
       }
     }
@@ -118,8 +120,10 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
       if (mounted) {
         // ✅ Safety check
         setState(() => _isLoadingPeran = false);
-        NotificationHelper.showTopNotification(
-            context, "Gagal memuat peran: $e",
+        final message = context.isIndonesian
+            ? "Gagal memuat peran: $e"
+            : "Failed to load roles: $e";
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: false);
       }
     }
@@ -141,8 +145,10 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
       if (mounted) {
         // ✅ Safety check
         setState(() => _isLoadingDepartemen = false);
-        NotificationHelper.showTopNotification(
-            context, "Gagal memuat departemen: $e",
+        final message = context.isIndonesian
+            ? "Gagal memuat departemen: $e"
+            : "Failed to load departments: $e";
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: false);
       }
     }
@@ -184,32 +190,46 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   // ✅ Enhanced validation
   bool _validateForm() {
     if (_namaController.text.trim().isEmpty) {
-      NotificationHelper.showTopNotification(context, "Nama tidak boleh kosong",
+      final message = context.isIndonesian
+          ? "Nama tidak boleh kosong"
+          : "Name cannot be empty";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
 
     if (_jabatanId == null) {
-      NotificationHelper.showTopNotification(context, "Jabatan harus dipilih",
+      final message = context.isIndonesian
+          ? "Jabatan harus dipilih"
+          : "Position must be selected";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
 
     if (_peranId == null) {
-      NotificationHelper.showTopNotification(context, "Peran harus dipilih",
+      final message = context.isIndonesian
+          ? "Peran harus dipilih"
+          : "Role must be selected";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
 
     if (_departemenId == null) {
-      NotificationHelper.showTopNotification(
-          context, "Departemen harus dipilih",
+      final message = context.isIndonesian
+          ? "Departemen harus dipilih"
+          : "Department must be selected";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
 
     if (_gajiController.text.trim().isEmpty) {
-      NotificationHelper.showTopNotification(context, "Gaji tidak boleh kosong",
+      final message = context.isIndonesian
+          ? "Gaji tidak boleh kosong"
+          : "Salary cannot be empty";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
@@ -217,22 +237,28 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
     // ✅ Validate gaji format
     final gaji = int.tryParse(_gajiController.text.trim());
     if (gaji == null || gaji <= 0) {
-      NotificationHelper.showTopNotification(
-          context, "Gaji harus berupa angka yang valid",
+      final message = context.isIndonesian
+          ? "Gaji harus berupa angka yang valid"
+          : "Salary must be a valid number";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
 
     if (_jenisKelamin == null) {
-      NotificationHelper.showTopNotification(
-          context, "Jenis kelamin harus dipilih",
+      final message = context.isIndonesian
+          ? "Jenis kelamin harus dipilih"
+          : "Gender must be selected";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
 
     if (_statusPernikahan == null) {
-      NotificationHelper.showTopNotification(
-          context, "Status pernikahan harus dipilih",
+      final message = context.isIndonesian
+          ? "Status pernikahan harus dipilih"
+          : "Marriage status must be selected";
+      NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
       return false;
     }
@@ -269,9 +295,12 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
       );
 
       if (mounted) {
+        final message = context.isIndonesian
+            ? "Data karyawan berhasil diperbarui"
+            : "Employee data updated successfully";
         NotificationHelper.showTopNotification(
           context,
-          "Data karyawan berhasil diperbarui",
+          message,
           isSuccess: true,
         );
         Navigator.pop(
@@ -292,9 +321,12 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
                 isSuccess: false);
           }
         } else {
+          final message = context.isIndonesian
+              ? "Gagal memperbarui data: $e"
+              : "Failed to update data: $e";
           NotificationHelper.showTopNotification(
             context,
-            "Gagal memperbarui data: $e",
+            message,
             isSuccess: false,
           );
         }

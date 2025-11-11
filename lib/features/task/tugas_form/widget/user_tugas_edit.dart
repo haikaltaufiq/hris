@@ -121,6 +121,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
       if (!serviceEnabled) {
         if (mounted) {
+          
           NotificationHelper.showTopNotification(
             context,
             context.isIndonesian

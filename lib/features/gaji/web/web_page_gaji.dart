@@ -62,11 +62,18 @@ class _WebPageGajiState extends State<WebPageGaji> {
 
                 final selected = await showSortDialog(
                   context: context,
-                  title: 'Urutkan Gaji Berdasarkan',
+                  title:
+                      context.isIndonesian ? 'Urutkan Berdasarkan' : 'Sort By',
                   currentValue: provider.currentSortField,
                   options: [
-                    {'value': 'nama', 'label': 'Nama'},
-                    {'value': 'status', 'label': 'Status'},
+                    {
+                      'value': 'nama',
+                      'label': context.isIndonesian ? 'Nama' : 'Name'
+                    },
+                    {
+                      'value': 'status',
+                      'label': context.isIndonesian ? 'Status' : 'Status'
+                    },
                   ],
                 );
 

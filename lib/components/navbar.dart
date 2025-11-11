@@ -668,11 +668,14 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                     } else if (value == 'logout') {
                       final confirmed = await showConfirmationDialog(
                         context,
-                        title: "Konfirmasi Logout",
-                        content:
-                            "Apakah Anda yakin ingin keluar dari akun ini?",
-                        confirmText: "Keluar",
-                        cancelText: "Batal",
+                        title: context.isIndonesian
+                            ? "Konfirmasi Logout"
+                            : "Logout Confirmation",
+                        content: context.isIndonesian
+                            ? "Apakah Anda yakin ingin keluar dari akun ini?"
+                            : "Are you sure you want to log out of this account?",
+                        confirmText: context.isIndonesian ? "Keluar" : "Logout",
+                        cancelText: context.isIndonesian ? "Batal" : "Cancel",
                         confirmColor: AppColors.red,
                       );
 

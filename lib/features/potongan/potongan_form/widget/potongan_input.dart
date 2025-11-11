@@ -87,18 +87,24 @@ class _PotonganInputState extends State<PotonganInput> {
                       final jumlah = double.tryParse(jumlahText);
 
                       if (name.isEmpty) {
+                        final message = context.isIndonesian
+                            ? 'Nama Potongan harus di isi'
+                            : 'Deduction name must be filled';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Nama Potongan harus di isi',
+                          message,
                           isSuccess: false,
                         );
                         return;
                       }
 
                       if (jumlah == null) {
+                        final message = context.isIndonesian
+                            ? 'Jumlah potongan harus berupa angka saja'
+                            : 'Deduction amount must be a number';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Jumlah potongan harus berupa angka saja',
+                          message,
                           isSuccess: false,
                         );
                         return;
@@ -115,10 +121,12 @@ class _PotonganInputState extends State<PotonganInput> {
                             nominal: jumlah,
                           ),
                         );
-
+                        final message = context.isIndonesian
+                            ? 'Potongan Berhasil dibuat'
+                            : 'Deduction created successfully';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Potongan Berhasil dibuat',
+                          message,
                           isSuccess: true,
                         );
                         Navigator.pop(context);
@@ -127,9 +135,12 @@ class _PotonganInputState extends State<PotonganInput> {
                         controller.clear();
                         jumlahController.clear();
                       } catch (e) {
+                        final message = context.isIndonesian
+                            ? 'Gagal membuat potongan $e'
+                            : 'Failed to create deduction $e';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Gagal membuat potongan $e',
+                          message,
                           isSuccess: false,
                         );
                       } finally {

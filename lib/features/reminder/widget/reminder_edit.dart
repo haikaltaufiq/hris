@@ -74,10 +74,12 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
       setState(() {
         _isLoadingPeran = false;
       });
-
+      final message = context.isIndonesian
+          ? 'Gagal memuat data peran: $e'
+          : 'Failed to load role data: $e';
       NotificationHelper.showTopNotification(
         context,
-        'Gagal memuat data peran: $e',
+        message,
         isSuccess: false,
       );
     }
@@ -222,9 +224,12 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
                       if (_reminderNameController.text.isEmpty ||
                           _tanggalController.text.isEmpty ||
                           _selectedPeran == null) {
+                        final message = context.isIndonesian
+                            ? 'Harap isi semua data'
+                            : 'Please fill in all data';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Harap isi semua data',
+                          message,
                           isSuccess: false,
                         );
                         return;
@@ -252,18 +257,24 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
                             widget.reminder.id, updatedReminder);
 
                         if (mounted) {
+                          final message = context.isIndonesian
+                              ? 'Reminder berhasil diperbarui'
+                              : 'Reminder updated successfully';
                           NotificationHelper.showTopNotification(
                             context,
-                            "Reminder berhasil diperbarui",
+                            message,
                             isSuccess: true,
                           );
                           Navigator.pop(context, true);
                         }
                       } catch (e) {
                         if (mounted) {
+                          final message = context.isIndonesian
+                              ? 'Gagal update reminder: $e'
+                              : 'Failed to update reminder: $e';
                           NotificationHelper.showTopNotification(
                             context,
-                            "Gagal update reminder: $e",
+                            message,
                             isSuccess: false,
                           );
                         }

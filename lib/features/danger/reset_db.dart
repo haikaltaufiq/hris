@@ -135,8 +135,10 @@ class _ResetDbState extends State<ResetDb> {
       );
 
       if (confirmed) {
-        NotificationHelper.showTopNotification(
-            context, "$title berhasil direset",
+        final message = context.isIndonesian
+            ? "$title berhasil direset"
+            : "$title has been reset successfully";
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: true);
       }
       return;
@@ -146,8 +148,10 @@ class _ResetDbState extends State<ResetDb> {
         await DangerService.fetchAvailableMonths(jenis: jenis);
 
     if (months.isEmpty) {
-      NotificationHelper.showTopNotification(
-          context, "Data $title sudah bersih.");
+      final message = context.isIndonesian
+          ? "Data $title sudah bersih."
+          : "$title data is already clean.";
+      NotificationHelper.showTopNotification(context, message);
       return;
     }
 
@@ -302,14 +306,20 @@ class _ResetDbState extends State<ResetDb> {
                                             tahun: selectedTahun,
                                             jenis: jenis,
                                           );
-                                          NotificationHelper.showTopNotification(
-                                              context,
-                                              "$jenis bulan $selectedBulan tahun $selectedTahun berhasil direset",
-                                              isSuccess: true);
-                                        } catch (e) {
+                                          final message = context.isIndonesian
+                                              ? "$jenis bulan $selectedBulan tahun $selectedTahun berhasil direset"
+                                              : "$jenis for month $selectedBulan year $selectedTahun has been reset successfully";
                                           NotificationHelper
-                                              .showTopNotification(context,
-                                                  "Gagal reset $jenis: $e",
+                                              .showTopNotification(
+                                                  context, message,
+                                                  isSuccess: true);
+                                        } catch (e) {
+                                          final message = context.isIndonesian
+                                              ? "Gagal reset $jenis: $e"
+                                              : "Failed to reset $jenis: $e";
+                                          NotificationHelper
+                                              .showTopNotification(
+                                                  context, message,
                                                   isSuccess: false);
                                         }
 

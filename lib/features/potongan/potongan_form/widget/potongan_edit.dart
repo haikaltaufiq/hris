@@ -44,18 +44,24 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
     final nominal = double.tryParse(nominalText);
 
     if (nama.isEmpty) {
+      final message = context.isIndonesian
+          ? 'Nama potongan harus diisi'
+          : 'Deduction name is required';
       NotificationHelper.showTopNotification(
         context,
-        'Nama potongan harus diisi',
+        message,
         isSuccess: false,
       );
       return;
     }
 
     if (nominal == null) {
+      final message = context.isIndonesian
+          ? 'Jumlah potongan harus berupa angka saja'
+          : 'Deduction amount must be a number';
       NotificationHelper.showTopNotification(
         context,
-        'Jumlah potongan harus berupa angka saja',
+        message,
         isSuccess: false,
       );
       return;
@@ -76,23 +82,32 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
           await PotonganGajiService.updatePotonganGaji(updatedPotongan);
 
       if (result['success'] == true) {
+        final messages = context.isIndonesian
+            ? 'Potongan berhasil diupdate'
+            : 'Deduction updated successfully';
         NotificationHelper.showTopNotification(
           context,
-          result['message'] ?? 'Potongan berhasil diupdate',
+          result['message'] ?? messages,
           isSuccess: true,
         );
         Navigator.of(context).pop(true);
       } else {
+        final messages = context.isIndonesian
+            ? 'Gagal update potongan'
+            : 'Failed to update deduction';
         NotificationHelper.showTopNotification(
           context,
-          result['message'] ?? 'Gagal update potongan',
+          result['message'] ?? messages,
           isSuccess: false,
         );
       }
     } catch (e) {
+      final message = context.isIndonesian
+          ? 'Terjadi kesalahan: $e'
+          : 'An error occurred: $e';
       NotificationHelper.showTopNotification(
         context,
-        'Terjadi kesalahan: $e',
+        message,
         isSuccess: false,
       );
     } finally {

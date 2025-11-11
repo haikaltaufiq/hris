@@ -527,9 +527,12 @@ class LocationDialogService {
         onLocationSelected?.call(lat, lng);
 
         Navigator.of(context).pop();
+        final message = context.isIndonesian
+            ? "Lokasi berhasil ditambahkan dari Google Maps"
+            : "Location successfully added from Google Maps";
         NotificationHelper.showTopNotification(
           context,
-          "Lokasi berhasil ditambahkan dari Google Maps",
+          message,
           isSuccess: true,
         );
       } else {
@@ -559,16 +562,21 @@ class LocationDialogService {
 
       // Call callback jika ada
       onLocationSelected?.call(lat, lng);
-
+      final message = context.isIndonesian
+          ? "Lokasi saat ini berhasil dideteksi"
+          : "Current location detected successfully";
       NotificationHelper.showTopNotification(
         context,
-        "Lokasi saat ini berhasil dideteksi",
+        message,
         isSuccess: true,
       );
     } else {
+      final message = context.isIndonesian
+          ? "Tidak dapat mengakses lokasi GPS"
+          : "Cannot access GPS location";
       NotificationHelper.showTopNotification(
         context,
-        "Tidak dapat mengakses lokasi GPS",
+        message,
         isSuccess: false,
       );
     }
@@ -576,9 +584,12 @@ class LocationDialogService {
 
   // Helper untuk menampilkan error URL
   static void _showUrlError(BuildContext context) {
+    final message = context.isIndonesian
+        ? "Link Google Maps tidak valid. Gunakan browser untuk mendapatkan link yang benar"
+        : "Invalid Google Maps link. Use browser to get the correct link";
     NotificationHelper.showTopNotification(
       context,
-      "Link Google Maps tidak valid. Gunakan browser untuk mendapatkan link yang benar",
+      message,
       isSuccess: false,
     );
   }

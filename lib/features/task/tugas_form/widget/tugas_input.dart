@@ -150,9 +150,12 @@ class _TugasInputState extends State<TugasInput> {
         setState(() {
           _isLoadingUser = false;
         });
+        final message = context.isIndonesian
+            ? 'Gagal memuat data user: $e'
+            : 'Failed to load users data: $e';
         NotificationHelper.showTopNotification(
           context,
-          'Gagal memuat data user: $e',
+          message,
           isSuccess: false,
         );
       }
@@ -179,9 +182,12 @@ class _TugasInputState extends State<TugasInput> {
   void _lihatMap() {
     if (!_isValidCoordinate(
         _latitudeController.text, _longitudeController.text)) {
+      final message = context.isIndonesian
+          ? "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)"
+          : "Invalid coordinates. Please enter latitude (-90 to 90) and longitude (-180 to 180)";
       NotificationHelper.showTopNotification(
         context,
-        "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)",
+        message,
         isSuccess: false,
       );
       return;
@@ -549,9 +555,12 @@ class _TugasInputState extends State<TugasInput> {
                           _selectedUser == null ||
                           _latitudeController.text.trim().isEmpty ||
                           _longitudeController.text.trim().isEmpty) {
+                        final message = context.isIndonesian
+                            ? 'Harap isi semua data wajib'
+                            : 'Please fill in all required fields';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Harap isi semua data wajib',
+                          message,
                           isSuccess: false,
                         );
                         return;
@@ -560,9 +569,12 @@ class _TugasInputState extends State<TugasInput> {
                       // Validasi koordinat
                       if (!_isValidCoordinate(_latitudeController.text.trim(),
                           _longitudeController.text.trim())) {
+                        final message = context.isIndonesian
+                            ? 'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat'
+                            : 'Invalid coordinates. Use the "Share Location" button to get coordinates';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Koordinat tidak valid. Gunakan tombol "Bagikan Lokasi" untuk mendapatkan koordinat',
+                          message,
                           isSuccess: false,
                         );
                         return;
@@ -577,9 +589,12 @@ class _TugasInputState extends State<TugasInput> {
                             int.tryParse(_radiusController.text.trim()) ?? 100;
 
                         if (latitude == null || longitude == null) {
+                          final message = context.isIndonesian
+                              ? 'Koordinat tidak valid'
+                              : 'Invalid coordinates';
                           NotificationHelper.showTopNotification(
                             context,
-                            'Koordinat tidak valid',
+                            message,
                             isSuccess: false,
                           );
                           return;
@@ -600,18 +615,23 @@ class _TugasInputState extends State<TugasInput> {
                         if (result['success'] == true && mounted) {
                           Navigator.pop(context);
                         }
-
+                        final message = context.isIndonesian
+                            ? result['message'] ?? 'Terjadi kesalahan'
+                            : result['message'] ?? 'An error occurred';
                         NotificationHelper.showTopNotification(
                           context,
-                          result['message'] ?? 'Terjadi kesalahan',
+                          message,
                           isSuccess: result['success'] ?? false,
                         );
                       } catch (e) {
                         // print("Error creating task: $e");
                         if (mounted) {
+                          final message = context.isIndonesian
+                              ? 'Gagal membuat tugas: ${e.toString()}'
+                              : 'Failed to create task: ${e.toString()}';
                           NotificationHelper.showTopNotification(
                             context,
-                            'Gagal membuat tugas: ${e.toString()}',
+                            message,
                             isSuccess: false,
                           );
                         }

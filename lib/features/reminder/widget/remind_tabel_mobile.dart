@@ -259,10 +259,14 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
           onDelete: (rowIndex) async {
             final confirmed = await showConfirmationDialog(
               context,
-              title: "Konfirmasi Hapus",
-              content: "Apakah Anda yakin ingin menghapus pengingat ini?",
-              confirmText: "Hapus",
-              cancelText: "Batal",
+              title: context.isIndonesian
+                  ? "Konfirmasi Hapus"
+                  : "Delete Confirmation",
+              content: context.isIndonesian
+                  ? "Apakah Anda yakin ingin menghapus pengingat ini?"
+                  : "Are you sure you want to delete this reminder?",
+              confirmText: context.isIndonesian ? "Hapus" : "Delete",
+              cancelText: context.isIndonesian ? "Batal" : "Cancel",
               confirmColor: AppColors.red,
             );
             if (confirmed) {

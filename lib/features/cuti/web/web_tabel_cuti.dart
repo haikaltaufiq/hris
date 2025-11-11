@@ -46,7 +46,6 @@ class WebTabelCuti extends StatelessWidget {
               'Description',
             ],
       rows: cutiList.map((c) {
-    
         // kalau status ditolak → kolom 7 kosong, kolom 8 isi keterangan_status
         final keterangan =
             c.isDitolak ? c.catatan_penolakan : c.keterangan_status;
@@ -85,7 +84,9 @@ class WebTabelCuti extends StatelessWidget {
                 DetailItem(
                     label: context.isIndonesian ? 'Nama' : 'Name',
                     value: c.user['nama']),
-                DetailItem(label: 'Tipe Cuti', value: c.tipe_cuti),
+                DetailItem(
+                    label: context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
+                    value: c.tipe_cuti),
                 DetailItem(
                     label:
                         context.isIndonesian ? 'Tanggal Mulai' : "Start Date",
@@ -100,7 +101,7 @@ class WebTabelCuti extends StatelessWidget {
                 DetailItem(
                     label: 'Status', value: c.status, color: c.statusColor),
                 DetailItem(
-                    label: 'Deskripsi',
+                    label: context.isIndonesian ? 'Deskripsi' : 'Description',
                     value: c.isDitolak
                         ? c.catatan_penolakan
                         : c.keterangan_status),

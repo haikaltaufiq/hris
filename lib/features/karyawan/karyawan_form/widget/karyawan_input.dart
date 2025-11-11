@@ -74,9 +74,12 @@ class _KaryawanInputState extends State<KaryawanInput> {
       });
     } catch (e) {
       setState(() => _isLoadingJabatan = false);
+      final message = context.isIndonesian
+          ? "Gagal memuat jabatan: $e"
+          : "Failed to load positions: $e";
       NotificationHelper.showTopNotification(
         context,
-        "Gagal memuat jabatan: $e",
+        message,
         isSuccess: false,
       );
     }
@@ -91,9 +94,12 @@ class _KaryawanInputState extends State<KaryawanInput> {
       });
     } catch (e) {
       setState(() => _isLoadingPeran = false);
+      final message = context.isIndonesian
+          ? "Gagal memuat peran: $e"
+          : "Failed to load roles: $e";
       NotificationHelper.showTopNotification(
         context,
-        "Gagal memuat peran: $e",
+        message,
         isSuccess: false,
       );
     }
@@ -113,9 +119,12 @@ class _KaryawanInputState extends State<KaryawanInput> {
       });
     } catch (e) {
       setState(() => _isLoadingDepartemen = false);
+      final message = context.isIndonesian
+          ? "Gagal memuat department: $e"
+          : "Failed to load departments: $e";
       NotificationHelper.showTopNotification(
         context,
-        "Gagal memuat department: $e",
+        message,
         isSuccess: false,
       );
     }
@@ -141,9 +150,12 @@ class _KaryawanInputState extends State<KaryawanInput> {
         _jenisKelamin == null ||
         _statusPernikahan == null ||
         _passwordController.text.isEmpty) {
+      final message = context.isIndonesian
+          ? "Harap isi semua field"
+          : "Please fill in all fields";
       NotificationHelper.showTopNotification(
         context,
-        "Harap isi semua field",
+        message,
         isSuccess: false,
       );
       return;
@@ -166,10 +178,12 @@ class _KaryawanInputState extends State<KaryawanInput> {
         "status_pernikahan": _statusPernikahan,
         "password": _passwordController.text,
       });
-
+      final message = context.isIndonesian
+          ? "Karyawan berhasil ditambahkan"
+          : "Employee added successfully";
       NotificationHelper.showTopNotification(
         context,
-        "Karyawan berhasil ditambahkan",
+        message,
         isSuccess: true,
       );
 

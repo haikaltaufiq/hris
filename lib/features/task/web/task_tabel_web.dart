@@ -87,18 +87,23 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
   Future<void> _deleteTugas(BuildContext context, TugasModel tugas) async {
     final confirmed = await showConfirmationDialog(
       context,
-      title: "Konfirmasi Hapus",
-      content: "Apakah Anda yakin ingin menghapus tugas ini?",
-      confirmText: "Hapus",
-      cancelText: "Batal",
+      title: context.isIndonesian ? "Konfirmasi Hapus" : "Delete Confirmation",
+      content: context.isIndonesian
+          ? "Apakah Anda yakin ingin menghapus tugas ini?"
+          : "Are you sure you want to delete this task?",
+      confirmText: context.isIndonesian ? "Hapus" : "Delete",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
       confirmColor: AppColors.red,
     );
 
     if (confirmed) {
       final message = await context.read<TugasProvider>().deleteTugas(tugas.id);
+      final messages = context.isIndonesian
+          ? 'Gagal menghapus tugas'
+          : 'Failed to delete task';
       NotificationHelper.showTopNotification(
         context,
-        message ?? 'Gagal menghapus tugas',
+        message ?? messages,
         isSuccess: message != null,
       );
     }
@@ -108,9 +113,12 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
   // lampiran
   void _showLampiranDialog(BuildContext context, TugasModel tugas) {
     if (tugas.lampiran == null) {
+      final message = context.isIndonesian
+          ? "Tidak ada lampiran untuk tugas ini"
+          : "No attachment for this task";
       NotificationHelper.showTopNotification(
         context,
-        "Tidak ada lampiran untuk tugas ini",
+        message,
         isSuccess: false,
       );
       return;
@@ -246,38 +254,38 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DetailItem(
-              label: 'Kepada',
+              label: context.isIndonesian ? "Kepada" : "To",
               value: tugas.user?.nama ?? '-',
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Judul',
+              label: context.isIndonesian ? "Judul" : "Title",
               value: tugas.namaTugas,
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Tanggal Mulai',
+              label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
               value: parseDate(tugas.tanggalPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Batas Submit',
+              label: context.isIndonesian ? "Batas Submit" : "Deadline",
               value: parseDate(tugas.batasPenugasan),
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Note',
+              label: context.isIndonesian ? "Catatan" : "Note",
               value: tugas.note ?? '-',
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Status',
+              label: context.isIndonesian ? "Status" : "Status",
               value: tugas.status,
               color: statusColor,
             ),
             SizedBox(height: 5),
             DetailItem(
-              label: 'Ketepatan',
+              label: context.isIndonesian ? "Ketepatan" : "Punctuality",
               value: tugas.displayTerlambat,
             ),
           ],
@@ -286,7 +294,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
-              'Tutup',
+              context.isIndonesian ? "Tutup" : "Close",
               style: GoogleFonts.poppins(
                 color: AppColors.putih,
                 fontSize: 16,
@@ -310,9 +318,12 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         arguments: LatLng(lat, lng),
       );
     } catch (_) {
+      final message = context.isIndonesian
+          ? "Format lokasi tidak valid"
+          : "Invalid location format";
       NotificationHelper.showTopNotification(
         context,
-        "Format lokasi tidak valid",
+        message,
         isSuccess: false,
       );
     }
@@ -326,11 +337,15 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       final diff = deadline.difference(now);
 
       if (diff.isNegative) {
-        return "Lewat ${diff.inMinutes.abs()} menit";
+        return context.isIndonesian
+            ? "Lewat ${diff.inMinutes.abs()} menit"
+            : "Over ${diff.inMinutes.abs()} minutes";
       } else {
         final jam = diff.inHours;
         final menit = diff.inMinutes.remainder(60);
-        return "$jam jam $menit menit lagi";
+        return context.isIndonesian
+            ? "$jam jam $menit menit lagi"
+            : "$jam hours $menit minutes left";
       }
     } catch (_) {
       return "-";
@@ -420,10 +435,12 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
               final message = await context
                   .read<TugasProvider>()
                   .updateTugasStatus(tugas.id, newStatus);
-
+              final messages = context.isIndonesian
+                  ? 'Gagal update status'
+                  : 'Failed to update status';
               NotificationHelper.showTopNotification(
                 context,
-                message ?? 'Gagal update status',
+                message ?? messages,
                 isSuccess: message != null,
               );
             }

@@ -73,7 +73,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                           return AlertDialog(
                             backgroundColor: AppColors.primary,
                             title: Text(
-                              'Urutkan Berdasarkan',
+                              context.isIndonesian
+                                  ? 'Urutkan Berdasarkan'
+                                  : 'Sort By',
                               style: TextStyle(color: AppColors.putih),
                             ),
                             content: StatefulBuilder(
@@ -86,7 +88,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     onChanged: (v) =>
                                         setState(() => selected = v!),
                                     title: Text(
-                                      'Per-hari ini',
+                                      context.isIndonesian
+                                          ? 'Per-hari ini'
+                                          : 'Per-day',
                                       style: TextStyle(color: AppColors.putih),
                                     ),
                                     activeColor: AppColors.putih,
@@ -97,7 +101,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     onChanged: (v) =>
                                         setState(() => selected = v!),
                                     title: Text(
-                                      'Semua Tanggal',
+                                      context.isIndonesian
+                                          ? 'Semua Tanggal'
+                                          : 'All Dates',
                                       style: TextStyle(color: AppColors.putih),
                                     ),
                                     activeColor: AppColors.putih,
@@ -108,7 +114,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     onChanged: (v) =>
                                         setState(() => selected = v!),
                                     title: Text(
-                                      'Terbaru',
+                                      context.isIndonesian
+                                          ? 'Terbaru'
+                                          : 'Latest',
                                       style: TextStyle(color: AppColors.putih),
                                     ),
                                     activeColor: AppColors.putih,
@@ -119,7 +127,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                     onChanged: (v) =>
                                         setState(() => selected = v!),
                                     title: Text(
-                                      'Terlama',
+                                      context.isIndonesian
+                                          ? 'Terlama'
+                                          : 'Oldest',
                                       style: TextStyle(color: AppColors.putih),
                                     ),
                                     activeColor: AppColors.putih,
@@ -143,7 +153,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                         minimumSize: const Size.fromHeight(
                                             50), // samakan tinggi
                                       ),
-                                      child: const Text('Batal'),
+                                      child: Text(context.isIndonesian
+                                          ? 'Batal'
+                                          : 'Cancel'),
                                     ),
                                   ),
                                   const SizedBox(
@@ -170,7 +182,9 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                               BorderRadius.circular(8),
                                         ),
                                       ),
-                                      child: const Text('Terapkan'),
+                                      child: Text(context.isIndonesian
+                                          ? 'Terapkan'
+                                          : 'Apply'),
                                     ),
                                   ),
                                 ],
@@ -370,10 +384,13 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                             await _refreshData();
                                           }
                                         } else {
-                                          NotificationHelper.showTopNotification(
-                                              context,
-                                              "Anda Sudah Check-in hari ini",
-                                              isSuccess: false);
+                                          final message = context.isIndonesian
+                                              ? "Anda Sudah Check-in hari ini"
+                                              : "You have already checked in today";
+                                          NotificationHelper
+                                              .showTopNotification(
+                                                  context, message,
+                                                  isSuccess: false);
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(16),
@@ -486,10 +503,13 @@ class _AbsenMobileState extends State<AbsenMobile> {
                                             await _refreshData();
                                           }
                                         } else {
-                                          NotificationHelper.showTopNotification(
-                                              context,
-                                              "Anda Belum Check-in hari ini",
-                                              isSuccess: false);
+                                          final message = context.isIndonesian
+                                              ? "Anda Belum Check-in hari ini"
+                                              : "You haven't checked in today";
+                                          NotificationHelper
+                                              .showTopNotification(
+                                                  context, message,
+                                                  isSuccess: false);
                                         }
                                       },
                                       borderRadius: BorderRadius.circular(16),

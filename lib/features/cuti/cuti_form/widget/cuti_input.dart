@@ -213,9 +213,12 @@ class _CutiInputState extends State<CutiInput> {
                           _tanggalMulaiController.text.isEmpty ||
                           _tanggalSelesaiController.text.isEmpty ||
                           _alasanController.text.isEmpty) {
+                        final message = context.isIndonesian
+                            ? 'Semua field wajib diisi!'
+                            : 'All fields are required!';
                         NotificationHelper.showTopNotification(
                           context,
-                          'Semua field wajib diisi!',
+                          message,
                           isSuccess: false,
                         );
                         return; // stop submit
@@ -231,22 +234,31 @@ class _CutiInputState extends State<CutiInput> {
                         );
                         if (result['success'] == true) {
                           if (context.mounted) {
+                            final message = context.isIndonesian
+                                ? 'Cuti berhasil diajukan'
+                                : 'Leave request submitted successfully';
                             NotificationHelper.showTopNotification(
-                                context, 'Cuti berhasil diajukan',
+                                context, message,
                                 isSuccess: true);
                             Navigator.of(context).pop(true);
                           }
                         } else {
                           if (context.mounted) {
-                            NotificationHelper.showTopNotification(context,
-                                result['message'] ?? 'Gagal mengajukan cuti',
+                            final message = context.isIndonesian
+                                ? 'Gagal mengajukan cuti'
+                                : 'Failed to submit leave request';
+                            NotificationHelper.showTopNotification(
+                                context, result['message'] ?? message,
                                 isSuccess: false);
                           }
                         }
                       } catch (e) {
                         if (context.mounted) {
+                          final message = context.isIndonesian
+                              ? 'Terjadi kesalahan: $e'
+                              : 'An error occurred: $e';
                           NotificationHelper.showTopNotification(
-                              context, 'Error: $e',
+                              context, message,
                               isSuccess: false);
                         }
                       } finally {

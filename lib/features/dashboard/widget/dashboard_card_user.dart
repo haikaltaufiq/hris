@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/kantor_model.dart';
 import 'package:hr/data/services/jam_kantor.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
@@ -88,7 +89,9 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Today's Attendance",
+                        context.isIndonesian
+                            ? "Absensi Hari Ini"
+                            : "Today's Attendance",
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -96,7 +99,9 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                         ),
                       ),
                       Text(
-                        "Track your work schedule",
+                        context.isIndonesian
+                            ? "Pantau jadwal kerjamu"
+                            : "Track your work schedule",
                         style: GoogleFonts.poppins(
                           fontSize: 12,
                           fontWeight: FontWeight.w400,
@@ -152,7 +157,7 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    "Work Hours: ",
+                    context.isIndonesian ? "Jam Kerja: " : "Work Hours: ",
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -178,7 +183,7 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      "Active",
+                      context.isIndonesian ? "Aktif" : "Active",
                       style: GoogleFonts.poppins(
                         fontSize: 10,
                         fontWeight: FontWeight.w500,
@@ -227,8 +232,11 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                               ),
                             );
                           } else {
+                            final message = context.isIndonesian
+                                ? "Anda Sudah Check-in hari ini"
+                                : "You have already checked in today";
                             NotificationHelper.showTopNotification(
-                                context, "Anda Sudah Check-in hari ini",
+                                context, message,
                                 isSuccess: false);
                           }
                         },
@@ -243,7 +251,7 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "Clock In",
+                              context.isIndonesian ? "Masuk Kerja" : "Clock In",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -280,8 +288,11 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                               ),
                             );
                           } else {
+                            final message = context.isIndonesian
+                                ? "Anda Belum Check-in hari ini"
+                                : "You haven't checked in today";
                             NotificationHelper.showTopNotification(
-                                context, "Anda Belum Check-in hari ini",
+                                context, message,
                                 isSuccess: false);
                           }
                         },
@@ -296,7 +307,9 @@ class _DashboardCardUserState extends State<DashboardCardUser> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              "Clock Out",
+                              context.isIndonesian
+                                  ? "Keluar Kerja"
+                                  : "Clock Out",
                               style: GoogleFonts.poppins(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,

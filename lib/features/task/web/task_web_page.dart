@@ -64,7 +64,9 @@ class _TaskWebPageState extends State<TaskWebPage> {
                       return AlertDialog(
                         backgroundColor: AppColors.primary,
                         title: Text(
-                          'Urutkan Berdasarkan',
+                          context.isIndonesian
+                              ? 'Urutkan Berdasarkan'
+                              : 'Sort By',
                           style: TextStyle(color: AppColors.putih),
                         ),
                         content: StatefulBuilder(
@@ -76,7 +78,7 @@ class _TaskWebPageState extends State<TaskWebPage> {
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
                                 title: Text(
-                                  'Terbaru',
+                                  context.isIndonesian ? 'Terbaru' : 'Newest',
                                   style: TextStyle(color: AppColors.putih),
                                 ),
                                 activeColor: AppColors.putih,
@@ -86,7 +88,7 @@ class _TaskWebPageState extends State<TaskWebPage> {
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
                                 title: Text(
-                                  'Terlama',
+                                  context.isIndonesian ? 'Terlama' : 'Oldest',
                                   style: TextStyle(color: AppColors.putih),
                                 ),
                                 activeColor: AppColors.putih,
@@ -96,7 +98,9 @@ class _TaskWebPageState extends State<TaskWebPage> {
                                 groupValue: selected,
                                 onChanged: (v) => setState(() => selected = v!),
                                 title: Text(
-                                  'Per-orang',
+                                  context.isIndonesian
+                                      ? 'Per-orang'
+                                      : 'By Person',
                                   style: TextStyle(color: AppColors.putih),
                                 ),
                                 activeColor: AppColors.putih,
@@ -129,7 +133,9 @@ class _TaskWebPageState extends State<TaskWebPage> {
                                     minimumSize: const Size.fromHeight(
                                         50), // samakan tinggi
                                   ),
-                                  child: const Text('Batal'),
+                                  child: Text(context.isIndonesian
+                                      ? 'Batal'
+                                      : 'Cancel'),
                                 ),
                               ),
                               Expanded(
@@ -152,7 +158,9 @@ class _TaskWebPageState extends State<TaskWebPage> {
                                       borderRadius: BorderRadius.circular(8),
                                     ),
                                   ),
-                                  child: const Text('Terapkan'),
+                                  child: Text(context.isIndonesian
+                                      ? 'Terapkan'
+                                      : 'Apply'),
                                 ),
                               ),
                             ],
@@ -197,7 +205,7 @@ class _TaskWebPageState extends State<TaskWebPage> {
                                 backgroundColor: AppColors.secondary,
                               ),
                               child: Text(
-                                'Retry',
+                                context.isIndonesian ? 'Coba Lagi' : 'Retry',
                                 style: TextStyle(
                                   color: AppColors.putih,
                                 ),

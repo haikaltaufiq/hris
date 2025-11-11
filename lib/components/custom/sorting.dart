@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 
 /// Reusable sort/filter dialog
 Future<String?> showSortDialog({
@@ -51,7 +52,7 @@ Future<String?> showSortDialog({
                     ),
                     minimumSize: const Size.fromHeight(50),
                   ),
-                  child: const Text('Batal'),
+                  child: Text(context.isIndonesian ? 'Batal' : 'Cancel'),
                 ),
               ),
               const SizedBox(width: 16),
@@ -71,7 +72,7 @@ Future<String?> showSortDialog({
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text('Terapkan'),
+                  child: Text(context.isIndonesian ? 'Terapkan' : 'Apply'),
                 ),
               ),
             ],
