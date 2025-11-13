@@ -181,7 +181,7 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
             inputStyle: inputStyle,
           ),
           CustomInputField(
-            label: context.isIndonesian ? "Tanggal" : "Date",
+            label: context.isIndonesian ? "Tanggal Jatuh Tempo" : "Due Date",
             hint: "dd / mm / yyyy",
             controller: _tanggalController,
             suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),

@@ -221,6 +221,28 @@ class _DashboardHeaderState extends State<DashboardHeader>
 
                               if (!confirmed) return;
 
+                              // 🔑 Logout sequence: await dulu semua
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              final token = prefs.getString('token');
+                              final userId = prefs.getInt('user_id');
+
+                              if (userId != null) {
+                                await FcmService.deleteLocalToken();
+                              }
+
+                              if (token != null) {
+                                await AuthService().logout();
+                              }
+
+                              clearUserCache();
+                              if (MainLayout.onClearFeatureCache != null) {
+                                await MainLayout.onClearFeatureCache!.call();
+                              }
+
+                              await prefs.clear();
+
+                              // 🔑 Setelah semua selesai, baru navigasi
                               navigatorKey.currentState!
                                   .pushNamedAndRemoveUntil(
                                 context.isNativeMobile
@@ -228,24 +250,6 @@ class _DashboardHeaderState extends State<DashboardHeader>
                                     : AppRoutes.login,
                                 (route) => false,
                               );
-                              Future.microtask(() async {
-                                final prefs =
-                                    await SharedPreferences.getInstance();
-                                final userId = prefs.getInt('user_id');
-                                final token = prefs.getString('token');
-
-                                if (userId != null) {
-                                  unawaited(FcmService.deleteLocalToken());
-                                }
-
-                                if (token != null) {
-                                  unawaited(AuthService().logout());
-                                }
-                                clearUserCache();
-                                await MainLayout.onClearFeatureCache?.call();
-
-                                unawaited(prefs.clear());
-                              });
                             },
                           ),
                         ],
