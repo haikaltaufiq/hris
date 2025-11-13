@@ -109,7 +109,8 @@ class JabatanViewModel extends ChangeNotifier {
       final message = context.isIndonesian
           ? 'Nama jabatan tidak boleh kosong'
           : 'Jabatan name cannot be empty';
-      NotificationHelper.showTopNotification(context, message);
+      NotificationHelper.showTopNotification(context, message,
+          isSuccess: false);
       return;
     }
 
@@ -122,10 +123,12 @@ class JabatanViewModel extends ChangeNotifier {
             isSuccess: true);
         await fetchJabatan(forceRefresh: true);
       } else {
-        NotificationHelper.showTopNotification(context, result['message']);
+        NotificationHelper.showTopNotification(context, result['message'],
+            isSuccess: false);
       }
     } catch (e) {
-      NotificationHelper.showTopNotification(context, 'Error: $e');
+      NotificationHelper.showTopNotification(context, 'Error: $e',
+          isSuccess: false);
     }
   }
 
@@ -149,10 +152,12 @@ class JabatanViewModel extends ChangeNotifier {
             isSuccess: true);
         await fetchJabatan(forceRefresh: true);
       } else {
-        NotificationHelper.showTopNotification(context, result['message']);
+        NotificationHelper.showTopNotification(context, result['message'],
+            isSuccess: false);
       }
     } catch (e) {
-      NotificationHelper.showTopNotification(context, 'Error: $e');
+      NotificationHelper.showTopNotification(context, 'Error: $e',
+          isSuccess: false);
     }
   }
 
@@ -164,10 +169,12 @@ class JabatanViewModel extends ChangeNotifier {
             isSuccess: true);
         await fetchJabatan(forceRefresh: true);
       } else {
-        NotificationHelper.showTopNotification(context, result['message']);
+        NotificationHelper.showTopNotification(context, result['message'],
+            isSuccess: false);
       }
     } catch (e) {
-      NotificationHelper.showTopNotification(context, 'Error: $e');
+      NotificationHelper.showTopNotification(context, 'Error: $e',
+          isSuccess: false);
     }
   }
 

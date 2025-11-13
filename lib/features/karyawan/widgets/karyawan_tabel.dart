@@ -60,9 +60,15 @@ class KaryawanTabel extends StatelessWidget {
       return [
         user.nama,
         user.email,
-        user.peran.namaPeran,
-        user.jabatan?.namaJabatan ?? '-',
-        user.departemen.namaDepartemen,
+        (user.peran?.namaPeran.isNotEmpty ?? false)
+            ? user.peran!.namaPeran
+            : '-',
+        (user.jabatan?.namaJabatan.isNotEmpty ?? false)
+            ? user.jabatan!.namaJabatan
+            : '-',
+        (user.departemen?.namaDepartemen.isNotEmpty ?? false)
+            ? user.departemen!.namaDepartemen
+            : '-',
         user.gajiPokok ?? '-',
         user.jenisKelamin,
         user.statusPernikahan,

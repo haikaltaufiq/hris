@@ -33,7 +33,8 @@ class PeranService {
   }
 
   // Tambah peran baru beserta fitur
-  static Future<PeranModel> createPeran(String namaPeran, List<int> fiturIds) async {
+  static Future<String> createPeran(
+      String namaPeran, List<int> fiturIds) async {
     final token = await getToken();
 
     final response = await http.post(
@@ -41,6 +42,7 @@ class PeranService {
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: json.encode({
         'nama_peran': namaPeran,
@@ -48,16 +50,17 @@ class PeranService {
       }),
     );
 
+    final body = json.decode(response.body);
+
     if (response.statusCode == 200 || response.statusCode == 201) {
-      final data = json.decode(response.body)['data'];
-      return PeranModel.fromJson(data);
+      return body['message'] ?? 'Peran berhasil ditambahkan';
     } else {
-      throw Exception('Gagal membuat peran: ${response.statusCode}');
+      throw Exception(body['message'] ?? 'Gagal membuat peran');
     }
   }
 
-  // Update peran
-  static Future<PeranModel> updatePeran(int id, String namaPeran, List<int> fiturIds) async {
+  static Future<String> updatePeran(
+      int id, String namaPeran, List<int> fiturIds) async {
     final token = await getToken();
 
     final response = await http.put(
@@ -65,6 +68,7 @@ class PeranService {
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
+        'Accept': 'application/json',
       },
       body: json.encode({
         'nama_peran': namaPeran,
@@ -72,11 +76,12 @@ class PeranService {
       }),
     );
 
+    final body = json.decode(response.body);
+
     if (response.statusCode == 200) {
-      final data = json.decode(response.body)['data'];
-      return PeranModel.fromJson(data);
+      return body['message'] ?? 'Peran berhasil diperbarui';
     } else {
-      throw Exception('Gagal update peran: ${response.statusCode}');
+      throw Exception(body['message'] ?? 'Gagal update peran');
     }
   }
 

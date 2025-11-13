@@ -77,8 +77,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
     // Prefill IDs
     _jabatanId = widget.user.jabatan?.id;
-    _peranId = widget.user.peran.id;
-    _departemenId = widget.user.departemen.id;
+    _peranId = widget.user.peran?.id;
+    _departemenId = widget.user.departemen?.id;
   }
 
   Future<void> _loadJabatan() async {
@@ -139,7 +139,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
           _departemenList = data
               .map((d) => {"id": d.id, "nama_departemen": d.namaDepartemen})
               .toList();
-          _departemenId ??= widget.user.departemen.id;
+          _departemenId ??= widget.user.departemen?.id;
           _isLoadingDepartemen = false;
         });
       }

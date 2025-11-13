@@ -407,31 +407,37 @@ class _PeranFormPageState extends State<PeranFormPage> {
   Future<void> _savePeran() async {
     if (_namaController.text.isEmpty) return;
 
-    // Check confirmation before saving
     bool confirmed = await _checkConfirmation();
     if (!confirmed) return;
 
     setState(() => _saving = true);
 
     try {
+      String backendMsg;
+
       if (widget.peran == null) {
-        await PeranService.createPeran(
-            _namaController.text, _selectedFitur.map((e) => e.id).toList());
-        _showSnackBar('Peran berhasil ditambahkan');
+        backendMsg = await PeranService.createPeran(
+          _namaController.text,
+          _selectedFitur.map((e) => e.id).toList(),
+        );
       } else {
-        await PeranService.updatePeran(widget.peran!.id, _namaController.text,
-            _selectedFitur.map((e) => e.id).toList());
-        _showSnackBar('Peran berhasil diperbarui');
+        backendMsg = await PeranService.updatePeran(
+          widget.peran!.id,
+          _namaController.text,
+          _selectedFitur.map((e) => e.id).toList(),
+        );
       }
+
+      _showSnackBar(backendMsg);
       Navigator.pop(context, true);
     } catch (e) {
       setState(() => _saving = false);
-      _showSnackBar('Gagal menyimpan: $e');
+      _showSnackBar('$e', isSuccess: false);
     }
   }
 
-  void _showSnackBar(String msg) {
-    NotificationHelper.showTopNotification(context, msg);
+  void _showSnackBar(String msg, {bool isSuccess = true}) {
+    NotificationHelper.showTopNotification(context, msg, isSuccess: isSuccess);
   }
 
   @override
@@ -475,6 +481,14 @@ class _PeranFormPageState extends State<PeranFormPage> {
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 fontFamily: GoogleFonts.poppins().fontFamily,
+              ),
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back_ios),
+                color: AppColors.putih,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              iconTheme: IconThemeData(
+                color: AppColors.putih,
               ),
             )
           : null,

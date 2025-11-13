@@ -104,7 +104,7 @@ class _LoginButtonState extends State<LoginButton> {
     final userBox = await Hive.openBox('user');
 
     // Prepare feature list
-    final fiturList = user.peran.fitur.map((f) => f.toJson()).toList();
+    final fiturList = user.peran?.fitur.map((f) => f.toJson()).toList();
 
     // Execute Hive write and feature setup in parallel
     await Future.wait([

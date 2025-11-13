@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/navbar.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -6,6 +7,7 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/fcm_service.dart';
+import 'package:hr/main.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -259,40 +261,54 @@ class _MainLayoutState extends State<MainLayout>
                             context.isIndonesian ? "Keluar" : "Logout",
                             Icons.logout,
                             () async {
-                              final prefs =
-                                  await SharedPreferences.getInstance();
+                              _hideDropdownImmediate();
 
-                              // simpan dulu data penting
-                              final userId = prefs.getInt('user_id');
-                              final token = prefs.getString('token');
+                              final confirmed = await showConfirmationDialog(
+                                navigatorKey.currentContext!,
+                                title: context.isIndonesian
+                                    ? "Konfirmasi Logout"
+                                    : "Logout Confirmation",
+                                content: context.isIndonesian
+                                    ? "Apakah Anda yakin ingin keluar dari akun ini?"
+                                    : "Are you sure you want to log out of this account?",
+                                confirmText:
+                                    context.isIndonesian ? "Keluar" : "Logout",
+                                cancelText:
+                                    context.isIndonesian ? "Batal" : "Cancel",
+                                confirmColor: AppColors.red,
+                              );
 
-                              // hapus token FCM di server
-                              if (userId != null) {
-                                await FcmService.deleteLocalToken();
-                              }
+                              if (!confirmed) return;
 
-                              // panggil API logout auth
-                              if (token != null) {
-                                await AuthService().logout();
-                                // debugPrint("Logout result: $result");
-                              }
-                              // 🔹 Bersihin cache fitur dan local storage
-                              await FeatureAccess.clear();
-                              _cachedFitur = null; // 🔥 reset cache global
-                              _userFitur =
-                                  []; // optional, biar state kosong juga
+                              // Langsung navigate dulu biar responsif
+                              navigatorKey.currentState!
+                                  .pushNamedAndRemoveUntil(
+                                AppRoutes.login,
+                                (route) => false,
+                              );
 
-                              // baru bersihkan semua prefs
-                              await prefs.clear();
+                              // Jalankan cleanup di background
+                              Future.microtask(() async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
 
-                              if (mounted) {
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  AppRoutes.login,
-                                  (route) => false,
-                                );
-                                _hideDropdownImmediate();
-                              }
+                                final userId = prefs.getInt('user_id');
+                                final token = prefs.getString('token');
+
+                                if (userId != null) {
+                                  await FcmService.deleteLocalToken();
+                                }
+
+                                if (token != null) {
+                                  await AuthService().logout();
+                                }
+
+                                await FeatureAccess.clear();
+                                _cachedFitur = null;
+                                _userFitur = [];
+
+                                await prefs.clear();
+                              });
                             },
                           ),
                         ],

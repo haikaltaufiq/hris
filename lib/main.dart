@@ -258,6 +258,8 @@ Future<void> _showNotification(
 // ==========================================
 // MAIN FUNCTION
 // ==========================================
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -803,6 +805,7 @@ class _MyAppState extends State<MyApp> {
         }
 
         return MaterialApp(
+          navigatorKey: navigatorKey,
           debugShowCheckedModeBanner: false,
           themeMode: themeProvider.currentMode,
           theme: ThemeData(

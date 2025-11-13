@@ -112,22 +112,25 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        backgroundColor: AppColors.primary,
         title: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: AppColors.red.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child:
-                  const Icon(Icons.delete_outline, color: Colors.red, size: 24),
+              child: Icon(Icons.delete_outline, color: AppColors.red, size: 24),
             ),
             const SizedBox(width: 16),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Hapus Peran?',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.putih),
               ),
             ),
           ],
@@ -137,13 +140,15 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
           children: [
             RichText(
               text: TextSpan(
-                style: const TextStyle(fontSize: 16, color: Colors.black87),
+                style: TextStyle(fontSize: 16, color: AppColors.putih),
                 children: [
-                  const TextSpan(
-                      text: 'Apakah Anda yakin ingin menghapus peran '),
+                  TextSpan(
+                      text: 'Apakah Anda yakin ingin menghapus peran ',
+                      style: TextStyle(color: AppColors.putih)),
                   TextSpan(
                       text: '"${peran.namaPeran}"',
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, color: AppColors.putih)),
                   const TextSpan(text: '?'),
                 ],
               ),
@@ -180,19 +185,23 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Batal'),
+            child: Text(
+              'Batal',
+              style: TextStyle(color: AppColors.putih),
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.red,
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
             ),
-            child: const Text('Hapus',
-                style: TextStyle(fontWeight: FontWeight.w600)),
+            child: Text('Hapus',
+                style: TextStyle(
+                    fontWeight: FontWeight.w600, color: Colors.white)),
           ),
         ],
       ),
@@ -205,8 +214,7 @@ class _WebTabelPeranWebState extends State<WebTabelPeranWeb> {
         final message = context.isIndonesian
             ? 'Peran berhasil dihapus'
             : 'Role deleted successfully';
-        NotificationHelper.showTopNotification(
-            context, message,
+        NotificationHelper.showTopNotification(context, message,
             isSuccess: true);
       } catch (e) {
         final message = context.isIndonesian

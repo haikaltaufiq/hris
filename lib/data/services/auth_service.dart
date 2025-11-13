@@ -101,10 +101,13 @@ class AuthService {
         await prefs.setDouble(
             'gaji_per_hari', double.tryParse(user.gajiPokok ?? '0') ?? 0);
         await prefs.setString('jabatan', user.jabatan?.namaJabatan ?? '');
-        await prefs.setString('departemen', user.departemen.namaDepartemen);
-        await prefs.setString('peran', user.peran.namaPeran);
-        await prefs.setString('fitur',
-            jsonEncode(user.peran.fitur.map((f) => f.toJson()).toList()));
+        await prefs.setString(
+            'departemen', user.departemen?.namaDepartemen ?? '-');
+        await prefs.setString('peran', user.peran?.namaPeran ?? '-');
+        await prefs.setString(
+            'fitur',
+            jsonEncode(
+                user.peran?.fitur.map((f) => f.toJson()).toList() ?? []));
         await prefs.setBool('onboarding', data['onboarding'] ?? false);
 
         // ✅ Simpan juga fcmToken agar bisa dihapus saat logout
@@ -207,7 +210,7 @@ class AuthService {
         await prefs.setInt('id', user.id);
         await prefs.setString('nama', user.nama);
         await prefs.setString('email', user.email);
-        await prefs.setString('peran', user.peran.namaPeran);
+        await prefs.setString('peran', user.peran?.namaPeran ?? '-');
 
         return {
           'success': true,

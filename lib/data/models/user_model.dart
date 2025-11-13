@@ -9,8 +9,8 @@ class UserModel {
   final String jenisKelamin;
   final String statusPernikahan;
   final JabatanModel? jabatan;
-  final PeranModel peran;
-  final DepartemenModel departemen;
+  final PeranModel? peran;
+  final DepartemenModel? departemen;
   final String? gajiPokok;
   final String? npwp;
   final String? bpjsKesehatan;
@@ -49,7 +49,9 @@ class UserModel {
       peran: (json['peran'] != null && json['peran'] is Map<String, dynamic>)
           ? PeranModel.fromJson(json['peran'])
           : PeranModel(
-              id: json['peran_id'] ?? 0, namaPeran: '', fitur: []), // fallback pakai id
+              id: json['peran_id'] ?? 0,
+              namaPeran: '',
+              fitur: []), // fallback pakai id
       departemen: (json['departemen'] != null &&
               json['departemen'] is Map<String, dynamic>)
           ? DepartemenModel.fromJson(json['departemen'])
@@ -70,8 +72,8 @@ class UserModel {
       'bpjs_kesehatan': bpjsKesehatan,
       'bpjs_ketenagakerjaan': bpjsKetenagakerjaan,
       'jabatan': jabatan?.toJson(),
-      'peran': peran.toJson(),
-      'departemen': departemen.toJson(),
+      'peran': peran?.toJson(),
+      'departemen': departemen?.toJson(),
     };
   }
 }

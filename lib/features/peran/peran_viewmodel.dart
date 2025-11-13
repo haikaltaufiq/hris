@@ -116,7 +116,7 @@ class PeranViewModel extends ChangeNotifier {
     notifyListeners();
     try {
       final newPeran = await PeranService.createPeran(namaPeran, fiturIds);
-      _peranList.add(newPeran);
+      _peranList.add(newPeran as PeranModel);
 
       // Update cache
       await _peranBox.put(
@@ -146,7 +146,7 @@ class PeranViewModel extends ChangeNotifier {
           await PeranService.updatePeran(id, namaPeran, fiturIds);
 
       final index = _peranList.indexWhere((p) => p.id == id);
-      if (index != -1) _peranList[index] = updatedPeran;
+      if (index != -1) _peranList[index] = updatedPeran as PeranModel;
 
       // Update cache
       await _peranBox.put(

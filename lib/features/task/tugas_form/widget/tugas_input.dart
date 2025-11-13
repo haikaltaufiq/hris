@@ -585,9 +585,19 @@ class _TugasInputState extends State<TugasInput> {
                             double.tryParse(_latitudeController.text.trim());
                         final longitude =
                             double.tryParse(_longitudeController.text.trim());
-                        final radius =
-                            int.tryParse(_radiusController.text.trim()) ?? 100;
-
+                        final radiusText = _radiusController.text.trim();
+                        final radius = int.tryParse(radiusText);
+                        if (radius == null) {
+                          final message = context.isIndonesian
+                              ? 'Radius harus berupa angka'
+                              : 'Radius must be a number';
+                          NotificationHelper.showTopNotification(
+                            context,
+                            message,
+                            isSuccess: false,
+                          );
+                          return; // hentikan proses kalau invalid
+                        }
                         if (latitude == null || longitude == null) {
                           final message = context.isIndonesian
                               ? 'Koordinat tidak valid'

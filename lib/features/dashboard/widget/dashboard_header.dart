@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
@@ -13,6 +14,7 @@ import 'package:hr/features/department/view_model/department_viewmodels.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/data/services/fcm_service.dart';
 import 'package:hr/layout/main_layout.dart';
+import 'package:hr/main.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -200,34 +202,50 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             context.isIndonesian ? "Keluar" : "Logout",
                             Icons.logout,
                             () async {
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              final userId = prefs.getInt('user_id');
-                              final token = prefs.getString('token');
+                              _hideDropdownImmediate();
 
-                              if (userId != null) {
-                                unawaited(FcmService.deleteLocalToken());
-                              }
+                              final confirmed = await showConfirmationDialog(
+                                navigatorKey.currentContext!,
+                                title: context.isIndonesian
+                                    ? "Konfirmasi Logout"
+                                    : "Logout Confirmation",
+                                content: context.isIndonesian
+                                    ? "Apakah Anda yakin ingin keluar dari akun ini?"
+                                    : "Are you sure you want to log out of this account?",
+                                confirmText:
+                                    context.isIndonesian ? "Keluar" : "Logout",
+                                cancelText:
+                                    context.isIndonesian ? "Batal" : "Cancel",
+                                confirmColor: AppColors.red,
+                              );
 
-                              if (token != null) {
-                                unawaited(AuthService().logout());
-                              }
-                              clearUserCache();
-                              await MainLayout.onClearFeatureCache?.call();
+                              if (!confirmed) return;
 
-                              unawaited(prefs.clear());
+                              navigatorKey.currentState!
+                                  .pushNamedAndRemoveUntil(
+                                context.isNativeMobile
+                                    ? AppRoutes.landingPageMobile
+                                    : AppRoutes.login,
+                                (route) => false,
+                              );
+                              Future.microtask(() async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                final userId = prefs.getInt('user_id');
+                                final token = prefs.getString('token');
 
-                              if (mounted) {
-                                Navigator.pushNamedAndRemoveUntil(
-                                  context,
-                                  context.isNativeMobile
-                                      ? AppRoutes.landingPageMobile
-                                      : AppRoutes.landingPage,
-                                  (route) => false,
-                                );
+                                if (userId != null) {
+                                  unawaited(FcmService.deleteLocalToken());
+                                }
 
-                                _hideDropdownImmediate();
-                              }
+                                if (token != null) {
+                                  unawaited(AuthService().logout());
+                                }
+                                clearUserCache();
+                                await MainLayout.onClearFeatureCache?.call();
+
+                                unawaited(prefs.clear());
+                              });
                             },
                           ),
                         ],

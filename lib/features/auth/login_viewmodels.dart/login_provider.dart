@@ -32,8 +32,8 @@ class UserProvider extends ChangeNotifier {
 
   // ===== Helper getter =====
   bool get isLoggedIn => _user != null;
-  int get roleId => _user?.peran.id ?? 0;
-  String get roleName => _user?.peran.namaPeran ?? 'Guest';
+  int get roleId => _user?.peran?.id ?? 0;
+  String get roleName => _user?.peran?.namaPeran ?? 'Guest';
 
   final _userbox = Hive.box('user');
   bool _hasCache = false;
@@ -64,15 +64,15 @@ class UserProvider extends ChangeNotifier {
         break;
 
       case 'departemen':
-        listToSort.sort((a, b) => (a.departemen.namaDepartemen)
+        listToSort.sort((a, b) => (a.departemen?.namaDepartemen ?? '')
             .toLowerCase()
-            .compareTo(b.departemen.namaDepartemen.toLowerCase()));
+            .compareTo((b.departemen?.namaDepartemen ?? '').toLowerCase()));
         break;
 
       case 'peran':
-        listToSort.sort((a, b) => a.peran.namaPeran
+        listToSort.sort((a, b) => (a.peran?.namaPeran ?? '')
             .toLowerCase()
-            .compareTo(b.peran.namaPeran.toLowerCase()));
+            .compareTo((b.peran?.namaPeran ?? '').toLowerCase()));
         break;
 
       case 'terbaru':
@@ -246,8 +246,8 @@ class UserProvider extends ChangeNotifier {
         final jenisKelamin = user.jenisKelamin.toLowerCase();
         final statusNikah = user.statusPernikahan.toLowerCase();
         final jabatan = user.jabatan?.namaJabatan.toLowerCase() ?? '';
-        final peran = user.peran.namaPeran.toLowerCase();
-        final departemen = user.departemen.namaDepartemen.toLowerCase();
+        final peran = user.peran?.namaPeran.toLowerCase() ?? '';
+        final departemen = user.departemen?.namaDepartemen.toLowerCase() ?? '';
         final gajiPokok = user.gajiPokok?.toLowerCase() ?? '';
         final npwp = user.npwp?.toLowerCase() ?? '';
         final bpjsKes = user.bpjsKesehatan?.toLowerCase() ?? '';
