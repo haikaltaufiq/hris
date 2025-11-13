@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/dashboard_item.dart';
@@ -14,7 +15,8 @@ class DashboardMenu extends StatelessWidget {
     double iconSize = MediaQuery.of(context).size.width * 0.07;
     double fontSize = MediaQuery.of(context).size.width * 0.028;
 
-    final accessibleItems = items.where((item) => item != null).toList();
+    final accessibleItems =
+        items.where((item) => FeatureAccess.has(item.requiredFeature)).toList();
 
     // Tentukan berapa kolom berdasarkan ukuran layar
     final crossAxisCount = MediaQuery.of(context).size.width < 360 ? 3 : 4;
@@ -70,43 +72,46 @@ class DashboardMenu extends StatelessWidget {
 
   Widget _buildMenuItem(
       DashboardMenuItem item, double iconSize, double fontSize) {
-    return GestureDetector(
-      onTap: item.onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: iconSize * 1.8,
-            width: iconSize * 1.8,
-            decoration: BoxDecoration(
-              color: AppColors.secondary,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(item.icon, size: iconSize, color: AppColors.putih),
-          ),
-          const SizedBox(height: 6),
-          Flexible(
-            child: Text(
-              item.label,
-              style: TextStyle(
-                fontSize: fontSize,
-                color: AppColors.putih,
-                fontFamily: GoogleFonts.poppins().fontFamily,
+    return FeatureGuard(
+      requiredFeature: item.requiredFeature,
+      child: GestureDetector(
+        onTap: item.onTap,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              height: iconSize * 1.8,
+              width: iconSize * 1.8,
+              decoration: BoxDecoration(
+                color: AppColors.secondary,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
-              maxLines: 2,
-              softWrap: true,
+              child: Icon(item.icon, size: iconSize, color: AppColors.putih),
             ),
-          ),
-        ],
+            const SizedBox(height: 6),
+            Flexible(
+              child: Text(
+                item.label,
+                style: TextStyle(
+                  fontSize: fontSize,
+                  color: AppColors.putih,
+                  fontFamily: GoogleFonts.poppins().fontFamily,
+                ),
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 2,
+                softWrap: true,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -279,69 +284,72 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
     final iconSize = MediaQuery.of(context).size.width * 0.06;
     final fontSize = MediaQuery.of(context).size.width * 0.038;
 
-    return InkWell(
-      onTap: () {
-        Navigator.pop(context); // Tutup bottom sheet
-        item.onTap.call(); // Panggil onTap item
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: Colors.grey[100]!,
-              width: 1,
+    return FeatureGuard(
+      requiredFeature: item.requiredFeature,
+      child: InkWell(
+        onTap: () {
+          Navigator.pop(context); // Tutup bottom sheet
+          item.onTap.call(); // Panggil onTap item
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.grey[100]!,
+                width: 1,
+              ),
             ),
           ),
-        ),
-        child: Row(
-          children: [
-            // Icon container
-            Container(
-              height: iconSize * 1.4,
-              width: iconSize * 1.4,
-              decoration: BoxDecoration(
-                color: AppColors.secondary,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Icon(
-                item.icon,
-                size: iconSize,
-                color: AppColors.putih,
-              ),
-            ),
-
-            const SizedBox(width: 16),
-
-            // Text label
-            Expanded(
-              child: Text(
-                item.label,
-                style: TextStyle(
-                  fontSize: fontSize,
-                  color: AppColors.putih,
-                  fontFamily: GoogleFonts.poppins().fontFamily,
-                  fontWeight: FontWeight.w500,
+          child: Row(
+            children: [
+              // Icon container
+              Container(
+                height: iconSize * 1.4,
+                width: iconSize * 1.4,
+                decoration: BoxDecoration(
+                  color: AppColors.secondary,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+                child: Icon(
+                  item.icon,
+                  size: iconSize,
+                  color: AppColors.putih,
+                ),
               ),
-            ),
 
-            // Arrow icon
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-              size: 20,
-            ),
-          ],
+              const SizedBox(width: 16),
+
+              // Text label
+              Expanded(
+                child: Text(
+                  item.label,
+                  style: TextStyle(
+                    fontSize: fontSize,
+                    color: AppColors.putih,
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
+              ),
+
+              // Arrow icon
+              Icon(
+                Icons.chevron_right,
+                color: Colors.grey[400],
+                size: 20,
+              ),
+            ],
+          ),
         ),
       ),
     );
