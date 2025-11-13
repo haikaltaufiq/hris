@@ -85,17 +85,18 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
     try {
       final data = await JabatanService.fetchJabatan();
       if (mounted) {
-        // ✅ Safety check
+        //  Safety check
         setState(() {
           _jabatanList = data
               .map((j) => {"id": j.id, "nama_jabatan": j.namaJabatan})
               .toList();
+          _jabatanId ??= widget.user.jabatan?.id;
           _isLoadingJabatan = false;
         });
       }
     } catch (e) {
       if (mounted) {
-        // ✅ Safety check
+        //  Safety check
         setState(() => _isLoadingJabatan = false);
         final message = context.isIndonesian
             ? "Gagal memuat jabatan: $e"
@@ -133,17 +134,18 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
     try {
       final data = await DepartemenService.fetchDepartemen();
       if (mounted) {
-        // ✅ Safety check
+        //  Safety check
         setState(() {
           _departemenList = data
               .map((d) => {"id": d.id, "nama_departemen": d.namaDepartemen})
               .toList();
+          _departemenId ??= widget.user.departemen.id;
           _isLoadingDepartemen = false;
         });
       }
     } catch (e) {
       if (mounted) {
-        // ✅ Safety check
+        //  Safety check
         setState(() => _isLoadingDepartemen = false);
         final message = context.isIndonesian
             ? "Gagal memuat departemen: $e"
@@ -165,23 +167,6 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
         (item) => (item as dynamic).id == selectedId,
       );
       return getLabel(selectedItem);
-    } catch (e) {
-      return 'Pilih...';
-    }
-  }
-
-  // ✅ Safe dropdown hint helper tuntuk yang type string
-  String _getSafeDropdownHintMap(bool isLoading, int? selectedId,
-      List<Map<String, dynamic>> items, String key) {
-    if (isLoading) return 'Memuat...';
-    if (selectedId == null) return 'Pilih...';
-
-    try {
-      final selected = items.firstWhere(
-        (e) => e['id'] == selectedId,
-        orElse: () => <String, dynamic>{},
-      );
-      return selected.isNotEmpty ? selected[key].toString() : 'Pilih...';
     } catch (e) {
       return 'Pilih...';
     }
@@ -395,12 +380,15 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
 
             CustomDropDownField(
               label: context.isIndonesian ? 'Jabatan *' : 'Position *',
-              hint: _getSafeDropdownHintMap(
-                _isLoadingJabatan,
-                _jabatanId,
-                _jabatanList,
-                "nama_jabatan",
-              ),
+              hint: _isLoadingJabatan
+                  ? 'Memuat...'
+                  : _jabatanId != null
+                      ? _jabatanList
+                          .firstWhere((e) => e['id'] == _jabatanId,
+                              orElse: () =>
+                                  {"nama_jabatan": "Pilih..."})['nama_jabatan']
+                          .toString()
+                      : 'Pilih...',
               items: _isLoadingJabatan
                   ? []
                   : _jabatanList
@@ -469,13 +457,17 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             ),
 
             CustomDropDownField(
-              label: 'Departemen *',
-              hint: _getSafeDropdownHintMap(
-                _isLoadingDepartemen,
-                _departemenId,
-                _departemenList,
-                "nama_departemen",
-              ),
+              label: context.isIndonesian ? 'Departemen *' : 'Department *',
+              hint: _isLoadingDepartemen
+                  ? 'Memuat...'
+                  : _departemenId != null
+                      ? _departemenList
+                          .firstWhere((e) => e['id'] == _departemenId,
+                              orElse: () => {
+                                    "nama_departemen": "Pilih..."
+                                  })['nama_departemen']
+                          .toString()
+                      : 'Pilih...',
               items: _isLoadingDepartemen
                   ? []
                   : _departemenList
