@@ -74,18 +74,16 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
     }
   }
 
-  /// --- Video tampil di Fullscreen Dialog Stylish
+  /// --- Video tampil di Fullscreen Dialog
   void _openVideo(String? videoPath) {
     if (videoPath == null || videoPath.isEmpty) {
       final message =
           context.isIndonesian ? "Tidak ada video" : "No video available";
       NotificationHelper.showTopNotification(context, message,
           isSuccess: false);
-
       return;
     }
 
-    // --- Tambahkan baseUrl Laravel
     final fullUrl = videoPath.startsWith('http')
         ? videoPath
         : "${ApiConfig.baseUrl}$videoPath";
@@ -102,53 +100,62 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
               controller.play();
-              return Scaffold(
-                backgroundColor: Colors.black.withOpacity(0.9),
-                body: Stack(
-                  children: [
-                    Center(
-                      child: AspectRatio(
-                        aspectRatio: controller.value.aspectRatio,
-                        child: VideoPlayer(controller),
-                      ),
-                    ),
-                    Positioned(
-                      top: 40,
-                      right: 20,
-                      child: IconButton(
-                        icon: const Icon(Icons.close,
-                            color: Colors.white, size: 32),
-                        onPressed: () {
-                          controller.dispose();
-                          Navigator.pop(context);
-                        },
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 30,
-                      left: 0,
-                      right: 0,
-                      child: Center(
-                        child: FloatingActionButton(
-                          backgroundColor: Colors.white,
-                          onPressed: () {
-                            setState(() {
-                              controller.value.isPlaying
-                                  ? controller.pause()
-                                  : controller.play();
-                            });
-                          },
-                          child: Icon(
-                            controller.value.isPlaying
-                                ? Icons.pause
-                                : Icons.play_arrow,
-                            color: Colors.black,
+              return StatefulBuilder(
+                builder: (context, setStateDialog) {
+                  return Scaffold(
+                    backgroundColor: Colors.black.withOpacity(0.9),
+                    body: Stack(
+                      children: [
+                        Center(
+                          child: AspectRatio(
+                            aspectRatio: controller.value.aspectRatio,
+                            child: VideoPlayer(controller),
                           ),
                         ),
-                      ),
+                        Positioned(
+                          top: 40,
+                          right: 20,
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.close,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                            onPressed: () {
+                              controller.dispose();
+                              Navigator.pop(context);
+                            },
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 30,
+                          left: 0,
+                          right: 0,
+                          child: Center(
+                            child: FloatingActionButton(
+                              backgroundColor: Colors.white,
+                              onPressed: () {
+                                if (controller.value.isPlaying) {
+                                  controller.pause();
+                                } else {
+                                  controller.play();
+                                }
+                                setStateDialog(() {}); // refresh icon
+                              },
+                              child: Icon(
+                                controller.value.isPlaying
+                                    ? Icons.pause
+                                    : Icons.play_arrow,
+                                color: Colors.black,
+                                size: 36,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  );
+                },
               );
             }
             return const Center(child: LoadingWidget());

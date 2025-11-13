@@ -36,73 +36,73 @@ class ResponsiveNavBar extends StatefulWidget {
         label: "Dashboard",
         icon: FontAwesomeIcons.house,
         selectedIcon: FontAwesomeIcons.houseChimney,
-        requiredFeature: null,
+        requiredFeatures: null,
         route: AppRoutes.dashboard,
       ),
       NavItemWithFeature(
         label: isIndonesian ? "Kehadiran" : "Attendance",
         icon: FontAwesomeIcons.calendarCheck,
         selectedIcon: FontAwesomeIcons.solidCalendarCheck,
-        requiredFeature: "absensi",
+        requiredFeatures: ["lihat_absensi_sendiri", "lihat_semua_absensi"],
         route: AppRoutes.attendance,
       ),
       NavItemWithFeature(
         label: isIndonesian ? "Tugas" : "Task",
         icon: FontAwesomeIcons.listCheck,
-        requiredFeature: "lihat_tugas",
+        requiredFeatures: ["lihat_tugas"],
         route: AppRoutes.task,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Lembur' : "Over Time",
         icon: FontAwesomeIcons.clock,
         selectedIcon: FontAwesomeIcons.solidClock,
-        requiredFeature: "lihat_lembur",
+        requiredFeatures: ["lihat_lembur"],
         route: AppRoutes.overTime,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Cuti' : "Leave",
         icon: FontAwesomeIcons.calendarMinus,
         selectedIcon: FontAwesomeIcons.solidCalendarMinus,
-        requiredFeature: "lihat_cuti",
+        requiredFeatures: ["lihat_cuti"],
         route: AppRoutes.leave,
       ),
       // Dropdown parent: Data Pegawai
       NavItemWithFeature(
         label: isIndonesian ? 'Data Pegawai' : "Employee Data",
         icon: FontAwesomeIcons.users,
-        requiredFeature: null,
+        requiredFeatures: null,
         isDropdownParent: true,
         dropdownChildren: [
           NavItemWithFeature(
             label: isIndonesian ? 'Pegawai' : "Employees",
             icon: FontAwesomeIcons.users,
-            requiredFeature: "karyawan",
+            requiredFeatures: ["karyawan"],
             route: AppRoutes.employee,
           ),
           NavItemWithFeature(
             label: isIndonesian ? 'Departemen' : "Department",
             icon: FontAwesomeIcons.building,
             selectedIcon: FontAwesomeIcons.solidBuilding,
-            requiredFeature: "departemen",
+            requiredFeatures: ["departemen"],
             route: AppRoutes.department,
           ),
           NavItemWithFeature(
             label: isIndonesian ? 'Jabatan' : "Position",
             icon: FontAwesomeIcons.idBadge,
             selectedIcon: FontAwesomeIcons.solidIdBadge,
-            requiredFeature: "jabatan",
+            requiredFeatures: ["jabatan"],
             route: AppRoutes.jabatan,
           ),
           NavItemWithFeature(
             label: isIndonesian ? 'Hak Akses' : "Access Rights",
             icon: FontAwesomeIcons.userShield,
-            requiredFeature: "peran",
+            requiredFeatures: ["peran"],
             route: AppRoutes.peran,
           ),
           NavItemWithFeature(
             label: isIndonesian ? 'Potongan Gaji' : "Salary Deduction",
             icon: FontAwesomeIcons.calculator,
-            requiredFeature: "potongan_gaji",
+            requiredFeatures: ["potongan_gaji"],
             route: AppRoutes.potonganGaji,
           ),
         ],
@@ -110,57 +110,57 @@ class ResponsiveNavBar extends StatefulWidget {
       NavItemWithFeature(
         label: isIndonesian ? 'Penggajian' : "Payroll",
         icon: FontAwesomeIcons.moneyBill,
-        requiredFeature: "gaji",
+        requiredFeatures: ["gaji"],
         route: AppRoutes.payroll,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Log Aktivitas' : "Log Activity",
         icon: FontAwesomeIcons.history,
-        requiredFeature: "log_aktifitas",
+        requiredFeatures: ["log_aktifitas"],
         route: AppRoutes.logActivity,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Pengingat' : "Reminder",
         icon: FontAwesomeIcons.alarmClock,
         selectedIcon: FontAwesomeIcons.solidAlarmClock,
-        requiredFeature: "pengingat",
+        requiredFeatures: ["pengingat"],
         route: AppRoutes.reminder,
       ),
       NavItemWithFeature(
         label: isIndonesian ? 'Pengaturan' : "Settings",
         icon: FontAwesomeIcons.gear,
-        requiredFeature: null,
+        requiredFeatures: null,
         route: AppRoutes.pengaturan,
       ),
       NavItemWithFeature(
         label: isIndonesian ? "Info Kantor" : "Company info",
         icon: FontAwesomeIcons.circleInfo,
-        requiredFeature: "kantor",
+        requiredFeatures: ["kantor"],
         route: AppRoutes.infoKantor,
       ),
       // Dropdown parent: Reset
       NavItemWithFeature(
         label: "Reset",
         icon: FontAwesomeIcons.triangleExclamation,
-        requiredFeature: null,
+        requiredFeatures: null,
         isDropdownParent: true,
         dropdownChildren: [
           NavItemWithFeature(
             label: isIndonesian ? 'Reset Data' : "Reset Data",
             icon: FontAwesomeIcons.triangleExclamation,
-            requiredFeature: "denger",
+            requiredFeatures: ["denger"],
             route: AppRoutes.danger,
           ),
           NavItemWithFeature(
             label: isIndonesian ? 'Reset Perangkat' : "Reset Device",
             icon: FontAwesomeIcons.trashRestore,
-            requiredFeature: "reset_device",
+            requiredFeatures: ["reset_device"],
             route: AppRoutes.resetDevice,
           ),
           NavItemWithFeature(
             label: isIndonesian ? 'Buka Akun' : "Unlock Account",
             icon: FontAwesomeIcons.unlock,
-            requiredFeature: "buka_akun",
+            requiredFeatures: ["buka_akun"],
             route: AppRoutes.bukaAkun,
           ),
         ],
@@ -178,8 +178,8 @@ class ResponsiveNavBar extends StatefulWidget {
       if (item.isDropdownParent) {
         final filteredChildren = item.dropdownChildren
             ?.where((child) =>
-                child.requiredFeature == null ||
-                userFitur.contains(child.requiredFeature))
+                child.requiredFeatures == null ||
+                child.requiredFeatures!.any((f) => userFitur.contains(f)))
             .toList();
 
         if (filteredChildren != null && filteredChildren.isNotEmpty) {
@@ -199,8 +199,8 @@ class ResponsiveNavBar extends StatefulWidget {
           ));
         }
       } else {
-        if (item.requiredFeature == null ||
-            userFitur.contains(item.requiredFeature)) {
+        if (item.requiredFeatures == null ||
+            item.requiredFeatures!.any((f) => userFitur.contains(f))) {
           result.add(NavItem(
             label: item.label,
             icon: item.icon,
@@ -898,7 +898,7 @@ class NavItemWithFeature {
   final String label;
   final IconData icon;
   final IconData? selectedIcon;
-  final String? requiredFeature;
+  final List<String>? requiredFeatures;
   final bool isDropdownParent;
   final List<NavItemWithFeature>? dropdownChildren;
   final String? route;
@@ -906,7 +906,7 @@ class NavItemWithFeature {
     required this.label,
     required this.icon,
     this.selectedIcon,
-    this.requiredFeature,
+    this.requiredFeatures,
     this.isDropdownParent = false,
     this.dropdownChildren,
     this.route,
