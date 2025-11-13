@@ -346,10 +346,10 @@ class _KaryawanInputState extends State<KaryawanInput> {
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
-          CustomInputField(
+          CustomPasswordField(
             controller: _passwordController,
             label: "Password HRIS Account",
-            hint: "",
+            hint: context.isIndonesian ? "Masukkan password" : "Input password",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,

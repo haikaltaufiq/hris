@@ -31,7 +31,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   final TextEditingController _npwpController = TextEditingController();
   final TextEditingController _bpjsKesController = TextEditingController();
   final TextEditingController _bpjsKetController = TextEditingController();
-
+  final TextEditingController _newPasswordController = TextEditingController();
   // Dropdown values
   int? _jabatanId;
   int? _peranId;
@@ -49,7 +49,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   bool _isLoadingPeran = true;
   bool _isLoadingDepartemen = true;
   bool _isSubmitting = false;
-
+  bool obscure = true;
   // Static dropdown data
   final List<String> _jenisKelaminList = ["Laki-laki", "Perempuan"];
   final List<String> _statusList = ["Menikah", "Belum Menikah"];
@@ -516,9 +516,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
             CustomInputField(
               controller: _npwpController,
               label: "NPWP",
-              hint: context.isIndonesian
-                  ? "Masukkan NPWP (opsional)"
-                  : "Input NPWP (Optional)",
+              hint: context.isIndonesian ? "Masukkan NPWP " : "Input NPWP ",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
@@ -528,8 +526,8 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
               controller: _bpjsKetController,
               label: "No. BPJS Ketenagakerjaan",
               hint: context.isIndonesian
-                  ? "Masukkan nomor BPJS Ketenagakerjaan (opsional)"
-                  : "Optional",
+                  ? "Masukkan nomor BPJS Ketenagakerjaan"
+                  : "Input BPJS Ketenagakerjaan",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
@@ -539,8 +537,18 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
               controller: _bpjsKesController,
               label: "No. BPJS Kesehatan",
               hint: context.isIndonesian
-                  ? "Masukkan nomor BPJS Kesehatan (opsional)"
+                  ? "Masukkan nomor BPJS Kesehatan"
                   : "Optional",
+              labelStyle: labelStyle,
+              textStyle: textStyle,
+              inputStyle: inputStyle,
+            ),
+            CustomPasswordField(
+              controller: _newPasswordController,
+              label: "Change Password",
+              hint: context.isIndonesian
+                  ? "Masukkan password baru"
+                  : "Input new password",
               labelStyle: labelStyle,
               textStyle: textStyle,
               inputStyle: inputStyle,
