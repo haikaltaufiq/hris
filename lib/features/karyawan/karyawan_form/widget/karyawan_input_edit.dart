@@ -291,6 +291,10 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
           "bpjs_ketenagakerjaan": _bpjsKetController.text.trim(),
           "jenis_kelamin": _jenisKelamin,
           "status_pernikahan": _statusPernikahan,
+          if (_newPasswordController.text.isNotEmpty) ...{
+            "password": _newPasswordController.text.trim(),
+            "password_confirmation": _newPasswordController.text.trim(),
+          },
         },
       );
 
