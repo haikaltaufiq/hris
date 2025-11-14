@@ -100,17 +100,21 @@ class PotonganGajiProvider extends ChangeNotifier {
   }
 
   // ================= Create =================
-  Future<void> createPotonganGaji(PotonganGajiModel potongan) async {
+  Future<Map<String, dynamic>> createPotonganGaji(PotonganGajiModel potongan) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      final newPotongan =
-          await PotonganGajiService.createPotonganGaji(potongan);
-      _potonganList.add(newPotongan);
-      await fetchPotonganGaji(forceRefresh: true);
+      final result = await PotonganGajiService.createPotonganGaji(potongan);
+
+      if (result["success"] == true) {
+        _potonganList.add(result["data"]);
+        await fetchPotonganGaji(forceRefresh: true);
+      }
+
+      return result;
     } catch (e) {
-      rethrow;
+      return {"success": false, "message": e.toString()};
     } finally {
       _isLoading = false;
       notifyListeners();
