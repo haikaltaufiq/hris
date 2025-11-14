@@ -115,13 +115,18 @@ class PengingatViewModel extends ChangeNotifier {
   /// Tambah pengingat
   Future<void> addPengingat(ReminderData reminder) async {
     try {
-      final newReminder = await PengingatService.createPengingat(reminder);
-      _pengingatList.add(newReminder);
-      _applyFilter();
-      notifyListeners();
+      final result = await PengingatService.createPengingat(reminder);
+
+      if (result["success"] == true) {
+        _pengingatList.add(result["data"] as ReminderData);
+        _applyFilter();
+        notifyListeners();
+      } else {
+        throw Exception(result["message"]);
+      }
     } catch (e) {
       if (kDebugMode) {
-        // print("Error addPengingat: $e");
+        print("Error addPengingat: $e");
       }
     }
   }
@@ -129,21 +134,25 @@ class PengingatViewModel extends ChangeNotifier {
   /// Update pengingat
   Future<void> updatePengingat(int id, ReminderData reminder) async {
     try {
-      final updated = await PengingatService.updatePengingat(id, reminder);
-      final index = _pengingatList.indexWhere((e) => e.id == id);
-      if (index != -1) {
-        _pengingatList[index] = updated;
+      final result = await PengingatService.updatePengingat(id, reminder);
+
+      if (result["success"] == true) {
+        final index = _pengingatList.indexWhere((e) => e.id == id);
+        if (index != -1) {
+          _pengingatList[index] = result["data"] as ReminderData;
+        }
         _applyFilter();
         notifyListeners();
+      } else {
+        throw Exception(result["message"]);
       }
     } catch (e) {
       if (kDebugMode) {
-        // print("Error updatePengingat: $e");
+        print("Error updatePengingat: $e");
       }
     }
   }
 
-  /// Update status
   /// Update status
   Future<void> updateStatus(int id, String newStatus) async {
     try {

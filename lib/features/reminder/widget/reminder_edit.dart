@@ -253,19 +253,21 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
                           picId: _selectedPeran?.id ?? widget.reminder.picId,
                         );
 
-                        await PengingatService.updatePengingat(
-                            widget.reminder.id, updatedReminder);
+                        final result = await PengingatService.updatePengingat(
+                          widget.reminder.id,
+                          updatedReminder,
+                        );
 
                         if (mounted) {
-                          final message = context.isIndonesian
-                              ? 'Reminder berhasil diperbarui'
-                              : 'Reminder updated successfully';
                           NotificationHelper.showTopNotification(
                             context,
-                            message,
-                            isSuccess: true,
+                            result["message"], // 🔥 pesan backend
+                            isSuccess: result["success"],
                           );
-                          Navigator.pop(context, true);
+
+                          if (result["success"]) {
+                            Navigator.pop(context, true);
+                          }
                         }
                       } catch (e) {
                         if (mounted) {
