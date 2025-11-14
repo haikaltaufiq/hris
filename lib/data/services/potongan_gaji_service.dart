@@ -36,12 +36,8 @@ class PotonganGajiService {
   }
 
   // ✅ Tambah potongan gaji
-  static Future<PotonganGajiModel> createPotonganGaji(
-      PotonganGajiModel potongan) async {
+  static Future<Map<String, dynamic>> createPotonganGaji(PotonganGajiModel potongan) async {
     final token = await _getToken();
-    if (token == null) {
-      throw Exception('Token tidak ditemukan. Harap login ulang.');
-    }
 
     final response = await http.post(
       Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji'),
@@ -56,13 +52,26 @@ class PotonganGajiService {
       }),
     );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      final jsonData = json.decode(response.body);
-      return PotonganGajiModel.fromJson(jsonData['data']);
+    final jsonData = json.decode(response.body);
+
+    if (response.statusCode == 201 || response.statusCode == 200) {
+      return {
+        "success": true,
+        "message": jsonData["message"],
+        "data": PotonganGajiModel.fromJson(jsonData["data"]),
+      };
     } else {
-      final jsonData = json.decode(response.body);
-      final msg = jsonData['message'] ?? response.body;
-      throw Exception('Gagal membuat potongan gaji: $msg');
+      // Ambil error validasi Laravel
+      if (response.statusCode == 422 && jsonData["errors"] != null) {
+        final errField = jsonData["errors"].keys.first;
+        final errMsg = jsonData["errors"][errField][0];
+        return {"success": false, "message": errMsg};
+      }
+
+      return {
+        "success": false,
+        "message": jsonData["message"] ?? "Gagal membuat potongan.",
+      };
     }
   }
 

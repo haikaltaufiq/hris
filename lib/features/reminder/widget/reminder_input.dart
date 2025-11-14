@@ -232,25 +232,23 @@ class _ReminderInputState extends State<ReminderInput> {
                           picId: _selectedPeran!.id, // ambil id dari model
                         );
 
-                        await PengingatService.createPengingat(reminder);
+                        final result = await PengingatService.createPengingat(reminder);
 
                         if (mounted) {
-                          final message = context.isIndonesian
-                              ? 'Reminder berhasil ditambahkan'
-                              : 'Reminder added successfully';
                           NotificationHelper.showTopNotification(
                             context,
-                            message,
-                            isSuccess: true,
+                            result["message"],
+                            isSuccess: result["success"],
                           );
-                          Navigator.pop(context, true);
-                          // reset form
-                          _reminderNameController.clear();
-                          _tanggalController.clear();
-                          setState(() {
-                            _selectedPeran = null;
-                          });
+
+                          if (result["success"]) {
+                            Navigator.pop(context, true);
+                            _reminderNameController.clear();
+                            _tanggalController.clear();
+                            setState(() => _selectedPeran = null);
+                          }
                         }
+
                       } catch (e) {
                         if (mounted) {
                           final message = context.isIndonesian

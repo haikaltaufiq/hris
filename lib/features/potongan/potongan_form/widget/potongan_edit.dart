@@ -43,6 +43,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
     final nominalText = jumlahController.text.trim();
     final nominal = double.tryParse(nominalText);
 
+    // === VALIDASI NAMA ===
     if (nama.isEmpty) {
       final message = context.isIndonesian
           ? 'Nama potongan harus diisi'
@@ -55,6 +56,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
       return;
     }
 
+    // === VALIDASI NOMINAL HANYA ANGKA ===
     if (nominal == null) {
       final message = context.isIndonesian
           ? 'Jumlah potongan harus berupa angka saja'
@@ -67,9 +69,7 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     final updatedPotongan = PotonganGajiModel(
       id: widget.potongan.id,
@@ -82,22 +82,26 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
           await PotonganGajiService.updatePotonganGaji(updatedPotongan);
 
       if (result['success'] == true) {
-        final messages = context.isIndonesian
+        // Pesan bawaan server, fallback bilingual jika kosong
+        final defaultMsg = context.isIndonesian
             ? 'Potongan berhasil diupdate'
             : 'Deduction updated successfully';
+
         NotificationHelper.showTopNotification(
           context,
-          result['message'] ?? messages,
+          result['message'] ?? defaultMsg,
           isSuccess: true,
         );
-        Navigator.of(context).pop(true);
+
+        Navigator.of(context).pop(true); // kirim status berhasil
       } else {
-        final messages = context.isIndonesian
+        final defaultMsg = context.isIndonesian
             ? 'Gagal update potongan'
             : 'Failed to update deduction';
+
         NotificationHelper.showTopNotification(
           context,
-          result['message'] ?? messages,
+          result['message'] ?? defaultMsg,
           isSuccess: false,
         );
       }
@@ -105,15 +109,14 @@ class _PotonganEditInputState extends State<PotonganEditInput> {
       final message = context.isIndonesian
           ? 'Terjadi kesalahan: $e'
           : 'An error occurred: $e';
+
       NotificationHelper.showTopNotification(
         context,
         message,
         isSuccess: false,
       );
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 

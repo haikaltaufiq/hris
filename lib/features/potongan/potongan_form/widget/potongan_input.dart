@@ -114,26 +114,25 @@ class _PotonganInputState extends State<PotonganInput> {
 
                       try {
                         final provider = context.read<PotonganGajiProvider>();
-                        await provider.createPotonganGaji(
+                        final result = await provider.createPotonganGaji(
                           PotonganGajiModel(
-                            id: 0, // id akan di-generate di backend
+                            id: 0,
                             namaPotongan: name,
                             nominal: jumlah,
                           ),
                         );
-                        final message = context.isIndonesian
-                            ? 'Potongan Berhasil dibuat'
-                            : 'Deduction created successfully';
+
                         NotificationHelper.showTopNotification(
                           context,
-                          message,
-                          isSuccess: true,
+                          result["message"] ?? "No message",
+                          isSuccess: result["success"] == true,
                         );
-                        Navigator.pop(context);
 
-                        // reset input
-                        controller.clear();
-                        jumlahController.clear();
+                        if (result["success"] == true) {
+                          controller.clear();
+                          jumlahController.clear();
+                          Navigator.pop(context); 
+                        }
                       } catch (e) {
                         final message = context.isIndonesian
                             ? 'Gagal membuat potongan $e'

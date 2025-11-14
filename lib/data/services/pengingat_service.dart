@@ -35,7 +35,7 @@ class PengingatService {
   }
 
   /// Tambah pengingat baru
-  static Future<ReminderData> createPengingat(ReminderData reminder) async {
+  static Future<Map<String, dynamic>> createPengingat(ReminderData reminder) async {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
@@ -49,11 +49,19 @@ class PengingatService {
       body: json.encode(reminder.toJson()),
     );
 
+    final jsonData = json.decode(response.body);
+
     if (response.statusCode == 201) {
-      final jsonData = json.decode(response.body)['data'];
-      return ReminderData.fromJson(jsonData);
+      return {
+        "success": true,
+        "message": jsonData['message'] ?? "Reminder berhasil ditambahkan",
+        "data": ReminderData.fromJson(jsonData['data']),
+      };
     } else {
-      throw Exception('Gagal menambahkan pengingat: ${response.statusCode}');
+      return {
+        "success": false,
+        "message": jsonData['message'] ?? "Gagal menambahkan reminder",
+      };
     }
   }
 
@@ -77,7 +85,7 @@ class PengingatService {
     }
   }
 
-  static Future<ReminderData> updatePengingat(int id, ReminderData reminder) async {
+  static Future<Map<String, dynamic>> updatePengingat(int id, ReminderData reminder) async {
     final token = await getToken();
     if (token == null) throw Exception("Token tidak ditemukan");
 
@@ -91,11 +99,19 @@ class PengingatService {
       body: json.encode(reminder.toJson()),
     );
 
+    final jsonData = json.decode(response.body);
+
     if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body)['data'];
-      return ReminderData.fromJson(jsonData);
+      return {
+        "success": true,
+        "message": jsonData['message'] ?? "Reminder berhasil diperbarui",
+        "data": ReminderData.fromJson(jsonData['data']),
+      };
     } else {
-      throw Exception("Gagal update pengingat: ${response.body}");
+      return {
+        "success": false,
+        "message": jsonData['message'] ?? "Gagal memperbarui reminder",
+      };
     }
   }
 
