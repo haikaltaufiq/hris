@@ -221,9 +221,11 @@ class _CutiInputState extends State<CutiInput> {
                           message,
                           isSuccess: false,
                         );
-                        return; // stop submit
+                        return;
                       }
+
                       setState(() => _isLoading = true);
+
                       try {
                         final result = await cutiProvider.createCuti(
                           nama: _namaController.text,
@@ -232,24 +234,40 @@ class _CutiInputState extends State<CutiInput> {
                           tanggalSelesai: _tanggalSelesaiController.text,
                           alasan: _alasanController.text,
                         );
+
+                        // ====== JIKA SUKSES ======
                         if (result['success'] == true) {
                           if (context.mounted) {
                             final message = context.isIndonesian
                                 ? 'Cuti berhasil diajukan'
                                 : 'Leave request submitted successfully';
+
                             NotificationHelper.showTopNotification(
-                                context, message,
-                                isSuccess: true);
+                              context,
+                              message,
+                              isSuccess: true,
+                            );
+
                             Navigator.of(context).pop(true);
                           }
-                        } else {
+                        }
+
+                        // ====== JIKA ERROR ======
+                        else {
                           if (context.mounted) {
-                            final message = context.isIndonesian
+                            // Ambil pesan dari backend
+                            final backendMsg = result['message'];
+
+                            // fallback bila backend tidak punya message
+                            final fallback = context.isIndonesian
                                 ? 'Gagal mengajukan cuti'
                                 : 'Failed to submit leave request';
+
                             NotificationHelper.showTopNotification(
-                                context, result['message'] ?? message,
-                                isSuccess: false);
+                              context,
+                              backendMsg ?? fallback,
+                              isSuccess: false,
+                            );
                           }
                         }
                       } catch (e) {
@@ -258,8 +276,10 @@ class _CutiInputState extends State<CutiInput> {
                               ? 'Terjadi kesalahan: $e'
                               : 'An error occurred: $e';
                           NotificationHelper.showTopNotification(
-                              context, message,
-                              isSuccess: false);
+                            context,
+                            message,
+                            isSuccess: false,
+                          );
                         }
                       } finally {
                         if (mounted) {
