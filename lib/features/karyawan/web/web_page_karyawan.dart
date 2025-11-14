@@ -20,6 +20,8 @@ class WebPageKaryawan extends StatefulWidget {
 
 class _WebPageKaryawanState extends State<WebPageKaryawan> {
   final searchController = TextEditingController();
+  final _scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
   @override
   void initState() {
     super.initState();
@@ -31,131 +33,141 @@ class _WebPageKaryawanState extends State<WebPageKaryawan> {
     });
   }
 
+  Future<void> _refreshData() async {
+    await context.read<UserProvider>().fetchUsers(forceRefresh: true);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Consumer<UserProvider>(builder: (context, userProvider, _) {
-      final isLoading = userProvider.isLoading;
-      final users = searchController.text.isEmpty
-          ? userProvider.users
-          : userProvider.filteredUsers;
-      return Scaffold(
-        backgroundColor: AppColors.bg,
-        body: Stack(
-          children: [
-            ListView(
-              padding: EdgeInsets.all(16.0),
-              children: [
-                SearchingBar(
-                  controller: searchController,
-                  onChanged: (value) {
-                    userProvider.searchUsers(value);
-                    // Bisa nanti filter users list di provider kalau mau
-                  },
-                  onFilter1Tap: () async {
-                    final provider = context.read<UserProvider>();
+    return ScaffoldMessenger(
+      key: _scaffoldMessengerKey,
+      child: Consumer<UserProvider>(builder: (context, userProvider, _) {
+        final isLoading = userProvider.isLoading;
+        final users = searchController.text.isEmpty
+            ? userProvider.users
+            : userProvider.filteredUsers;
+        return Scaffold(
+          backgroundColor: AppColors.bg,
+          body: Stack(
+            children: [
+              ListView(
+                padding: EdgeInsets.all(16.0),
+                children: [
+                  SearchingBar(
+                    controller: searchController,
+                    onChanged: (value) {
+                      userProvider.searchUsers(value);
+                      // Bisa nanti filter users list di provider kalau mau
+                    },
+                    onFilter1Tap: () async {
+                      final provider = context.read<UserProvider>();
 
-                    final selected = await showSortDialog(
-                      context: context,
-                      title: context.isIndonesian
-                          ? 'Urutkan Berdasarkan'
-                          : 'Sort By',
-                      currentValue: provider.currentSortField,
-                      options: [
-                        {
-                          'value': 'terbaru',
-                          'label': context.isIndonesian ? 'Terbaru' : 'Newest'
-                        },
-                        {
-                          'value': 'terlama',
-                          'label': context.isIndonesian ? 'Terlama' : 'Oldest'
-                        },
-                        {
-                          'value': 'departemen',
-                          'label':
-                              context.isIndonesian ? 'Departemen' : 'Department'
-                        },
-                        {'value': 'peran', 'label': 'Peran'},
-                      ],
-                    );
-
-                    if (selected != null) {
-                      provider.sortUsers(selected);
-                    }
-                  },
-                ),
-                if (isLoading)
-                  Center(
-                    child: LoadingWidget(),
-                  )
-                else if (users.isEmpty && !isLoading)
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.person,
-                            size: 64,
-                            color: AppColors.putih.withOpacity(0.5),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            context.isIndonesian
-                                ? 'Belum ada Karyawan'
-                                : 'No Employee available',
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            context.isIndonesian
-                                ? 'Tap tombol + untuk menambah karyawan baru'
-                                : 'Press + Button to add new employee',
-                            style: TextStyle(
-                              color: AppColors.putih.withOpacity(0.7),
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
+                      final selected = await showSortDialog(
+                        context: context,
+                        title: context.isIndonesian
+                            ? 'Urutkan Berdasarkan'
+                            : 'Sort By',
+                        currentValue: provider.currentSortField,
+                        options: [
+                          {
+                            'value': 'terbaru',
+                            'label': context.isIndonesian ? 'Terbaru' : 'Newest'
+                          },
+                          {
+                            'value': 'terlama',
+                            'label': context.isIndonesian ? 'Terlama' : 'Oldest'
+                          },
+                          {
+                            'value': 'departemen',
+                            'label': context.isIndonesian
+                                ? 'Departemen'
+                                : 'Department'
+                          },
+                          {'value': 'peran', 'label': 'Peran'},
                         ],
-                      ),
-                    ),
-                  )
-                else
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: KaryawanTabelWeb(users: users),
-                  )
-              ],
-            ),
-            Positioned(
-              bottom: 16,
-              right: 16,
-              child: FloatingActionButton(
-                onPressed: () async {
-                  final result = await Navigator.pushNamed(
-                      context, AppRoutes.karyawanForm);
+                      );
 
-                  // Kalau ada update, refresh otomatis
-                  if (result == true) {
-                    userProvider.fetchUsers();
-                  }
-                  searchController.clear();
-                },
-                backgroundColor: AppColors.secondary,
-                shape: const CircleBorder(),
-                child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+                      if (selected != null) {
+                        provider.sortUsers(selected);
+                      }
+                    },
+                  ),
+                  if (isLoading)
+                    Center(
+                      child: LoadingWidget(),
+                    )
+                  else if (users.isEmpty && !isLoading)
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.6,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.person,
+                              size: 64,
+                              color: AppColors.putih.withOpacity(0.5),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              context.isIndonesian
+                                  ? 'Belum ada Karyawan'
+                                  : 'No Employee available',
+                              style: TextStyle(
+                                color: AppColors.putih,
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              context.isIndonesian
+                                  ? 'Tap tombol + untuk menambah karyawan baru'
+                                  : 'Press + Button to add new employee',
+                              style: TextStyle(
+                                color: AppColors.putih.withOpacity(0.7),
+                                fontFamily: GoogleFonts.poppins().fontFamily,
+                                fontSize: 14,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: KaryawanTabelWeb(
+                          users: users,
+                          scaffoldMessengerKey: _scaffoldMessengerKey, onActionDone: () { _refreshData(); }),
+                    )
+                ],
               ),
-            ),
-          ],
-        ),
-      );
-    });
+              Positioned(
+                bottom: 16,
+                right: 16,
+                child: FloatingActionButton(
+                  onPressed: () async {
+                    final result = await Navigator.pushNamed(
+                        context, AppRoutes.karyawanForm);
+
+                    // Kalau ada update, refresh otomatis
+                    if (result == true) {
+                      userProvider.fetchUsers();
+                    }
+                    searchController.clear();
+                  },
+                  backgroundColor: AppColors.secondary,
+                  shape: const CircleBorder(),
+                  child: FaIcon(FontAwesomeIcons.plus, color: AppColors.putih),
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    );
   }
 }

@@ -13,8 +13,14 @@ import 'package:provider/provider.dart';
 
 class KaryawanTabelWeb extends StatelessWidget {
   final List<UserModel> users;
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey;
+  final VoidCallback? onActionDone;
 
-  const KaryawanTabelWeb({super.key, required this.users});
+  const KaryawanTabelWeb(
+      {super.key,
+      required this.users,
+      required this.scaffoldMessengerKey,
+      required this.onActionDone});
 
   @override
   Widget build(BuildContext context) {
@@ -114,42 +120,54 @@ class KaryawanTabelWeb extends StatelessWidget {
         );
       },
       onDelete: (actualRowIndex) async {
-        final userProvider = Provider.of<UserProvider>(context, listen: false);
         final user = users[actualRowIndex];
+
+        // Simpan language state sebelum dialog
+        final isIndonesian = context.isIndonesian;
+
         final confirmed = await showConfirmationDialog(
           context,
-          title: context.isIndonesian ? 'Konfirmasi' : 'Confirmation',
-          content: context.isIndonesian
+          title: isIndonesian ? 'Konfirmasi' : 'Confirmation',
+          content: isIndonesian
               ? 'Yakin ingin menghapus karyawan ini?'
               : 'Are you sure you want to delete this employee?',
         );
 
         if (!confirmed) return;
 
+        final userProvider = Provider.of<UserProvider>(context, listen: false);
+
+        // Ambil context yang stable dari ScaffoldMessenger
+        final messengerContext = scaffoldMessengerKey.currentContext;
+
+        if (messengerContext == null) {
+          print('❌ ScaffoldMessenger context is null');
+          return;
+        }
+
         try {
           await userProvider.deleteUser(user.id);
+          onActionDone?.call();
 
-          if (context.mounted) {
-            final message = context.isIndonesian
-                ? 'Karyawan berhasil dihapus'
-                : 'Employee deleted successfully';
-            NotificationHelper.showTopNotification(
-              context,
-              message,
-              isSuccess: true,
-            );
-          }
+          final message = isIndonesian
+              ? 'Karyawan berhasil dihapus'
+              : 'Employee deleted successfully';
+
+          NotificationHelper.showTopNotification(
+            messengerContext, // Gunakan stable context
+            message,
+            isSuccess: true,
+          );
         } catch (e) {
-          if (context.mounted) {
-            final message = context.isIndonesian
-                ? 'Gagal menghapus karyawan: $e'
-                : 'Failed to delete employee: $e';
-            NotificationHelper.showTopNotification(
-              context,
-              message,
-              isSuccess: false,
-            );
-          }
+          final message = isIndonesian
+              ? 'Gagal menghapus karyawan: $e'
+              : 'Failed to delete employee: $e';
+
+          NotificationHelper.showTopNotification(
+            messengerContext, // Gunakan stable context
+            message,
+            isSuccess: false,
+          );
         }
       },
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {

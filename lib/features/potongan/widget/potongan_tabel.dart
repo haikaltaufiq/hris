@@ -63,6 +63,7 @@ class PotonganTabel extends StatelessWidget {
           message,
           isSuccess: true,
         );
+        onActionDone?.call();
       } catch (e) {
         final message = context.isIndonesian
             ? 'Gagal menghapus potongan: $e'
@@ -75,7 +76,6 @@ class PotonganTabel extends StatelessWidget {
         );
       }
     }
-    onActionDone?.call();
   }
 
   @override

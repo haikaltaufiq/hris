@@ -1,9 +1,9 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:hr/components/custom/header.dart';
 import 'package:hr/components/timepicker/time_picker.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -234,17 +234,96 @@ class _InfoPageState extends State<InfoPage>
     }
   }
 
-  void _onTapIconTime(TextEditingController controller,
-      {bool isKeterlambatan = false}) async {
+  void _onTapIconTime(
+    TextEditingController controller, {
+    bool isKeterlambatan = false,
+  }) async {
+    // ========== KONDISI WEB ==========
+    if (isKeterlambatan && !context.isMobile) {
+      final minutes = await showDialog<int>(
+        context: context,
+        builder: (context) {
+          final TextEditingController minuteCtrl = TextEditingController();
+
+          return AlertDialog(
+            backgroundColor: AppColors.primary,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            title: Text(
+              context.isIndonesian ? "Minimal Keterlambatan" : "Late Tolerance",
+              style: TextStyle(
+                color: AppColors.putih,
+                fontFamily: GoogleFonts.poppins().fontFamily,
+              ),
+            ),
+            content: TextField(
+              controller: minuteCtrl,
+              keyboardType: TextInputType.number,
+              maxLength: 2, // <= HANYA 2 DIGIT
+              inputFormatters: [
+                FilteringTextInputFormatter.digitsOnly, // <= ANGKA AJA
+                LengthLimitingTextInputFormatter(2), // <= BATAS 2 DIGIT
+              ],
+              style: TextStyle(
+                color: AppColors.putih,
+                fontFamily: GoogleFonts.poppins().fontFamily,
+              ),
+              decoration: InputDecoration(
+                counterText: "", // hilangin counter “0/2”
+                hintText: "00",
+                hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.putih),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.secondary),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                child: Text(
+                  context.isIndonesian ? "Batal" : "Cancel",
+                  style: TextStyle(color: AppColors.putih),
+                ),
+                onPressed: () => Navigator.pop(context),
+              ),
+              TextButton(
+                child: Text(
+                  context.isIndonesian ? "Simpan" : "Save",
+                  style: TextStyle(color: AppColors.putih),
+                ),
+                onPressed: () {
+                  if (minuteCtrl.text.isEmpty) {
+                    Navigator.pop(context, 0);
+                  } else {
+                    Navigator.pop(context, int.tryParse(minuteCtrl.text));
+                  }
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      if (minutes != null) {
+        controller.text = "$minutes menit";
+      }
+
+      return;
+    }
+
+    // ========== MOBILE & MODE NORMAL ==========
     showModalBottomSheet(
       backgroundColor: AppColors.primary,
       context: context,
       clipBehavior: Clip.antiAlias,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(24),
-        ),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) {
         return StatefulBuilder(
@@ -263,19 +342,18 @@ class _InfoPageState extends State<InfoPage>
                             width: 40,
                             decoration: BoxDecoration(
                               color: AppColors.secondary,
-                              borderRadius:
-                                  const BorderRadius.all(Radius.circular(30)),
+                              borderRadius: BorderRadius.circular(30),
                             ),
                           ),
                           const SizedBox(height: 10),
                           Text(
                             isKeterlambatan
-                                ? context.isIndonesian
+                                ? (context.isIndonesian
                                     ? 'Pilih Menit'
-                                    : 'Choose Minute'
-                                : context.isIndonesian
+                                    : 'Choose Minute')
+                                : (context.isIndonesian
                                     ? 'Pilih Waktu'
-                                    : 'Choose Time',
+                                    : 'Choose Time'),
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -285,12 +363,10 @@ class _InfoPageState extends State<InfoPage>
                           ),
                           Text(
                             isKeterlambatan
-                                ? context.isIndonesian
+                                ? (context.isIndonesian
                                     ? 'Minimal Keterlambatan'
-                                    : 'Late Tolerance'
-                                : context.isIndonesian
-                                    ? 'Mulai Tugas'
-                                    : 'Start Task',
+                                    : 'Late Tolerance')
+                                : '',
                             style: TextStyle(
                               color: AppColors.putih,
                               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -302,15 +378,11 @@ class _InfoPageState extends State<InfoPage>
                       ),
                     ),
                   ),
-
-                  // Time picker atau minute picker
                   Expanded(
                     child: isKeterlambatan
-                        ? // Custom minute picker untuk minimal keterlambatan
-                        Row(
+                        ? Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Digit pertama (0-9)
                               SizedBox(
                                 width: 80,
                                 child: NumberPicker(
@@ -327,8 +399,9 @@ class _InfoPageState extends State<InfoPage>
                                     });
                                   },
                                   textStyle: TextStyle(
-                                      color: AppColors.putih.withOpacity(0.5),
-                                      fontSize: 20),
+                                    color: AppColors.putih.withOpacity(0.5),
+                                    fontSize: 20,
+                                  ),
                                   selectedTextStyle: TextStyle(
                                     color: AppColors.putih,
                                     fontSize: 24,
@@ -344,8 +417,6 @@ class _InfoPageState extends State<InfoPage>
                                   ),
                                 ),
                               ),
-
-                              // Digit kedua (0-9)
                               SizedBox(
                                 width: 80,
                                 child: NumberPicker(
@@ -362,8 +433,9 @@ class _InfoPageState extends State<InfoPage>
                                     });
                                   },
                                   textStyle: TextStyle(
-                                      color: AppColors.putih.withOpacity(0.5),
-                                      fontSize: 20),
+                                    color: AppColors.putih.withOpacity(0.5),
+                                    fontSize: 20,
+                                  ),
                                   selectedTextStyle: TextStyle(
                                     color: AppColors.putih,
                                     fontSize: 24,
@@ -381,23 +453,17 @@ class _InfoPageState extends State<InfoPage>
                               ),
                             ],
                           )
-                        : // Time picker untuk jam masuk
-                        NumberPickerWidget(
+                        : NumberPickerWidget(
                             hour: _selectedHour,
                             minute: _selectedMinute,
                             onHourChanged: (value) {
-                              setModalState(() {
-                                _selectedHour = value;
-                              });
+                              setModalState(() => _selectedHour = value);
                             },
                             onMinuteChanged: (value) {
-                              setModalState(() {
-                                _selectedMinute = value;
-                              });
+                              setModalState(() => _selectedMinute = value);
                             },
                           ),
                   ),
-
                   Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: FloatingActionButton.extended(
@@ -412,11 +478,8 @@ class _InfoPageState extends State<InfoPage>
                               _selectedHour.toString().padLeft(2, '0');
                           final formattedMinute =
                               _selectedMinute.toString().padLeft(2, '0');
-                          final formattedTime =
-                              "$formattedHour:$formattedMinute";
-                          controller.text = formattedTime;
+                          controller.text = "$formattedHour:$formattedMinute";
                         }
-
                         Navigator.pop(context);
                       },
                       label: Padding(
@@ -882,6 +945,28 @@ class _InfoPageState extends State<InfoPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.bg,
+      appBar: context.isMobile
+          ? AppBar(
+              backgroundColor: AppColors.bg,
+              title: Text(
+                context.isIndonesian ? 'Manajemen Info Kantor' : 'Company Info',
+                style: TextStyle(
+                    color: AppColors.putih,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: GoogleFonts.poppins().fontFamily),
+              ),
+              leading: IconButton(
+                icon: const Icon(
+                    Icons.arrow_back_ios), // atau CupertinoIcons.back
+                color: AppColors.putih,
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+              iconTheme: IconThemeData(
+                color: AppColors.putih, // warna ikon back
+              ),
+            )
+          : null,
       body: Stack(
         children: [
           // Main content
@@ -893,18 +978,6 @@ class _InfoPageState extends State<InfoPage>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Header - tampil untuk mobile dan desktop
-                    if (context.isMobile) ...[
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Header(
-                          title: context.isIndonesian
-                              ? 'Manajemen Info Kantor'
-                              : 'Company Info'),
-                    ],
-
-                    // Form content - tampil untuk semua ukuran layar
                     _buildFormContent(),
 
                     const SizedBox(height: 40), // Bottom padding

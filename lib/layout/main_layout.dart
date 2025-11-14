@@ -542,7 +542,8 @@ class _MainLayoutState extends State<MainLayout>
       AppRoutes.checkout,
       AppRoutes.cutiForm,
       AppRoutes.lemburForm,
-      AppRoutes.karyawanEditForm
+      AppRoutes.karyawanEditForm,
+      AppRoutes.info,
     ].contains(widget.currentRoute);
 
     return Container(

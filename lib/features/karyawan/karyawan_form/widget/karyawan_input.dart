@@ -142,7 +142,9 @@ class _KaryawanInputState extends State<KaryawanInput> {
   }
 
   Future<void> _submitData() async {
-    // Validasi form sederhana
+    if (_isLoading) return;
+
+    // Validasi form
     if (_namaController.text.isEmpty ||
         _jabatanId == null ||
         _peranId == null ||
@@ -162,17 +164,31 @@ class _KaryawanInputState extends State<KaryawanInput> {
       return;
     }
 
+    // Validasi gaji harus angka
+    final gaji = int.tryParse(_gajiController.text.trim());
+    if (gaji == null) {
+      final message = context.isIndonesian
+          ? "Gaji harus berupa angka"
+          : "Salary must be a number";
+      NotificationHelper.showTopNotification(
+        context,
+        message,
+        isSuccess: false,
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
+
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      // Panggil createUser dan ambil response
       final response = await userProvider.createUser({
         "nama": _namaController.text.trim(),
         "peran_id": _peranId,
         "jabatan_id": _jabatanId,
         "departemen_id": _departemenId,
-        "gaji_per_hari": int.tryParse(_gajiController.text.trim()) ?? 0,
+        "gaji_per_hari": gaji,
         "npwp": _npwpController.text.trim(),
         "bpjs_kesehatan": _bpjsKesController.text.trim(),
         "bpjs_ketenagakerjaan": _bpjsKetController.text.trim(),
@@ -181,23 +197,18 @@ class _KaryawanInputState extends State<KaryawanInput> {
         "password": _passwordController.text.trim(),
       });
 
-      // Kalau ada validasi error dari backend
       if (response['success'] == false && response.containsKey('errors')) {
         final errors = response['errors'] as Map<String, dynamic>;
-
-        // Gabung semua pesan error jadi satu string
         final errorMessages =
             errors.values.expand((messages) => messages as List).join(', ');
-
         NotificationHelper.showTopNotification(
           context,
-          errorMessages,
+          errorMessages, // langsung pesan error tanpa field
           isSuccess: false,
         );
-        return; // jangan lanjut ke success
+        return;
       }
 
-      // Kalau sukses
       if (response['success'] == true) {
         NotificationHelper.showTopNotification(
           context,
@@ -209,7 +220,6 @@ class _KaryawanInputState extends State<KaryawanInput> {
         );
         Navigator.pop(context, true);
       } else {
-        // Kalau ada message error tapi bukan errors per field
         NotificationHelper.showTopNotification(
           context,
           response['message'] ??
@@ -220,7 +230,6 @@ class _KaryawanInputState extends State<KaryawanInput> {
         );
       }
     } catch (e) {
-      // Tangani exception network / unexpected
       NotificationHelper.showTopNotification(
         context,
         e.toString(),

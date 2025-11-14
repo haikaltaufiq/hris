@@ -155,7 +155,10 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
                           ),
                         )
                       else
-                        KaryawanTabel(users: users),
+                        KaryawanTabel(
+                          users: users,
+                          onActionDone: _refreshData,
+                        )
                     ],
                   ),
                 ),

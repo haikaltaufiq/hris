@@ -172,115 +172,70 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
     }
   }
 
-  // ✅ Enhanced validation
-  bool _validateForm() {
-    if (_namaController.text.trim().isEmpty) {
-      final message = context.isIndonesian
-          ? "Nama tidak boleh kosong"
-          : "Name cannot be empty";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    if (_jabatanId == null) {
-      final message = context.isIndonesian
-          ? "Jabatan harus dipilih"
-          : "Position must be selected";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    if (_peranId == null) {
-      final message = context.isIndonesian
-          ? "Peran harus dipilih"
-          : "Role must be selected";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    if (_departemenId == null) {
-      final message = context.isIndonesian
-          ? "Departemen harus dipilih"
-          : "Department must be selected";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    if (_gajiController.text.trim().isEmpty) {
-      final message = context.isIndonesian
-          ? "Gaji tidak boleh kosong"
-          : "Salary cannot be empty";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    // ✅ Validate gaji format
-    final gaji = int.tryParse(_gajiController.text.trim());
-    if (gaji == null || gaji <= 0) {
-      final message = context.isIndonesian
-          ? "Gaji harus berupa angka yang valid"
-          : "Salary must be a valid number";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    if (_jenisKelamin == null) {
-      final message = context.isIndonesian
-          ? "Jenis kelamin harus dipilih"
-          : "Gender must be selected";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    if (_statusPernikahan == null) {
-      final message = context.isIndonesian
-          ? "Status pernikahan harus dipilih"
-          : "Marriage status must be selected";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
-      return false;
-    }
-
-    return true;
-  }
-
   Future<void> _submitData() async {
     if (_isSubmitting) return;
-    if (!_validateForm()) return;
+
+    // Validasi form
+    if (_namaController.text.isEmpty ||
+        _jabatanId == null ||
+        _peranId == null ||
+        _departemenId == null ||
+        _gajiController.text.isEmpty ||
+        _jenisKelamin == null ||
+        _statusPernikahan == null) {
+      final message = context.isIndonesian
+          ? "Harap isi semua field"
+          : "Please fill in all fields";
+      NotificationHelper.showTopNotification(
+        context,
+        message,
+        isSuccess: false,
+      );
+      return;
+    }
+
+    // Validasi gaji harus angka
+    final gaji = int.tryParse(_gajiController.text.trim());
+    if (gaji == null) {
+      final message = context.isIndonesian
+          ? "Gaji harus berupa angka"
+          : "Salary must be a number";
+      NotificationHelper.showTopNotification(
+        context,
+        message,
+        isSuccess: false,
+      );
+      return;
+    }
 
     setState(() => _isSubmitting = true);
 
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      final response = await userProvider.updateUser(
-        widget.user.id,
-        {
-          "nama": _namaController.text.trim(),
-          "peran_id": _peranId,
-          "jabatan_id": _jabatanId,
-          "departemen_id": _departemenId,
-          "gaji_per_hari": int.parse(_gajiController.text.trim()),
-          "npwp": _npwpController.text.trim(),
-          "bpjs_kesehatan": _bpjsKesController.text.trim(),
-          "bpjs_ketenagakerjaan": _bpjsKetController.text.trim(),
-          "jenis_kelamin": _jenisKelamin,
-          "status_pernikahan": _statusPernikahan,
-          if (_newPasswordController.text.isNotEmpty) ...{
-            "password": _newPasswordController.text.trim(),
-            "password_confirmation": _newPasswordController.text.trim(),
-          },
-        },
-      );
+      final body = {
+        "nama": _namaController.text.trim(),
+        "peran_id": _peranId,
+        "jabatan_id": _jabatanId,
+        "departemen_id": _departemenId,
+        "gaji_per_hari": gaji,
+        "npwp": _npwpController.text.trim(),
+        "bpjs_kesehatan": _bpjsKesController.text.trim(),
+        "bpjs_ketenagakerjaan": _bpjsKetController.text.trim(),
+        "jenis_kelamin": _jenisKelamin,
+        "status_pernikahan": _statusPernikahan,
+      };
 
-      // cek backend response
+      // Tambahkan password jika ada perubahan
+      if (_newPasswordController.text.isNotEmpty) {
+        body.addAll({
+          "password": _newPasswordController.text.trim(),
+          "password_confirmation": _newPasswordController.text.trim(),
+        });
+      }
+
+      final response = await userProvider.updateUser(widget.user.id, body);
+
       if (response['success'] == true) {
         if (mounted) {
           NotificationHelper.showTopNotification(
@@ -293,22 +248,29 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
           Navigator.pop(context, true);
         }
       } else if (response.containsKey('errors')) {
+        // Gabung semua pesan error jadi satu string tanpa field
         final errors = response['errors'] as Map<String, dynamic>;
-        errors.forEach((field, messages) {
-          if (messages is List) {
-            NotificationHelper.showTopNotification(
-              context,
-              "$field: ${messages.join(', ')}",
-              isSuccess: false,
-            );
-          }
-        });
+        final errorMessages =
+            errors.values.expand((messages) => messages as List).join(', ');
+
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            errorMessages,
+            isSuccess: false,
+          );
+        }
       } else {
-        NotificationHelper.showTopNotification(
-          context,
-          response['message'] ?? 'Terjadi kesalahan',
-          isSuccess: false,
-        );
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            response['message'] ??
+                (context.isIndonesian
+                    ? "Terjadi kesalahan"
+                    : "An error occurred"),
+            isSuccess: false,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -604,17 +566,6 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
                               strokeWidth: 2,
                               valueColor:
                                   AlwaysStoppedAnimation<Color>(Colors.white),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            context.isIndonesian
-                                ? 'Memperbarui...'
-                                : 'Updating...',
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
                             ),
                           ),
                         ],

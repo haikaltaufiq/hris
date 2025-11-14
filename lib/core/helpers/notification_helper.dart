@@ -7,7 +7,7 @@ class NotificationHelper {
     BuildContext context,
     String message, {
     bool isSuccess = true,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 6),
   }) {
     final overlay = Overlay.of(context);
     final backgroundColor = isSuccess ? Colors.green : Colors.red;
@@ -91,7 +91,7 @@ class NotificationHelper {
     BuildContext context,
     String message, {
     bool isSuccess = true,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 6),
   }) {
     showNotification(
       context,
