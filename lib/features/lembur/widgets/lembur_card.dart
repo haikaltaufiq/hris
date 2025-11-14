@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/button/action_button.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
+import 'package:hr/core/helpers/cut_string.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/format_time.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
@@ -133,7 +134,7 @@ class LemburCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            lembur.user['nama'],
+                            cutNameToTwoWords(lembur.user['nama']),
                             style: GoogleFonts.poppins(
                               fontSize: 18,
                               color: AppColors.putih,
