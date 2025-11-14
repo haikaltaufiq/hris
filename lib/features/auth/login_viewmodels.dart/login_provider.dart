@@ -185,32 +185,41 @@ class UserProvider extends ChangeNotifier {
     // print(' fetchUsers completed - items: ${_users.length}');
   }
 
-  Future<void> createUser(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> createUser(Map<String, dynamic> data) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await UserService.createUser(data);
-      await fetchUsers(forceRefresh: true); // refresh list
+      final response = await UserService.createUser(data);
+      if (response['success'] == true) {
+        await fetchUsers(forceRefresh: true); // refresh list
+      }
+      return response; // kembalikan response supaya bisa dicek di UI
     } catch (e) {
       _errorMessage = e.toString();
+      return {'success': false, 'message': _errorMessage};
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future<void> updateUser(int id, Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> updateUser(
+      int id, Map<String, dynamic> data) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await UserService.updateUser(id, data);
-      await fetchUsers(forceRefresh: true); // refresh list
+      final response = await UserService.updateUser(id, data);
+      if (response['success'] == true) {
+        await fetchUsers(forceRefresh: true); // refresh list
+      }
+      return response;
     } catch (e) {
       _errorMessage = e.toString();
+      return {'success': false, 'message': _errorMessage};
     } finally {
       _isLoading = false;
       notifyListeners();

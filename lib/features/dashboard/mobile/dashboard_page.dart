@@ -51,121 +51,124 @@ class _DashboardMobileState extends State<DashboardMobile> {
               requiredFeature: ['absensi'],
               child: const DashboardCardUser(),
             ),
-            DashboardMenu(
-              items: [
-                DashboardMenuItem(
-                  label: "Karyawan",
-                  requiredFeature: 'karyawan',
-                  icon: FontAwesomeIcons.userGroup,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.employee);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Gaji",
-                  requiredFeature: 'gaji',
-                  icon: FontAwesomeIcons.moneyBill,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.payroll);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Departemen",
-                  requiredFeature: 'departemen',
-                  icon: FontAwesomeIcons.landmark,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.department);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Jabatan",
-                  requiredFeature: 'jabatan',
-                  icon: FontAwesomeIcons.sitemap,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.jabatan);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Peran",
-                  requiredFeature: 'peran',
-                  icon: FontAwesomeIcons.fileShield,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.peran);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Potongan",
-                  requiredFeature: 'potongan_gaji',
-                  icon: FontAwesomeIcons.calculator,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.potonganGaji);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Log Aktivitas",
-                  requiredFeature: 'log_aktivitas',
-                  icon: FontAwesomeIcons.history,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.logActivity);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Reminder",
-                  requiredFeature: 'pengingat',
-                  icon: FontAwesomeIcons.alarmClock,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.reminder);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Info Kantor",
-                  requiredFeature: 'kantor',
-                  icon: FontAwesomeIcons.infoCircle,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.infoKantor);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Reset Data",
-                  requiredFeature: 'denger',
-                  icon: FontAwesomeIcons.triangleExclamation,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.danger);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Reset Device",
-                  requiredFeature: 'denger',
-                  icon: FontAwesomeIcons.trashRestore,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.resetDevice);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Unlock",
-                  requiredFeature: 'deng',
-                  icon: FontAwesomeIcons.lockOpen,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.bukaAkun);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Profile",
-                  requiredFeature: 'gaji',
-                  icon: FontAwesomeIcons.user,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.profile);
-                  },
-                ),
-                DashboardMenuItem(
-                  label: "Pengaturan",
-                  requiredFeature: 'gaji',
-                  icon: FontAwesomeIcons.gear,
-                  onTap: () {
-                    Navigator.pushNamed(context, AppRoutes.pengaturan);
-                  },
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.only(top: 12.0),
+              child: DashboardMenu(
+                items: [
+                  DashboardMenuItem(
+                    label: "Karyawan",
+                    requiredFeature: 'karyawan',
+                    icon: FontAwesomeIcons.userGroup,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.employee);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Gaji",
+                    requiredFeature: 'gaji',
+                    icon: FontAwesomeIcons.moneyBill,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.payroll);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Departemen",
+                    requiredFeature: 'departemen',
+                    icon: FontAwesomeIcons.landmark,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.department);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Jabatan",
+                    requiredFeature: 'jabatan',
+                    icon: FontAwesomeIcons.sitemap,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.jabatan);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Peran",
+                    requiredFeature: 'peran',
+                    icon: FontAwesomeIcons.fileShield,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.peran);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Potongan",
+                    requiredFeature: 'potongan_gaji',
+                    icon: FontAwesomeIcons.calculator,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.potonganGaji);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Log Aktivitas",
+                    requiredFeature: 'log_aktivitas',
+                    icon: FontAwesomeIcons.history,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.logActivity);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Reminder",
+                    requiredFeature: 'pengingat',
+                    icon: FontAwesomeIcons.alarmClock,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.reminder);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Info Kantor",
+                    requiredFeature: 'kantor',
+                    icon: FontAwesomeIcons.infoCircle,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.infoKantor);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Reset Data",
+                    requiredFeature: 'denger',
+                    icon: FontAwesomeIcons.triangleExclamation,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.danger);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Reset Device",
+                    requiredFeature: 'denger',
+                    icon: FontAwesomeIcons.trashRestore,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.resetDevice);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Unlock",
+                    requiredFeature: 'deng',
+                    icon: FontAwesomeIcons.lockOpen,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.bukaAkun);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Profile",
+                    requiredFeature: 'gaji',
+                    icon: FontAwesomeIcons.user,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.profile);
+                    },
+                  ),
+                  DashboardMenuItem(
+                    label: "Pengaturan",
+                    requiredFeature: 'gaji',
+                    icon: FontAwesomeIcons.gear,
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.pengaturan);
+                    },
+                  ),
+                ],
+              ),
             ),
             SizedBox(
               height: 12,

@@ -35,7 +35,8 @@ class UserService {
   }
 
   // Tambah user baru
-  static Future<void> createUser(Map<String, dynamic> karyawanData) async {
+  static Future<Map<String, dynamic>> createUser(
+      Map<String, dynamic> karyawanData) async {
     final token = await _getToken();
     if (token == null) {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
@@ -51,22 +52,30 @@ class UserService {
       body: jsonEncode(karyawanData),
     );
 
+    final body = json.decode(response.body);
+
     if (response.statusCode == 201) {
-      return;
-    } else {
-      final body = json.decode(response.body);
-      if (response.statusCode == 422) {
-        throw body['errors'] ??
+      return {
+        'success': true,
+        'message': body['message'] ?? 'User berhasil dibuat',
+      };
+    } else if (response.statusCode == 422) {
+      return {
+        'success': false,
+        'errors': body['errors'] ??
             {
               'error': ['Data tidak valid']
-            };
-      } else {
-        throw body['message'] ?? "Terjadi kesalahan";
-      }
+            },
+      };
+    } else {
+      return {
+        'success': false,
+        'message': body['message'] ?? 'Terjadi kesalahan',
+      };
     }
   }
 
-  static Future<void> updateUser(
+  static Future<Map<String, dynamic>> updateUser(
       int id, Map<String, dynamic> karyawanData) async {
     final token = await _getToken();
     if (token == null) {
@@ -83,22 +92,27 @@ class UserService {
       body: jsonEncode(karyawanData),
     );
 
+    final body = json.decode(response.body);
+
     if (response.statusCode == 200) {
-      return;
+      return {
+        'success': true,
+        'message': body['message'] ?? 'Data berhasil diperbarui'
+      };
+    } else if (response.statusCode == 422) {
+      return {'success': false, 'errors': body['errors']};
+    } else if (response.statusCode == 404) {
+      return {'success': false, 'message': 'User tidak ditemukan'};
+    } else if (response.statusCode == 403) {
+      return {
+        'success': false,
+        'message': 'Tidak memiliki izin untuk mengubah data ini'
+      };
     } else {
-      final body = json.decode(response.body);
-      if (response.statusCode == 422) {
-        throw body['errors'] ??
-            {
-              'error': ['Data tidak valid']
-            };
-      } else if (response.statusCode == 404) {
-        throw 'User tidak ditemukan';
-      } else if (response.statusCode == 403) {
-        throw 'Tidak memiliki izin untuk mengubah data ini';
-      } else {
-        throw body['message'] ?? "Terjadi kesalahan saat memperbarui data";
-      }
+      return {
+        'success': false,
+        'message': body['message'] ?? 'Terjadi kesalahan saat memperbarui data'
+      };
     }
   }
 

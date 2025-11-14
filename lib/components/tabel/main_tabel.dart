@@ -1,4 +1,3 @@
-// Debug Version - Custom Data Table Widget
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,14 +36,18 @@ class CustomDataTableWidget extends StatelessWidget {
       case 'selesai':
       case 'approved':
       case 'disetujui':
+      case 'completed':
         return Colors.green;
       case 'proses':
       case 'pending':
       case 'menunggu':
+      case 'processing':
         return Colors.orange;
       case 'ditolak':
       case 'rejected':
       case 'unknown':
+      case 'terlambat':
+      case 'overdue':
         return Colors.red;
       default:
         return Colors.grey;
@@ -53,12 +56,10 @@ class CustomDataTableWidget extends StatelessWidget {
 
   void _showStatusDropdown(
       BuildContext context, String currentStatus, int rowIndex, int colIndex) {
-    // Get the RenderBox of the tapped widget to position dropdown
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
-    // Calculate the required width based on content
     double calculateTextWidth(String text) {
       final TextPainter textPainter = TextPainter(
         text: TextSpan(
@@ -75,7 +76,6 @@ class CustomDataTableWidget extends StatelessWidget {
       return textPainter.size.width;
     }
 
-    // Find the longest status text to determine dropdown width
     final statusList = statusOptions ?? ['approved', 'pending', 'rejected'];
     double maxTextWidth = 0;
 
@@ -86,7 +86,6 @@ class CustomDataTableWidget extends StatelessWidget {
       }
     }
 
-    // Add padding: circle (12) + spacing (8) + container padding (8) + small margin (8)
     final dropdownWidth = maxTextWidth + 36;
 
     showMenu<String>(
@@ -95,7 +94,7 @@ class CustomDataTableWidget extends StatelessWidget {
         offset.dx,
         offset.dy + size.height,
         offset.dx + dropdownWidth,
-        offset.dy + size.height + 200, // Max height
+        offset.dy + size.height + 200,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -106,7 +105,7 @@ class CustomDataTableWidget extends StatelessWidget {
         final statusColor = _getStatusColor(status);
         return PopupMenuItem<String>(
           value: status,
-          padding: EdgeInsets.zero, // Remove default PopupMenuItem padding
+          padding: EdgeInsets.zero,
           child: Container(
             width: dropdownWidth,
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -146,7 +145,6 @@ class CustomDataTableWidget extends StatelessWidget {
 
   Widget _buildValueCell(
       BuildContext context, String value, int rowIndex, int colIndex) {
-    // Check if this is a dropdown status column
     if (dropdownStatusColumnIndexes != null &&
         dropdownStatusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
@@ -154,12 +152,9 @@ class CustomDataTableWidget extends StatelessWidget {
         alignment: Alignment.centerLeft,
         child: IntrinsicWidth(
           child: Builder(
-            // Use Builder to get correct context for positioning
             builder: (context) => InkWell(
               onTap: () {
-                // Call onCellTap if provided
                 onCellTap?.call(rowIndex, colIndex);
-                // Show dropdown with proper context
                 _showStatusDropdown(context, value, rowIndex, colIndex);
               },
               borderRadius: BorderRadius.circular(20),
@@ -206,7 +201,6 @@ class CustomDataTableWidget extends StatelessWidget {
       );
     }
 
-    // Check if this is a regular status column
     if (statusColumnIndexes != null &&
         statusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
@@ -250,7 +244,6 @@ class CustomDataTableWidget extends StatelessWidget {
     final isLampiranColumn =
         headerText.contains('lampiran') || headerText.contains('attachment');
 
-    // Lampiran column
     if (isLampiranColumn && onTapLampiran != null) {
       return GestureDetector(
         onTap: () => onTapLampiran!(rowIndex),
@@ -265,7 +258,6 @@ class CustomDataTableWidget extends StatelessWidget {
       );
     }
 
-    // Regular cell
     return GestureDetector(
       onTap: () => onCellTap?.call(rowIndex, colIndex),
       child: Text(
@@ -287,6 +279,8 @@ class CustomDataTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -296,7 +290,7 @@ class CustomDataTableWidget extends StatelessWidget {
 
         return Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.02,
+            horizontal: screenWidth * 0.02,
             vertical: MediaQuery.of(context).size.height * 0.01,
           ),
           child: Container(
@@ -305,10 +299,10 @@ class CustomDataTableWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.05), // tipis banget
-                  blurRadius: 4, // kecil, biar soft
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
                   spreadRadius: 0,
-                  offset: Offset(0, 1), // cuma bawah dikit
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
@@ -316,72 +310,84 @@ class CustomDataTableWidget extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header section with first row data and action buttons
                 if (row.isNotEmpty)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          const SizedBox(width: 8),
-                          FaIcon(
-                            FontAwesomeIcons.solidBookmark,
-                            color: AppColors.putih,
-                          ),
-                          const SizedBox(width: 14),
-                          Text(
-                            firstTwoWords(row[0]),
-                            style: TextStyle(
+                      Expanded(
+                        child: Row(
+                          children: [
+                            const SizedBox(width: 8),
+                            FaIcon(
+                              FontAwesomeIcons.solidBookmark,
                               color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontWeight: FontWeight.w600,
+                              size: 16,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Text(
+                                firstTwoWords(row[0]),
+                                style: TextStyle(
+                                  color: AppColors.putih,
+                                  fontFamily: GoogleFonts.poppins().fontFamily,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           if (onView != null)
                             IconButton(
                               icon: FaIcon(
                                 FontAwesomeIcons.eye,
                                 color: AppColors.putih,
-                                size: 20,
+                                size: 16,
                               ),
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                              padding: const EdgeInsets.all(8),
                               onPressed: () => onView!(rowIndex),
                             ),
-                          if (onView != null)
-                            SizedBox(
-                                width:
-                                    MediaQuery.of(context).size.width * 0.02),
-                          if (onDelete != null)
-                            IconButton(
-                              icon: FaIcon(
-                                FontAwesomeIcons.trash,
-                                color: AppColors.putih,
-                                size: 20,
-                              ),
-                              onPressed: () => onDelete!(rowIndex),
-                            ),
-                          if (onDelete != null)
-                            SizedBox(
-                                width:
-                                    MediaQuery.of(context).size.width * 0.02),
                           if (onEdit != null)
                             IconButton(
                               icon: FaIcon(
                                 FontAwesomeIcons.pen,
                                 color: AppColors.putih,
-                                size: 20,
+                                size: 16,
                               ),
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                              padding: const EdgeInsets.all(8),
                               onPressed: () => onEdit!(rowIndex),
+                            ),
+                          if (onDelete != null)
+                            IconButton(
+                              icon: FaIcon(
+                                FontAwesomeIcons.trash,
+                                color: AppColors.putih,
+                                size: 16,
+                              ),
+                              constraints: const BoxConstraints(
+                                minWidth: 32,
+                                minHeight: 32,
+                              ),
+                              padding: const EdgeInsets.all(8),
+                              onPressed: () => onDelete!(rowIndex),
                             ),
                         ],
                       ),
                     ],
                   ),
-
-                // Divider
                 Align(
                   alignment: Alignment.center,
                   child: FractionallySizedBox(
@@ -392,10 +398,7 @@ class CustomDataTableWidget extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
-                // Detail table
                 ListView.separated(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),

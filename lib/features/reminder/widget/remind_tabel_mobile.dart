@@ -18,14 +18,6 @@ class RemindTabelMobile extends StatefulWidget {
 }
 
 class _RemindTabelMobileState extends State<RemindTabelMobile> {
-  final List<String> headers = const [
-    'PIC',
-    'Reminder',
-    'Jatuh Tempo',
-    'Sisa Hari',
-    'Status',
-  ];
-
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'selesai':
@@ -45,10 +37,6 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
     }
   }
 
-  // Format tanggal untuk tampilan yang lebih baik
-
-  // Function untuk mendapatkan warna berdasarkan waktu tersisa
-
   void _handleView(ReminderData reminder) {
     showDialog(
       context: context,
@@ -59,7 +47,7 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
             borderRadius: BorderRadius.circular(16),
           ),
           title: Text(
-            'Detail Reminder',
+            context.isIndonesian ? 'Detail Pengingat' : 'Reminder Details',
             style: TextStyle(
               color: AppColors.putih,
               fontFamily: GoogleFonts.poppins().fontFamily,
@@ -72,16 +60,15 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Judul
                 Text(
-                  'Judul:',
+                  context.isIndonesian ? 'Judul:' : 'Title:',
                   style: TextStyle(
                     color: AppColors.putih,
                     fontWeight: FontWeight.w500,
                     fontFamily: GoogleFonts.poppins().fontFamily,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   reminder.judul,
                   style: TextStyle(
@@ -90,18 +77,16 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                SizedBox(height: 16),
-
-                // Deskripsi
+                const SizedBox(height: 16),
                 Text(
-                  'Deskripsi:',
+                  context.isIndonesian ? 'Deskripsi:' : 'Description:',
                   style: TextStyle(
                     color: AppColors.putih,
                     fontWeight: FontWeight.w500,
                     fontFamily: GoogleFonts.poppins().fontFamily,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   reminder.deskripsi,
                   style: TextStyle(
@@ -109,13 +94,11 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
                     fontFamily: GoogleFonts.poppins().fontFamily,
                   ),
                 ),
-                SizedBox(height: 16),
-
-                // PIC
+                const SizedBox(height: 16),
                 Row(
                   children: [
-                    Icon(Icons.person, color: Colors.blue, size: 16),
-                    SizedBox(width: 8),
+                    const Icon(Icons.person, color: Colors.blue, size: 16),
+                    const SizedBox(width: 8),
                     Text(
                       'PIC: ${reminder.picNama}',
                       style: TextStyle(
@@ -126,15 +109,15 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
-
-                // Jatuh Tempo
+                const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(Icons.schedule, color: Colors.orange, size: 16),
-                    SizedBox(width: 8),
+                    const Icon(Icons.schedule, color: Colors.orange, size: 16),
+                    const SizedBox(width: 8),
                     Text(
-                      'Jatuh Tempo: ${reminder.tanggalJatuhTempo}',
+                      context.isIndonesian
+                          ? 'Jatuh Tempo: ${reminder.tanggalJatuhTempo}'
+                          : 'Deadline: ${reminder.tanggalJatuhTempo}',
                       style: TextStyle(
                         color: AppColors.putih.withOpacity(0.8),
                         fontFamily: GoogleFonts.poppins().fontFamily,
@@ -142,9 +125,7 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
                     ),
                   ],
                 ),
-                SizedBox(height: 12),
-
-                // Status
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Container(
@@ -155,7 +136,7 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
                         shape: BoxShape.circle,
                       ),
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Text(
                       'Status: ${reminder.status}',
                       style: TextStyle(
@@ -173,7 +154,7 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Tutup',
+                context.isIndonesian ? 'Tutup' : 'Close',
                 style: TextStyle(
                   color: AppColors.green,
                   fontFamily: GoogleFonts.poppins().fontFamily,
@@ -189,25 +170,15 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
   @override
   Widget build(BuildContext context) {
     final List<String> headers = context.isIndonesian
-        ? [
-            'PIC',
-            'Pengingat',
-            'Jatuh Tempo',
-            'Sisa Hari',
-            'Status',
-          ]
-        : [
-            'PIC',
-            'Reminder',
-            'Deadline',
-            "Day's Left",
-            'Status',
-          ];
+        ? ['PIC', 'Pengingat', 'Jatuh Tempo', 'Sisa Hari', 'Status']
+        : ['PIC', 'Reminder', 'Deadline', "Day's Left", 'Status'];
+
     return Consumer<PengingatViewModel>(
       builder: (context, viewModel, child) {
         final displayList = viewModel.searchQuery.isEmpty
             ? viewModel.pengingatList
             : viewModel.filteredList;
+
         if (viewModel.isLoading) {
           return const Center(child: LoadingWidget());
         }
@@ -238,6 +209,7 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
             ),
           );
         }
+
         final rows = reminders.map((reminder) {
           return [
             reminder.picNama ?? '-',
@@ -251,7 +223,12 @@ class _RemindTabelMobileState extends State<RemindTabelMobile> {
         return CustomDataTableWidget(
           headers: headers,
           rows: rows,
-          statusColumnIndexes: const [4], // kolom status
+          dropdownStatusColumnIndexes: const [4],
+          statusOptions: const ['Pending', 'Selesai'],
+          onStatusChanged: (rowIndex, newStatus) async {
+            final reminder = reminders[rowIndex];
+            await viewModel.updateStatus(reminder.id, newStatus);
+          },
           onView: (rowIndex) {
             final reminder = reminders[rowIndex];
             _handleView(reminder);

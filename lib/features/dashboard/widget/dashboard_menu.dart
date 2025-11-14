@@ -12,17 +12,15 @@ class DashboardMenu extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double iconSize = MediaQuery.of(context).size.width * 0.07;
-    double fontSize = MediaQuery.of(context).size.width * 0.028;
-
+    final screenWidth = MediaQuery.of(context).size.width;
     final accessibleItems =
         items.where((item) => FeatureAccess.has(item.requiredFeature)).toList();
 
-    // Tentukan berapa kolom berdasarkan ukuran layar
-    final crossAxisCount = MediaQuery.of(context).size.width < 360 ? 3 : 4;
-    final maxItemsToShow = crossAxisCount * 2; // 2 rows
+    // Determine column count based on screen width
+    final crossAxisCount = screenWidth < 360 ? 3 : 4;
+    final maxItemsToShow = crossAxisCount * 2;
 
-    // Pisahkan items yang akan ditampilkan dan yang disembunyikan
+    // Split visible and hidden items
     final visibleItems = accessibleItems.length > maxItemsToShow
         ? accessibleItems.take(maxItemsToShow - 1).toList()
         : accessibleItems;
@@ -31,57 +29,66 @@ class DashboardMenu extends StatelessWidget {
         ? accessibleItems.skip(maxItemsToShow - 1).toList()
         : <DashboardMenuItem>[];
 
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width * 0.04,
-        vertical: MediaQuery.of(context).size.height * 0.01,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            context.isIndonesian ? "Layanan Kantor" : "Office Services",
-            style: TextStyle(
-              fontSize: MediaQuery.of(context).size.width * 0.045,
-              color: AppColors.putih,
-              fontFamily: GoogleFonts.poppins().fontFamily,
-              fontWeight: FontWeight.bold,
+    return FeatureGuard(
+      requiredFeature: ['kantor', 'karyawan', 'gaji', 'potongan_gaji'],
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: screenWidth * 0.04,
+          vertical: MediaQuery.of(context).size.height * 0.01,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              context.isIndonesian ? "Layanan Kantor" : "Office Services",
+              style: TextStyle(
+                fontSize: screenWidth * 0.045,
+                color: AppColors.putih,
+                fontFamily: GoogleFonts.poppins().fontFamily,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          GridView.count(
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 24,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            children: [
-              // Tampilkan menu items yang visible
-              ...visibleItems
-                  .map((item) => _buildMenuItem(item, iconSize, fontSize)),
-
-              // Tampilkan "More" button jika ada hidden items
-              if (hiddenItems.isNotEmpty)
-                _buildMoreButton(context, accessibleItems, iconSize, fontSize),
-            ],
-          ),
-        ],
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: crossAxisCount,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 16,
+                childAspectRatio: 0.85,
+              ),
+              itemCount: visibleItems.length + (hiddenItems.isNotEmpty ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index < visibleItems.length) {
+                  return _buildMenuItem(context, visibleItems[index]);
+                } else {
+                  return _buildMoreButton(context, accessibleItems);
+                }
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMenuItem(
-      DashboardMenuItem item, double iconSize, double fontSize) {
+  Widget _buildMenuItem(BuildContext context, DashboardMenuItem item) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final iconSize = screenWidth * 0.07;
+    final fontSize = screenWidth * 0.028;
+
     return FeatureGuard(
       requiredFeature: item.requiredFeature,
       child: GestureDetector(
         onTap: item.onTap,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
-              height: iconSize * 1.8,
-              width: iconSize * 1.8,
+              height: iconSize * 1.6,
+              width: iconSize * 1.6,
               decoration: BoxDecoration(
                 color: AppColors.secondary,
                 borderRadius: BorderRadius.circular(12),
@@ -103,11 +110,11 @@ class DashboardMenu extends StatelessWidget {
                   fontSize: fontSize,
                   color: AppColors.putih,
                   fontFamily: GoogleFonts.poppins().fontFamily,
+                  height: 1.2,
                 ),
                 textAlign: TextAlign.center,
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
-                softWrap: true,
               ),
             ),
           ],
@@ -116,16 +123,21 @@ class DashboardMenu extends StatelessWidget {
     );
   }
 
-  Widget _buildMoreButton(BuildContext context,
-      List<DashboardMenuItem> allItems, double iconSize, double fontSize) {
+  Widget _buildMoreButton(
+      BuildContext context, List<DashboardMenuItem> allItems) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final iconSize = screenWidth * 0.07;
+    final fontSize = screenWidth * 0.028;
+
     return GestureDetector(
       onTap: () => _showMoreBottomSheet(context, allItems),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            height: iconSize * 1.8,
-            width: iconSize * 1.8,
+            height: iconSize * 1.6,
+            width: iconSize * 1.6,
             decoration: BoxDecoration(
               color: AppColors.grey.withOpacity(0.8),
               borderRadius: BorderRadius.circular(12),
@@ -151,11 +163,11 @@ class DashboardMenu extends StatelessWidget {
                 fontSize: fontSize,
                 color: AppColors.putih,
                 fontFamily: GoogleFonts.poppins().fontFamily,
+                height: 1.2,
               ),
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
               maxLines: 2,
-              softWrap: true,
             ),
           ),
         ],
@@ -268,7 +280,7 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
                   itemCount: widget.items.length,
                   itemBuilder: (context, index) {
                     final item = widget.items[index];
-                    return _buildListMenuItem(context, item, index);
+                    return _buildListMenuItem(context, item);
                   },
                 ),
               ),
@@ -279,17 +291,17 @@ class _MoreMenuBottomSheetState extends State<MoreMenuBottomSheet> {
     );
   }
 
-  Widget _buildListMenuItem(
-      BuildContext context, DashboardMenuItem item, int index) {
-    final iconSize = MediaQuery.of(context).size.width * 0.06;
-    final fontSize = MediaQuery.of(context).size.width * 0.038;
+  Widget _buildListMenuItem(BuildContext context, DashboardMenuItem item) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final iconSize = screenWidth * 0.06;
+    final fontSize = screenWidth * 0.038;
 
     return FeatureGuard(
       requiredFeature: item.requiredFeature,
       child: InkWell(
         onTap: () {
-          Navigator.pop(context); // Tutup bottom sheet
-          item.onTap.call(); // Panggil onTap item
+          Navigator.pop(context);
+          item.onTap.call();
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),

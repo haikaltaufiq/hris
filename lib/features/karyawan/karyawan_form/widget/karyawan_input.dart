@@ -142,6 +142,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
   }
 
   Future<void> _submitData() async {
+    // Validasi form sederhana
     if (_namaController.text.isEmpty ||
         _jabatanId == null ||
         _peranId == null ||
@@ -160,54 +161,73 @@ class _KaryawanInputState extends State<KaryawanInput> {
       );
       return;
     }
+
     setState(() => _isLoading = true);
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      // Biar service tetap dipakai tapi provider yg handle state & auto reload
-      await userProvider.createUser({
-        "nama": _namaController.text,
+      // Panggil createUser dan ambil response
+      final response = await userProvider.createUser({
+        "nama": _namaController.text.trim(),
         "peran_id": _peranId,
         "jabatan_id": _jabatanId,
         "departemen_id": _departemenId,
-        "gaji_per_hari": int.tryParse(_gajiController.text) ?? 0,
-        "npwp": _npwpController.text,
-        "bpjs_kesehatan": _bpjsKesController.text,
-        "bpjs_ketenagakerjaan": _bpjsKetController.text,
+        "gaji_per_hari": int.tryParse(_gajiController.text.trim()) ?? 0,
+        "npwp": _npwpController.text.trim(),
+        "bpjs_kesehatan": _bpjsKesController.text.trim(),
+        "bpjs_ketenagakerjaan": _bpjsKetController.text.trim(),
         "jenis_kelamin": _jenisKelamin,
         "status_pernikahan": _statusPernikahan,
-        "password": _passwordController.text,
+        "password": _passwordController.text.trim(),
       });
-      final message = context.isIndonesian
-          ? "Karyawan berhasil ditambahkan"
-          : "Employee added successfully";
-      NotificationHelper.showTopNotification(
-        context,
-        message,
-        isSuccess: true,
-      );
 
-      Navigator.pop(
-          context, true); // true supaya halaman sebelumnya bisa refresh
-    } catch (e) {
-      if (e is Map<String, dynamic>) {
-        // Error validasi Laravel
-        e.forEach((field, messages) {
-          NotificationHelper.showTopNotification(
-            context,
-            "$field: ${(messages as List).join(', ')}",
-            isSuccess: false,
-          );
-        });
-      } else {
+      // Kalau ada validasi error dari backend
+      if (response['success'] == false && response.containsKey('errors')) {
+        final errors = response['errors'] as Map<String, dynamic>;
+
+        // Gabung semua pesan error jadi satu string
+        final errorMessages =
+            errors.values.expand((messages) => messages as List).join(', ');
+
         NotificationHelper.showTopNotification(
           context,
-          "Error: $e",
+          errorMessages,
+          isSuccess: false,
+        );
+        return; // jangan lanjut ke success
+      }
+
+      // Kalau sukses
+      if (response['success'] == true) {
+        NotificationHelper.showTopNotification(
+          context,
+          response['message'] ??
+              (context.isIndonesian
+                  ? "Karyawan berhasil ditambahkan"
+                  : "Employee added successfully"),
+          isSuccess: true,
+        );
+        Navigator.pop(context, true);
+      } else {
+        // Kalau ada message error tapi bukan errors per field
+        NotificationHelper.showTopNotification(
+          context,
+          response['message'] ??
+              (context.isIndonesian
+                  ? "Terjadi kesalahan"
+                  : "An error occurred"),
           isSuccess: false,
         );
       }
+    } catch (e) {
+      // Tangani exception network / unexpected
+      NotificationHelper.showTopNotification(
+        context,
+        e.toString(),
+        isSuccess: false,
+      );
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
@@ -332,7 +352,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
           ),
           CustomInputField(
             controller: _bpjsKetController,
-            label: "No. BPJS Ketenagakerjaan (Opsional)",
+            label: "No. BPJS Ketenagakerjaan",
             hint: "",
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -340,7 +360,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
           ),
           CustomInputField(
             controller: _bpjsKesController,
-            label: "No. BPJS Kesehatan (Opsional)",
+            label: "No. BPJS Kesehatan",
             hint: "",
             labelStyle: labelStyle,
             textStyle: textStyle,

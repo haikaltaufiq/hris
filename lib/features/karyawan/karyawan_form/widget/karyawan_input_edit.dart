@@ -252,9 +252,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
   }
 
   Future<void> _submitData() async {
-    // ✅ Prevent multiple submissions
     if (_isSubmitting) return;
-
     if (!_validateForm()) return;
 
     setState(() => _isSubmitting = true);
@@ -262,8 +260,7 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
     final userProvider = Provider.of<UserProvider>(context, listen: false);
 
     try {
-      // pakai provider biar otomatis fetchUsers setelah update
-      await userProvider.updateUser(
+      final response = await userProvider.updateUser(
         widget.user.id,
         {
           "nama": _namaController.text.trim(),
@@ -283,42 +280,45 @@ class _KaryawanInputEditState extends State<KaryawanInputEdit> {
         },
       );
 
-      if (mounted) {
-        final message = context.isIndonesian
-            ? "Data karyawan berhasil diperbarui"
-            : "Employee data updated successfully";
+      // cek backend response
+      if (response['success'] == true) {
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            context.isIndonesian
+                ? "Data karyawan berhasil diperbarui"
+                : "Employee data updated successfully",
+            isSuccess: true,
+          );
+          Navigator.pop(context, true);
+        }
+      } else if (response.containsKey('errors')) {
+        final errors = response['errors'] as Map<String, dynamic>;
+        errors.forEach((field, messages) {
+          if (messages is List) {
+            NotificationHelper.showTopNotification(
+              context,
+              "$field: ${messages.join(', ')}",
+              isSuccess: false,
+            );
+          }
+        });
+      } else {
         NotificationHelper.showTopNotification(
           context,
-          message,
-          isSuccess: true,
+          response['message'] ?? 'Terjadi kesalahan',
+          isSuccess: false,
         );
-        Navigator.pop(
-            context, true); // true supaya halaman list refresh otomatis
       }
     } catch (e) {
       if (mounted) {
-        if (e is Map<String, dynamic>) {
-          final List<String> errorMessages = [];
-          e.forEach((field, messages) {
-            if (messages is List) {
-              errorMessages.add("$field: ${messages.join(', ')}");
-            }
-          });
-
-          for (String message in errorMessages) {
-            NotificationHelper.showTopNotification(context, message,
-                isSuccess: false);
-          }
-        } else {
-          final message = context.isIndonesian
+        NotificationHelper.showTopNotification(
+          context,
+          context.isIndonesian
               ? "Gagal memperbarui data: $e"
-              : "Failed to update data: $e";
-          NotificationHelper.showTopNotification(
-            context,
-            message,
-            isSuccess: false,
-          );
-        }
+              : "Failed to update data: $e",
+          isSuccess: false,
+        );
       }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
