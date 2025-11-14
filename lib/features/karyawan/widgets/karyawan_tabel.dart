@@ -13,8 +13,10 @@ import 'package:provider/provider.dart';
 
 class KaryawanTabel extends StatelessWidget {
   final List<UserModel> users;
+  final VoidCallback? onActionDone;
 
-  const KaryawanTabel({super.key, required this.users});
+  const KaryawanTabel(
+      {super.key, required this.users, required this.onActionDone});
 
   String getFirstTwoWords(String? name) {
     if (name == null || name.isEmpty) return '-';
@@ -138,6 +140,8 @@ class KaryawanTabel extends StatelessWidget {
 
         try {
           await userProvider.deleteUser(user.id); // pake provider
+          onActionDone?.call();
+
           final message = context.isIndonesian
               ? 'Karyawan berhasil dihapus'
               : 'Employee deleted successfully';

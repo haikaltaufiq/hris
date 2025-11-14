@@ -117,6 +117,7 @@ class _PotonganMobileState extends State<PotonganMobile> {
                     PotonganTabel(
                       potonganList: displayedList,
                       onActionDone: () {
+                        _refreshData();
                         searchController.clear();
                       },
                     ),

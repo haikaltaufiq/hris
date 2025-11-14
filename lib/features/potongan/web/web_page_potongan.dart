@@ -31,6 +31,10 @@ class _WebPagePotonganState extends State<WebPagePotongan> {
     });
   }
 
+  Future<void> _refreshData() async {
+    await context.read<PotonganGajiProvider>().fetchPotonganGaji();
+  }
+
   @override
   Widget build(BuildContext context) {
     final potonganProvider = context.watch<PotonganGajiProvider>();
@@ -101,6 +105,8 @@ class _WebPagePotonganState extends State<WebPagePotongan> {
                   child: PotonganTabelWeb(
                     potonganList: displayedList,
                     onActionDone: () {
+                      _refreshData();
+
                       searchController.clear();
                     },
                   ),

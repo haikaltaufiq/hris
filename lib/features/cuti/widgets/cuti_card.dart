@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/button/action_button.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/update_status_dialog.dart';
+import 'package:hr/core/helpers/cut_string.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -125,7 +126,7 @@ class CutiCard extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(cuti.user['nama'],
+                          Text(cutNameToTwoWords(cuti.user['nama'] ?? ''),
                               style: GoogleFonts.poppins(
                                   fontSize: 18,
                                   color: AppColors.putih,
