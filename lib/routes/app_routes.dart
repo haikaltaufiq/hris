@@ -22,7 +22,7 @@ import 'package:hr/features/info_kantor/info_kantor_page.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form_edit.dart';
 import 'package:hr/features/lembur/lembur_form/lembur_form.dart';
 import 'package:hr/features/reset_device/reset_device.dart';
-import 'package:hr/on_boarding.dart';
+// import 'package:hr/on_boarding.dart';
 import 'package:hr/features/info_kantor/info_page_form.dart';
 import 'package:hr/features/jabatan/jabatan_page.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form.dart';
@@ -160,8 +160,8 @@ class AppRoutes {
       return _route(const LoginPage(), settings);
     }
     switch (routeName) {
-      case onboarding:
-        return _route(const OnBoarding(), settings);
+      // case onboarding:
+      //   return _route(const OnBoarding(), settings);
 
       case landingPage:
         return _route(const LandingPage(), settings);

@@ -738,14 +738,12 @@ class _MyAppState extends State<MyApp> {
   Future<String> _getInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
-    final seenOnboarding = prefs.getBool('seenOnboarding') ?? false;
 
     if (token != null && token.isNotEmpty) {
       await _loadUserSettings(token);
     }
 
     if (context.isNativeMobile) {
-      if (!seenOnboarding) return AppRoutes.onboarding;
       return token != null && token.isNotEmpty
           ? AppRoutes.dashboardMobile
           : AppRoutes.landingPageMobile;

@@ -62,10 +62,24 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
               children: [
                 ListView(
                   children: [
-                    Header(
-                        title: context.isIndonesian
-                            ? 'Manajemen Departemen'
-                            : 'Department Management'),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.putih,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        Header(
+                            title: context.isIndonesian
+                                ? 'Departemen'
+                                : 'Department'),
+                      ],
+                    ),
                     SearchingBar(
                       controller: searchController,
                       onChanged: (value) => vm.searchDepartemen(value),

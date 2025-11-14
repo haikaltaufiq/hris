@@ -63,9 +63,24 @@ class _ReminderPageState extends State<ReminderPage> {
             child: ListView(
               children: [
                 if (context.isMobile)
-                  Header(
-                      title:
-                          context.isIndonesian ? 'Pengingat' : "Reminder Page"),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_back_ios_new,
+                          color: AppColors.putih,
+                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Header(
+                          title: context.isIndonesian
+                              ? 'Pengingat'
+                              : "Reminder Page"),
+                    ],
+                  ),
                 SearchingBar(
                   controller: _searchController,
                   onFilter1Tap: () async {

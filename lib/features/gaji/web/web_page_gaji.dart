@@ -49,9 +49,24 @@ class _WebPageGajiState extends State<WebPageGaji> {
             if (context.isMobile)
               Align(
                 alignment: Alignment.bottomLeft,
-                child: Header(
-                  title:
-                      context.isIndonesian ? "Data Penggajian" : 'Payroll Data',
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios_new,
+                        color: AppColors.putih,
+                      ),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                    const SizedBox(width: 8),
+                    Header(
+                      title: context.isIndonesian
+                          ? "Data Penggajian"
+                          : 'Payroll Data',
+                    ),
+                  ],
                 ),
               ),
             SearchingBar(

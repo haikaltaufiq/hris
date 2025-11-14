@@ -48,9 +48,24 @@ class _PeranPageWebState extends State<PeranPageWeb> {
                 child: ListView(
                   children: [
                     if (context.isMobile)
-                      Header(
-                        title:
-                            context.isIndonesian ? "Data Peran" : "Role Data",
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios_new,
+                              color: AppColors.putih,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          Header(
+                            title: context.isIndonesian
+                                ? "Data Peran"
+                                : "Role Data",
+                          ),
+                        ],
                       ),
                     WebTabelPeranWeb(),
                   ],

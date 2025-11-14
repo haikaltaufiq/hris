@@ -508,12 +508,14 @@ class _InfoPageState extends State<InfoPage>
     if (_formKey.currentState!.validate()) {
       setState(() => isLoading = true);
 
-      // bikin model dari inputan form
+      // Extract angka dari "15 menit" → 15
+      final minimalKeterlambatanText = minimalKeterlambatanController.text
+          .replaceAll(RegExp(r'[^0-9]'), ''); // Hapus semua kecuali angka
+
       final kantor = KantorModel(
         jamMasuk: jamMasukController.text,
         jamKeluar: jamKeluarController.text,
-        minimalKeterlambatan:
-            int.tryParse(minimalKeterlambatanController.text) ?? 0,
+        minimalKeterlambatan: int.tryParse(minimalKeterlambatanText) ?? 0,
         lat: double.tryParse(latitudeController.text) ?? 0,
         lng: double.tryParse(longitudeController.text) ?? 0,
         radiusMeter: int.tryParse(radiusController.text) ?? 0,
@@ -527,7 +529,7 @@ class _InfoPageState extends State<InfoPage>
             result["message"],
             isSuccess: true,
           );
-          Navigator.pop(context, true);
+          Navigator.pop(context, true); // Return true untuk trigger refresh
         } else {
           NotificationHelper.showTopNotification(
             context,
