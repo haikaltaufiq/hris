@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/core/const/app_size.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -207,69 +208,33 @@ class _ReminderTileWebState extends State<ReminderTileWeb> {
     );
   }
 
-  void _handleDelete(ReminderData reminder) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: AppColors.secondary,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Text(
-            'Hapus Reminder',
-            style: TextStyle(
-              color: AppColors.putih,
-              fontFamily: GoogleFonts.poppins().fontFamily,
-            ),
-          ),
-          content: Text(
-            'Apakah Anda yakin ingin menghapus reminder "${reminder.judul}"?',
-            style: TextStyle(
-              color: AppColors.putih.withOpacity(0.8),
-              fontFamily: GoogleFonts.poppins().fontFamily,
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(
-                'Batal',
-                style: TextStyle(
-                  color: AppColors.putih.withOpacity(0.6),
-                  fontFamily: GoogleFonts.poppins().fontFamily,
-                ),
-              ),
-            ),
-            TextButton(
-              onPressed: () async {
-                await context
-                    .read<PengingatViewModel>()
-                    .deletePengingat(reminder.id);
-                if (mounted) {
-                  final message = context.isIndonesian
-                      ? 'Reminder berhasil dihapus'
-                      : 'Reminder deleted successfully';
-                  NotificationHelper.showTopNotification(
-                    context,
-                    message,
-                    isSuccess: true,
-                  );
-                }
-                Navigator.of(context).pop();
-              },
-              child: Text(
-                context.isIndonesian ? 'Hapus' : 'Delete',
-                style: TextStyle(
-                  color: AppColors.red,
-                  fontFamily: GoogleFonts.poppins().fontFamily,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+  void _handleDelete(ReminderData reminder) async {
+    final confirmed = await showConfirmationDialog(
+      context,
+      title: context.isIndonesian ? "Hapus Reminder" : "Delete Reminder",
+      content: context.isIndonesian
+          ? 'Apakah Anda yakin ingin menghapus reminder "${reminder.judul}"?'
+          : 'Are you sure you want to delete reminder "${reminder.judul}"?',
+      confirmText: context.isIndonesian ? "Hapus" : "Delete",
+      cancelText: context.isIndonesian ? "Batal" : "Cancel",
+      confirmColor: AppColors.red,
     );
+
+    if (!confirmed) return;
+
+    await context.read<PengingatViewModel>().deletePengingat(reminder.id);
+
+    if (mounted) {
+      final message = context.isIndonesian
+          ? 'Reminder berhasil dihapus'
+          : 'Reminder deleted successfully';
+
+      NotificationHelper.showTopNotification(
+        context,
+        message,
+        isSuccess: true,
+      );
+    }
   }
 
   Widget _buildStatusCell(String status, int reminderId) {
