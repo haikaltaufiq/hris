@@ -1,12 +1,15 @@
 // ignore_for_file: await_only_futures, use_build_context_synchronously
 
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
-import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
@@ -204,8 +207,11 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             () async {
                               _hideDropdownImmediate();
 
+                              final ctx = navigatorKey.currentContext;
+                              if (ctx == null) return;
+
                               final confirmed = await showConfirmationDialog(
-                                navigatorKey.currentContext!,
+                                ctx,
                                 title: context.isIndonesian
                                     ? "Konfirmasi Logout"
                                     : "Logout Confirmation",
@@ -220,36 +226,40 @@ class _DashboardHeaderState extends State<DashboardHeader>
                               );
 
                               if (!confirmed) return;
-
-                              // 🔑 Logout sequence: await dulu semua
-                              final prefs =
-                                  await SharedPreferences.getInstance();
-                              final token = prefs.getString('token');
-                              final userId = prefs.getInt('user_id');
-
-                              if (userId != null) {
-                                await FcmService.deleteLocalToken();
-                              }
-
-                              if (token != null) {
-                                await AuthService().logout();
-                              }
-
-                              clearUserCache();
+                              await FeatureAccess.clear();
                               if (MainLayout.onClearFeatureCache != null) {
                                 await MainLayout.onClearFeatureCache!.call();
                               }
-
-                              await prefs.clear();
-
-                              // 🔑 Setelah semua selesai, baru navigasi
-                              navigatorKey.currentState!
-                                  .pushNamedAndRemoveUntil(
-                                context.isNativeMobile
+                              // ✅ Langsung navigasi dulu
+                              final isNativeMobile = !kIsWeb &&
+                                  (Platform.isAndroid || Platform.isIOS);
+                              navigatorKey.currentState
+                                  ?.pushNamedAndRemoveUntil(
+                                isNativeMobile
                                     ? AppRoutes.landingPageMobile
                                     : AppRoutes.login,
                                 (route) => false,
                               );
+
+                              // 🔹 Jalankan logout async di background
+                              Future.microtask(() async {
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                final userId = prefs.getInt('user_id');
+                                final token = prefs.getString('token');
+
+                                if (userId != null) {
+                                  await FcmService.deleteLocalToken();
+                                }
+
+                                if (token != null) {
+                                  await AuthService().logout();
+                                }
+
+                                clearUserCache();
+
+                                await prefs.clear();
+                              });
                             },
                           ),
                         ],

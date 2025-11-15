@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:hr/core/helpers/cut_string.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/gaji_model.dart';
 import 'package:hr/data/services/gaji_service.dart';
 import 'package:hr/features/gaji/widget/format_currency.dart';
 import 'package:hr/features/gaji/widget/gaji_detail.dart';
-import 'package:provider/provider.dart';
 
 class GajiCard extends StatelessWidget {
   final GajiUser gaji;
@@ -36,10 +36,7 @@ class GajiCard extends StatelessWidget {
     final Offset offset = renderBox.localToGlobal(Offset.zero);
     final Size size = renderBox.size;
 
-    final statusList = overlay.read<LanguageProvider>().isIndonesian
-        ? ["Belum Dibayar", "Sudah Dibayar"]
-        : ["Unpaid", "Paid"];
-
+    final statusList = ["Sudah Dibayar", "Belum Dibayar"];
     showMenu<String>(
       context: overlay, // pakai overlay context
       position: RelativeRect.fromLTRB(
@@ -134,7 +131,7 @@ class GajiCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(gaji.nama,
+                    Text(cutNameToTwoWords(gaji.nama),
                         style: TextStyle(
                           color: AppColors.putih,
                           fontWeight: FontWeight.w600,

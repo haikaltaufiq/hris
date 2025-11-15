@@ -41,6 +41,30 @@ class _MainLayoutState extends State<MainLayout>
   static List<String>? _cachedFitur;
   // Map route ke index
 
+  Future<void> logoutUser() async {
+    await FeatureAccess.clear();
+    _cachedFitur = null;
+    _userFitur = [];
+    setState(() {});
+
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('user_id');
+    final token = prefs.getString('token');
+
+    if (userId != null) {
+      await FcmService.deleteLocalToken();
+    }
+    if (token != null) {
+      await AuthService().logout();
+    }
+    await prefs.clear();
+
+    navigatorKey.currentState!.pushNamedAndRemoveUntil(
+      AppRoutes.login,
+      (route) => false,
+    );
+  }
+
   static const Map<String, int> _routeToIndex = {
     AppRoutes.dashboard: 0,
     AppRoutes.dashboardMobile: 0,

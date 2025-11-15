@@ -253,15 +253,6 @@ class _CutiPageMobileState extends State<CutiPageMobile> {
                         },
                       ];
 
-                      // guard fitur
-                      if (FeatureAccess.has('approve_cuti')) {
-                        options.add({
-                          'value': 'per-orang',
-                          'label':
-                              context.isIndonesian ? 'Per-orang' : 'By Person',
-                        });
-                      }
-
                       if (FeatureAccess.has('approve_cuti')) {
                         options.add({
                           'value': 'nama',

@@ -471,8 +471,13 @@ class _MyAppState extends State<MyApp> {
         break;
 
       case 'tugas_lampiran':
-        await _showNotif(plugin, 999000 + tugasId, '📎 Lampiran Dikirim',
-            'User mengirim lampiran untuk tugas "$judul".');
+        await _showNotif(
+            plugin,
+            999000 + tugasId,
+            context.isIndonesian ? '📎 Lampiran Dikirim' : '📎 Attachment Sent',
+            context.isIndonesian
+                ? 'User mengirim lampiran untuk tugas "$judul".'
+                : 'User sent an attachment for the task "$judul".');
         break;
 
       case 'tugas_lampiran_dikirim':
@@ -487,8 +492,12 @@ class _MyAppState extends State<MyApp> {
         await _showNotif(
           plugin,
           999000 + tugasId,
-          '📝 Setatus Tugas Proses',
-          'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.',
+          context.isIndonesian
+              ? '📝 Setatus Tugas Proses'
+              : '📝 Task Status In Progress',
+          context.isIndonesian
+              ? 'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.'
+              : 'The status of the task "$judul" has been changed to IN PROGRESS. Please contact the admin for clarification.',
           sound: true,
           vibration: true,
         );
@@ -536,8 +545,13 @@ class _MyAppState extends State<MyApp> {
     CountdownNotificationService(plugin)
         .startCountdown(batasWaktu, judul, tugasId);
 
-    await _showNotif(plugin, tugasId.hashCode, '📌 Tugas Baru',
-        'Kamu punya tugas baru: "$judul", deadline: ${batasWaktu.toLocal()}');
+    await _showNotif(
+        plugin,
+        tugasId.hashCode,
+        context.isIndonesian ? '📌 Tugas Baru' : '📌 New Task',
+        context.isIndonesian
+            ? 'Kamu punya tugas baru: "$judul", deadline: ${batasWaktu.toLocal()}'
+            : 'You have a new task: "$judul", deadline: ${batasWaktu.toLocal()}');
   }
 
   Future<void> _handleTugasUpdate(
@@ -576,24 +590,27 @@ class _MyAppState extends State<MyApp> {
         await CountdownNotificationService(plugin)
             .startCountdown(batasBaru, judul, tugasId);
 
-        pesan =
-            'Deadline tugas "$judul" telah diubah ke ${batasBaru.toLocal()}.';
+        pesan = context.isIndonesian
+            ? 'Deadline tugas "$judul" telah diubah ke ${batasBaru.toLocal()}.'
+            : 'The deadline for the task "$judul" has been changed to ${batasBaru.toLocal()}.';
       } else {
         // Deadline sama → tidak perlu restart countdown
-        pesan =
-            'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
+        pesan = context.isIndonesian
+            ? 'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.'
+            : 'The task data "$judul" has been updated by the admin. Please open the task page.';
       }
     } else {
       // Kalau data tidak ada field batas_penugasan
-      pesan =
-          'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.';
+      pesan = context.isIndonesian
+          ? 'Data tugas "$judul" telah diperbarui oleh admin. Silakan buka halaman tugas.'
+          : 'The task data "$judul" has been updated by the admin. Please open the task page.';
     }
 
     // Tampilkan notifikasi sesuai kondisi
     await _showNotif(
       plugin,
       tugasId.hashCode,
-      '⏰ Tugas Diperbarui',
+      context.isIndonesian ? '⏰ Tugas Diperbarui' : '⏰ Task Updated',
       pesan,
       sound: true,
       vibration: true,
@@ -609,8 +626,13 @@ class _MyAppState extends State<MyApp> {
     await box.delete('update_needed_$tugasId');
     await box.delete('uploaded_$tugasId');
 
-    await _showNotif(plugin, 999000 + tugasId, '❌ Tugas Dihapus',
-        'Tugas "$judul" telah dihapus oleh admin.');
+    await _showNotif(
+        plugin,
+        999000 + tugasId,
+        context.isIndonesian ? '❌ Tugas Dihapus' : '❌ Task Deleted',
+        context.isIndonesian
+            ? 'Tugas "$judul" telah dihapus oleh admin.'
+            : 'The task "$judul" has been deleted by the admin.');
   }
 
   Future<void> _handleTugasPindah(FlutterLocalNotificationsPlugin plugin,
@@ -622,8 +644,13 @@ class _MyAppState extends State<MyApp> {
     await box.delete('update_needed_$tugasId');
     await box.delete('uploaded_$tugasId');
 
-    await _showNotif(plugin, 999000 + tugasId, '👋 Tugas Dipindahkan',
-        'Tugas "$judul" telah dipindahkan ke pengguna lain.');
+    await _showNotif(
+        plugin,
+        999000 + tugasId,
+        context.isIndonesian ? '👋 Tugas Dipindahkan' : '👋 Task Moved',
+        context.isIndonesian
+            ? 'Tugas "$judul" telah dipindahkan ke pengguna lain.'
+            : 'The task "$judul" has been moved to another user.');
   }
 
   Future<void> _handleLampiranDikirim(FlutterLocalNotificationsPlugin plugin,
@@ -634,8 +661,13 @@ class _MyAppState extends State<MyApp> {
     await box.delete('batas_penugasan_$tugasId');
     await box.delete('update_needed_$tugasId');
 
-    await _showNotif(plugin, 999000 + tugasId, '✅ Lampiran Terkirim',
-        'Kamu sudah mengirim lampiran tugas "$judul". Menunggu verifikasi admin.');
+    await _showNotif(
+        plugin,
+        999000 + tugasId,
+        context.isIndonesian ? '✅ Lampiran Terkirim' : '✅ Attachment Sent',
+        context.isIndonesian
+            ? 'Kamu sudah mengirim lampiran tugas "$judul". Menunggu verifikasi admin.'
+            : 'You have sent the attachment for the task "$judul". Waiting for admin verification.');
   }
 
   Future<void> _handleTugasSelesai(FlutterLocalNotificationsPlugin plugin,
@@ -647,9 +679,17 @@ class _MyAppState extends State<MyApp> {
     await box.delete('update_needed_$tugasId');
     await box.delete('uploaded_$tugasId');
 
-    await _showNotif(plugin, 999000 + tugasId, '✅ Tugas Selesai - Kerja Bagus!',
-        'Selamat! Tugas "$judul" telah disetujui dan diselesaikan.',
-        sound: true, vibration: true);
+    await _showNotif(
+        plugin,
+        999000 + tugasId,
+        context.isIndonesian
+            ? '✅ Tugas Selesai - Kerja Bagus!'
+            : '✅ Task Completed - Good Job!',
+        context.isIndonesian
+            ? 'Selamat! Tugas "$judul" telah disetujui dan diselesaikan.'
+            : 'Congratulations! The task "$judul" has been approved and completed.',
+        sound: true,
+        vibration: true);
   }
 
   // ===== CUTI & LEMBUR HANDLER =====
@@ -668,30 +708,51 @@ class _MyAppState extends State<MyApp> {
 
     switch (action) {
       case 'diajukan':
-        title = '📝 Pengajuan ${type == 'cuti' ? 'Cuti' : 'Lembur'} Diterima';
+        title = context.isIndonesian
+            ? '📝 Pengajuan ${type == 'cuti' ? 'Cuti' : 'Lembur'} Diterima'
+            : '📝 ${type == 'cuti' ? 'Leave' : 'Overtime'} Application Submitted';
         body = type == 'cuti'
-            ? 'Pengajuan cuti Anda tanggal ${data['tanggal_mulai']} s/d ${data['tanggal_selesai']} berhasil dikirim.'
-            : 'Pengajuan lembur Anda tanggal ${data['tanggal']} berhasil dikirim.';
+            ? context.isIndonesian
+                ? 'Pengajuan cuti Anda tanggal ${data['tanggal_mulai']} s/d ${data['tanggal_selesai']} berhasil dikirim.'
+                : 'Your leave application from ${data['tanggal_mulai']} to ${data['tanggal_selesai']} has been submitted.'
+            : context.isIndonesian
+                ? 'Pengajuan lembur Anda tanggal ${data['tanggal']} berhasil dikirim.'
+                : 'Your overtime application on ${data['tanggal']} has been submitted.';
         break;
       case 'step1':
-        title = '✅ ${type == 'cuti' ? 'Cuti' : 'Lembur'} Disetujui Tahap Awal';
+        title = context.isIndonesian
+            ? '✅ ${type == 'cuti' ? 'Cuti' : 'Lembur'} Disetujui Tahap Awal'
+            : '✅ ${type == 'cuti' ? 'Leave' : 'Overtime'} Approved - Initial Stage';
         body = type == 'cuti'
-            ? 'Cuti Anda tanggal ${data['tanggal_mulai']} s/d ${data['tanggal_selesai']} disetujui tahap awal.'
-            : 'Lembur Anda tanggal ${data['tanggal']} disetujui tahap awal.';
+            ? context.isIndonesian
+                ? 'Cuti Anda tanggal ${data['tanggal_mulai']} s/d ${data['tanggal_selesai']} disetujui tahap awal.'
+                : 'Your leave from ${data['tanggal_mulai']} to ${data['tanggal_selesai']} has been approved at the initial stage.'
+            : context.isIndonesian
+                ? 'Lembur Anda tanggal ${data['tanggal']} disetujui tahap awal.'
+                : 'Your overtime on ${data['tanggal']} has been approved at the initial stage.';
         sound = true;
         break;
       case 'disetujui':
-        title = '🎉 ${type == 'cuti' ? 'Cuti' : 'Lembur'} Disetujui Final';
+        title = context.isIndonesian
+            ? '🎉 ${type == 'cuti' ? 'Cuti' : 'Lembur'} Disetujui Final'
+            : '🎉 ${type == 'cuti' ? 'Leave' : 'Overtime'} Approved - Final Stage';
         body = type == 'cuti'
-            ? 'Selamat! Cuti Anda tanggal ${data['tanggal_mulai']} s/d ${data['tanggal_selesai']} telah disetujui.'
-            : 'Selamat! Lembur Anda tanggal ${data['tanggal']} telah disetujui.';
+            ? context.isIndonesian
+                ? 'Selamat! Cuti Anda tanggal ${data['tanggal_mulai']} s/d ${data['tanggal_selesai']} telah disetujui.'
+                : 'Congratulations! Your leave from ${data['tanggal_mulai']} to ${data['tanggal_selesai']} has been approved.'
+            : context.isIndonesian
+                ? 'Selamat! Lembur Anda tanggal ${data['tanggal']} telah disetujui.'
+                : 'Congratulations! Your overtime on ${data['tanggal']} has been approved.';
         sound = true;
         vibration = true;
         break;
       case 'ditolak':
-        title = '❌ ${type == 'cuti' ? 'Cuti' : 'Lembur'} Ditolak';
-        body =
-            '${type == 'cuti' ? 'Cuti' : 'Lembur'} Anda ditolak. Catatan: ${data['catatan_penolakan'] ?? '-'}';
+        title = context.isIndonesian
+            ? '❌ ${type == 'cuti' ? 'Cuti' : 'Lembur'} Ditolak'
+            : '❌ ${type == 'cuti' ? 'Leave' : 'Overtime'} Rejected';
+        body = context.isIndonesian
+            ? '${type == 'cuti' ? 'Cuti' : 'Lembur'} Anda ditolak. Catatan: ${data['catatan_penolakan'] ?? '-'}'
+            : 'Your ${type == 'cuti' ? 'leave' : 'overtime'} has been rejected. Note: ${data['catatan_penolakan'] ?? '-'}';
         sound = true;
         vibration = true;
         break;

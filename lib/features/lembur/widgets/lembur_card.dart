@@ -179,7 +179,9 @@ class LemburCard extends StatelessWidget {
                       const SizedBox(height: 8),
 
                       Text(
-                        '(${FormatTime().formatTime(lembur.jamMulai)} - ${FormatTime().formatTime(lembur.jamSelesai)})',
+                        context.isIndonesian
+                            ? 'Jam : (${FormatTime().formatTime(lembur.jamMulai)} - ${FormatTime().formatTime(lembur.jamSelesai)})'
+                            : 'Time : (${FormatTime().formatTime(lembur.jamMulai)} - ${FormatTime().formatTime(lembur.jamSelesai)})',
                         style: GoogleFonts.poppins(
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
@@ -188,7 +190,9 @@ class LemburCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        lembur.shortDeskripsi,
+                        context.isIndonesian
+                            ? 'Alasan : ${lembur.shortDeskripsi}'
+                            : 'Reason : ${lembur.shortDeskripsi}',
                         style: GoogleFonts.poppins(
                           color: AppColors.putih,
                           fontSize: 14,
@@ -202,7 +206,7 @@ class LemburCard extends StatelessWidget {
                             ? lembur.shortCatatanPenolakan
                             : lembur.keteranganStatus,
                         style: GoogleFonts.poppins(
-                          color: AppColors.putih,
+                          color: lembur.statusColor,
                           fontSize: 14,
                           fontWeight: FontWeight.w400,
                         ),

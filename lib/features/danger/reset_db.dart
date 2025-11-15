@@ -131,7 +131,8 @@ class _ResetDbState extends State<ResetDb> {
         content: context.isIndonesian
             ? "Yakin reset $title? Data akan hilang permanen."
             : "Are you sure to reset $title? Data will be permanently deleted.",
-        confirmationText: "delete this data",
+        confirmationText:
+            context.isIndonesian ? "hapus data ini" : "delete this data",
       );
 
       if (confirmed) {
@@ -296,7 +297,9 @@ class _ResetDbState extends State<ResetDb> {
                                         content: context.isIndonesian
                                             ? "Yakin reset $jenis bulan $selectedBulan tahun $selectedTahun? Data akan hilang permanen."
                                             : "Are you sure to reset $jenis for month $selectedBulan year $selectedTahun? Data will be permanently deleted.",
-                                        confirmationText: "delete this data",
+                                        confirmationText: context.isIndonesian
+                                            ? "hapus data ini"
+                                            : "delete this data",
                                       );
 
                                       if (confirmed) {

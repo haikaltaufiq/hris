@@ -22,7 +22,8 @@ extension DeviceExtension on BuildContext {
   bool get isDesktop => deviceWidth >= 1024;
 
   // Alternative: if you want to distinguish native vs web
-  bool get isNativeMobile => !kIsWeb && deviceWidth < 600;
+  bool get isNativeMobile =>
+      !kIsWeb && deviceWidth < 600 && (Platform.isAndroid || Platform.isIOS);
   bool get isWebMobile => kIsWeb && deviceWidth < 600;
   bool get isNativeTablet =>
       !kIsWeb && deviceWidth >= 600 && deviceWidth < 1024;
