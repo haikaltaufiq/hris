@@ -42,7 +42,22 @@ class _LogActivityState extends State<LogActivity> {
         padding: EdgeInsets.only(left: 16.0, top: 16.0, right: 16.0),
         child: ListView(
           children: [
-            if (context.isMobile) Header(title: "Log Activity"),
+            if (context.isMobile)
+              Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.putih,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Header(title: "Log Activity"),
+                ],
+              ),
             SearchingBar(
               controller: _searchController,
             ),

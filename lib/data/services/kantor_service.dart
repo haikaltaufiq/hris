@@ -41,7 +41,6 @@ class KantorService {
     }
   }
 
-  /// Simpan kantor baru
   static Future<Map<String, dynamic>> createKantor(KantorModel kantor) async {
     final token = await _getToken();
     if (token == null) {
@@ -49,6 +48,12 @@ class KantorService {
     }
 
     final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor');
+
+    // Debug payload yang dikirim
+    final payload = jsonEncode(kantor.toJson());
+    print('📤 POST Request to: $url');
+    print('📦 Payload: $payload');
+
     final response = await http.post(
       url,
       headers: {
@@ -56,10 +61,15 @@ class KantorService {
         "Accept": "application/json",
         "Authorization": "Bearer $token",
       },
-      body: jsonEncode(kantor.toJson()),
+      body: payload,
     );
 
-    return _handleResponse(response, successMessage: "Kantor berhasil dibuat");
+    // Debug respons dari BE
+    print('📥 Response Status: ${response.statusCode}');
+    print('📥 Response Body: ${response.body}');
+
+    return _handleResponse(response,
+        successMessage: "Kantor berhasil diperbarui");
   }
 
   /// Update kantor (kalau API lo butuh)
@@ -71,7 +81,7 @@ class KantorService {
     }
 
     final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor/$id');
-    final response = await http.put(
+    final response = await http.post(
       url,
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +92,7 @@ class KantorService {
     );
 
     return _handleResponse(response,
-        successMessage: "Kantor berhasil diupdate");
+        successMessage: "Kantor berhasil diperbarui");
   }
 
   /// Helper buat handle response API

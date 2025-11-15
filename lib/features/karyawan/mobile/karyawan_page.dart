@@ -61,10 +61,24 @@ class _KaryawanMobileState extends State<KaryawanMobile> {
                   onRefresh: _refreshData,
                   child: ListView(
                     children: [
-                      Header(
-                          title: context.isIndonesian
-                              ? 'Manajemen Karyawan'
-                              : 'Employee Management'),
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              Icons.arrow_back_ios_new,
+                              color: AppColors.putih,
+                            ),
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                          ),
+                          const SizedBox(width: 8),
+                          Header(
+                              title: context.isIndonesian
+                                  ? 'Karyawan'
+                                  : 'Employee'),
+                        ],
+                      ),
                       SearchingBar(
                         controller: searchController,
                         onChanged: (value) {

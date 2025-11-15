@@ -185,7 +185,23 @@ class _PengaturanPageState extends State<PengaturanPage>
         children: [
           const SizedBox(height: 8),
           if (MediaQuery.of(context).size.width < 600)
-            Header(title: isIndonesian ? "Pengaturan" : "Settings"),
+            Row(
+              children: [
+                IconButton(
+                  icon: Icon(
+                    Icons.arrow_back_ios_new,
+                    color: AppColors.putih,
+                  ),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                ),
+                const SizedBox(width: 8),
+                Header(
+                  title: isIndonesian ? "Pengaturan" : "Settings",
+                ),
+              ],
+            ),
 
           // Theme Card
           Card(

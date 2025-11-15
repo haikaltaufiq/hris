@@ -25,8 +25,24 @@ class _InfoKantorPageState extends State<InfoKantorPage> {
           if (context.isMobile)
             Align(
               alignment: Alignment.bottomLeft,
-              child: Header(
-                  title: context.isIndonesian ? "Info Kantor" : 'Company Info'),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.arrow_back_ios_new,
+                      color: AppColors.putih,
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 8),
+                  Header(
+                      title: context.isIndonesian
+                          ? "Info Kantor"
+                          : 'Company Info'),
+                ],
+              ),
             ),
           Padding(
             padding: EdgeInsets.symmetric(

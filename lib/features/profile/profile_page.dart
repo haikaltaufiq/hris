@@ -478,10 +478,43 @@ class _ProfilePageState extends State<ProfilePage> {
                 final newEmail = emailController.text.trim();
                 final oldPassword = passwordController.text.trim();
 
+                // Empty check
                 if (newEmail.isEmpty || oldPassword.isEmpty) {
                   final message = context.isIndonesian
                       ? 'Email dan password wajib diisi'
                       : 'Email and password must be filled';
+                  NotificationHelper.showTopNotification(context, message,
+                      isSuccess: false);
+                  return;
+                }
+
+                // Email same as old
+                if (newEmail == email) {
+                  final message = context.isIndonesian
+                      ? 'Email tidak boleh sama dengan email lama'
+                      : 'Email cannot be the same as the old email';
+                  NotificationHelper.showTopNotification(context, message,
+                      isSuccess: false);
+                  return;
+                }
+
+                // Validasi format email
+                final emailRegex =
+                    RegExp(r'^[\w\.\-]+@([\w\-]+\.)+[a-zA-Z]{2,}$');
+                if (!emailRegex.hasMatch(newEmail)) {
+                  final message = context.isIndonesian
+                      ? 'Format email tidak valid'
+                      : 'Invalid email format';
+                  NotificationHelper.showTopNotification(context, message,
+                      isSuccess: false);
+                  return;
+                }
+
+                // Minimal length
+                if (newEmail.length < 6) {
+                  final message = context.isIndonesian
+                      ? 'Email terlalu pendek'
+                      : 'Email is too short';
                   NotificationHelper.showTopNotification(context, message,
                       isSuccess: false);
                   return;
@@ -706,23 +739,38 @@ class _ProfilePageState extends State<ProfilePage> {
                         final message = context.isIndonesian
                             ? 'Semua field wajib diisi'
                             : 'All fields are required';
-                        NotificationHelper.showTopNotification(
-                          context,
-                          message,
-                          isSuccess: false,
-                        );
+                        NotificationHelper.showTopNotification(context, message,
+                            isSuccess: false);
                         return;
                       }
 
+// Tidak boleh sama dengan old password
+                      if (oldPassword == newPassword) {
+                        final message = context.isIndonesian
+                            ? 'Password baru tidak boleh sama dengan password lama'
+                            : 'New password cannot be the same as the old password';
+                        NotificationHelper.showTopNotification(context, message,
+                            isSuccess: false);
+                        return;
+                      }
+
+// Minimal 6 char
+                      if (newPassword.length < 6) {
+                        final message = context.isIndonesian
+                            ? 'Password baru minimal 6 karakter'
+                            : 'New password must be at least 6 characters';
+                        NotificationHelper.showTopNotification(context, message,
+                            isSuccess: false);
+                        return;
+                      }
+
+// Confirm match
                       if (newPassword != confirmPassword) {
                         final message = context.isIndonesian
                             ? 'Konfirmasi password tidak cocok'
                             : 'Password confirmation does not match';
-                        NotificationHelper.showTopNotification(
-                          context,
-                          message,
-                          isSuccess: false,
-                        );
+                        NotificationHelper.showTopNotification(context, message,
+                            isSuccess: false);
                         return;
                       }
 

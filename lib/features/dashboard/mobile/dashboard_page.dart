@@ -105,7 +105,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   ),
                   DashboardMenuItem(
                     label: "Log Aktivitas",
-                    requiredFeature: 'log_aktivitas',
+                    requiredFeature: 'log_aktifitas',
                     icon: FontAwesomeIcons.history,
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.logActivity);
@@ -145,7 +145,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   ),
                   DashboardMenuItem(
                     label: "Unlock",
-                    requiredFeature: 'deng',
+                    requiredFeature: 'denger',
                     icon: FontAwesomeIcons.lockOpen,
                     onTap: () {
                       Navigator.pushNamed(context, AppRoutes.bukaAkun);

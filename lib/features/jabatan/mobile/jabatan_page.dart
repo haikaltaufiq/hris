@@ -129,10 +129,24 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
               children: [
                 ListView(
                   children: [
-                    Header(
-                        title: context.isIndonesian
-                            ? 'Manajemen Jabatan'
-                            : 'Position Management'),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColors.putih,
+                          ),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        const SizedBox(width: 8),
+                        Header(
+                            title: context.isIndonesian
+                                ? 'Manajemen Jabatan'
+                                : 'Position Management'),
+                      ],
+                    ),
                     SearchingBar(
                       controller: searchController,
                       onChanged: (value) => vm.search(value),

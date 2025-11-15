@@ -16,11 +16,15 @@ class CompanyCard extends StatefulWidget {
 class _CompanyCardState extends State<CompanyCard> {
   KantorModel? kantor;
   bool isLoading = true;
-
   @override
   void initState() {
     super.initState();
     _loadKantorData();
+  }
+
+  Future<void> refresh() async {
+    setState(() => isLoading = true);
+    await _loadKantorData();
   }
 
   Future<void> _loadKantorData() async {
@@ -134,8 +138,15 @@ class _CompanyCardState extends State<CompanyCard> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, AppRoutes.info);
+                        onPressed: () async {
+                          // Navigate dan tunggu result
+                          final result = await Navigator.pushNamed(
+                              context, AppRoutes.info);
+
+                          // Kalau berhasil simpan (result == true), refresh
+                          if (result == true && mounted) {
+                            refresh();
+                          }
                         },
                         icon: Icon(
                           Icons.more_vert,
@@ -363,8 +374,14 @@ class _CompanyCardState extends State<CompanyCard> {
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
-            onPressed: () {
-              Navigator.pushNamed(context, AppRoutes.info);
+            onPressed: () async {
+              // Navigate dan tunggu result
+              final result = await Navigator.pushNamed(context, AppRoutes.info);
+
+              // Kalau berhasil simpan, refresh
+              if (result == true && mounted) {
+                refresh();
+              }
             },
             icon: const Icon(Icons.add, size: 18),
             label: Text(
