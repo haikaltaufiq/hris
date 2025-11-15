@@ -62,6 +62,7 @@ class TugasProvider extends ChangeNotifier {
     _setLoading(true);
     try {
       final apiData = await TugasService.fetchTugas();
+
       tugasList.clear();
       _tugasList = apiData;
       sortTugas('terbaru');

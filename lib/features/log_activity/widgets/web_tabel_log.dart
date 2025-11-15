@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hr/components/custom/loading.dart';
+import 'package:hr/core/helpers/cut_string.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/log_service.dart';
@@ -331,7 +332,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        userName,
+                        cutNameToTwoWords(userName),
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,

@@ -165,14 +165,20 @@ class CutiCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(cuti.tipe_cuti,
+                      Text(
+                          context.isIndonesian
+                              ? 'Tipe : ${cuti.tipe_cuti}'
+                              : 'Type : ${cuti.tipe_cuti}',
                           style: GoogleFonts.poppins(
                             color: AppColors.putih,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           )),
                       const SizedBox(height: 8),
-                      Text(cuti.shortAlasan,
+                      Text(
+                          context.isIndonesian
+                              ? 'Alasan : ${cuti.shortAlasan}'
+                              : 'Reason : ${cuti.shortAlasan}',
                           style: GoogleFonts.poppins(
                             color: AppColors.putih,
                             fontSize: 14,
@@ -184,7 +190,7 @@ class CutiCard extends StatelessWidget {
                               ? cuti.shortCatatanPenolakan
                               : cuti.keterangan_status,
                           style: GoogleFonts.poppins(
-                            color: AppColors.putih,
+                            color: cuti.statusColor,
                             fontSize: 14,
                             fontWeight: FontWeight.w400,
                           )),
