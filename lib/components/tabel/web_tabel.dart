@@ -66,6 +66,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
       case 'menunggu':
         return Colors.orange;
       case 'ditolak':
+      case 'declined':
       case 'rejected':
       case 'unknown':
         return Colors.red;

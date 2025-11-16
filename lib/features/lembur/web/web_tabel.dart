@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/dialog/detail_item.dart';
-import 'package:hr/components/dialog/update_status_dialog.dart';
+// import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/format_time.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
@@ -26,6 +27,7 @@ class WebTabelLembur extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasAccess = FeatureAccess.has("approve_lembur");
     return CustomDataTableWeb(
       headers: context.isIndonesian
           ? [
@@ -59,7 +61,38 @@ class WebTabelLembur extends StatelessWidget {
           keterangan
         ];
       }).toList(),
-      statusColumnIndexes: [5],
+      dropdownStatusColumnIndexes: hasAccess ? [5] : null,
+      statusColumnIndexes: hasAccess ? null : [5],
+      statusOptions: hasAccess
+          ? [
+              context.isIndonesian ? "Disetujui" : "Approved",
+              context.isIndonesian ? "Ditolak" : "Declined"
+            ]
+          : null,
+      onStatusChanged: hasAccess
+          ? (actualRowIndex, newStatus) {
+              final c = lemburList[actualRowIndex];
+
+              if (c.isApproved || c.isDitolak) {
+                NotificationHelper.showTopNotification(
+                    context,
+                    context.isIndonesian
+                        ? 'Status ajuan lembur sudah final, tidak dapat diubah kembali.'
+                        : 'Overtime request status is final, cannot be changed again.',
+                    isSuccess: false);
+                return;
+              }
+              if (newStatus.toLowerCase() ==
+                  (context.isIndonesian ? 'disetujui' : 'approved')
+                      .toLowerCase()) {
+                onApprove(c);
+              } else if (newStatus.toLowerCase() ==
+                  (context.isIndonesian ? 'ditolak' : 'declined')
+                      .toLowerCase()) {
+                onDecline(c);
+              }
+            }
+          : null,
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {},
       onView: (actualRowIndex) {
         final c = lemburList[actualRowIndex];
@@ -126,29 +159,29 @@ class WebTabelLembur extends StatelessWidget {
       //   onDelete(c);
       // },
 
-      onEdit: (actualRowIndex) {
-        final c = lemburList[actualRowIndex];
-        if (c.isApproved || c.isDitolak) {
-          NotificationHelper.showTopNotification(
-              context,
-              context.isIndonesian
-                  ? 'Status ajuan lembur sudah final, tidak dapat diubah kembali.'
-                  : 'Overtime request status is final, cannot be changed again.',
-              isSuccess: false);
-          return;
-        }
-        showDialog(
-          context: context,
-          builder: (_) => UpdateStatusDialog(
-            onApprove: () async {
-              onApprove(c);
-            },
-            onDecline: () async {
-              onDecline(c);
-            },
-          ),
-        );
-      },
+      // onEdit: (actualRowIndex) {
+      //   final c = lemburList[actualRowIndex];
+      //   if (c.isApproved || c.isDitolak) {
+      //     NotificationHelper.showTopNotification(
+      //         context,
+      //         context.isIndonesian
+      //             ? 'Status ajuan lembur sudah final, tidak dapat diubah kembali.'
+      //             : 'Overtime request status is final, cannot be changed again.',
+      //         isSuccess: false);
+      //     return;
+      //   }
+      //   showDialog(
+      //     context: context,
+      //     builder: (_) => UpdateStatusDialog(
+      //       onApprove: () async {
+      //         onApprove(c);
+      //       },
+      //       onDecline: () async {
+      //         onDecline(c);
+      //       },
+      //     ),
+      //   );
+      // },
     );
   }
 }

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/dialog/detail_item.dart';
-import 'package:hr/components/dialog/update_status_dialog.dart';
+// import 'package:hr/components/dialog/update_status_dialog.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/helpers/formatted_date.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -25,6 +26,7 @@ class WebTabelCuti extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool hasAccess = FeatureAccess.has("approve_cuti");
     return CustomDataTableWeb(
       headers: context.isIndonesian
           ? [
@@ -59,7 +61,38 @@ class WebTabelCuti extends StatelessWidget {
           keterangan,
         ];
       }).toList(),
-      statusColumnIndexes: [5],
+      dropdownStatusColumnIndexes: hasAccess ? [5] : null,
+      statusColumnIndexes: hasAccess ? null : [5],
+      statusOptions: hasAccess
+          ? [
+              context.isIndonesian ? "Disetujui" : "Approved",
+              context.isIndonesian ? "Ditolak" : "Declined"
+            ]
+          : null,
+      onStatusChanged: hasAccess
+          ? (rowIndex, newStatus) {
+              final c = cutiList[rowIndex];
+              if (c.isApproved || c.isDitolak) {
+                NotificationHelper.showTopNotification(
+                  context,
+                  context.isIndonesian
+                      ? 'Status ajuan cuti sudah final, tidak dapat diubah kembali.'
+                      : 'Leave request status is final, cannot be changed again.',
+                  isSuccess: false,
+                );
+                return;
+              }
+              if (newStatus.toLowerCase() ==
+                  (context.isIndonesian ? 'disetujui' : 'approved')
+                      .toLowerCase()) {
+                onApprove(c);
+              } else if (newStatus.toLowerCase() ==
+                  (context.isIndonesian ? 'ditolak' : 'declined')
+                      .toLowerCase()) {
+                onDecline(c);
+              }
+            }
+          : null,
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {},
       onView: (row) {
         final c = cutiList[row];
@@ -124,32 +157,32 @@ class WebTabelCuti extends StatelessWidget {
       //   final c = cutiList[row];
       //   onDelete(c);
       // },
-      onEdit: (row) {
-        final c = cutiList[row];
-        if (c.isApproved || c.isDitolak) {
-          NotificationHelper.showTopNotification(
-            context,
-            context.isIndonesian
-                ? 'Status ajuan cuti sudah final, tidak dapat diubah kembali.'
-                : 'Leave request status is final, cannot be changed again.',
-            isSuccess: false,
-          );
-          return;
-        }
-        showDialog(
-          context: context,
-          builder: (_) => UpdateStatusDialog(
-            onApprove: () async {
-              onApprove(c);
-              return;
-            },
-            onDecline: () async {
-              onDecline(c);
-              return;
-            },
-          ),
-        );
-      },
+      // onEdit: (row) {
+      //   final c = cutiList[row];
+      //   if (c.isApproved || c.isDitolak) {
+      //     NotificationHelper.showTopNotification(
+      //       context,
+      //       context.isIndonesian
+      //           ? 'Status ajuan cuti sudah final, tidak dapat diubah kembali.'
+      //           : 'Leave request status is final, cannot be changed again.',
+      //       isSuccess: false,
+      //     );
+      //     return;
+      //   }
+      //   showDialog(
+      //     context: context,
+      //     builder: (_) => UpdateStatusDialog(
+      //       onApprove: () async {
+      //         onApprove(c);
+      //         return;
+      //       },
+      //       onDecline: () async {
+      //         onDecline(c);
+      //         return;
+      //       },
+      //     ),
+      //   );
+      // },
     );
   }
 }

@@ -249,8 +249,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
             expand: false,
             builder: (context, scrollController) {
               return Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
                   borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                   boxShadow: [
                     BoxShadow(
@@ -280,9 +280,9 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                               : "Task Location",
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: AppColors.putih),
                         ),
                         const SizedBox(height: 10),
 

@@ -19,23 +19,49 @@ class WebCard extends StatefulWidget {
 class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   late AnimationController _animationController;
 
-  String _nama = '';
-  String _peran = '';
+  static String _cachedNama = '';
+  static String _cachedPeran = '';
+  static bool _cacheInitialized = false;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData();
+
+    // Initialize cache first time
+    if (!_cacheInitialized) {
+      _loadUserDataToStaticCache();
+    }
+
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 1200),
       vsync: this,
     );
-    _loadData();
+
+    // Load provider cache immediately
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<AbsenProvider>().loadCacheFirst();
+        context.read<TugasProvider>().loadCacheFirst();
+        context.read<UserProvider>().loadCacheFirst();
+        context.read<DepartmentViewModel>().loadCacheFirst();
+      }
+    });
+
     _animationController.forward();
+    _loadData();
+  }
+
+  void _loadUserDataToStaticCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    _cachedNama = prefs.getString('nama') ?? '';
+    _cachedPeran = prefs.getString('peran') ?? '';
+    _cacheInitialized = true;
+    if (mounted) setState(() {});
   }
 
   Future<void> _loadData() async {
     await Future.microtask(() {
+      if (!mounted) return;
       context.read<AbsenProvider>().fetchAbsensi();
       context.read<TugasProvider>().fetchTugas();
       context.read<UserProvider>().fetchUsers();
@@ -47,14 +73,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      _nama = prefs.getString('nama') ?? '';
-      _peran = prefs.getString('peran') ?? '';
-    });
   }
 
   @override
@@ -101,7 +119,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Bagian Stats Row
   Widget _statSection() {
     return Consumer3<UserProvider, DepartmentViewModel, TugasProvider>(
       builder: (context, userProv, deptProv, tugasProv, child) {
@@ -152,7 +169,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
     );
   }
 
-  /// Welcome Card
   Widget _welcomeCard() {
     return _HoverCard(
       child: Container(
@@ -192,8 +208,8 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                   ),
                   child: Center(
                     child: Text(
-                      _nama.isNotEmpty
-                          ? _nama.trim().substring(0, 1).toUpperCase()
+                      _cachedNama.isNotEmpty
+                          ? _cachedNama.trim().substring(0, 1).toUpperCase()
                           : '?',
                       style: TextStyle(
                         color: AppColors.putih,
@@ -203,14 +219,12 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                     ),
                   ),
                 ),
-                SizedBox(
-                  width: 10,
-                ),
+                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _nama.split(" ").take(2).join(" "),
+                      _cachedNama.split(" ").take(2).join(" "),
                       style: TextStyle(
                         color: AppColors.putih,
                         fontSize: 18,
@@ -218,7 +232,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                       ),
                     ),
                     Text(
-                      _peran,
+                      _cachedPeran,
                       style: TextStyle(
                         color: AppColors.putih.withOpacity(0.5),
                         fontSize: 14,
@@ -411,33 +425,11 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   Widget _overviewCard() {
     return Consumer2<AbsenProvider, TugasProvider>(
       builder: (context, absenProv, tugasProv, child) {
-        // Loading / empty handling
-        if (tugasProv.isLoading) {
-          return Container(
-            height: 320,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            ),
-          );
-        }
-
+        // Dapatkan data dari provider
         final totalUser = context.read<UserProvider>().totalUsers;
         final totalTugasSelesai = tugasProv.totalTugasSelesai.toDouble();
         final totalTugas = tugasProv.totalAllTugas.toDouble();
 
-        // PERBAIKAN: Hitung dari allAbsensi untuk monthly rate
         final jumlahHadirTotal =
             absenProv.allAbsensi.map((a) => a.userId).toSet().length;
         final rate = (totalUser > 0) ? jumlahHadirTotal / totalUser : 0.0;
@@ -446,6 +438,14 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
             (totalTugas > 0) ? totalTugasSelesai / totalTugas : 0.0;
         final performance = ((rate * 0.5) + (projectRate * 0.5));
         final overallProgress = (rate + projectRate + performance) / 3.0;
+
+        // Tampilkan loading hanya jika tidak ada data sama sekali
+        final bool showLoading = (tugasProv.isLoading &&
+                !tugasProv.hasCache &&
+                tugasProv.tugasList.isEmpty) ||
+            (absenProv.isLoading &&
+                !absenProv.hasCache &&
+                absenProv.allAbsensi.isEmpty);
 
         return _HoverCard(
           child: Container(
@@ -462,7 +462,7 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                 ),
               ],
             ),
-            child: tugasProv.isLoading && absenProv.isLoading
+            child: showLoading
                 ? Center(
                     child: CircularProgressIndicator(
                       color: AppColors.putih,
@@ -482,7 +482,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Progress items
                       Flexible(
                         child: ListView(
                           shrinkWrap: true,
@@ -512,7 +511,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                         ),
                       ),
                       const SizedBox(height: 30),
-                      // Footer card
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(
@@ -612,7 +610,6 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
   }
 }
 
-/// Hover effect card
 class _HoverCard extends StatefulWidget {
   final Widget child;
   const _HoverCard({required this.child});

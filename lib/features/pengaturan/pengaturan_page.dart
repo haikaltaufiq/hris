@@ -7,6 +7,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -193,7 +194,7 @@ class _PengaturanPageState extends State<PengaturanPage>
                     color: AppColors.putih,
                   ),
                   onPressed: () {
-                    Navigator.pop(context);
+                    Navigator.pushNamed(context, AppRoutes.dashboardMobile);
                   },
                 ),
                 const SizedBox(width: 8),

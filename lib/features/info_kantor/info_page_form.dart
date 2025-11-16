@@ -136,7 +136,7 @@ class _InfoPageState extends State<InfoPage>
             builder: (context, scrollController) {
               return Container(
                 decoration: BoxDecoration(
-                  color: AppColors.bg,
+                  color: AppColors.primary,
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(20)),
                   boxShadow: [

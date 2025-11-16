@@ -26,6 +26,7 @@
         <!-- 🔹 Main Activity -->
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"

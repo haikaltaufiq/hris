@@ -448,8 +448,10 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       onView: (actualRowIndex) =>
           _showDetailDialog(context, widget.tugasList[actualRowIndex]),
       onEdit: (actualRowIndex) => _editTugas(context, actualRowIndex),
-      onDelete: (actualRowIndex) =>
-          _deleteTugas(context, widget.tugasList[actualRowIndex]),
+      onDelete: hasAccess
+          ? (actualRowIndex) =>
+              _deleteTugas(context, widget.tugasList[actualRowIndex])
+          : null,
       onTapLampiran: (actualRowIndex) =>
           _showLampiranDialog(context, widget.tugasList[actualRowIndex]),
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
