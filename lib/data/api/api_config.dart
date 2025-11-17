@@ -1,5 +1,5 @@
 class ApiConfig {
-  static const String baseUrl = "http://192.168.169.12:8000";
+  static const String baseUrl = "http://103.161.188.102";
 }
 
 //HP -> http (error self-signed certificate)

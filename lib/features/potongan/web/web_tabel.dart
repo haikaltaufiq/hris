@@ -10,6 +10,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
+import 'package:hr/features/potongan/widget/potongan_tabel.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
@@ -91,7 +92,7 @@ class PotonganTabelWeb extends StatelessWidget {
     final rows = potonganList.map((potongan) {
       return [
         potongan.namaPotongan,
-        '${potongan.nominal.toStringAsFixed(1)}%',
+        formatNominal(potongan.nominal) + '%',
       ];
     }).toList();
 

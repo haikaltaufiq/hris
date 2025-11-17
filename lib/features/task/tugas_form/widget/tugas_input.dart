@@ -406,8 +406,8 @@ class _TugasInputState extends State<TugasInput> {
                 ),
           CustomInputField(
             hint: context.isIndonesian
-                ? "Catatan tambahan (opsional)"
-                : "Additional note (optional)",
+                ? "Catatan tambahan"
+                : "Additional note",
             label: "Note",
             controller: _noteController,
             labelStyle: labelStyle,

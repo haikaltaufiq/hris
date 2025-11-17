@@ -11,6 +11,13 @@ import 'package:hr/features/potongan/potongan_form/form_edit.dart';
 import 'package:hr/features/potongan/view_model/potongan_gaji_provider.dart';
 import 'package:provider/provider.dart';
 
+String formatNominal(double value) {
+  if (value % 1 == 0) {
+    return value.toInt().toString(); // buang .0
+  }
+  return value.toString(); // kalo ada pecahan tampilkan apa adanya
+}
+
 class PotonganTabel extends StatelessWidget {
   final List<PotonganGajiModel> potonganList;
   final VoidCallback? onActionDone;
@@ -93,7 +100,7 @@ class PotonganTabel extends StatelessWidget {
     final rows = potonganList.map((potongan) {
       return [
         potongan.namaPotongan,
-        '${potongan.nominal.toStringAsFixed(1)}%',
+        formatNominal(potongan.nominal) + '%',
       ];
     }).toList();
 

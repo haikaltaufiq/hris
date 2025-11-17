@@ -114,14 +114,47 @@ class _UserEditTugasState extends State<UserEditTugas> {
   Future<void> _updateCurrentLocation() async {
     try {
       bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-      if (!serviceEnabled) return;
+      if (!serviceEnabled) {
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            context.isIndonesian
+                ? "GPS mati. Nyalakan GPS untuk update lokasi"
+                : "GPS is off. Please turn on GPS to update location",
+            isSuccess: false,
+          );
+        }
+        return;
+      }
 
       LocationPermission permission = await Geolocator.checkPermission();
       if (permission == LocationPermission.denied) {
         permission = await Geolocator.requestPermission();
-        if (permission == LocationPermission.denied) return;
+        if (permission == LocationPermission.denied) {
+          if (mounted) {
+            NotificationHelper.showTopNotification(
+              context,
+              context.isIndonesian
+                  ? "Izin lokasi ditolak"
+                  : "Location permission denied",
+              isSuccess: false,
+            );
+          }
+          return;
+        }
       }
-      if (permission == LocationPermission.deniedForever) return;
+      if (permission == LocationPermission.deniedForever) {
+        if (mounted) {
+          NotificationHelper.showTopNotification(
+            context,
+            context.isIndonesian
+                ? "Izin lokasi ditolak permanen. Ubah di pengaturan"
+                : "Location permission permanently denied. Change it in settings",
+            isSuccess: false,
+          );
+        }
+        return;
+      }
 
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
@@ -134,7 +167,15 @@ class _UserEditTugasState extends State<UserEditTugas> {
         });
       }
     } catch (e) {
-      // Ignore silently
+      if (mounted) {
+        NotificationHelper.showTopNotification(
+          context,
+          context.isIndonesian
+              ? "Gagal mengambil lokasi: $e"
+              : "Failed to get location: $e",
+          isSuccess: false,
+        );
+      }
     }
   }
 

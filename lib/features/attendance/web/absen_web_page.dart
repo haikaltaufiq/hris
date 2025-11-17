@@ -28,10 +28,14 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<AbsenProvider>();
-      if (provider.absensi.isEmpty) {
-        provider.loadCacheFirst();
-        provider.fetchAbsensi();
-      }
+      // Load cache dulu
+      provider.loadCacheFirst();
+
+      // Langsung tampilkan data hari ini dari cache
+      provider.sortAbsensi('hari');
+
+      // Fetch data terbaru di background
+      provider.fetchAbsensi(forceRefresh: true);
     });
   }
 

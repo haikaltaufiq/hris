@@ -1,8 +1,0 @@
-build/
-.android/
-.ios/
-.pub-cache/
-.packages
-.git
-.gitignore
-node_modules/

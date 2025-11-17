@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
@@ -15,19 +16,31 @@ class AttendanceChart extends StatelessWidget {
   static const double _legendHeight = 40.0;
   static const double _headerHeight = 50.0;
 
+  /// Calculate monthly attendance data based on access level
   Map<String, Map<String, int>> _calculateMonthlyData(
-      List<AbsenModel> absenList, UserProvider userProvider) {
+      List<AbsenModel> absenList,
+      UserProvider userProvider,
+      bool hasFullAccess,
+      String? currentUserId) {
     final monthlyData = <String, Map<String, int>>{};
     final now = DateTime.now();
     final currentMonth = DateTime(now.year, now.month, 1);
 
+    // Initialize last 12 months
     for (int i = 11; i >= 0; i--) {
       final date = DateTime(currentMonth.year, currentMonth.month - i, 1);
       final monthName = _getMonthName(date.month);
       monthlyData[monthName] = {'present': 0, 'late': 0, 'absent': 0};
     }
 
-    for (final absen in absenList) {
+    // Filter attendance data based on access level
+    final filteredAbsenList = hasFullAccess
+        ? absenList
+        : absenList
+            .where((absen) => absen.userId?.toString() == currentUserId)
+            .toList();
+
+    for (final absen in filteredAbsenList) {
       if (absen.checkinDate == null) continue;
 
       try {
@@ -60,24 +73,27 @@ class AttendanceChart extends StatelessWidget {
       } catch (_) {}
     }
 
-    final allUserIds = userProvider.users.map((u) => u.id).toList();
-    final todayStr =
-        "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+    // Calculate absent count only if user has full access
+    if (hasFullAccess) {
+      final allUserIds = userProvider.users.map((u) => u.id).toList();
+      final todayStr =
+          "${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
 
-    final checkedInUserIds = absenList
-        .where((a) => a.checkinDate == todayStr)
-        .map((a) => a.userId?.toString())
-        .where((id) => id != null)
-        .cast<String>()
-        .toList();
+      final checkedInUserIds = absenList
+          .where((a) => a.checkinDate == todayStr)
+          .map((a) => a.userId?.toString())
+          .where((id) => id != null)
+          .cast<String>()
+          .toList();
 
-    final absentUserIds =
-        allUserIds.where((id) => !checkedInUserIds.contains(id)).toList();
+      final absentUserIds =
+          allUserIds.where((id) => !checkedInUserIds.contains(id)).toList();
 
-    final todayMonth = _getMonthName(now.month);
-    if (monthlyData.containsKey(todayMonth)) {
-      monthlyData[todayMonth]!['absent'] =
-          (monthlyData[todayMonth]!['absent'] ?? 0) + absentUserIds.length;
+      final todayMonth = _getMonthName(now.month);
+      if (monthlyData.containsKey(todayMonth)) {
+        monthlyData[todayMonth]!['absent'] =
+            (monthlyData[todayMonth]!['absent'] ?? 0) + absentUserIds.length;
+      }
     }
 
     return monthlyData;
@@ -174,9 +190,15 @@ class AttendanceChart extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer2<AbsenProvider, UserProvider>(
       builder: (context, absenProvider, userProvider, child) {
-        // PERBAIKAN UTAMA: Gunakan allAbsensi, bukan absensi
-        final monthlyData =
-            _calculateMonthlyData(absenProvider.allAbsensi, userProvider);
+        final bool hasAccess = FeatureAccess.has("lihat_semua_absensi");
+        final String? currentUserId = userProvider.user?.id.toString();
+
+        final monthlyData = _calculateMonthlyData(
+          absenProvider.allAbsensi,
+          userProvider,
+          hasAccess,
+          currentUserId,
+        );
         final barGroups = _generateBarGroups(monthlyData);
         final maxY = _getMaxY(monthlyData);
         final leftTitles = _calculateLeftTitles(maxY);
@@ -293,7 +315,6 @@ class AttendanceChart extends StatelessWidget {
   }
 }
 
-// COMPONENTS
 class _LegendItem extends StatelessWidget {
   final Color color;
   final String label;
