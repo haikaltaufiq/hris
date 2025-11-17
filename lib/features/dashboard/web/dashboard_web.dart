@@ -14,31 +14,36 @@ class DashboardWeb extends StatefulWidget {
 class _DashboardWebState extends State<DashboardWeb> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bg,
-      body: ListView(
-        padding: const EdgeInsets.only(
-          right: 16,
-          left: 16,
-        ),
-        children: [
-          // DashboardCard(),
-          WebCard(),
-          // DashboardCardUser(),
-          Padding(
-            padding: const EdgeInsets.only(
-              right: 20.0,
-              left: 20.0,
-            ),
-            child: Row(
-              children: [
-                Expanded(child: AttendanceChart()),
-                const SizedBox(width: 10),
-                Expanded(child: StatusTaskChart()),
-              ],
-            ),
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.bg,
+        body: ListView(
+          padding: const EdgeInsets.only(
+            right: 16,
+            left: 16,
           ),
-        ],
+          children: [
+            // DashboardCard(),
+            WebCard(),
+            // DashboardCardUser(),
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 20.0,
+                left: 20.0,
+              ),
+              child: Row(
+                children: [
+                  Expanded(child: AttendanceChart()),
+                  const SizedBox(width: 10),
+                  Expanded(child: StatusTaskChart()),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
