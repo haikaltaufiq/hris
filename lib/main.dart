@@ -122,9 +122,9 @@ void callbackDispatcher() {
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   
-  // ✅ PERBAIKAN: Ambil user_id yang sedang login
+  // ✅ PERBAIKAN: Ambil id yang sedang login
   final prefs = await SharedPreferences.getInstance();
-  final currentUserId = prefs.getInt('user_id');
+  final currentUserId = prefs.getInt('id');
   
   final data = message.data;
   final plugin = FlutterLocalNotificationsPlugin();
@@ -134,8 +134,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final tugasId = data['tugas_id']?.toString() ?? '';
   final judul = data['judul'] ?? 'Tugas';
   
-  // ✅ PERBAIKAN: Ambil target_user_id dari notifikasi
-  final targetUserId = int.tryParse(data['target_user_id']?.toString() ?? '');
+  // ✅ PERBAIKAN: Ambil target_id dari notifikasi
+  final targetUserId = int.tryParse(data['target_id']?.toString() ?? '');
   
   // ✅ LOG untuk debugging
   print('==========================================');
@@ -146,7 +146,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Current User ID: $currentUserId');
   print('==========================================');
   
-  // ✅ VALIDASI: Jika ada target_user_id, pastikan sesuai dengan current user
+  // ✅ VALIDASI: Jika ada target_id, pastikan sesuai dengan current user
   if (targetUserId != null && targetUserId != currentUserId) {
     print('❌ Notifikasi bukan untuk user ini. Skip processing.');
     return; // ❌ JANGAN PROSES notifikasi ini
@@ -538,9 +538,9 @@ class _MyAppState extends State<MyApp> {
 
   // ========== HANDLE FOREGROUND MESSAGE ==========
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
-    // ✅ PERBAIKAN: Ambil user_id yang sedang login
+    // ✅ PERBAIKAN: Ambil id yang sedang login
     final prefs = await SharedPreferences.getInstance();
-    final currentUserId = prefs.getInt('user_id');
+    final currentUserId = prefs.getInt('id');
     
     final data = message.data;
     final plugin = flutterLocalNotificationsPlugin;
@@ -550,8 +550,8 @@ class _MyAppState extends State<MyApp> {
     final tugasId = int.tryParse(data['tugas_id'] ?? '') ?? 0;
     final judul = data['judul'] ?? 'Tugas';
     
-    // ✅ PERBAIKAN: Ambil target_user_id dari notifikasi
-    final targetUserId = int.tryParse(data['target_user_id']?.toString() ?? '');
+    // ✅ PERBAIKAN: Ambil target_id dari notifikasi
+    final targetUserId = int.tryParse(data['target_id']?.toString() ?? '');
     
     // ✅ LOG untuk debugging
     print('==========================================');
@@ -562,7 +562,7 @@ class _MyAppState extends State<MyApp> {
     print('Current User ID: $currentUserId');
     print('==========================================');
     
-    // ✅ VALIDASI: Jika ada target_user_id, pastikan sesuai dengan current user
+    // ✅ VALIDASI: Jika ada target_id, pastikan sesuai dengan current user
     if (targetUserId != null && targetUserId != currentUserId) {
       print('❌ Notifikasi bukan untuk user ini. Skip processing.');
       return; // ❌ JANGAN PROSES notifikasi ini
