@@ -205,6 +205,18 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           channel: 'cuti_channel', channelName: 'Cuti Notifications');
       break;
 
+    case 'cuti_perlu_approval':
+    case 'cuti_perlu_approval_final':
+      await _showNotification(
+        plugin,
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        message.notification?.title ?? 'Cuti Perlu Persetujuan',
+        message.notification?.body ?? 'Ada pengajuan cuti yang perlu disetujui',
+        channel: 'cuti_channel',
+        channelName: 'Cuti Notifications',
+      );
+      break;
+
     // ===== LEMBUR HANDLERS =====
     case 'lembur_diajukan':
       await _showNotification(plugin, data['lembur_id'].hashCode,
@@ -229,6 +241,39 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           '❌ Lembur Ditolak', 'Lembur Anda ditolak.',
           channel: 'lembur_channel', channelName: 'Lembur Notifications');
       break;
+
+    case 'lembur_perlu_approval':
+    case 'lembur_perlu_approval_final':
+      await _showNotification(
+        plugin,
+        DateTime.now().millisecondsSinceEpoch ~/ 1000,
+        message.notification?.title ?? 'Lembur Perlu Persetujuan',
+        message.notification?.body ?? 'Ada pengajuan lembur yang perlu disetujui',
+        channel: 'lembur_channel',
+        channelName: 'Lembur Notifications',
+      );
+      break;
+
+    // ✅ DEFAULT HANDLER untuk notifikasi yang tidak terduga
+    // default:
+    //   await _showNotification(
+    //     plugin,
+    //     DateTime.now().millisecondsSinceEpoch ~/ 1000,
+    //     message.notification?.title ?? 'Notifikasi',
+    //     message.notification?.body ?? 'Anda mendapat notifikasi baru',
+    //     channel: tipe?.contains('lembur') == true
+    //         ? 'lembur_channel'
+    //         : tipe?.contains('cuti') == true
+    //             ? 'cuti_channel'
+    //             : 'default_channel',
+    //     channelName: tipe?.contains('lembur') == true
+    //         ? 'Lembur Notifications'
+    //         : tipe?.contains('cuti') == true
+    //             ? 'Cuti Notifications'
+    //             : 'Default Notifications',
+    //   );
+    //   break;
+
   }
 }
 
@@ -521,6 +566,22 @@ class _MyAppState extends State<MyApp> {
         await _handleCutiLemburNotif(data, plugin, 'cuti', 'ditolak');
         break;
 
+      case 'cuti_perlu_approval':
+      case 'cuti_perlu_approval_final':
+        await _showNotif(
+          plugin,
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          message.notification?.title ?? 
+            (context.isIndonesian ? 'Cuti Perlu Persetujuan' : 'Leave Approval Required'),
+          message.notification?.body ?? 
+            (context.isIndonesian ? 'Ada pengajuan cuti yang perlu disetujui' : 'Leave application requires approval'),
+          channel: 'cuti_channel',
+          channelName: 'Cuti Notifications',
+          sound: true,
+          vibration: true,
+        );
+        break;
+
       // ===== LEMBUR =====
       case 'lembur_diajukan':
         await _handleCutiLemburNotif(data, plugin, 'lembur', 'diajukan');
@@ -533,6 +594,22 @@ class _MyAppState extends State<MyApp> {
         break;
       case 'lembur_ditolak':
         await _handleCutiLemburNotif(data, plugin, 'lembur', 'ditolak');
+        break;
+
+      case 'lembur_perlu_approval':
+      case 'lembur_perlu_approval_final':
+        await _showNotif(
+          plugin,
+          DateTime.now().millisecondsSinceEpoch ~/ 1000,
+          message.notification?.title ?? 
+            (context.isIndonesian ? 'Lembur Perlu Persetujuan' : 'Overtime Approval Required'),
+          message.notification?.body ?? 
+            (context.isIndonesian ? 'Ada pengajuan lembur yang perlu disetujui' : 'Overtime application requires approval'),
+          channel: 'lembur_channel',
+          channelName: 'Lembur Notifications',
+          sound: true,
+          vibration: true,
+        );
         break;
     }
   }

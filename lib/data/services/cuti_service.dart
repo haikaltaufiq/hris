@@ -39,7 +39,7 @@ class CutiService {
     }
   }
 
-// Tambah cuti
+  // Tambah cuti
   static Future<Map<String, dynamic>> createCuti({
     required String nama,
     required String tipeCuti,
@@ -57,6 +57,7 @@ class CutiService {
           .parse(tanggalMulai)
           .toIso8601String()
           .split('T')[0];
+
       final formattedSelesai = DateFormat('dd / MM / yyyy')
           .parse(tanggalSelesai)
           .toIso8601String()
@@ -80,25 +81,37 @@ class CutiService {
 
       final data = jsonDecode(response.body);
 
+      // === SUKSES ===
       if (response.statusCode == 201) {
         return {
           'success': true,
           'message': data['message'] ?? 'Cuti berhasil diajukan',
         };
-      } else {
+      }
+
+      // === VALIDASI 422 ===
+      if (response.statusCode == 422 && data['errors'] != null) {
+        final firstErrorKey = data['errors'].keys.first;
+        final firstMessage = data['errors'][firstErrorKey][0];
         return {
           'success': false,
-          'message': data['message'] ?? 'Gagal mengajukan cuti',
+          'message': firstMessage,
         };
       }
+
+      // === ERROR LAIN ===
+      return {
+        'success': false,
+        'message': data['message'] ?? 'Gagal mengajukan cuti',
+      };
     } catch (e) {
       return {
         'success': false,
-        'message':
-            'Format tanggal tidak valid: $tanggalMulai - $tanggalSelesai',
+        'message': '$e',
       };
     }
   }
+
 
   // // Edit cuti
   // static Future<Map<String, dynamic>> editCuti({

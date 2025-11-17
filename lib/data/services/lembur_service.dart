@@ -93,9 +93,32 @@ class LemburService {
         'message': data['message'] ?? 'Lembur berhasil diajukan',
       };
     } else {
+      // Jika Laravel kirim errors[]
+      if (data is Map && data["errors"] != null) {
+        final errors = data["errors"] as Map<String, dynamic>;
+
+        // Ambil error pertama
+        final firstKey = errors.keys.first;
+        final firstMessage = errors[firstKey][0];
+
+        return {
+          'success': false,
+          'message': firstMessage,
+        };
+      }
+
+      // Jika hanya ada "message" (error manual dari backend)
+      if (data is Map && data["message"] != null) {
+        return {
+          'success': false,
+          'message': data["message"],
+        };
+      }
+
+      // Default fallback
       return {
         'success': false,
-        'message': data['message'] ?? 'Gagal mengajukan lembur',
+        'message': 'Gagal mengajukan lembur',
       };
     }
   }
