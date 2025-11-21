@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -9,8 +10,8 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/location_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
-
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class InputOut extends StatefulWidget {
@@ -24,10 +25,36 @@ class _InputOutState extends State<InputOut> {
   final TextEditingController _tanggalController = TextEditingController();
   final TextEditingController _jamSelesaiController = TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
+  Timer? _locationTimer;
 
   @override
   void initState() {
     super.initState();
+    _requestLocationPermission();
+    _autoFillDateTime();
+  }
+
+  /// Request location permission and start tracking
+  Future<void> _requestLocationPermission() async {
+    final locationStatus = await Permission.location.request();
+
+    if (locationStatus.isGranted) {
+      await _startLocationUpdates();
+    } else {
+      if (!mounted) return;
+      final message = context.isIndonesian
+          ? "Izin lokasi ditolak. Aktifkan lokasi untuk melanjutkan."
+          : "Location permission denied. Enable location to continue.";
+      NotificationHelper.showTopNotification(
+        context,
+        message,
+        isSuccess: false,
+      );
+    }
+  }
+
+  /// Auto-fill current date and time
+  void _autoFillDateTime() {
     final now = DateTime.now();
     _tanggalController.text =
         "${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}";
@@ -35,8 +62,42 @@ class _InputOutState extends State<InputOut> {
         "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}";
   }
 
+  /// Start periodic location updates every 3 seconds
+  Future<void> _startLocationUpdates() async {
+    await _fetchLocation();
+
+    _locationTimer = Timer.periodic(const Duration(seconds: 3), (_) async {
+      await _fetchLocation();
+    });
+  }
+
+  /// Fetch current location and update controller
+  Future<void> _fetchLocation() async {
+    final position = await LocationService.getCurrentPosition();
+
+    if (!mounted) return;
+
+    if (position == null) {
+      _lokasiController.text = "";
+      final message = context.isIndonesian
+          ? "GPS mati atau izin ditolak"
+          : "GPS is off or permission denied";
+      NotificationHelper.showTopNotification(
+        context,
+        message,
+        isSuccess: false,
+      );
+      return;
+    }
+
+    setState(() {
+      _lokasiController.text = "${position.latitude}, ${position.longitude}";
+    });
+  }
+
   @override
   void dispose() {
+    _locationTimer?.cancel();
     _tanggalController.dispose();
     _jamSelesaiController.dispose();
     _lokasiController.dispose();
@@ -96,10 +157,8 @@ class _InputOutState extends State<InputOut> {
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
-          // === Lokasi ===
           _buildLokasiSection(labelStyle, textStyle, inputStyle),
           const SizedBox(height: 20),
-          // === Tombol Submit ===
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -126,6 +185,7 @@ class _InputOutState extends State<InputOut> {
     );
   }
 
+  /// Build location section UI
   Widget _buildLokasiSection(
       TextStyle labelStyle, TextStyle textStyle, InputDecoration inputStyle) {
     return Column(
@@ -133,8 +193,10 @@ class _InputOutState extends State<InputOut> {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8.0),
-          child: Text(context.isIndonesian ? "Lokasi" : "Location",
-              style: labelStyle),
+          child: Text(
+            context.isIndonesian ? "Lokasi" : "Location",
+            style: labelStyle,
+          ),
         ),
         TextFormField(
           controller: _lokasiController,
@@ -142,17 +204,14 @@ class _InputOutState extends State<InputOut> {
           decoration: inputStyle.copyWith(
             hintText: context.isIndonesian
                 ? "Koordinat lokasi Anda"
-                : "Your Location coordinates",
+                : "Your Location coordinate",
           ),
           readOnly: true,
         ),
         const SizedBox(height: 12),
         Row(
           children: [
-            // Tombol ambil lokasi
-            Expanded(child: _buildAmbilLokasiButton()),
             const SizedBox(width: 12),
-            // Tombol lihat peta
             Expanded(child: _buildLihatPetaButton()),
           ],
         ),
@@ -160,92 +219,7 @@ class _InputOutState extends State<InputOut> {
     );
   }
 
-  Widget _buildAmbilLokasiButton() {
-    return Container(
-      height: 45,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppColors.secondary.withOpacity(0.8),
-            AppColors.secondary,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.secondary.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () async {
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            );
-
-            final position = await LocationService.getCurrentPosition();
-            Navigator.pop(context);
-
-            if (!mounted) return;
-
-            if (position == null) {
-              final message = context.isIndonesian
-                  ? "GPS mati atau izin ditolak"
-                  : "GPS is off or permission denied";
-              NotificationHelper.showTopNotification(
-                context,
-                message,
-                isSuccess: false,
-              );
-              return;
-            }
-
-            setState(() {
-              _lokasiController.text =
-                  "${position.latitude}, ${position.longitude}";
-            });
-
-            HapticFeedback.lightImpact();
-            final successMessage = context.isIndonesian
-                ? "Lokasi berhasil didapatkan"
-                : "Location successfully obtained";
-            NotificationHelper.showTopNotification(
-              context,
-              successMessage,
-              isSuccess: true,
-            );
-          },
-          borderRadius: BorderRadius.circular(12),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.my_location, color: AppColors.putih, size: 18),
-              const SizedBox(width: 8),
-              Text(
-                context.isIndonesian ? "Ambil Lokasi" : "Take Location",
-                style: GoogleFonts.poppins(
-                  color: AppColors.putih,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
+  /// Build "See Map" button
   Widget _buildLihatPetaButton() {
     return Container(
       height: 45,
@@ -264,7 +238,7 @@ class _InputOutState extends State<InputOut> {
             if (_lokasiController.text.isEmpty) {
               final message = context.isIndonesian
                   ? "Ambil lokasi terlebih dahulu"
-                  : "Take location first";
+                  : "Get location first";
               NotificationHelper.showTopNotification(
                 context,
                 message,
@@ -276,9 +250,10 @@ class _InputOutState extends State<InputOut> {
               final parts = _lokasiController.text.split(',');
               final lat = double.parse(parts[0].trim());
               final lng = double.parse(parts[1].trim());
+              HapticFeedback.selectionClick();
               showModalBottomSheet(
                 context: context,
-                backgroundColor: Colors.transparent,
+                backgroundColor: AppColors.bg,
                 isScrollControlled: true,
                 builder: (_) => DraggableScrollableSheet(
                   initialChildSize: 0.9,
@@ -288,7 +263,7 @@ class _InputOutState extends State<InputOut> {
                   builder: (context, scrollController) {
                     return Container(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: AppColors.primary,
                         borderRadius: const BorderRadius.vertical(
                             top: Radius.circular(20)),
                         boxShadow: [
@@ -301,10 +276,8 @@ class _InputOutState extends State<InputOut> {
                       ),
                       child: Stack(
                         children: [
-                          // Konten bisa discroll
                           Column(
                             children: [
-                              // Handle bar
                               Container(
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 10),
@@ -318,26 +291,21 @@ class _InputOutState extends State<InputOut> {
                               Text(
                                 context.isIndonesian
                                     ? "Lokasi Absen"
-                                    : "Check-out Location",
+                                    : "Attend Location",
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
+                                  color: AppColors.putih,
                                 ),
                               ),
                               const SizedBox(height: 10),
-
-                              // Map full tinggi fix
                               Expanded(
                                 child: MapPageModal(target: LatLng(lat, lng)),
                               ),
-
-                              const SizedBox(
-                                  height: 200), // dummy biar bisa full drag
+                              const SizedBox(height: 200),
                             ],
                           ),
-
-                          // Card info nempel di bawah
                           Positioned(
                             left: 0,
                             right: 0,
@@ -390,12 +358,16 @@ class _InputOutState extends State<InputOut> {
     );
   }
 
+  /// Submit checkout data
   Future<void> _submitCheckOut() async {
+    _locationTimer?.cancel();
+    _locationTimer = null;
+
     if (_lokasiController.text.isEmpty) {
       if (!mounted) return;
       final message = context.isIndonesian
           ? "Ambil lokasi dulu sebelum submit"
-          : "Take location first before submitting";
+          : "Get location first before submitting";
       NotificationHelper.showTopNotification(
         context,
         message,
@@ -403,15 +375,15 @@ class _InputOutState extends State<InputOut> {
       );
       return;
     }
+
     final absenProvider = context.read<AbsenProvider>();
-    // Show loading dialog
+
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (context) => Center(
-          child: CircularProgressIndicator(
-        color: AppColors.putih,
-      )),
+        child: CircularProgressIndicator(color: AppColors.putih),
+      ),
     );
 
     try {
@@ -429,23 +401,27 @@ class _InputOutState extends State<InputOut> {
       Navigator.pop(context);
 
       if (!mounted) return;
-      final success = absenProvider.lastCheckoutResult?['success'] ?? false;
-      final successMessage =
-          context.isIndonesian ? "Checkout berhasil" : "Checkout success";
-      final message =
-          absenProvider.lastCheckoutResult?['message'] ?? successMessage;
-      NotificationHelper.showTopNotification(
-        context,
-        message,
-        isSuccess: success,
-      );
 
-      // Reset lokasi kalau sukses
-      if (success) {
+      if (absenProvider.lastCheckoutResult?['success'] == true) {
+        final message =
+            context.isIndonesian ? "Checkout berhasil" : "Checkout success";
+        NotificationHelper.showTopNotification(
+          context,
+          absenProvider.lastCheckoutResult?['message'] ?? message,
+          isSuccess: true,
+        );
+        Navigator.of(context).pop(true);
         setState(() {
           _lokasiController.clear();
         });
-        Navigator.of(context).pop(true);
+      } else {
+        final message =
+            context.isIndonesian ? "Checkout gagal" : "Checkout failed";
+        NotificationHelper.showTopNotification(
+          context,
+          absenProvider.lastCheckoutResult?['message'] ?? message,
+          isSuccess: false,
+        );
       }
     } catch (e) {
       Navigator.pop(context);
