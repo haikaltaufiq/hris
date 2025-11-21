@@ -12,13 +12,11 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
-import 'package:hr/data/services/countdown_notification_service.dart';
 import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/info_kantor/location_dialog.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
-import 'package:hr/main.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -368,6 +366,11 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         TugasService.formatDateForApi(_batasPenugasanController.text.trim());
 
     try {
+      // ✅ Simpan user lama SEBELUM update
+
+      final userLamaId = widget.tugas.user?.id;
+      final userBaruId = _selectedUser?.id;
+
       final tugasProvider = context.read<TugasProvider>();
       final latitude = double.tryParse(_latitudeController.text.trim());
       final longitude = double.tryParse(_longitudeController.text.trim());
@@ -392,7 +395,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         batasPenugasan: batasFormatted,
         tugasLat: latitude!,
         tugasLng: longitude!,
-        person: _selectedUser?.id,
+        person: userBaruId,
         note: _noteController.text.trim(),
         radius: radius,
       );
@@ -410,28 +413,39 @@ class _TugasInputEditState extends State<TugasInputEdit> {
 
       if (isSuccess && mounted) {
         // 1) Update cache lokal segera supaya countdown baca data baru
+        if (userBaruId != userLamaId) {
+          print('⚠️ PIC berubah: $userLamaId -> $userBaruId');
+          print('✅ Backend akan kirim notifikasi terpisah:');
+          print('   - User lama ($userLamaId): tugas_pindah');
+          print('   - User baru ($userBaruId): tugas_baru');
+        } else {
+          print(
+              '✅ PIC tidak berubah, backend kirim tugas_update ke User $userBaruId');
+        }
+
         try {
           final box = Hive.box('tugas');
           await box.put('batas_penugasan_${widget.tugas.id}', batasFormatted);
           // set flag untuk background worker bila perlu
           await box.put('update_needed_${widget.tugas.id}', true);
+          print('✅ Hive cache berhasil diupdate');
         } catch (e) {
           // log, tapi jangan ganggu alur success
-          // print('Gagal update Hive batas_penugasan: $e');
+          print('Gagal update Hive batas_penugasan: $e');
         }
 
         // 2) Stop countdown lama dan start countdown baru
-        try {
-          final countdownSvc =
-              CountdownNotificationService(flutterLocalNotificationsPlugin);
-          await countdownSvc.stopCountdown();
-          final batasDate = DateTime.parse(batasFormatted);
-          countdownSvc.startCountdown(
-              batasDate, _judulTugasController.text.trim(), widget.tugas.id);
-        } catch (e) {
-          // print('Gagal restart countdown: $e');
-        }
-
+        // try {
+        //   final countdownSvc =
+        //       CountdownNotificationService(flutterLocalNotificationsPlugin);
+        //   await countdownSvc.stopCountdown(tugasId: widget.tugas.id);
+        //   final batasDate = DateTime.parse(batasFormatted);
+        //   countdownSvc.startCountdown(
+        //       batasDate, _judulTugasController.text.trim(), widget.tugas.id);
+        // } catch (e) {
+        //   print('⚠️ Gagal restart countdown: $e');
+        // }
+        print('✅ Menunggu FCM notification untuk restart countdown...');
         Navigator.pop(context, true);
       }
     } catch (e) {

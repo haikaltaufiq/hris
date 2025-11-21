@@ -116,8 +116,16 @@ void callbackDispatcher() {
 // ==========================================
 // BACKGROUND MESSAGE HANDLER
 // ==========================================
+// ==========================================
+// BACKGROUND MESSAGE HANDLER - FIXED
+// ==========================================
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
+  
+  // ✅ PERBAIKAN: Ambil id yang sedang login
+  final prefs = await SharedPreferences.getInstance();
+  final currentUserId = prefs.getInt('id');
+  
   final data = message.data;
   final plugin = FlutterLocalNotificationsPlugin();
   final box = await Hive.openBox('tugas');
@@ -125,59 +133,113 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final tipe = data['tipe'];
   final tugasId = data['tugas_id']?.toString() ?? '';
   final judul = data['judul'] ?? 'Tugas';
+  
+  // ✅ PERBAIKAN: Ambil target_id dari notifikasi
+  final targetUserId = int.tryParse(data['target_id']?.toString() ?? '');
+  
+  // ✅ LOG untuk debugging
+  print('==========================================');
+  print('🔔 FCM BACKGROUND RECEIVED');
+  print('Tipe: $tipe');
+  print('Tugas ID: $tugasId');
+  print('Target User ID: $targetUserId');
+  print('Current User ID: $currentUserId');
+  print('==========================================');
+  
+  // ✅ VALIDASI: Jika ada target_id, pastikan sesuai dengan current user
+  if (targetUserId != null && targetUserId != currentUserId) {
+    print('❌ Notifikasi bukan untuk user ini. Skip processing.');
+    return; // ❌ JANGAN PROSES notifikasi ini
+  }
 
   switch (tipe) {
-    // ===== TUGAS HANDLERS =====
+    // ===== TUGAS BARU/UPDATE (dengan progress bar) =====
     case 'tugas_baru':
+    case 'tugas_update':
+      // ✅ Hanya proses jika notifikasi untuk user ini
+      if (data['batas_penugasan'] == null) {
+        print('⚠️ Tidak ada batas_penugasan, skip countdown');
+        break;
+      }
+      
       final batas = DateTime.parse(data['batas_penugasan']);
       await box.put('batas_penugasan_$tugasId', batas.toIso8601String());
-      await _showNotification(plugin, tugasId.hashCode, '📌 Tugas Baru',
-          'Kamu punya tugas baru: "$judul", deadline: ${batas.toLocal()}');
+      
+      if (tipe == 'tugas_update') {
+        await box.put('update_needed_$tugasId', true);
+      }
+      
+      await _showNotification(
+        plugin, 
+        tugasId.hashCode, 
+        tipe == 'tugas_baru' ? '📌 Tugas Baru' : '⏰ Tugas Diperbarui',
+        'Kamu punya tugas: "$judul", deadline: ${batas.toLocal()}'
+      );
+      print('✅ Progress bar akan dimulai untuk tugas ID: $tugasId');
       break;
 
-    case 'tugas_update':
-      final batasBaru = DateTime.parse(data['batas_penugasan']);
-      await box.put('batas_penugasan_$tugasId', batasBaru.toIso8601String());
-      await box.put('update_needed_$tugasId', true);
-      await _showNotification(plugin, tugasId.hashCode, '⏰ Tugas Diperbarui',
-          'Deadline tugas "$judul" diubah ke ${batasBaru.toLocal()}');
-      break;
-
+    // ===== HAPUS PROGRESS BAR (pindah PIC, hapus, selesai) =====
     case 'tugas_hapus':
-      await box.delete('batas_penugasan_$tugasId');
-      await box.delete('update_needed_$tugasId');
-      await plugin.cancel(tugasId.hashCode);
-      await _showNotification(plugin, tugasId.hashCode, '❌ Tugas Dihapus',
-          'Tugas "$judul" telah dihapus.');
-      break;
-
     case 'tugas_pindah':
-      await box.delete('batas_penugasan_$tugasId');
-      await box.delete('update_needed_$tugasId');
-      await plugin.cancel(tugasId.hashCode);
-      await _showNotification(plugin, tugasId.hashCode, '👋 Tugas Dipindahkan',
-          'Tugas "$judul" sudah dipindahkan ke pengguna lain.');
-      break;
-
-    case 'tugas_lampiran':
-      await _showNotification(plugin, tugasId.hashCode, '📎 Lampiran Dikirim',
-          'Lampiran baru untuk tugas "$judul" telah dikirim.');
-      break;
-
     case 'tugas_selesai':
+    case 'tugas_lampiran_dikirim':
+      print('🗑️ Menghapus progress bar untuk tugas ID: $tugasId');
+      
+      // ✅ Hapus semua data countdown dari Hive
       await box.delete('batas_penugasan_$tugasId');
       await box.delete('update_needed_$tugasId');
+      await box.delete('uploaded_$tugasId');
+      
+      // ✅ Cancel notifikasi progress bar yang sedang berjalan
       await plugin.cancel(tugasId.hashCode);
-      await _showNotification(plugin, tugasId.hashCode, '✅ Tugas Selesai',
-          'Tugas "$judul" sudah diselesaikan.');
+      
+      // ✅ Tampilkan notifikasi one-time (bukan progress bar)
+      String title, body;
+      switch (tipe) {
+        case 'tugas_hapus':
+          title = '❌ Tugas Dihapus';
+          body = 'Tugas "$judul" telah dihapus oleh admin.';
+          break;
+        case 'tugas_pindah':
+          title = '👋 Tugas Dipindahkan';
+          body = 'Tugas "$judul" sudah dipindahkan ke pengguna lain.';
+          break;
+        case 'tugas_selesai':
+          title = '✅ Tugas Selesai - Kerja Bagus!';
+          body = 'Selamat! Tugas "$judul" telah disetujui.';
+          break;
+        case 'tugas_lampiran_dikirim':
+          title = '✅ Lampiran Terkirim';
+          body = 'Kamu sudah mengirim lampiran tugas "$judul". Menunggu verifikasi admin.';
+          break;
+        default:
+          title = 'Notifikasi Tugas';
+          body = 'Update tugas "$judul"';
+      }
+      
+      await _showNotification(plugin, 999000 + int.parse(tugasId), title, body);
+      break;
+
+    // ===== NOTIFIKASI ADMIN (TANPA progress bar) =====
+    case 'tugas_lampiran':
+      print('📎 Admin menerima notifikasi lampiran (tanpa progress bar)');
+      // ✅ Admin TIDAK perlu countdown, hanya notifikasi biasa
+      await _showNotification(
+        plugin, 
+        tugasId.hashCode, 
+        '📎 Lampiran Dikirim',
+        'Lampiran baru untuk tugas "$judul" telah dikirim.'
+      );
+      // ❌ TIDAK ada box.put atau countdown untuk admin
       break;
 
     case 'tugas_update_proses':
       await _showNotification(
-          plugin,
-          999000 + int.parse(tugasId),
-          '📝 Perhatian',
-          'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.');
+        plugin,
+        999000 + int.parse(tugasId),
+        '📝 Perhatian',
+        'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.'
+      );
       break;
 
     // ===== CUTI HANDLERS =====
@@ -253,27 +315,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         channelName: 'Lembur Notifications',
       );
       break;
-
-    // ✅ DEFAULT HANDLER untuk notifikasi yang tidak terduga
-    // default:
-    //   await _showNotification(
-    //     plugin,
-    //     DateTime.now().millisecondsSinceEpoch ~/ 1000,
-    //     message.notification?.title ?? 'Notifikasi',
-    //     message.notification?.body ?? 'Anda mendapat notifikasi baru',
-    //     channel: tipe?.contains('lembur') == true
-    //         ? 'lembur_channel'
-    //         : tipe?.contains('cuti') == true
-    //             ? 'cuti_channel'
-    //             : 'default_channel',
-    //     channelName: tipe?.contains('lembur') == true
-    //         ? 'Lembur Notifications'
-    //         : tipe?.contains('cuti') == true
-    //             ? 'Cuti Notifications'
-    //             : 'Default Notifications',
-    //   );
-    //   break;
-
+      
+    default:
+      print('⚠️ Tipe notifikasi tidak dikenali: $tipe');
+      break;
   }
 }
 
@@ -493,6 +538,10 @@ class _MyAppState extends State<MyApp> {
 
   // ========== HANDLE FOREGROUND MESSAGE ==========
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    // ✅ PERBAIKAN: Ambil id yang sedang login
+    final prefs = await SharedPreferences.getInstance();
+    final currentUserId = prefs.getInt('id');
+    
     final data = message.data;
     final plugin = flutterLocalNotificationsPlugin;
     final box = await Hive.openBox('tugas');
@@ -500,6 +549,24 @@ class _MyAppState extends State<MyApp> {
     final tipe = data['tipe'];
     final tugasId = int.tryParse(data['tugas_id'] ?? '') ?? 0;
     final judul = data['judul'] ?? 'Tugas';
+    
+    // ✅ PERBAIKAN: Ambil target_id dari notifikasi
+    final targetUserId = int.tryParse(data['target_id']?.toString() ?? '');
+    
+    // ✅ LOG untuk debugging
+    print('==========================================');
+    print('🔔 FCM FOREGROUND RECEIVED');
+    print('Tipe: $tipe');
+    print('Tugas ID: $tugasId');
+    print('Target User ID: $targetUserId');
+    print('Current User ID: $currentUserId');
+    print('==========================================');
+    
+    // ✅ VALIDASI: Jika ada target_id, pastikan sesuai dengan current user
+    if (targetUserId != null && targetUserId != currentUserId) {
+      print('❌ Notifikasi bukan untuk user ini. Skip processing.');
+      return; // ❌ JANGAN PROSES notifikasi ini
+    }
 
     switch (tipe) {
       // ===== TUGAS =====
@@ -520,6 +587,8 @@ class _MyAppState extends State<MyApp> {
         break;
 
       case 'tugas_lampiran':
+        // ✅ Admin menerima notifikasi TANPA progress bar
+        print('📎 Admin menerima notifikasi lampiran (tanpa progress bar)');
         await _showNotif(
             plugin,
             999000 + tugasId,

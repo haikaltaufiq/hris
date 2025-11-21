@@ -6,7 +6,7 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/services/log_service.dart';
 
 class WebTabelLog extends StatefulWidget {
-  final String? searchQuery; // Terima query dari parent
+  final String? searchQuery;
 
   const WebTabelLog({super.key, this.searchQuery});
 
@@ -19,7 +19,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
   bool isLoading = true;
   String? errorMessage;
   Set<String> expandedUsers = {};
-  Set<int> selectedLogs = {};
   Map<String, bool> userShowAll = {};
   final int itemsPerPage = 10;
 
@@ -27,15 +26,6 @@ class _WebTabelLogState extends State<WebTabelLog> {
   void initState() {
     super.initState();
     _loadActivityLogs();
-  }
-
-  @override
-  void didUpdateWidget(WebTabelLog oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Reload data jika search query berubah
-    if (oldWidget.searchQuery != widget.searchQuery) {
-      setState(() {});
-    }
   }
 
   Future<void> _loadActivityLogs() async {
@@ -46,31 +36,45 @@ class _WebTabelLogState extends State<WebTabelLog> {
       });
 
       final logs = await ActivityLogService.fetchActivityLogs();
+
+      // Validate and filter invalid entries
+      if (logs == null) {
+        throw Exception('Data tidak tersedia dari server');
+      }
+
+      final validLogs = logs.where((log) {
+        return log != null &&
+            log['user'] != null &&
+            log['action'] != null &&
+            log['module'] != null &&
+            log['description'] != null;
+      }).toList();
+
       setState(() {
-        activityLogs = logs;
+        activityLogs = validLogs;
         isLoading = false;
       });
     } catch (e) {
       setState(() {
-        errorMessage = e.toString();
+        errorMessage = 'Gagal memuat data: ${e.toString()}';
         isLoading = false;
       });
     }
   }
 
-  // Filter logs berdasarkan search query
   List<Map<String, dynamic>> get filteredLogs {
-    if (widget.searchQuery == null || widget.searchQuery!.isEmpty) {
+    if (widget.searchQuery == null || widget.searchQuery!.trim().isEmpty) {
       return activityLogs;
     }
 
-    final query = widget.searchQuery!.toLowerCase();
+    final query = widget.searchQuery!.toLowerCase().trim();
     return activityLogs.where((log) {
-      final user = (log['user'] as String).toLowerCase();
-      final action = (log['action'] as String).toLowerCase();
-      final module = (log['module'] as String).toLowerCase();
-      final description = (log['description'] as String).toLowerCase();
-      final timestamp = (log['created_at'] as String).toLowerCase();
+      // Safe null-aware access
+      final user = (log['user'] as String?)?.toLowerCase() ?? '';
+      final action = (log['action'] as String?)?.toLowerCase() ?? '';
+      final module = (log['module'] as String?)?.toLowerCase() ?? '';
+      final description = (log['description'] as String?)?.toLowerCase() ?? '';
+      final timestamp = (log['created_at'] as String?)?.toLowerCase() ?? '';
 
       return user.contains(query) ||
           action.contains(query) ||
@@ -82,14 +86,34 @@ class _WebTabelLogState extends State<WebTabelLog> {
 
   Map<String, List<Map<String, dynamic>>> get groupedLogs {
     final Map<String, List<Map<String, dynamic>>> grouped = {};
+
     for (var log in filteredLogs) {
-      final user = log['user'] as String;
-      if (!grouped.containsKey(user)) grouped[user] = [];
+      final user = log['user'] as String? ?? 'Unknown';
+      if (!grouped.containsKey(user)) {
+        grouped[user] = [];
+      }
       grouped[user]!.add(log);
     }
+
+    // Safe sorting with null handling
     grouped.forEach((_, value) {
-      value.sort((a, b) => b['id'].compareTo(a['id']));
+      value.sort((a, b) {
+        final aId = a['id'];
+        final bId = b['id'];
+
+        if (aId == null || bId == null) return 0;
+
+        // Handle both int and String types
+        if (aId is int && bId is int) {
+          return bId.compareTo(aId);
+        }
+
+        final aInt = int.tryParse(aId.toString()) ?? 0;
+        final bInt = int.tryParse(bId.toString()) ?? 0;
+        return bInt.compareTo(aInt);
+      });
     });
+
     return grouped;
   }
 
@@ -110,77 +134,86 @@ class _WebTabelLogState extends State<WebTabelLog> {
   }
 
   Color getActionColor(String action) {
-    if (action.toLowerCase().contains('menambah') ||
-        action.toLowerCase().contains('tambah')) {
+    final lowerAction = action.toLowerCase();
+
+    if (lowerAction.contains('menambah') || lowerAction.contains('tambah')) {
       return Colors.blue;
     }
-    if (action.toLowerCase().contains('mengubah') ||
-        action.toLowerCase().contains('ubah') ||
-        action.toLowerCase().contains('edit') ||
-        action.toLowerCase().contains('update')) {
+    if (lowerAction.contains('mengubah') ||
+        lowerAction.contains('ubah') ||
+        lowerAction.contains('edit') ||
+        lowerAction.contains('update')) {
       return Colors.orange;
     }
-    if (action.toLowerCase().contains('menolak') ||
-        action.toLowerCase().contains('tolak') ||
-        action.toLowerCase().contains('reject')) {
+    if (lowerAction.contains('menolak') ||
+        lowerAction.contains('tolak') ||
+        lowerAction.contains('reject')) {
       return Colors.red;
     }
-    if (action.toLowerCase().contains('menyetujui') ||
-        action.toLowerCase().contains('setuju') ||
-        action.toLowerCase().contains('approve')) {
+    if (lowerAction.contains('menyetujui') ||
+        lowerAction.contains('setuju') ||
+        lowerAction.contains('approve')) {
       return Colors.green;
     }
-    if (action.toLowerCase().contains('mengajukan') ||
-        action.toLowerCase().contains('ajukan') ||
-        action.toLowerCase().contains('submit')) {
+    if (lowerAction.contains('mengajukan') ||
+        lowerAction.contains('ajukan') ||
+        lowerAction.contains('submit')) {
       return Colors.purple;
     }
-    if (action.toLowerCase().contains('check in') ||
-        action.toLowerCase().contains('checkin')) {
+    if (lowerAction.contains('check in') || lowerAction.contains('checkin')) {
       return Colors.teal;
     }
-    if (action.toLowerCase().contains('check out') ||
-        action.toLowerCase().contains('checkout')) {
+    if (lowerAction.contains('check out') || lowerAction.contains('checkout')) {
       return Colors.indigo;
     }
-    if (action.toLowerCase().contains('upload') ||
-        action.toLowerCase().contains('lampiran')) {
+    if (lowerAction.contains('upload') || lowerAction.contains('lampiran')) {
       return Colors.cyan;
     }
-    if (action.toLowerCase().contains('hapus') ||
-        action.toLowerCase().contains('delete')) {
+    if (lowerAction.contains('hapus') || lowerAction.contains('delete')) {
       return Colors.red.shade700;
     }
     return Colors.grey;
   }
 
   IconData getActionIcon(String action) {
-    if (action.toLowerCase().contains('menambah') ||
-        action.toLowerCase().contains('tambah'))
+    final lowerAction = action.toLowerCase();
+
+    if (lowerAction.contains('menambah') || lowerAction.contains('tambah')) {
       return Icons.add_circle_outline;
-    if (action.toLowerCase().contains('mengubah') ||
-        action.toLowerCase().contains('ubah') ||
-        action.toLowerCase().contains('edit') ||
-        action.toLowerCase().contains('update')) return Icons.edit_outlined;
-    if (action.toLowerCase().contains('menolak') ||
-        action.toLowerCase().contains('tolak') ||
-        action.toLowerCase().contains('reject')) return Icons.cancel_outlined;
-    if (action.toLowerCase().contains('menyetujui') ||
-        action.toLowerCase().contains('setuju') ||
-        action.toLowerCase().contains('approve'))
+    }
+    if (lowerAction.contains('mengubah') ||
+        lowerAction.contains('ubah') ||
+        lowerAction.contains('edit') ||
+        lowerAction.contains('update')) {
+      return Icons.edit_outlined;
+    }
+    if (lowerAction.contains('menolak') ||
+        lowerAction.contains('tolak') ||
+        lowerAction.contains('reject')) {
+      return Icons.cancel_outlined;
+    }
+    if (lowerAction.contains('menyetujui') ||
+        lowerAction.contains('setuju') ||
+        lowerAction.contains('approve')) {
       return Icons.check_circle_outline;
-    if (action.toLowerCase().contains('mengajukan') ||
-        action.toLowerCase().contains('ajukan') ||
-        action.toLowerCase().contains('submit')) return Icons.send_outlined;
-    if (action.toLowerCase().contains('check in') ||
-        action.toLowerCase().contains('checkin')) return Icons.login_outlined;
-    if (action.toLowerCase().contains('check out') ||
-        action.toLowerCase().contains('checkout')) return Icons.logout_outlined;
-    if (action.toLowerCase().contains('upload') ||
-        action.toLowerCase().contains('lampiran'))
+    }
+    if (lowerAction.contains('mengajukan') ||
+        lowerAction.contains('ajukan') ||
+        lowerAction.contains('submit')) {
+      return Icons.send_outlined;
+    }
+    if (lowerAction.contains('check in') || lowerAction.contains('checkin')) {
+      return Icons.login_outlined;
+    }
+    if (lowerAction.contains('check out') || lowerAction.contains('checkout')) {
+      return Icons.logout_outlined;
+    }
+    if (lowerAction.contains('upload') || lowerAction.contains('lampiran')) {
       return Icons.attach_file_outlined;
-    if (action.toLowerCase().contains('hapus') ||
-        action.toLowerCase().contains('delete')) return Icons.delete_outline;
+    }
+    if (lowerAction.contains('hapus') || lowerAction.contains('delete')) {
+      return Icons.delete_outline;
+    }
     return Icons.info_outline;
   }
 
@@ -211,18 +244,19 @@ class _WebTabelLogState extends State<WebTabelLog> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red),
-            SizedBox(height: 16),
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
             Text(
               'Gagal memuat data',
               style: TextStyle(color: AppColors.putih),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               errorMessage!,
               style: TextStyle(color: AppColors.putih),
+              textAlign: TextAlign.center,
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: _loadActivityLogs,
               icon: const Icon(Icons.refresh),
@@ -233,15 +267,13 @@ class _WebTabelLogState extends State<WebTabelLog> {
       );
     }
 
-    final grouped = groupedLogs;
-
     if (activityLogs.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.history, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
+            const Icon(Icons.history, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
             Text(
               context.isIndonesian ? 'Belum ada activity log' : 'No Activity',
               style: TextStyle(color: AppColors.putih),
@@ -251,16 +283,20 @@ class _WebTabelLogState extends State<WebTabelLog> {
       );
     }
 
+    final grouped = groupedLogs;
+
     if (grouped.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text(context.isIndonesian
-                ? 'Tidak ada hasil pencarian'
-                : 'No Search Results'),
+            const Icon(Icons.search_off, size: 64, color: Colors.grey),
+            const SizedBox(height: 16),
+            Text(
+              context.isIndonesian
+                  ? 'Tidak ada hasil pencarian'
+                  : 'No Search Results',
+            ),
           ],
         ),
       );
@@ -322,7 +358,9 @@ class _WebTabelLogState extends State<WebTabelLog> {
                         backgroundColor: AppColors.primary,
                         radius: 18,
                         child: Text(
-                          userName.substring(0, 1).toUpperCase(),
+                          userName.isNotEmpty
+                              ? userName.substring(0, 1).toUpperCase()
+                              : '?',
                           style: TextStyle(
                             color: AppColors.putih,
                             fontSize: 14,
@@ -379,8 +417,14 @@ class _WebTabelLogState extends State<WebTabelLog> {
                             ...displayLogs.asMap().entries.map((entry) {
                               final index = entry.key;
                               final log = entry.value;
-                              final actionColor = getActionColor(log['action']);
-                              final actionIcon = getActionIcon(log['action']);
+                              final action = log['action'] as String? ?? '';
+                              final module = log['module'] as String? ?? '';
+                              final description =
+                                  log['description'] as String? ?? '';
+                              final createdAt =
+                                  log['created_at'] as String? ?? '';
+                              final actionColor = getActionColor(action);
+                              final actionIcon = getActionIcon(action);
                               final isLast = index == displayLogs.length - 1;
 
                               return Row(
@@ -418,7 +462,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                           Row(
                                             children: [
                                               Text(
-                                                log['action'],
+                                                action,
                                                 style: TextStyle(
                                                   fontSize: 13,
                                                   fontWeight: FontWeight.w600,
@@ -438,7 +482,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                                       BorderRadius.circular(3),
                                                 ),
                                                 child: Text(
-                                                  log['module'],
+                                                  module,
                                                   style: TextStyle(
                                                     fontSize: 11,
                                                     color: Colors.grey.shade600,
@@ -449,7 +493,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            log['description'],
+                                            description,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: AppColors.putih,
@@ -457,7 +501,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            log['created_at'] ?? '',
+                                            createdAt,
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: Colors.grey.shade500,
@@ -469,7 +513,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
                                   ),
                                 ],
                               );
-                            }).toList(),
+                            }),
                             if (hasMoreLogs)
                               Padding(
                                 padding: const EdgeInsets.only(top: 8),
@@ -536,7 +580,7 @@ class _WebTabelLogState extends State<WebTabelLog> {
               if (entry != grouped.entries.last) const SizedBox(height: 8),
             ],
           );
-        }).toList(),
+        }),
       ],
     );
   }
