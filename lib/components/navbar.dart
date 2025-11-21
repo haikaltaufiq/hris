@@ -94,7 +94,7 @@ class ResponsiveNavBar extends StatefulWidget {
             route: AppRoutes.jabatan,
           ),
           NavItemWithFeature(
-            label: isIndonesian ? 'Hak Akses' : "Access Rights",
+            label: isIndonesian ? 'Peran' : "Access Rights",
             icon: FontAwesomeIcons.userShield,
             requiredFeatures: ["peran"],
             route: AppRoutes.peran,
