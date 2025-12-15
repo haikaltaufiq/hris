@@ -133,15 +133,16 @@ class TugasProvider extends ChangeNotifier {
   // Create tugas dengan koordinat
   Future<Map<String, dynamic>> createTugas({
     required String judul,
+    required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
-    required double tugasLat,
-    required double tugasLng,
+    // required double tugasLat,
+    // required double tugasLng,
     int? person,
     double? lampiranLat,
     double? lampiranLng,
     required String note,
-    required int radius, // Tambah ini
+    // required int radius, // Tambah ini
   }) async {
     _setLoading(true);
     try {
@@ -149,13 +150,14 @@ class TugasProvider extends ChangeNotifier {
         judul: judul,
         tanggalPenugasan: tanggalPenugasan,
         batasPenugasan: batasPenugasan,
-        tugasLat: tugasLat,
-        tugasLng: tugasLng,
+        // tugasLat: tugasLat,
+        // tugasLng: tugasLng,
         person: person,
         lampiranLat: lampiranLat,
         lampiranLng: lampiranLng,
         note: note,
-        radius: radius.toString(),
+        tugaslok: tugaslok,
+        // radius: radius.toString(),
       );
       if (result['success'] == true) await fetchTugas(forceRefresh: true);
       return result;
@@ -171,30 +173,32 @@ class TugasProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
+    required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
-    required double tugasLat,
-    required double tugasLng,
+    // required double tugasLat,
+    // required double tugasLng,
     int? person,
     double? lampiranLat,
     double? lampiranLng,
     required String note,
-    required int radius, // Tambah ini
+    // required int radius, // Tambah ini
   }) async {
     _setLoading(true);
     try {
       final result = await TugasService.updateTugas(
         id: id,
         judul: judul,
+        tugaslok: tugaslok,
         tanggalPenugasan: tanggalPenugasan,
         batasPenugasan: batasPenugasan,
-        tugasLat: tugasLat,
-        tugasLng: tugasLng,
+        // tugasLat: tugasLat,
+        // tugasLng: tugasLng,
         person: person,
         lampiranLat: lampiranLat,
         lampiranLng: lampiranLng,
         note: note,
-        radius: radius.toString(),
+        // radius: radius.toString(),
       );
       if (result['success'] == true) {
         // update cache lokal segera agar tidak terjadi race condition

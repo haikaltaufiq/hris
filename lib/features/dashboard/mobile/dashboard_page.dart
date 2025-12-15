@@ -169,14 +169,6 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Profile",
-                        requiredFeature: 'gaji',
-                        icon: FontAwesomeIcons.user,
-                        onTap: () {
-                          Navigator.pushNamed(context, AppRoutes.profile);
-                        },
-                      ),
-                      DashboardMenuItem(
                         label: "Pengaturan",
                         requiredFeature: 'gaji',
                         icon: FontAwesomeIcons.gear,

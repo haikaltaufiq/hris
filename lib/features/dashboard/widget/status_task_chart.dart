@@ -301,12 +301,13 @@ class StatusTaskChart extends StatelessWidget {
                               color: Colors.blue,
                               label: context.isIndonesian
                                   ? 'Menunggu Admin'
-                                  : 'Waiting Admin',
+                                  : 'Waiting',
                               count: _getTotalCount(chartData, 'menunggu'),
                             ),
                             _LegendItemWithCount(
                               color: Colors.deepOrange,
-                              label: context.isIndonesian ? 'Proses' : 'Proses',
+                              label:
+                                  context.isIndonesian ? 'Proses' : 'Progress',
                               count: _getTotalCount(chartData, 'proses'),
                             ),
                           ],

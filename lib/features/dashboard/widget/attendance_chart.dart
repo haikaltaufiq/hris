@@ -274,11 +274,18 @@ class AttendanceChart extends StatelessWidget {
                       height: _legendHeight,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: const [
+                        children: [
                           _LegendItem(
-                              color: Colors.green, label: 'Tepat Waktu'),
-                          _LegendItem(color: Colors.orange, label: 'Telat'),
-                          _LegendItem(color: Colors.red, label: 'Alfa'),
+                              color: Colors.green,
+                              label: context.isIndonesian
+                                  ? 'Tepat Waktu'
+                                  : 'On Time'),
+                          _LegendItem(
+                              color: Colors.orange,
+                              label: context.isIndonesian ? 'Telat' : 'Late'),
+                          _LegendItem(
+                              color: Colors.red,
+                              label: context.isIndonesian ? 'Alfa' : 'Absent'),
                         ],
                       ),
                     ),

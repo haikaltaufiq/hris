@@ -56,7 +56,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
   void initState() {
     super.initState();
     _judulTugasController.text = widget.tugas.namaTugas;
-    _lokasiController.text = widget.tugas.displayLokasiTugas;
+    // _lokasiController.text = widget.tugas.displayLokasiTugas;
     _noteController.text = widget.tugas.note ?? '';
 
     // Format tanggal

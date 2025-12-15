@@ -85,15 +85,16 @@ class TugasService {
   /// Create tugas baru dengan koordinat
   static Future<Map<String, dynamic>> createTugas({
     required String judul,
+    required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
-    required double tugasLat,
-    required double tugasLng,
+    // required double tugasLat,
+    // required double tugasLng,
     int? person,
     double? lampiranLat,
     double? lampiranLng,
     required String note,
-    required String radius,
+    // required String radius,
   }) async {
     final token = await getToken();
     if (token == null)
@@ -101,14 +102,15 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
+      'nama_lokasi_penugasan': tugaslok,
       'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
       'batas_penugasan': formatDateForApi(batasPenugasan),
-      'tugas_lat': tugasLat,
-      'tugas_lng': tugasLng,
+      // 'tugas_lat': tugasLat,
+      // 'tugas_lng': tugasLng,
       'lampiran_lat': lampiranLat,
       'lampiran_lng': lampiranLng,
       'instruksi_tugas': note,
-      'radius_meter': radius,
+      // 'radius_meter': radius,
     };
 
     if (person != null) requestBody['user_id'] = person;
@@ -146,15 +148,16 @@ class TugasService {
   static Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
+    required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
-    required double tugasLat,
-    required double tugasLng,
+    // required double tugasLat,
+    // required double tugasLng,
     int? person,
     double? lampiranLat,
     double? lampiranLng,
     required String note,
-    required String radius,
+    // required String radius,
   }) async {
     final token = await getToken();
     if (token == null)
@@ -162,14 +165,15 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
+      'nama_lokasi_penugasan': tugaslok,
       'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
       'batas_penugasan': formatDateForApi(batasPenugasan),
-      'tugas_lat': tugasLat,
-      'tugas_lng': tugasLng,
+      // 'tugas_lat': tugasLat,
+      // 'tugas_lng': tugasLng,
       'lampiran_lat': lampiranLat,
       'lampiran_lng': lampiranLng,
       'instruksi_tugas': note,
-      'radius_meter': radius,
+      // 'radius_meter': radius,
     };
 
     if (person != null) requestBody['user_id'] = person;
