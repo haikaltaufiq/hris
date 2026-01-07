@@ -389,6 +389,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         ? [
             "Kepada",
             "Judul",
+            // "Nama Lokasi",
             "Mulai",
             "Batas Submit",
             "Radius Lokasi",
@@ -405,6 +406,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         : [
             "To",
             "Title",
+            // "Location Name",
             "Start",
             "Deadline",
             "Location Radius",
@@ -432,6 +434,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
       return [
         tugas.displayUser,
         tugas.shortTugas,
+        // tugas.namaLok,
         parseDate(tugas.tanggalPenugasan),
         parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",
@@ -469,7 +472,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
-      statusColumnIndexes: const [7], // status di kolom ke-6
+      statusColumnIndexes: const [7], // status di kolom ke-7
       onTapLampiran: (row) {
         final tugas = widget.tugasList[row];
         if (tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty) {

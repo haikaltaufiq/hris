@@ -26,7 +26,7 @@ class _FeatureGuardState extends State<FeatureGuard> {
     if (required is String) {
       hasAccess = FeatureAccess.has(required);
     } else if (required is List<String>) {
-      hasAccess = required.every(FeatureAccess.has);
+      hasAccess = required.any(FeatureAccess.has);
     } else {
       hasAccess = false;
     }

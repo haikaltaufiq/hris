@@ -33,6 +33,7 @@ class _TugasInputState extends State<TugasInput> {
   final TextEditingController _latitudeController = TextEditingController();
   final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
+  // final TextEditingController _noteLokController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
   final TextEditingController _radiusController = TextEditingController();
 
@@ -353,7 +354,14 @@ class _TugasInputState extends State<TugasInput> {
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
-
+          // CustomInputField(
+          //   hint: context.isIndonesian ? "Lokasi Tugas" : "Task Location",
+          //   label: "Lokasi Tugas",
+          //   controller: _noteLokController,
+          //   labelStyle: labelStyle,
+          //   textStyle: textStyle,
+          //   inputStyle: inputStyle,
+          // ),
           CustomInputField(
             label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
             hint: "dd / mm / yyyy",
@@ -405,9 +413,7 @@ class _TugasInputState extends State<TugasInput> {
                   inputStyle: inputStyle,
                 ),
           CustomInputField(
-            hint: context.isIndonesian
-                ? "Catatan tambahan"
-                : "Additional note",
+            hint: context.isIndonesian ? "Catatan tambahan" : "Additional note",
             label: "Note",
             controller: _noteController,
             labelStyle: labelStyle,
@@ -618,6 +624,7 @@ class _TugasInputState extends State<TugasInput> {
                           tugasLng: longitude,
                           person: _selectedUser?.id,
                           note: _noteController.text.trim(),
+                          // tugaslok: _noteLokController.text.trim(),
                           radius: radius,
                         );
 

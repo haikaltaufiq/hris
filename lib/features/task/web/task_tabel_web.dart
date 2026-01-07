@@ -262,6 +262,10 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
               label: context.isIndonesian ? "Judul" : "Title",
               value: tugas.namaTugas,
             ),
+            // DetailItem(
+            //   label: context.isIndonesian ? "Nama Lokasi" : "Location Name",
+            //   value: tugas.l,
+            // ),
             SizedBox(height: 5),
             DetailItem(
               label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
@@ -358,6 +362,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         ? [
             "Kepada",
             "Judul",
+            // "Nama Lokasi",
             "Mulai",
             "Batas Submit",
             "Radius Lokasi",
@@ -374,6 +379,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         : [
             "To",
             "Title",
+            // "Location Name",
             "Start",
             "Deadline",
             "Location Radius",
@@ -391,6 +397,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       return [
         tugas.displayUser,
         tugas.shortTugas,
+        // tugas.namaLok,
         parseDate(tugas.tanggalPenugasan),
         parseDate(tugas.batasPenugasan),
         "${tugas.radius} M",

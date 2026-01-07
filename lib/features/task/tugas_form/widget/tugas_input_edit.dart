@@ -39,6 +39,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
   final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
+  // final TextEditingController _noteLokController = TextEditingController();
 
   UserModel? _selectedUser;
   List<UserModel> _userList = [];
@@ -397,6 +398,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         tugasLng: longitude!,
         person: userBaruId,
         note: _noteController.text.trim(),
+        // tugaslok: _noteLokController.text.trim(),
         radius: radius,
       );
 
@@ -465,8 +467,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     _tanggalPenugasanController.dispose();
     _batasPenugasanController.dispose();
     _noteController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
+    // _latitudeController.dispose();
+    // _longitudeController.dispose();
     super.dispose();
   }
 
@@ -513,6 +515,14 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 inputStyle: inputStyle,
                 hint: '',
               ),
+              // CustomInputField(
+              //   label: context.isIndonesian ? 'Lokasi Tugas' : "Task Location",
+              //   // controller: _noteLokController,
+              //   labelStyle: labelStyle,
+              //   textStyle: textStyle,
+              //   inputStyle: inputStyle,
+              //   hint: '',
+              // ),
               CustomInputField(
                 label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
                 hint: "dd / mm / yyyy",
@@ -578,7 +588,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 label:
                     context.isIndonesian ? 'Radius (meter)' : 'Radius (meter)',
                 hint: 'Masukkan radius tugas',
-                controller: _radiusController,
+                controller: null,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,

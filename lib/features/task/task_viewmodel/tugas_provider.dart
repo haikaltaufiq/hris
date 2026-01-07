@@ -133,6 +133,7 @@ class TugasProvider extends ChangeNotifier {
   // Create tugas dengan koordinat
   Future<Map<String, dynamic>> createTugas({
     required String judul,
+    // required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
     required double tugasLat,
@@ -155,6 +156,7 @@ class TugasProvider extends ChangeNotifier {
         lampiranLat: lampiranLat,
         lampiranLng: lampiranLng,
         note: note,
+        // tugaslok: tugaslok,
         radius: radius.toString(),
       );
       if (result['success'] == true) await fetchTugas(forceRefresh: true);
@@ -171,6 +173,7 @@ class TugasProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
+    // required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
     required double tugasLat,
@@ -186,6 +189,7 @@ class TugasProvider extends ChangeNotifier {
       final result = await TugasService.updateTugas(
         id: id,
         judul: judul,
+        // tugaslok: tugaslok,
         tanggalPenugasan: tanggalPenugasan,
         batasPenugasan: batasPenugasan,
         tugasLat: tugasLat,

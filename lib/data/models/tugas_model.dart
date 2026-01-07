@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 class TugasModel {
   final int id;
   final String namaTugas;
+  // final String namaLok;
   final String tanggalPenugasan;
   final String batasPenugasan;
   final int radius;
@@ -22,6 +23,7 @@ class TugasModel {
   TugasModel({
     required this.id,
     required this.namaTugas,
+    // required this.namaLok,
     required this.tanggalPenugasan,
     required this.batasPenugasan,
     required this.radius,
@@ -42,6 +44,7 @@ class TugasModel {
     return TugasModel(
       id: json['id'] ?? 0,
       namaTugas: json['nama_tugas'] ?? '',
+      // namaLok: json['nama_lokasi_penugasan'] ?? '',
       tanggalPenugasan: json['tanggal_penugasan'] ?? '',
       batasPenugasan: json['batas_penugasan'] ?? '',
       radius: json['radius_meter'] ?? 100,
@@ -77,6 +80,7 @@ class TugasModel {
     return {
       'id': id,
       'nama_tugas': namaTugas,
+      // 'nama_lokasi_penugasan': namaLok,
       'tanggal_penugasan': tanggalPenugasan,
       'batas_penugasan': batasPenugasan,
       'radius_meter': radius,

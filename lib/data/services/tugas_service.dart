@@ -85,6 +85,7 @@ class TugasService {
   /// Create tugas baru dengan koordinat
   static Future<Map<String, dynamic>> createTugas({
     required String judul,
+    // required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
     required double tugasLat,
@@ -101,6 +102,7 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
+      // 'nama_lokasi_penugasan': tugaslok,
       'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
       'batas_penugasan': formatDateForApi(batasPenugasan),
       'tugas_lat': tugasLat,
@@ -146,6 +148,7 @@ class TugasService {
   static Future<Map<String, dynamic>> updateTugas({
     required int id,
     required String judul,
+    // required String tugaslok,
     required String tanggalPenugasan,
     required String batasPenugasan,
     required double tugasLat,
@@ -162,6 +165,7 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
+      // 'nama_lokasi_penugasan': tugaslok,
       'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
       'batas_penugasan': formatDateForApi(batasPenugasan),
       'tugas_lat': tugasLat,
