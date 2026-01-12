@@ -656,6 +656,7 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                   ),
                 ),
                 PopupMenuButton<String>(
+                  color: AppColors.primary, // background popup
                   icon: Icon(
                     Icons.more_vert,
                     color: AppColors.putih.withOpacity(0.7),
@@ -663,7 +664,6 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                   ),
                   onSelected: (value) async {
                     if (value == 'settings') {
-                      // debugPrint("Settings diklik");
                       Navigator.pushNamed(context, AppRoutes.pengaturan);
                     } else if (value == 'logout') {
                       final confirmed = await showConfirmationDialog(
@@ -681,31 +681,47 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
 
                       if (!confirmed) return;
 
-                      //  kalo parent (MainLayout) punya callback logout, panggil langsung
                       if (widget.onLogout != null) {
                         await widget.onLogout!();
-                        return;
                       }
                     }
                   },
                   itemBuilder: (context) => [
-                    PopupMenuItem(
+                    PopupMenuItem<String>(
                       value: 'settings',
                       child: Row(
-                        children: const [
-                          Icon(Icons.settings, size: 16),
-                          SizedBox(width: 8),
-                          Text("Settings"),
+                        children: [
+                          Icon(
+                            Icons.settings,
+                            size: 16,
+                            color: AppColors.putih,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Settings",
+                            style: TextStyle(
+                              color: AppColors.putih,
+                            ),
+                          ),
                         ],
                       ),
                     ),
-                    PopupMenuItem(
+                    PopupMenuItem<String>(
                       value: 'logout',
                       child: Row(
-                        children: const [
-                          Icon(Icons.logout, size: 16),
-                          SizedBox(width: 8),
-                          Text("Logout"),
+                        children: [
+                          Icon(
+                            Icons.logout,
+                            size: 16,
+                            color: AppColors.putih,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "Logout",
+                            style: TextStyle(
+                              color: AppColors.putih,
+                            ),
+                          ),
                         ],
                       ),
                     ),
