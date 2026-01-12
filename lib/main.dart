@@ -9,7 +9,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -116,16 +115,14 @@ void callbackDispatcher() {
 // ==========================================
 // BACKGROUND MESSAGE HANDLER
 // ==========================================
-// ==========================================
-// BACKGROUND MESSAGE HANDLER - FIXED
-// ==========================================
+
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  
+
   // ✅ PERBAIKAN: Ambil id yang sedang login
   final prefs = await SharedPreferences.getInstance();
   final currentUserId = prefs.getInt('id');
-  
+
   final data = message.data;
   final plugin = FlutterLocalNotificationsPlugin();
   final box = await Hive.openBox('tugas');
@@ -133,19 +130,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   final tipe = data['tipe'];
   final tugasId = data['tugas_id']?.toString() ?? '';
   final judul = data['judul'] ?? 'Tugas';
-  
+
   // ✅ PERBAIKAN: Ambil target_id dari notifikasi
   final targetUserId = int.tryParse(data['target_id']?.toString() ?? '');
-  
+
   // ✅ LOG untuk debugging
   print('==========================================');
-  print('🔔 FCM BACKGROUND RECEIVED');
+  print(' FCM BACKGROUND RECEIVED');
   print('Tipe: $tipe');
   print('Tugas ID: $tugasId');
   print('Target User ID: $targetUserId');
   print('Current User ID: $currentUserId');
   print('==========================================');
-  
+
   // ✅ VALIDASI: Jika ada target_id, pastikan sesuai dengan current user
   if (targetUserId != null && targetUserId != currentUserId) {
     print('❌ Notifikasi bukan untuk user ini. Skip processing.');
@@ -161,20 +158,19 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         print('⚠️ Tidak ada batas_penugasan, skip countdown');
         break;
       }
-      
+
       final batas = DateTime.parse(data['batas_penugasan']);
       await box.put('batas_penugasan_$tugasId', batas.toIso8601String());
-      
+
       if (tipe == 'tugas_update') {
         await box.put('update_needed_$tugasId', true);
       }
-      
+
       await _showNotification(
-        plugin, 
-        tugasId.hashCode, 
-        tipe == 'tugas_baru' ? '📌 Tugas Baru' : '⏰ Tugas Diperbarui',
-        'Kamu punya tugas: "$judul", deadline: ${batas.toLocal()}'
-      );
+          plugin,
+          tugasId.hashCode,
+          tipe == 'tugas_baru' ? '📌 Tugas Baru' : '⏰ Tugas Diperbarui',
+          'Kamu punya tugas: "$judul", deadline: ${batas.toLocal()}');
       print('✅ Progress bar akan dimulai untuk tugas ID: $tugasId');
       break;
 
@@ -184,15 +180,15 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     case 'tugas_selesai':
     case 'tugas_lampiran_dikirim':
       print('🗑️ Menghapus progress bar untuk tugas ID: $tugasId');
-      
+
       // ✅ Hapus semua data countdown dari Hive
       await box.delete('batas_penugasan_$tugasId');
       await box.delete('update_needed_$tugasId');
       await box.delete('uploaded_$tugasId');
-      
+
       // ✅ Cancel notifikasi progress bar yang sedang berjalan
       await plugin.cancel(tugasId.hashCode);
-      
+
       // ✅ Tampilkan notifikasi one-time (bukan progress bar)
       String title, body;
       switch (tipe) {
@@ -210,13 +206,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
           break;
         case 'tugas_lampiran_dikirim':
           title = '✅ Lampiran Terkirim';
-          body = 'Kamu sudah mengirim lampiran tugas "$judul". Menunggu verifikasi admin.';
+          body =
+              'Kamu sudah mengirim lampiran tugas "$judul". Menunggu verifikasi admin.';
           break;
         default:
           title = 'Notifikasi Tugas';
           body = 'Update tugas "$judul"';
       }
-      
+
       await _showNotification(plugin, 999000 + int.parse(tugasId), title, body);
       break;
 
@@ -224,22 +221,17 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
     case 'tugas_lampiran':
       print('📎 Admin menerima notifikasi lampiran (tanpa progress bar)');
       // ✅ Admin TIDAK perlu countdown, hanya notifikasi biasa
-      await _showNotification(
-        plugin, 
-        tugasId.hashCode, 
-        '📎 Lampiran Dikirim',
-        'Lampiran baru untuk tugas "$judul" telah dikirim.'
-      );
+      await _showNotification(plugin, tugasId.hashCode, '📎 Lampiran Dikirim',
+          'Lampiran baru untuk tugas "$judul" telah dikirim.');
       // ❌ TIDAK ada box.put atau countdown untuk admin
       break;
 
     case 'tugas_update_proses':
       await _showNotification(
-        plugin,
-        999000 + int.parse(tugasId),
-        '📝 Perhatian',
-        'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.'
-      );
+          plugin,
+          999000 + int.parse(tugasId),
+          '📝 Perhatian',
+          'Status tugas "$judul" telah diubah menjadi PROSES. Tolong hubungi admin untuk menanyakan kejelasan.');
       break;
 
     // ===== CUTI HANDLERS =====
@@ -310,12 +302,13 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
         plugin,
         DateTime.now().millisecondsSinceEpoch ~/ 1000,
         message.notification?.title ?? 'Lembur Perlu Persetujuan',
-        message.notification?.body ?? 'Ada pengajuan lembur yang perlu disetujui',
+        message.notification?.body ??
+            'Ada pengajuan lembur yang perlu disetujui',
         channel: 'lembur_channel',
         channelName: 'Lembur Notifications',
       );
       break;
-      
+
     default:
       print('⚠️ Tipe notifikasi tidak dikenali: $tipe');
       break;
@@ -541,7 +534,7 @@ class _MyAppState extends State<MyApp> {
     // ✅ PERBAIKAN: Ambil id yang sedang login
     final prefs = await SharedPreferences.getInstance();
     final currentUserId = prefs.getInt('id');
-    
+
     final data = message.data;
     final plugin = flutterLocalNotificationsPlugin;
     final box = await Hive.openBox('tugas');
@@ -549,10 +542,10 @@ class _MyAppState extends State<MyApp> {
     final tipe = data['tipe'];
     final tugasId = int.tryParse(data['tugas_id'] ?? '') ?? 0;
     final judul = data['judul'] ?? 'Tugas';
-    
+
     // ✅ PERBAIKAN: Ambil target_id dari notifikasi
     final targetUserId = int.tryParse(data['target_id']?.toString() ?? '');
-    
+
     // ✅ LOG untuk debugging
     print('==========================================');
     print('🔔 FCM FOREGROUND RECEIVED');
@@ -561,7 +554,7 @@ class _MyAppState extends State<MyApp> {
     print('Target User ID: $targetUserId');
     print('Current User ID: $currentUserId');
     print('==========================================');
-    
+
     // ✅ VALIDASI: Jika ada target_id, pastikan sesuai dengan current user
     if (targetUserId != null && targetUserId != currentUserId) {
       print('❌ Notifikasi bukan untuk user ini. Skip processing.');
@@ -640,10 +633,14 @@ class _MyAppState extends State<MyApp> {
         await _showNotif(
           plugin,
           DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          message.notification?.title ?? 
-            (context.isIndonesian ? 'Cuti Perlu Persetujuan' : 'Leave Approval Required'),
-          message.notification?.body ?? 
-            (context.isIndonesian ? 'Ada pengajuan cuti yang perlu disetujui' : 'Leave application requires approval'),
+          message.notification?.title ??
+              (context.isIndonesian
+                  ? 'Cuti Perlu Persetujuan'
+                  : 'Leave Approval Required'),
+          message.notification?.body ??
+              (context.isIndonesian
+                  ? 'Ada pengajuan cuti yang perlu disetujui'
+                  : 'Leave application requires approval'),
           channel: 'cuti_channel',
           channelName: 'Cuti Notifications',
           sound: true,
@@ -670,10 +667,14 @@ class _MyAppState extends State<MyApp> {
         await _showNotif(
           plugin,
           DateTime.now().millisecondsSinceEpoch ~/ 1000,
-          message.notification?.title ?? 
-            (context.isIndonesian ? 'Lembur Perlu Persetujuan' : 'Overtime Approval Required'),
-          message.notification?.body ?? 
-            (context.isIndonesian ? 'Ada pengajuan lembur yang perlu disetujui' : 'Overtime application requires approval'),
+          message.notification?.title ??
+              (context.isIndonesian
+                  ? 'Lembur Perlu Persetujuan'
+                  : 'Overtime Approval Required'),
+          message.notification?.body ??
+              (context.isIndonesian
+                  ? 'Ada pengajuan lembur yang perlu disetujui'
+                  : 'Overtime application requires approval'),
           channel: 'lembur_channel',
           channelName: 'Lembur Notifications',
           sound: true,

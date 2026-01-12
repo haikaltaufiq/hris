@@ -328,7 +328,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
                 case 4:
                   return DetailItem(
                       label: context.isIndonesian ? 'Lokasi' : 'Location',
-                      value: tugas.displayLokasiTugas);
+                      value: tugas.namaLok);
                 case 5:
                   return DetailItem(
                       label: context.isIndonesian ? 'Catatan' : 'Note',
@@ -389,11 +389,11 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         ? [
             "Kepada",
             "Judul",
-            // "Nama Lokasi",
+            "Nama Lokasi",
             "Mulai",
             "Batas Submit",
-            "Radius Lokasi",
-            "Lokasi Tugas",
+            // "Radius Lokasi",
+            // "Lokasi Tugas",
             "Lokasi Upload",
             "Status",
             "Catatan",
@@ -406,11 +406,11 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
         : [
             "To",
             "Title",
-            // "Location Name",
+            "Location Name",
             "Start",
             "Deadline",
-            "Location Radius",
-            "Task Location",
+            // "Location Radius",
+            // "Task Location",
             "Upload Location",
             "Status",
             "Note",
@@ -434,15 +434,15 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        // tugas.namaLok,
+        tugas.namaLok,
         parseDate(tugas.tanggalPenugasan),
         parseDate(tugas.batasPenugasan),
-        "${tugas.radius} M",
-        tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
-            ? context.isIndonesian
-                ? "Lihat Lokasi"
-                : "See Location"
-            : '-',
+        // "${tugas.radius} M",
+        // tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
+        //     ? context.isIndonesian
+        //         ? "Lihat Lokasi"
+        //         : "See Location"
+        //     : '-',
         tugas.displayLokasiLampiran != null &&
                 tugas.displayLokasiLampiran != "-"
             ? context.isIndonesian
@@ -472,7 +472,7 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
-      statusColumnIndexes: const [7], // status di kolom ke-7
+      statusColumnIndexes: const [6], // status di kolom ke-6
       onTapLampiran: (row) {
         final tugas = widget.tugasList[row];
         if (tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty) {
@@ -484,10 +484,10 @@ class _TugasUserTabelState extends State<TugasUserTabel> {
       onCellTap: (row, col) {
         final tugas = widget.tugasList[row];
 
-        if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
-          _openMap("${tugas.tugasLat},${tugas.tugasLng}");
-        }
-        if (col == 6 &&
+        // if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
+        //   _openMap("${tugas.tugasLat},${tugas.tugasLng}");
+        // }
+        if (col == 5 &&
             tugas.lampiranLat != null &&
             tugas.lampiranLng != null) {
           _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");

@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, prefer_final_fields, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/components/custom/custom_dropdown.dart';
@@ -9,16 +8,11 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
-import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/data/services/user_service.dart';
-import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
-import 'package:hr/features/info_kantor/location_dialog.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
-import 'package:hr/routes/app_routes.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 
 class TugasInputEdit extends StatefulWidget {
@@ -34,12 +28,12 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       TextEditingController();
   final TextEditingController _batasPenugasanController =
       TextEditingController();
-  final TextEditingController _radiusController = TextEditingController();
-  final TextEditingController _latitudeController = TextEditingController();
-  final TextEditingController _longitudeController = TextEditingController();
+  // final TextEditingController _radiusController = TextEditingController();
+  // final TextEditingController _latitudeController = TextEditingController();
+  // final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
-  // final TextEditingController _noteLokController = TextEditingController();
+  final TextEditingController _noteLokController = TextEditingController();
 
   UserModel? _selectedUser;
   List<UserModel> _userList = [];
@@ -50,7 +44,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     super.initState();
     // Isi controller dari data awal
     _judulTugasController.text = widget.tugas.namaTugas;
-    _radiusController.text = widget.tugas.radius.toString();
+    // _radiusController.text = widget.tugas.radius.toString();
 
     // tanggal
     if (widget.tugas.tanggalPenugasan.isNotEmpty) {
@@ -81,10 +75,10 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       }
     }
 
-    if (widget.tugas.tugasLat != null && widget.tugas.tugasLng != null) {
-      _latitudeController.text = widget.tugas.tugasLat!.toString();
-      _longitudeController.text = widget.tugas.tugasLng!.toString();
-    }
+    // if (widget.tugas.tugasLat != null && widget.tugas.tugasLng != null) {
+    //   _latitudeController.text = widget.tugas.tugasLat!.toString();
+    //   _longitudeController.text = widget.tugas.tugasLng!.toString();
+    // }
     _noteController.text = widget.tugas.note ?? '';
 
     // user yang sudah ada
@@ -199,140 +193,140 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         "${dateTime.minute.toString().padLeft(2, '0')}";
   }
 
-  bool _isValidCoordinate(String lat, String lng) {
-    if (lat.isEmpty || lng.isEmpty) return false;
+  // bool _isValidCoordinate(String lat, String lng) {
+  //   if (lat.isEmpty || lng.isEmpty) return false;
 
-    try {
-      final latitude = double.parse(lat);
-      final longitude = double.parse(lng);
+  //   try {
+  //     final latitude = double.parse(lat);
+  //     final longitude = double.parse(lng);
 
-      // Validasi range koordinat yang valid
-      return latitude >= -90 &&
-          latitude <= 90 &&
-          longitude >= -180 &&
-          longitude <= 180;
-    } catch (e) {
-      return false;
-    }
-  }
+  //     // Validasi range koordinat yang valid
+  //     return latitude >= -90 &&
+  //         latitude <= 90 &&
+  //         longitude >= -180 &&
+  //         longitude <= 180;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
-  void _lihatMap() {
-    final isIndonesian = context.read<LanguageProvider>().isIndonesian;
+  // void _lihatMap() {
+  //   final isIndonesian = context.read<LanguageProvider>().isIndonesian;
 
-    if (!_isValidCoordinate(
-        _latitudeController.text, _longitudeController.text)) {
-      NotificationHelper.showTopNotification(
-        context,
-        isIndonesian
-            ? "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)"
-            : "Invalid coordinates. Please enter a latitude (-90 to 90) and longitude (-180 to 180).",
-        isSuccess: false,
-      );
-      return;
-    }
+  //   if (!_isValidCoordinate(
+  //       _latitudeController.text, _longitudeController.text)) {
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       isIndonesian
+  //           ? "Koordinat tidak valid. Harap isi latitude (-90 sampai 90) dan longitude (-180 sampai 180)"
+  //           : "Invalid coordinates. Please enter a latitude (-90 to 90) and longitude (-180 to 180).",
+  //       isSuccess: false,
+  //     );
+  //     return;
+  //   }
 
-    try {
-      final latitude = double.parse(_latitudeController.text);
-      final longitude = double.parse(_longitudeController.text);
-      final targetLocation = LatLng(latitude, longitude);
+  //   try {
+  //     final latitude = double.parse(_latitudeController.text);
+  //     final longitude = double.parse(_longitudeController.text);
+  //     final targetLocation = LatLng(latitude, longitude);
 
-      if (context.isMobile) {
-        showModalBottomSheet(
-          context: context,
-          backgroundColor: Colors.transparent,
-          isScrollControlled: true,
-          builder: (_) => DraggableScrollableSheet(
-            initialChildSize: 0.9,
-            minChildSize: 0.5,
-            maxChildSize: 1.0,
-            expand: false,
-            builder: (context, scrollController) {
-              return Container(
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black26,
-                      blurRadius: 10,
-                      offset: Offset(0, -3),
-                    )
-                  ],
-                ),
-                child: Stack(
-                  children: [
-                    Column(
-                      children: [
-                        // Handle bar
-                        Container(
-                          margin: const EdgeInsets.symmetric(vertical: 10),
-                          height: 5,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[400],
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
-                        Text(
-                          context.isIndonesian
-                              ? "Lokasi Tugas"
-                              : "Task Location",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: AppColors.putih),
-                        ),
-                        const SizedBox(height: 10),
+  //     if (context.isMobile) {
+  //       showModalBottomSheet(
+  //         context: context,
+  //         backgroundColor: Colors.transparent,
+  //         isScrollControlled: true,
+  //         builder: (_) => DraggableScrollableSheet(
+  //           initialChildSize: 0.9,
+  //           minChildSize: 0.5,
+  //           maxChildSize: 1.0,
+  //           expand: false,
+  //           builder: (context, scrollController) {
+  //             return Container(
+  //               decoration: BoxDecoration(
+  //                 color: AppColors.primary,
+  //                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  //                 boxShadow: [
+  //                   BoxShadow(
+  //                     color: Colors.black26,
+  //                     blurRadius: 10,
+  //                     offset: Offset(0, -3),
+  //                   )
+  //                 ],
+  //               ),
+  //               child: Stack(
+  //                 children: [
+  //                   Column(
+  //                     children: [
+  //                       // Handle bar
+  //                       Container(
+  //                         margin: const EdgeInsets.symmetric(vertical: 10),
+  //                         height: 5,
+  //                         width: 40,
+  //                         decoration: BoxDecoration(
+  //                           color: Colors.grey[400],
+  //                           borderRadius: BorderRadius.circular(10),
+  //                         ),
+  //                       ),
+  //                       Text(
+  //                         context.isIndonesian
+  //                             ? "Lokasi Tugas"
+  //                             : "Task Location",
+  //                         textAlign: TextAlign.center,
+  //                         style: TextStyle(
+  //                             fontWeight: FontWeight.bold,
+  //                             fontSize: 18,
+  //                             color: AppColors.putih),
+  //                       ),
+  //                       const SizedBox(height: 10),
 
-                        // Map container
-                        Expanded(
-                          child: MapPageModal(
-                            target: targetLocation,
-                          ),
-                        ),
-                        const SizedBox(height: 200),
-                      ],
-                    ),
+  //                       // Map container
+  //                       Expanded(
+  //                         child: MapPageModal(
+  //                           target: targetLocation,
+  //                         ),
+  //                       ),
+  //                       const SizedBox(height: 200),
+  //                     ],
+  //                   ),
 
-                    // Info card di bawah
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: LocationInfoCard(
-                          target: targetLocation,
-                          mapController: MapController(),
-                          onConfirm: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      } else {
-        Navigator.pushNamed(
-          context,
-          AppRoutes.mapPage,
-          arguments: targetLocation,
-        );
-      }
-    } catch (e) {
-      // print("Error showing map: $e");
-      NotificationHelper.showTopNotification(
-        context,
-        context.isIndonesian
-            ? "Gagal membuka map: ${e.toString()}"
-            : "Failed Open map : ${e.toString()}",
-        isSuccess: false,
-      );
-    }
-  }
+  //                   // Info card di bawah
+  //                   Positioned(
+  //                     left: 0,
+  //                     right: 0,
+  //                     bottom: 0,
+  //                     child: Padding(
+  //                       padding: const EdgeInsets.all(8.0),
+  //                       child: LocationInfoCard(
+  //                         target: targetLocation,
+  //                         mapController: MapController(),
+  //                         onConfirm: () => Navigator.of(context).pop(),
+  //                       ),
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             );
+  //           },
+  //         ),
+  //       );
+  //     } else {
+  //       Navigator.pushNamed(
+  //         context,
+  //         AppRoutes.mapPage,
+  //         arguments: targetLocation,
+  //       );
+  //     }
+  //   } catch (e) {
+  //     // print("Error showing map: $e");
+  //     NotificationHelper.showTopNotification(
+  //       context,
+  //       context.isIndonesian
+  //           ? "Gagal membuka map: ${e.toString()}"
+  //           : "Failed Open map : ${e.toString()}",
+  //       isSuccess: false,
+  //     );
+  //   }
+  // }
 
   Future<void> _handleSubmit() async {
     final isIndonesian = context.read<LanguageProvider>().isIndonesian;
@@ -340,8 +334,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     if (_judulTugasController.text.isEmpty ||
         _tanggalPenugasanController.text.isEmpty ||
         _batasPenugasanController.text.isEmpty ||
-        _latitudeController.text.isEmpty ||
-        _longitudeController.text.isEmpty ||
+        // _latitudeController.text.isEmpty ||
+        // _longitudeController.text.isEmpty ||
         _selectedUser == null) {
       NotificationHelper.showTopNotification(
         context,
@@ -351,15 +345,15 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       return;
     }
 
-    if (!_isValidCoordinate(
-        _latitudeController.text.trim(), _longitudeController.text.trim())) {
-      NotificationHelper.showTopNotification(
-        context,
-        isIndonesian ? 'Koordinat tidak valid.' : "Invalid coordinates.",
-        isSuccess: false,
-      );
-      return;
-    }
+    // if (!_isValidCoordinate(
+    //     _latitudeController.text.trim(), _longitudeController.text.trim())) {
+    //   NotificationHelper.showTopNotification(
+    //     context,
+    //     isIndonesian ? 'Koordinat tidak valid.' : "Invalid coordinates.",
+    //     isSuccess: false,
+    //   );
+    //   return;
+    // }
 
     final tanggalFormatted =
         TugasService.formatDateForApi(_tanggalPenugasanController.text.trim());
@@ -373,33 +367,33 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       final userBaruId = _selectedUser?.id;
 
       final tugasProvider = context.read<TugasProvider>();
-      final latitude = double.tryParse(_latitudeController.text.trim());
-      final longitude = double.tryParse(_longitudeController.text.trim());
-      final radiusText = _radiusController.text.trim();
-      final radius = int.tryParse(radiusText);
-      if (radius == null) {
-        final message = context.isIndonesian
-            ? 'Radius harus berupa angka'
-            : 'Radius must be a number';
-        NotificationHelper.showTopNotification(
-          context,
-          message,
-          isSuccess: false,
-        );
-        return; // hentikan proses kalau invalid
-      }
+      // final latitude = double.tryParse(_latitudeController.text.trim());
+      // final longitude = double.tryParse(_longitudeController.text.trim());
+      // final radiusText = _radiusController.text.trim();
+      // final radius = int.tryParse(radiusText);
+      // if (radius == null) {
+      //   final message = context.isIndonesian
+      //       ? 'Radius harus berupa angka'
+      //       : 'Radius must be a number';
+      //   NotificationHelper.showTopNotification(
+      //     context,
+      //     message,
+      //     isSuccess: false,
+      //   );
+      //   return; // hentikan proses kalau invalid
+      // }
 
       final result = await tugasProvider.updateTugas(
         id: widget.tugas.id,
         judul: _judulTugasController.text.trim(),
         tanggalPenugasan: tanggalFormatted,
         batasPenugasan: batasFormatted,
-        tugasLat: latitude!,
-        tugasLng: longitude!,
+        // tugasLat: latitude!,
+        // tugasLng: longitude!,
         person: userBaruId,
         note: _noteController.text.trim(),
-        // tugaslok: _noteLokController.text.trim(),
-        radius: radius,
+        tugaslok: _noteLokController.text.trim(),
+        // radius: radius,
       );
 
       if (!mounted) return;
@@ -515,14 +509,14 @@ class _TugasInputEditState extends State<TugasInputEdit> {
                 inputStyle: inputStyle,
                 hint: '',
               ),
-              // CustomInputField(
-              //   label: context.isIndonesian ? 'Lokasi Tugas' : "Task Location",
-              //   // controller: _noteLokController,
-              //   labelStyle: labelStyle,
-              //   textStyle: textStyle,
-              //   inputStyle: inputStyle,
-              //   hint: '',
-              // ),
+              CustomInputField(
+                label: context.isIndonesian ? 'Lokasi Tugas' : "Task Location",
+                controller: _noteLokController,
+                labelStyle: labelStyle,
+                textStyle: textStyle,
+                inputStyle: inputStyle,
+                hint: '',
+              ),
               CustomInputField(
                 label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
                 hint: "dd / mm / yyyy",
@@ -584,131 +578,131 @@ class _TugasInputEditState extends State<TugasInputEdit> {
 
               const SizedBox(height: 10),
 
-              CustomInputField(
-                label:
-                    context.isIndonesian ? 'Radius (meter)' : 'Radius (meter)',
-                hint: 'Masukkan radius tugas',
-                controller: null,
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-              ),
+              // CustomInputField(
+              //   label:
+              //       context.isIndonesian ? 'Radius (meter)' : 'Radius (meter)',
+              //   hint: 'Masukkan radius tugas',
+              //   controller: null,
+              //   labelStyle: labelStyle,
+              //   textStyle: textStyle,
+              //   inputStyle: inputStyle,
+              //   keyboardType:
+              //       const TextInputType.numberWithOptions(decimal: true),
+              // ),
 
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomInputField(
-                      key: const ValueKey("latitude_field"),
-                      hint: "Latitude",
-                      label: context.isIndonesian ? "Lokasi" : "Location",
-                      controller: _latitudeController,
-                      labelStyle: labelStyle,
-                      textStyle: textStyle,
-                      inputStyle: inputStyle,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: CustomInputField(
-                      key: const ValueKey("longitude_field"),
-                      hint: "Longitude",
-                      label: "",
-                      controller: _longitudeController,
-                      labelStyle: labelStyle,
-                      textStyle: textStyle,
-                      inputStyle: inputStyle,
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                    ),
-                  ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: CustomInputField(
+              //         key: const ValueKey("latitude_field"),
+              //         hint: "Latitude",
+              //         label: context.isIndonesian ? "Lokasi" : "Location",
+              //         controller: _latitudeController,
+              //         labelStyle: labelStyle,
+              //         textStyle: textStyle,
+              //         inputStyle: inputStyle,
+              //         keyboardType:
+              //             const TextInputType.numberWithOptions(decimal: true),
+              //       ),
+              //     ),
+              //     const SizedBox(width: 16),
+              //     Expanded(
+              //       child: CustomInputField(
+              //         key: const ValueKey("longitude_field"),
+              //         hint: "Longitude",
+              //         label: "",
+              //         controller: _longitudeController,
+              //         labelStyle: labelStyle,
+              //         textStyle: textStyle,
+              //         inputStyle: inputStyle,
+              //         keyboardType:
+              //             const TextInputType.numberWithOptions(decimal: true),
+              //       ),
+              //     ),
+              //   ],
+              // ),
 
-              const SizedBox(height: 20),
-              // Action buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: SizedBox(
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: isLoading
-                            ? null
-                            : () {
-                                LocationDialogService.showLocationDialog(
-                                  context: context,
-                                  latitudeController: _latitudeController,
-                                  longitudeController: _longitudeController,
-                                );
-                              },
-                        icon: Icon(
-                          Icons.my_location,
-                          color: AppColors.putih,
-                          size: 18,
-                        ),
-                        label: Text(
-                          context.isIndonesian
-                              ? "Bagikan Lokasi"
-                              : "Share Location",
-                          style: GoogleFonts.poppins(
-                            color: AppColors.putih,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.putih,
-                          elevation: 0,
-                          side: BorderSide(
-                            color: AppColors.putih.withOpacity(0.3),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: SizedBox(
-                      height: 50,
-                      child: ElevatedButton.icon(
-                        onPressed: isLoading ? null : _lihatMap,
-                        icon: Icon(
-                          Icons.map,
-                          color: AppColors.putih,
-                          size: 18,
-                        ),
-                        label: Text(
-                          context.isIndonesian ? "Lihat Map" : "See Location",
-                          style: GoogleFonts.poppins(
-                            color: AppColors.putih,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          foregroundColor: AppColors.putih,
-                          elevation: 0,
-                          side: BorderSide(
-                            color: AppColors.putih.withOpacity(0.3),
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+              // const SizedBox(height: 20),
+              // // Action buttons
+              // Row(
+              //   children: [
+              //     Expanded(
+              //       child: SizedBox(
+              //         height: 50,
+              //         child: ElevatedButton.icon(
+              //           onPressed: isLoading
+              //               ? null
+              //               : () {
+              //                   LocationDialogService.showLocationDialog(
+              //                     context: context,
+              //                     latitudeController: _latitudeController,
+              //                     longitudeController: _longitudeController,
+              //                   );
+              //                 },
+              //           icon: Icon(
+              //             Icons.my_location,
+              //             color: AppColors.putih,
+              //             size: 18,
+              //           ),
+              //           label: Text(
+              //             context.isIndonesian
+              //                 ? "Bagikan Lokasi"
+              //                 : "Share Location",
+              //             style: GoogleFonts.poppins(
+              //               color: AppColors.putih,
+              //               fontSize: 14,
+              //               fontWeight: FontWeight.w600,
+              //             ),
+              //           ),
+              //           style: ElevatedButton.styleFrom(
+              //             backgroundColor: AppColors.primary,
+              //             foregroundColor: AppColors.putih,
+              //             elevation: 0,
+              //             side: BorderSide(
+              //               color: AppColors.putih.withOpacity(0.3),
+              //             ),
+              //             shape: RoundedRectangleBorder(
+              //               borderRadius: BorderRadius.circular(12),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //     const SizedBox(width: 16),
+              //     Expanded(
+              //       child: SizedBox(
+              //         height: 50,
+              //         child: ElevatedButton.icon(
+              //           onPressed: isLoading ? null : _lihatMap,
+              //           icon: Icon(
+              //             Icons.map,
+              //             color: AppColors.putih,
+              //             size: 18,
+              //           ),
+              //           label: Text(
+              //             context.isIndonesian ? "Lihat Map" : "See Location",
+              //             style: GoogleFonts.poppins(
+              //               color: AppColors.putih,
+              //               fontSize: 14,
+              //               fontWeight: FontWeight.w600,
+              //             ),
+              //           ),
+              //           style: ElevatedButton.styleFrom(
+              //             backgroundColor: AppColors.primary,
+              //             foregroundColor: AppColors.putih,
+              //             elevation: 0,
+              //             side: BorderSide(
+              //               color: AppColors.putih.withOpacity(0.3),
+              //             ),
+              //             shape: RoundedRectangleBorder(
+              //               borderRadius: BorderRadius.circular(12),
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     ),
+              //   ],
+              // ),
 
               const SizedBox(height: 20),
               SizedBox(

@@ -167,6 +167,8 @@ class _AbsenTabelState extends State<AbsenTabel> {
         ? videoPath
         : "${ApiConfig.baseUrl}$videoPath";
 
+    debugPrint("VIDEO PATH RAW: $videoPath");
+    debugPrint("VIDEO FULL URL: $fullUrl");
     final controller = VideoPlayerController.network(fullUrl);
 
     showGeneralDialog(
