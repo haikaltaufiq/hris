@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/dashboard_item.dart';
 import 'package:hr/features/dashboard/widget/attendance_chart.dart';
 import 'package:hr/features/dashboard/widget/dashboard_card.dart';
@@ -73,7 +74,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   child: DashboardMenu(
                     items: [
                       DashboardMenuItem(
-                        label: "Karyawan",
+                        label: context.isIndonesian ? "Karyawan" : "Employee",
                         requiredFeature: 'karyawan',
                         icon: FontAwesomeIcons.userGroup,
                         onTap: () {
@@ -81,7 +82,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Gaji",
+                        label: context.isIndonesian ? "Gaji" : "Salary",
                         requiredFeature: 'gaji',
                         icon: FontAwesomeIcons.moneyBill,
                         onTap: () {
@@ -89,7 +90,8 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Departemen",
+                        label:
+                            context.isIndonesian ? "Departemen" : "Department",
                         requiredFeature: 'departemen',
                         icon: FontAwesomeIcons.landmark,
                         onTap: () {
@@ -97,7 +99,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Jabatan",
+                        label: context.isIndonesian ? "Jabatan" : "Position",
                         requiredFeature: 'jabatan',
                         icon: FontAwesomeIcons.sitemap,
                         onTap: () {
@@ -105,7 +107,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Peran",
+                        label: context.isIndonesian ? "Peran" : "Role",
                         requiredFeature: 'peran',
                         icon: FontAwesomeIcons.fileShield,
                         onTap: () {
@@ -113,7 +115,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Potongan",
+                        label: context.isIndonesian ? "Potongan" : "Deduction",
                         requiredFeature: 'potongan_gaji',
                         icon: FontAwesomeIcons.calculator,
                         onTap: () {
@@ -121,7 +123,9 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Log Aktivitas",
+                        label: context.isIndonesian
+                            ? "Log Aktivitas"
+                            : "Activity Log",
                         requiredFeature: 'log_aktifitas',
                         icon: FontAwesomeIcons.history,
                         onTap: () {
@@ -129,7 +133,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Reminder",
+                        label: context.isIndonesian ? "Pengingat" : "Reminder",
                         requiredFeature: 'pengingat',
                         icon: FontAwesomeIcons.alarmClock,
                         onTap: () {
@@ -137,7 +141,9 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Info Kantor",
+                        label: context.isIndonesian
+                            ? "Info Kantor"
+                            : "Office Info",
                         requiredFeature: 'kantor',
                         icon: FontAwesomeIcons.infoCircle,
                         onTap: () {
@@ -153,7 +159,9 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Reset Device",
+                        label: context.isIndonesian
+                            ? "Reset Perangkat"
+                            : "Reset Device",
                         requiredFeature: 'denger',
                         icon: FontAwesomeIcons.trashRestore,
                         onTap: () {
@@ -161,7 +169,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Unlock",
+                        label: context.isIndonesian ? "Buka Akun" : "Unlock",
                         requiredFeature: 'denger',
                         icon: FontAwesomeIcons.lockOpen,
                         onTap: () {
@@ -169,7 +177,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
-                        label: "Pengaturan",
+                        label: context.isIndonesian ? "Pengaturan" : "Settings",
                         requiredFeature: 'gaji',
                         icon: FontAwesomeIcons.gear,
                         onTap: () {
@@ -184,6 +192,9 @@ class _DashboardMobileState extends State<DashboardMobile> {
                 height: 12,
               ),
               const AttendanceChart(),
+              SizedBox(
+                height: 12,
+              ),
               const StatusTaskChart(),
               SizedBox(
                 height: 12,

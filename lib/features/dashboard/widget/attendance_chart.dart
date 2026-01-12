@@ -181,118 +181,116 @@ class AttendanceChart extends StatelessWidget {
         final maxY = _getMaxY(monthlyData);
         final leftTitles = _calculateLeftTitles(maxY);
 
-        return _HoverCard(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: _headerHeight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            context.isIndonesian
-                                ? 'Kehadiran Bulanan'
-                                : 'Monthly Attendance',
-                            style: TextStyle(
-                              fontSize: 18,
-                              color: AppColors.putih,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
-                              fontWeight: FontWeight.bold,
-                            ),
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.primary,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: _headerHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          context.isIndonesian
+                              ? 'Kehadiran Bulanan'
+                              : 'Monthly Attendance',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: AppColors.putih,
+                            fontFamily: GoogleFonts.poppins().fontFamily,
+                            fontWeight: FontWeight.bold,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                    SizedBox(
-                      height: _chartContentHeight,
-                      child: BarChart(
-                        BarChartData(
-                          alignment: BarChartAlignment.spaceAround,
-                          maxY: maxY,
-                          barGroups: barGroups,
-                          borderData: FlBorderData(show: false),
-                          barTouchData: BarTouchData(enabled: true),
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 28,
-                                getTitlesWidget: (value, meta) {
-                                  if (!leftTitles.contains(value))
-                                    return const SizedBox();
-                                  return Text(
-                                    value.toInt().toString(),
-                                    style: GoogleFonts.poppins(
-                                      color: AppColors.putih,
-                                      fontSize: 10,
-                                    ),
-                                  );
-                                },
-                              ),
+                  ),
+                  SizedBox(
+                    height: _chartContentHeight,
+                    child: BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY: maxY,
+                        barGroups: barGroups,
+                        borderData: FlBorderData(show: false),
+                        barTouchData: BarTouchData(enabled: true),
+                        titlesData: FlTitlesData(
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              reservedSize: 28,
+                              getTitlesWidget: (value, meta) {
+                                if (!leftTitles.contains(value))
+                                  return const SizedBox();
+                                return Text(
+                                  value.toInt().toString(),
+                                  style: GoogleFonts.poppins(
+                                    color: AppColors.putih,
+                                    fontSize: 10,
+                                  ),
+                                );
+                              },
                             ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                interval: 1,
-                                getTitlesWidget: (value, meta) {
-                                  final now = DateTime.now();
-                                  final monthName = _getMonthName(DateTime(
-                                          now.year,
-                                          now.month - 11 + value.toInt(),
-                                          1)
-                                      .month);
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 8),
-                                    child: Text(
-                                      monthName,
-                                      style: TextStyle(
-                                          color: AppColors.putih, fontSize: 10),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                            rightTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
-                            topTitles: AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
                           ),
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              interval: 1,
+                              getTitlesWidget: (value, meta) {
+                                final now = DateTime.now();
+                                final monthName = _getMonthName(DateTime(
+                                        now.year,
+                                        now.month - 11 + value.toInt(),
+                                        1)
+                                    .month);
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8),
+                                  child: Text(
+                                    monthName,
+                                    style: TextStyle(
+                                        color: AppColors.putih, fontSize: 10),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          rightTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
+                          topTitles: AxisTitles(
+                              sideTitles: SideTitles(showTitles: false)),
                         ),
                       ),
                     ),
-                    SizedBox(
-                      height: _legendHeight,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _LegendItem(
-                              color: Colors.green,
-                              label: context.isIndonesian
-                                  ? 'Tepat Waktu'
-                                  : 'On Time'),
-                          _LegendItem(
-                              color: Colors.orange,
-                              label: context.isIndonesian ? 'Telat' : 'Late'),
-                          _LegendItem(
-                              color: Colors.red,
-                              label: context.isIndonesian ? 'Alfa' : 'Absent'),
-                        ],
-                      ),
+                  ),
+                  SizedBox(
+                    height: _legendHeight,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _LegendItem(
+                            color: Colors.green,
+                            label: context.isIndonesian
+                                ? 'Tepat Waktu'
+                                : 'On Time'),
+                        _LegendItem(
+                            color: Colors.orange,
+                            label: context.isIndonesian ? 'Telat' : 'Late'),
+                        _LegendItem(
+                            color: Colors.red,
+                            label: context.isIndonesian ? 'Alfa' : 'Absent'),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
+                  ),
+                ],
+              ),
+            ],
           ),
         );
       },
@@ -321,32 +319,32 @@ class _LegendItem extends StatelessWidget {
   }
 }
 
-class _HoverCard extends StatefulWidget {
-  final Widget child;
-  const _HoverCard({required this.child});
+// class _HoverCard extends StatefulWidget {
+//   final Widget child;
+//   const _HoverCard({required this.child});
 
-  @override
-  State<_HoverCard> createState() => _HoverCardState();
-}
+//   @override
+//   State<_HoverCard> createState() => _HoverCardState();
+// }
 
-class _HoverCardState extends State<_HoverCard> {
-  bool _hovering = false;
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovering = true),
-      onExit: (_) => setState(() => _hovering = false),
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
-          transform: _hovering
-              ? (Matrix4.identity()..translate(0, -4, 0))
-              : Matrix4.identity(),
-          child: widget.child,
-        ),
-      ),
-    );
-  }
-}
+// class _HoverCardState extends State<_HoverCard> {
+//   bool _hovering = false;
+//   @override
+//   Widget build(BuildContext context) {
+//     return MouseRegion(
+//       onEnter: (_) => setState(() => _hovering = true),
+//       onExit: (_) => setState(() => _hovering = false),
+//       child: Padding(
+//         padding: const EdgeInsets.only(bottom: 12),
+//         child: AnimatedContainer(
+//           duration: const Duration(milliseconds: 200),
+//           curve: Curves.easeOut,
+//           transform: _hovering
+//               ? (Matrix4.identity()..translate(0, -4, 0))
+//               : Matrix4.identity(),
+//           child: widget.child,
+//         ),
+//       ),
+//     );
+//   }
+// }

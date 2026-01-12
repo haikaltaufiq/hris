@@ -25,8 +25,8 @@ class _TugasInputState extends State<TugasInput> {
       TextEditingController();
   final TextEditingController _batasPenugasanController =
       TextEditingController();
-  final TextEditingController _latitudeController = TextEditingController();
-  final TextEditingController _longitudeController = TextEditingController();
+  // final TextEditingController _latitudeController = TextEditingController();
+  // final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _noteLokController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
@@ -296,8 +296,8 @@ class _TugasInputState extends State<TugasInput> {
   void dispose() {
     _tanggalPenugasanController.dispose();
     _batasPenugasanController.dispose();
-    _latitudeController.dispose();
-    _longitudeController.dispose();
+    // _latitudeController.dispose();
+    // _longitudeController.dispose();
     _noteController.dispose();
     _judulTugasController.dispose();
     super.dispose();
@@ -426,7 +426,7 @@ class _TugasInputState extends State<TugasInput> {
           //   inputStyle: inputStyle,
           // ),
 
-          // // Location fields
+          // Location fields
           // Row(
           //   children: [
           //     Expanded(
@@ -540,7 +540,7 @@ class _TugasInputState extends State<TugasInput> {
           //   ],
           // ),
 
-          // const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
           // Submit button
           SizedBox(
@@ -554,10 +554,8 @@ class _TugasInputState extends State<TugasInput> {
                               _tanggalPenugasanController.text.trim().isEmpty ||
                               _batasPenugasanController.text.trim().isEmpty ||
                               _selectedUser == null
-                          // ||
                           // _latitudeController.text.trim().isEmpty ||
                           // _longitudeController.text.trim().isEmpty
-
                           ) {
                         final message = context.isIndonesian
                             ? 'Harap isi semua data wajib'
@@ -618,12 +616,12 @@ class _TugasInputState extends State<TugasInput> {
                           tanggalPenugasan:
                               _tanggalPenugasanController.text.trim(),
                           batasPenugasan: _batasPenugasanController.text.trim(),
-                          // tugasLat: ,
-                          // tugasLng: ,
+                          // tugasLat: latitude,
+                          // tugasLng: longitude,
                           person: _selectedUser?.id,
                           note: _noteController.text.trim(),
                           tugaslok: _noteLokController.text.trim(),
-                          // radius: ,
+                          // radius: radius,
                         );
 
                         if (!mounted) return;
