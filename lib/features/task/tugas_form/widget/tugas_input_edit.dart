@@ -29,8 +29,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
   final TextEditingController _batasPenugasanController =
       TextEditingController();
   // final TextEditingController _radiusController = TextEditingController();
-  final TextEditingController _latitudeController = TextEditingController();
-  final TextEditingController _longitudeController = TextEditingController();
+  // final TextEditingController _latitudeController = TextEditingController();
+  // final TextEditingController _longitudeController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
   final TextEditingController _noteLokController = TextEditingController();
@@ -193,22 +193,22 @@ class _TugasInputEditState extends State<TugasInputEdit> {
         "${dateTime.minute.toString().padLeft(2, '0')}";
   }
 
-  bool _isValidCoordinate(String lat, String lng) {
-    if (lat.isEmpty || lng.isEmpty) return false;
+  // bool _isValidCoordinate(String lat, String lng) {
+  //   if (lat.isEmpty || lng.isEmpty) return false;
 
-    try {
-      final latitude = double.parse(lat);
-      final longitude = double.parse(lng);
+  //   try {
+  //     final latitude = double.parse(lat);
+  //     final longitude = double.parse(lng);
 
-      // Validasi range koordinat yang valid
-      return latitude >= -90 &&
-          latitude <= 90 &&
-          longitude >= -180 &&
-          longitude <= 180;
-    } catch (e) {
-      return false;
-    }
-  }
+  //     // Validasi range koordinat yang valid
+  //     return latitude >= -90 &&
+  //         latitude <= 90 &&
+  //         longitude >= -180 &&
+  //         longitude <= 180;
+  //   } catch (e) {
+  //     return false;
+  //   }
+  // }
 
   // void _lihatMap() {
   //   final isIndonesian = context.read<LanguageProvider>().isIndonesian;
@@ -334,8 +334,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     if (_judulTugasController.text.isEmpty ||
         _tanggalPenugasanController.text.isEmpty ||
         _batasPenugasanController.text.isEmpty ||
-        _latitudeController.text.isEmpty ||
-        _longitudeController.text.isEmpty ||
+        // _latitudeController.text.isEmpty ||
+        // _longitudeController.text.isEmpty ||
         _selectedUser == null) {
       NotificationHelper.showTopNotification(
         context,
@@ -345,15 +345,15 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       return;
     }
 
-    if (!_isValidCoordinate(
-        _latitudeController.text.trim(), _longitudeController.text.trim())) {
-      NotificationHelper.showTopNotification(
-        context,
-        isIndonesian ? 'Koordinat tidak valid.' : "Invalid coordinates.",
-        isSuccess: false,
-      );
-      return;
-    }
+    // if (!_isValidCoordinate(
+    //     _latitudeController.text.trim(), _longitudeController.text.trim())) {
+    //   NotificationHelper.showTopNotification(
+    //     context,
+    //     isIndonesian ? 'Koordinat tidak valid.' : "Invalid coordinates.",
+    //     isSuccess: false,
+    //   );
+    //   return;
+    // }
 
     final tanggalFormatted =
         TugasService.formatDateForApi(_tanggalPenugasanController.text.trim());
@@ -410,8 +410,8 @@ class _TugasInputEditState extends State<TugasInputEdit> {
       if (isSuccess && mounted) {
         // 1) Update cache lokal segera supaya countdown baca data baru
         if (userBaruId != userLamaId) {
-          print(' PIC berubah: $userLamaId -> $userBaruId');
-          print(' Backend akan kirim notifikasi terpisah:');
+          print('⚠️ PIC berubah: $userLamaId -> $userBaruId');
+          print('✅ Backend akan kirim notifikasi terpisah:');
           print('   - User lama ($userLamaId): tugas_pindah');
           print('   - User baru ($userBaruId): tugas_baru');
         } else {
@@ -511,7 +511,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
               ),
               CustomInputField(
                 label: context.isIndonesian ? 'Lokasi Tugas' : "Task Location",
-                // controller: _noteLokController,
+                controller: _noteLokController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
@@ -620,7 +620,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
               //       ),
               //     ),
               //   ],
-              // // ),
+              // ),
 
               // const SizedBox(height: 20),
               // // Action buttons

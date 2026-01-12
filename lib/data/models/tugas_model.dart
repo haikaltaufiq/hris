@@ -4,12 +4,12 @@ import 'package:intl/intl.dart';
 class TugasModel {
   final int id;
   final String namaTugas;
-  final String namaLok;
+  // final String namaLok;
   final String tanggalPenugasan;
   final String batasPenugasan;
-  // final int radius;
-  // final double? tugasLat;
-  // final double? tugasLng;
+  final int radius;
+  final double? tugasLat;
+  final double? tugasLng;
   final double? lampiranLat;
   final double? lampiranLng;
   final String? note;
@@ -23,12 +23,12 @@ class TugasModel {
   TugasModel({
     required this.id,
     required this.namaTugas,
-    required this.namaLok,
+    // required this.namaLok,
     required this.tanggalPenugasan,
     required this.batasPenugasan,
-    // required this.radius,
-    // this.tugasLat,
-    // this.tugasLng,
+    required this.radius,
+    this.tugasLat,
+    this.tugasLng,
     this.lampiranLat,
     this.lampiranLng,
     this.note,
@@ -44,16 +44,16 @@ class TugasModel {
     return TugasModel(
       id: json['id'] ?? 0,
       namaTugas: json['nama_tugas'] ?? '',
-      namaLok: json['nama_lokasi_penugasan'] ?? '',
+      // namaLok: json['nama_lokasi_penugasan'] ?? '',
       tanggalPenugasan: json['tanggal_penugasan'] ?? '',
       batasPenugasan: json['batas_penugasan'] ?? '',
-      // radius: json['radius_meter'] ?? 100,
-      // tugasLat: json['tugas_lat'] != null
-      //     ? double.tryParse(json['tugas_lat'].toString())
-      //     : null,
-      // tugasLng: json['tugas_lng'] != null
-      //     ? double.tryParse(json['tugas_lng'].toString())
-      //     : null,
+      radius: json['radius_meter'] ?? 100,
+      tugasLat: json['tugas_lat'] != null
+          ? double.tryParse(json['tugas_lat'].toString())
+          : null,
+      tugasLng: json['tugas_lng'] != null
+          ? double.tryParse(json['tugas_lng'].toString())
+          : null,
       lampiranLat: json['lampiran_lat'] != null
           ? double.tryParse(json['lampiran_lat'].toString())
           : null,
@@ -80,12 +80,12 @@ class TugasModel {
     return {
       'id': id,
       'nama_tugas': namaTugas,
-      'nama_lokasi_penugasan': namaLok,
+      // 'nama_lokasi_penugasan': namaLok,
       'tanggal_penugasan': tanggalPenugasan,
       'batas_penugasan': batasPenugasan,
-      // 'radius_meter': radius,
-      // 'tugas_lat': tugasLat,
-      // 'tugas_lng': tugasLng,
+      'radius_meter': radius,
+      'tugas_lat': tugasLat,
+      'tugas_lng': tugasLng,
       'lampiran_lat': lampiranLat,
       'lampiran_lng': lampiranLng,
       'instruksi_tugas': note,
@@ -107,9 +107,9 @@ extension TugasTableGetter on TugasModel {
 
   String get displayLampiran => lampiran != null ? "Lihat Lampiran" : '-';
 
-  // String get displayLokasiTugas => (tugasLat != null && tugasLng != null)
-  //     ? "${tugasLat!.toStringAsFixed(5)}, ${tugasLng!.toStringAsFixed(5)}"
-  //     : '-';
+  String get displayLokasiTugas => (tugasLat != null && tugasLng != null)
+      ? "${tugasLat!.toStringAsFixed(5)}, ${tugasLng!.toStringAsFixed(5)}"
+      : '-';
 
   String get displayLokasiLampiran => (lampiranLat != null &&
           lampiranLng != null)
