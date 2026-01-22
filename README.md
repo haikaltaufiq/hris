@@ -10,7 +10,6 @@
 <div align="center">
   <img src="assets/demo.gif" alt="Demo GIF" width="300"/>
   <br>
-  <em>Demo aplikasi dalam aksi</em>
 </div>
 
 ## ✨ Features
