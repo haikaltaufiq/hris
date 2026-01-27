@@ -15,7 +15,11 @@ class UserModel {
   final String? npwp;
   final String? bpjsKesehatan;
   final String? bpjsKetenagakerjaan;
-
+  final double? latitude;
+  final double? longitude;
+  final String? status;
+  final DateTime? lastUpdate;
+  
   UserModel({
     required this.id,
     required this.nama,
@@ -29,6 +33,10 @@ class UserModel {
     this.npwp,
     this.bpjsKesehatan,
     this.bpjsKetenagakerjaan,
+    this.latitude,
+    this.longitude,
+    this.status,
+    this.lastUpdate,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -58,8 +66,20 @@ class UserModel {
           : DepartemenModel(
               id: json['departemen_id'] ?? 0,
               namaDepartemen: ''), // fallback pakai id
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
+      status: json['status'],
+      lastUpdate: json['updated_at'] != null
+          ? DateTime.tryParse(json['updated_at'])
+          : null,
+
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -75,5 +95,13 @@ class UserModel {
       'peran': peran?.toJson(),
       'departemen': departemen?.toJson(),
     };
+  }
+
+  bool get isGpsActive {
+    if (latitude == null || longitude == null || lastUpdate == null) {
+      return false;
+    }
+
+    return DateTime.now().difference(lastUpdate!).inMinutes <= 2;
   }
 }

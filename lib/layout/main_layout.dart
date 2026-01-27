@@ -687,7 +687,7 @@ class _MainLayoutState extends State<MainLayout>
       case AppRoutes.jabatan:
         return context.isIndonesian ? 'Jabatan' : 'Position';
       case AppRoutes.peran:
-        return context.isIndonesian ? 'Manajemen Akses' : 'Management Access';
+        return context.isIndonesian ? 'Manajemen Peran' : 'Management Access';
       case AppRoutes.potonganGaji:
         return context.isIndonesian ? 'Potongan Gaji' : 'Salary Deduction';
       case AppRoutes.info:

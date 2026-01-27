@@ -10,6 +10,7 @@ import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:provider/provider.dart';
 
@@ -59,16 +60,24 @@ class _LoginButtonState extends State<LoginButton> {
             _saveUserData(token, user, auth),
           ]);
 
-          if (context.mounted) {
-            final message =
-                context.isIndonesian ? "Login berhasil" : "Login success";
-            NotificationHelper.showTopNotification(
-              context,
-              result['message'] ?? message,
-              isSuccess: true,
-            );
-            Navigator.pushReplacementNamed(context, AppRoutes.dashboardMobile);
-          }
+          // ==================================================
+          // 🔥 INI YANG WAJIB ADA (KUNCI SEMUANYA)
+          // ==================================================
+          context.read<UserProvider>().setUser(user);
+
+          final message =
+              context.isIndonesian ? "Login berhasil" : "Login success";
+
+          NotificationHelper.showTopNotification(
+            context,
+            result['message'] ?? message,
+            isSuccess: true,
+          );
+
+          Navigator.pushReplacementNamed(
+            context,
+            AppRoutes.dashboardMobile,
+          );
         } else {
           widget.onError("Terjadi kesalahan pada data user");
         }
@@ -85,6 +94,7 @@ class _LoginButtonState extends State<LoginButton> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
 
   bool _validateInputs(String email, String password) {
     if (email.isEmpty || password.isEmpty) {

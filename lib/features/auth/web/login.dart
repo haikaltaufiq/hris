@@ -9,6 +9,7 @@ import 'package:hr/core/theme/theme_provider.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/auth_service.dart';
 import 'package:hr/data/services/pengaturan_service.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:hr/features/auth/web/forget_page.dart';
 import 'package:hr/l10n/app_localizations.dart';
 import 'package:hr/routes/app_routes.dart';
@@ -82,43 +83,45 @@ class _LoginState extends State<Login> {
               _saveUserData(token, user, auth),
             ]);
 
-            if (context.mounted) {
-              NotificationHelper.showTopNotification(
-                context,
-                result['message'],
-                isSuccess: true,
-              );
+            // ==================================================
+            // 🔥 WAJIB ADA (BIAR isLoggedIn = true)
+            // ==================================================
+            context.read<UserProvider>().setUser(user);
 
-              Navigator.pushReplacementNamed(context, AppRoutes.dashboard);
-            }
-          }
-        } else {
-          if (context.mounted) {
-            final message = context.isIndonesian
-                ? 'Email atau password salah'
-                : 'Invalid email or password';
             NotificationHelper.showTopNotification(
               context,
-              result['message'] ?? message,
-              isSuccess: false,
+              result['message'],
+              isSuccess: true,
+            );
+
+            Navigator.pushReplacementNamed(
+              context,
+              AppRoutes.dashboard,
             );
           }
-        }
-      } catch (e) {
-        if (context.mounted) {
+        } else {
           final message = context.isIndonesian
-              ? 'Login gagal: ${e.toString()}'
-              : 'Login failed: ${e.toString()}';
+              ? 'Email atau password salah'
+              : 'Invalid email or password';
+
           NotificationHelper.showTopNotification(
             context,
-            message,
+            result['message'] ?? message,
             isSuccess: false,
           );
         }
+      } catch (e) {
+        final message = context.isIndonesian
+            ? 'Login gagal: ${e.toString()}'
+            : 'Login failed: ${e.toString()}';
+
+        NotificationHelper.showTopNotification(
+          context,
+          message,
+          isSuccess: false,
+        );
       } finally {
-        if (mounted) {
-          setState(() => _isLoading = false);
-        }
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
