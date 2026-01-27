@@ -10,13 +10,13 @@ class ThemeProvider extends ChangeNotifier {
 
   void toggleTheme() {
     _isDarkMode = !_isDarkMode;
-    AppColors.isDarkMode = _isDarkMode; // 🔥 sync ke AppColors
+    AppColors.isDarkMode = _isDarkMode; //  sync ke AppColors
     notifyListeners();
   }
 
   void setDarkMode(bool value) {
     _isDarkMode = value;
-    AppColors.isDarkMode = value; // 🔥 sync ke AppColors
+    AppColors.isDarkMode = value; //  sync ke AppColors
     notifyListeners();
   }
 }
