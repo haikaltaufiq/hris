@@ -7,6 +7,7 @@ import 'package:hr/data/models/potongan_gaji.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/features/attendance/absen_page.dart';
+import 'package:hr/features/attendance/locationTrack/locationTrackPage.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
@@ -89,6 +90,7 @@ class AppRoutes {
   static const String resetDevice = '/resetDevice';
   static const String bukaAkun = '/bukaAkun';
   static const String karyawanEditForm = '/karyawan_edit_form';
+  static const String locationTrack = '/locationTrack';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -152,7 +154,8 @@ class AppRoutes {
       lemburForm,
       resetDevice,
       bukaAkun,
-      karyawanEditForm
+      karyawanEditForm,
+      locationTrack
     ];
 
     // Jika URL dilindungi tapi belum login
@@ -187,6 +190,10 @@ class AppRoutes {
 
       case overTime:
         return _route(const LemburPage().withMainLayout(overTime), settings);
+
+      case locationTrack:
+        return _route(
+            const Locationtrackpage().withMainLayout(locationTrack), settings);
 
       case leave:
         return _route(const CutiPage().withMainLayout(leave), settings);

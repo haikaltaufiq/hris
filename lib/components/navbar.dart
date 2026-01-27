@@ -47,6 +47,13 @@ class ResponsiveNavBar extends StatefulWidget {
         route: AppRoutes.attendance,
       ),
       NavItemWithFeature(
+        label: isIndonesian ? "Pantau Lokasi" : "Location Track",
+        icon: FontAwesomeIcons.locationPin,
+        selectedIcon: FontAwesomeIcons.locationPin,
+        requiredFeatures: ["lihat_absensi_sendiri", "lihat_semua_absensi"],
+        route: AppRoutes.locationTrack,
+      ),
+      NavItemWithFeature(
         label: isIndonesian ? "Tugas" : "Task",
         icon: FontAwesomeIcons.listCheck,
         requiredFeatures: ["lihat_tugas"],
@@ -392,14 +399,23 @@ class _ResponsiveNavBarState extends State<ResponsiveNavBar>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: FaIcon(
-                            isSelected && item.selectedIcon != null
-                                ? item.selectedIcon!
-                                : item.icon,
+                        FaIcon(
+                          isSelected && item.selectedIcon != null
+                              ? item.selectedIcon!
+                              : item.icon,
+                          color: isSelected ? Colors.white : Colors.white60,
+                          size: 22,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item.label,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            fontSize: 10,
+                            fontWeight:
+                                isSelected ? FontWeight.w600 : FontWeight.w400,
                             color: isSelected ? Colors.white : Colors.white60,
-                            size: 23,
                           ),
                         ),
                       ],
