@@ -100,6 +100,7 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.cutiForm: 30,
     AppRoutes.lemburForm: 31,
     AppRoutes.locationTrack: 32,
+    AppRoutes.detailAbsen: 33,
   };
 
   // Map index ke route
@@ -137,6 +138,7 @@ class _MainLayoutState extends State<MainLayout>
     AppRoutes.cutiForm,
     AppRoutes.lemburForm,
     AppRoutes.locationTrack,
+    AppRoutes.detailAbsen,
   ];
 
   @override
@@ -736,6 +738,8 @@ class _MainLayoutState extends State<MainLayout>
         return context.isIndonesian ? 'Buka Akun' : 'Open Account';
       case AppRoutes.locationTrack:
         return context.isIndonesian ? 'Pantau Lokasi' : 'Location Tracking';
+      case AppRoutes.detailAbsen:
+        return '';
       default:
         return 'HRIS System';
     }

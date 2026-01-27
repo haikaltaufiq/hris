@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:hr/core/theme/theme_provider.dart';
+import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/data/models/pengingat_model.dart';
 import 'package:hr/data/models/peran_model.dart';
 import 'package:hr/data/models/potongan_gaji.dart';
@@ -11,6 +12,7 @@ import 'package:hr/features/attendance/locationTrack/locationTrackPage.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
+import 'package:hr/features/attendance/mobile/components/detail_absen.dart';
 import 'package:hr/features/buka_akun/buka_akun.dart';
 import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_page.dart';
@@ -91,6 +93,7 @@ class AppRoutes {
   static const String bukaAkun = '/bukaAkun';
   static const String karyawanEditForm = '/karyawan_edit_form';
   static const String locationTrack = '/locationTrack';
+  static const String detailAbsen = '/detailAbsen';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -155,7 +158,8 @@ class AppRoutes {
       resetDevice,
       bukaAkun,
       karyawanEditForm,
-      locationTrack
+      locationTrack,
+      detailAbsen,
     ];
 
     // Jika URL dilindungi tapi belum login
@@ -194,6 +198,14 @@ class AppRoutes {
       case locationTrack:
         return _route(
             const Locationtrackpage().withMainLayout(locationTrack), settings);
+
+      case detailAbsen:
+        final absen = settings.arguments as AbsenModel;
+        return _route(
+            DetailAbsen(
+              selectedAbsen: absen,
+            ).withMainLayout((detailAbsen)),
+            settings);
 
       case leave:
         return _route(const CutiPage().withMainLayout(leave), settings);

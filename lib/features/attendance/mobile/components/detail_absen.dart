@@ -4,6 +4,7 @@ import 'package:hr/components/custom/loading.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/api/api_config.dart';
+import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -12,7 +13,8 @@ import 'package:hr/features/attendance/mobile/components/map.dart';
 import 'package:video_player/video_player.dart';
 
 class DetailAbsen extends StatefulWidget {
-  const DetailAbsen({super.key});
+  final AbsenModel selectedAbsen;
+  const DetailAbsen({super.key, required this.selectedAbsen});
 
   @override
   State<DetailAbsen> createState() => _DetailAbsenState();
@@ -189,7 +191,7 @@ class _DetailAbsenState extends State<DetailAbsen> {
                   );
                 }
 
-                final data = today.first;
+                final data = widget.selectedAbsen;
 
                 return ListView(
                   padding: const EdgeInsets.all(16),
