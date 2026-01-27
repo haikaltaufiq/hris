@@ -101,7 +101,7 @@ class AbsenProvider extends ChangeNotifier {
       }
 
       _allAbsensi = apiData; // TAMBAHAN: simpan semua data mentah
-      sortAbsensi('hari'); // UBAH: sort default ke hari ini
+      sortAbsensi('terbaru'); // UBAH: sort default ke hari ini
       _filteredAbsensi.clear();
       _errorMessage = null;
 
