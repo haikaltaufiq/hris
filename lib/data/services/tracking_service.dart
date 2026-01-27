@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../api/api_config.dart';
@@ -20,6 +21,9 @@ class TrackingService {
 
     final url = Uri.parse('${ApiConfig.baseUrl}/api/tracking/update');
 
+    debugPrint('🚀 Kirim lokasi ke backend');
+    debugPrint('LAT: $latitude, LNG: $longitude');
+    
     final response = await http.post(
       url,
       headers: {
@@ -36,6 +40,7 @@ class TrackingService {
     if (response.statusCode != 200) {
       throw Exception('Gagal update lokasi');
     }
+    debugPrint('📨 Response: ${response.statusCode}');
   }
 
   static Future<List<UserModel>> getTrackingUsers() async {

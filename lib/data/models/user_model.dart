@@ -17,6 +17,7 @@ class UserModel {
   final String? bpjsKetenagakerjaan;
   final double? latitude;
   final double? longitude;
+  final String? status;
   final DateTime? lastUpdate;
   
   UserModel({
@@ -34,6 +35,7 @@ class UserModel {
     this.bpjsKetenagakerjaan,
     this.latitude,
     this.longitude,
+    this.status,
     this.lastUpdate,
   });
 
@@ -70,12 +72,14 @@ class UserModel {
       longitude: json['longitude'] != null
           ? double.tryParse(json['longitude'].toString())
           : null,
+      status: json['status'],
       lastUpdate: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at'])
           : null,
 
     );
   }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -91,5 +95,13 @@ class UserModel {
       'peran': peran?.toJson(),
       'departemen': departemen?.toJson(),
     };
+  }
+
+  bool get isGpsActive {
+    if (latitude == null || longitude == null || lastUpdate == null) {
+      return false;
+    }
+
+    return DateTime.now().difference(lastUpdate!).inMinutes <= 2;
   }
 }
