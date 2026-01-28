@@ -60,118 +60,124 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
             padding: const EdgeInsets.all(16.0),
             children: [
               SearchingBar(
-                controller: searchController,
-                onChanged: (query) => absenProvider.searchAbsensi(query),
-                onFilter1Tap: () async {
-                  showDialog(
-                    context: context,
-                    builder: (context) {
-                      String selected = absenProvider.currentSortField;
-                      return AlertDialog(
-                        backgroundColor: AppColors.primary,
-                        title: Text(
-                          'Urutkan Berdasarkan',
-                          style: TextStyle(color: AppColors.putih),
-                        ),
-                        content: StatefulBuilder(
-                          builder: (context, setState) => Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              RadioListTile<String>(
-                                value: 'hari',
-                                groupValue: selected,
-                                onChanged: (v) => setState(() => selected = v!),
-                                title: Text(
-                                  'Per-hari ini',
-                                  style: TextStyle(color: AppColors.putih),
-                                ),
-                                activeColor: AppColors.putih,
-                              ),
-                              RadioListTile<String>(
-                                value: 'semua',
-                                groupValue: selected,
-                                onChanged: (v) => setState(() => selected = v!),
-                                title: Text(
-                                  'Semua Tanggal',
-                                  style: TextStyle(color: AppColors.putih),
-                                ),
-                                activeColor: AppColors.putih,
-                              ),
-                              RadioListTile<String>(
-                                value: 'terbaru',
-                                groupValue: selected,
-                                onChanged: (v) => setState(() => selected = v!),
-                                title: Text(
-                                  'Terbaru',
-                                  style: TextStyle(color: AppColors.putih),
-                                ),
-                                activeColor: AppColors.putih,
-                              ),
-                              RadioListTile<String>(
-                                value: 'terlama',
-                                groupValue: selected,
-                                onChanged: (v) => setState(() => selected = v!),
-                                title: Text(
-                                  'Terlama',
-                                  style: TextStyle(color: AppColors.putih),
-                                ),
-                                activeColor: AppColors.putih,
-                              ),
-                            ],
+                  controller: searchController,
+                  onChanged: (query) => absenProvider.searchAbsensi(query),
+                  onFilter1Tap: () async {
+                    showDialog(
+                      context: context,
+                      builder: (context) {
+                        String selected = absenProvider.currentSortField;
+                        return AlertDialog(
+                          backgroundColor: AppColors.primary,
+                          title: Text(
+                            'Urutkan Berdasarkan',
+                            style: TextStyle(color: AppColors.putih),
                           ),
-                        ),
-                        actions: [
-                          Row(
-                            children: [
-                              // Tombol Batal
-                              Expanded(
-                                child: TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: AppColors.putih,
-                                    textStyle: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    minimumSize: const Size.fromHeight(
-                                        50), // samakan tinggi
+                          content: StatefulBuilder(
+                            builder: (context, setState) => Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                RadioListTile<String>(
+                                  value: 'hari',
+                                  groupValue: selected,
+                                  onChanged: (v) =>
+                                      setState(() => selected = v!),
+                                  title: Text(
+                                    'Per-hari ini',
+                                    style: TextStyle(color: AppColors.putih),
                                   ),
-                                  child: const Text('Batal'),
+                                  activeColor: AppColors.putih,
                                 ),
-                              ),
-                              const SizedBox(width: 16), // jarak antar tombol
-                              // Tombol Terapkan
-                              Expanded(
-                                child: ElevatedButton(
-                                  onPressed: () {
-                                    context
-                                        .read<AbsenProvider>()
-                                        .sortAbsensi(selected);
-                                    Navigator.pop(context);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.secondary,
-                                    foregroundColor: AppColors.putih,
-                                    minimumSize: const Size.fromHeight(50),
-                                    textStyle: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
+                                RadioListTile<String>(
+                                  value: 'semua',
+                                  groupValue: selected,
+                                  onChanged: (v) =>
+                                      setState(() => selected = v!),
+                                  title: Text(
+                                    'Semua Tanggal',
+                                    style: TextStyle(color: AppColors.putih),
                                   ),
-                                  child: const Text('Terapkan'),
+                                  activeColor: AppColors.putih,
                                 ),
-                              ),
-                            ],
+                                RadioListTile<String>(
+                                  value: 'terbaru',
+                                  groupValue: selected,
+                                  onChanged: (v) =>
+                                      setState(() => selected = v!),
+                                  title: Text(
+                                    'Terbaru',
+                                    style: TextStyle(color: AppColors.putih),
+                                  ),
+                                  activeColor: AppColors.putih,
+                                ),
+                                RadioListTile<String>(
+                                  value: 'terlama',
+                                  groupValue: selected,
+                                  onChanged: (v) =>
+                                      setState(() => selected = v!),
+                                  title: Text(
+                                    'Terlama',
+                                    style: TextStyle(color: AppColors.putih),
+                                  ),
+                                  activeColor: AppColors.putih,
+                                ),
+                              ],
+                            ),
                           ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
+                          actions: [
+                            Row(
+                              children: [
+                                // Tombol Batal
+                                Expanded(
+                                  child: TextButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: AppColors.putih,
+                                      textStyle: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      minimumSize: const Size.fromHeight(
+                                          50), // samakan tinggi
+                                    ),
+                                    child: const Text('Batal'),
+                                  ),
+                                ),
+                                const SizedBox(width: 16), // jarak antar tombol
+                                // Tombol Terapkan
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      context
+                                          .read<AbsenProvider>()
+                                          .sortAbsensi(selected);
+                                      Navigator.pop(context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.secondary,
+                                      foregroundColor: AppColors.putih,
+                                      minimumSize: const Size.fromHeight(50),
+                                      textStyle: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text('Terapkan'),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                  onTap2: () {
+                    Navigator.pushNamed(context, AppRoutes.locationTrack);
+                  }),
               const SizedBox(height: 5),
               if (absenProvider.isLoading && absen.isEmpty)
                 SizedBox(

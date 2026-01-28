@@ -425,7 +425,7 @@ class _AbsensiItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.isIndonesian ? "Jam Masuk :" : "Check in :",
+                    context.isIndonesian ? "Masuk :" : "Checkin :",
                     style: TextStyle(
                       color: AppColors.putih,
                       fontSize: 12,
@@ -451,7 +451,7 @@ class _AbsensiItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.isIndonesian ? "Jam Keluar" : "Check out :",
+                    context.isIndonesian ? "Keluar" : "Checkout :",
                     style: TextStyle(
                       color: AppColors.putih,
                       fontSize: 12,

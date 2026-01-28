@@ -10,6 +10,7 @@ import 'package:hr/data/services/jam_kantor.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
+import 'package:hr/routes/app_routes.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -91,7 +92,63 @@ class _CardAttendanceUserState extends State<CardAttendance> {
             ),
 
             const SizedBox(height: 14),
-
+            FeatureGuard(
+              requiredFeature: "lihat_semua_absensi",
+              child: Container(
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.secondary,
+                      AppColors.secondary.withOpacity(0.8),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05), // tipis banget
+                      blurRadius: 4, // kecil, biar soft
+                      spreadRadius: 0,
+                      offset: Offset(0, 1), // cuma bawah dikit
+                    ),
+                  ],
+                  border: Border.all(
+                    color: AppColors.putih.withOpacity(0.2),
+                    width: 1,
+                  ),
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pushNamed(context, AppRoutes.locationTrack);
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          FontAwesomeIcons.rightToBracket,
+                          color: AppColors.putih,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          context.isIndonesian
+                              ? "Pantau Lokasi"
+                              : "Track Location",
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.putih,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
             // Action Buttons
             FeatureGuard(
               requiredFeature: "lihat_absensi_sendiri",

@@ -82,6 +82,14 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         },
                       ),
                       DashboardMenuItem(
+                        label: context.isIndonesian ? "Pantau " : "Track",
+                        requiredFeature: 'lihat_semua_absensi',
+                        icon: Icons.location_history_rounded,
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.locationTrack);
+                        },
+                      ),
+                      DashboardMenuItem(
                         label: context.isIndonesian ? "Gaji" : "Salary",
                         requiredFeature: 'gaji',
                         icon: FontAwesomeIcons.moneyBill,

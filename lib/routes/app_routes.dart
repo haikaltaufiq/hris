@@ -197,7 +197,7 @@ class AppRoutes {
 
       case locationTrack:
         return _route(
-            const Locationtrackpage().withMainLayout(locationTrack), settings);
+            const LocationTrackPage().withMainLayout(locationTrack), settings);
 
       case detailAbsen:
         final absen = settings.arguments as AbsenModel;

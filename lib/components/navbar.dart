@@ -46,13 +46,7 @@ class ResponsiveNavBar extends StatefulWidget {
         requiredFeatures: ["lihat_absensi_sendiri", "lihat_semua_absensi"],
         route: AppRoutes.attendance,
       ),
-      NavItemWithFeature(
-        label: isIndonesian ? "Pantau Lokasi" : "Location Track",
-        icon: FontAwesomeIcons.locationPin,
-        selectedIcon: FontAwesomeIcons.locationPin,
-        requiredFeatures: ["lihat_absensi_sendiri", "lihat_semua_absensi"],
-        route: AppRoutes.locationTrack,
-      ),
+
       NavItemWithFeature(
         label: isIndonesian ? "Tugas" : "Task",
         icon: FontAwesomeIcons.listCheck,

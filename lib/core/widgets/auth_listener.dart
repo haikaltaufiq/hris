@@ -3,7 +3,6 @@ import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
 import 'package:provider/provider.dart';
 import '../../data/services/location_tracker.dart';
 
-
 class AuthListener extends StatefulWidget {
   final Widget child;
 
@@ -14,35 +13,30 @@ class AuthListener extends StatefulWidget {
 }
 
 class _AuthListenerState extends State<AuthListener> {
-  bool _trackingStarted = false;
+  bool? _previousLoginState;
 
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
+  void _checkAuthState(bool isLoggedIn) {
+    // Skip jika state belum berubah
+    if (_previousLoginState == isLoggedIn) return;
 
-    final userProvider = context.watch<UserProvider>();
+    _previousLoginState = isLoggedIn;
 
-    debugPrint(
-      '🔄 AuthListener rebuild | isLoggedIn=${userProvider.isLoggedIn}',
-    );
-
-    // ✅ USER LOGIN → START TRACKING
-    if (userProvider.isLoggedIn && !_trackingStarted) {
+    if (isLoggedIn) {
       LocationTracker.start();
-      _trackingStarted = true;
       debugPrint('📍 Location tracking STARTED');
-    }
-
-    // 🚪 USER LOGOUT → STOP TRACKING
-    if (!userProvider.isLoggedIn && _trackingStarted) {
+    } else {
       LocationTracker.stop();
-      _trackingStarted = false;
       debugPrint('🛑 Location tracking STOPPED');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        _checkAuthState(userProvider.isLoggedIn);
+        return widget.child;
+      },
+    );
   }
 }
