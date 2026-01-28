@@ -19,6 +19,8 @@ class UserModel {
   final double? longitude;
   final String? status;
   final DateTime? lastUpdate;
+  final int? lastUpdateMinutes; // 🆕
+  final String? lastUpdateHuman; // 🆕
   
   UserModel({
     required this.id,
@@ -37,6 +39,8 @@ class UserModel {
     this.longitude,
     this.status,
     this.lastUpdate,
+    this.lastUpdateMinutes,
+    this.lastUpdateHuman,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -59,13 +63,13 @@ class UserModel {
           : PeranModel(
               id: json['peran_id'] ?? 0,
               namaPeran: '',
-              fitur: []), // fallback pakai id
+              fitur: []),
       departemen: (json['departemen'] != null &&
               json['departemen'] is Map<String, dynamic>)
           ? DepartemenModel.fromJson(json['departemen'])
           : DepartemenModel(
               id: json['departemen_id'] ?? 0,
-              namaDepartemen: ''), // fallback pakai id
+              namaDepartemen: ''),
       latitude: json['latitude'] != null
           ? double.tryParse(json['latitude'].toString())
           : null,
@@ -73,10 +77,19 @@ class UserModel {
           ? double.tryParse(json['longitude'].toString())
           : null,
       status: json['status'],
-      lastUpdate: json['updated_at'] != null
-          ? DateTime.tryParse(json['updated_at'])
+      
+      // ✅ Ambil data dari backend
+      lastUpdateMinutes: json['last_update_minutes'] != null
+          ? (json['last_update_minutes'] as num).toInt()
           : null,
-
+          
+      lastUpdateHuman: json['last_update_human'],
+      
+      lastUpdate: json['last_update'] != null
+          ? DateTime.tryParse(json['last_update'])
+          : (json['updated_at'] != null
+              ? DateTime.tryParse(json['updated_at'])
+              : null),
     );
   }
 
@@ -94,14 +107,80 @@ class UserModel {
       'jabatan': jabatan?.toJson(),
       'peran': peran?.toJson(),
       'departemen': departemen?.toJson(),
+      'latitude': latitude,
+      'longitude': longitude,
+      'status': status,
+      'last_update': lastUpdate?.toIso8601String(),
     };
   }
 
+  // ========================================
+  // 🆕 HELPER METHODS UNTUK TRACKING
+  // ========================================
+
+  /// Check apakah GPS user aktif (berdasarkan status dari backend)
   bool get isGpsActive {
+    // Jika ada status dari backend, gunakan itu
+    if (status != null) {
+      return status == 'aktif';
+    }
+    
+    // Fallback: cek berdasarkan lastUpdate (jika backend tidak kirim status)
     if (latitude == null || longitude == null || lastUpdate == null) {
       return false;
     }
 
-    return DateTime.now().difference(lastUpdate!).inMinutes <= 2;
+    return DateTime.now().difference(lastUpdate!).inMinutes <= 5;
   }
+
+  /// Get initial nama untuk avatar (huruf pertama)
+  String get initial => nama.isNotEmpty ? nama[0].toUpperCase() : '?';
+
+  /// Get first name saja
+  String get firstName => nama.split(' ').first;
+
+  /// Format waktu update yang lebih readable
+  String get formattedLastUpdate {
+    // Prioritaskan data dari backend
+    if (lastUpdateHuman != null && lastUpdateHuman!.isNotEmpty) {
+      return lastUpdateHuman!;
+    }
+    
+    // Fallback ke perhitungan lokal
+    if (lastUpdate == null) return 'Tidak ada data';
+    
+    try {
+      final DateTime now = DateTime.now();
+      final Duration diff = now.difference(lastUpdate!);
+
+      if (diff.inMinutes < 1) {
+        return 'Baru saja';
+      } else if (diff.inMinutes < 60) {
+        return '${diff.inMinutes} menit yang lalu';
+      } else if (diff.inHours < 24) {
+        return '${diff.inHours} jam yang lalu';
+      } else {
+        return '${diff.inDays} hari yang lalu';
+      }
+    } catch (e) {
+      return 'Tidak ada data';
+    }
+  }
+
+  /// Status text yang readable
+  String get statusText {
+    if (isGpsActive) return 'GPS Aktif';
+    return 'GPS Tidak Aktif';
+  }
+
+  /// Koordinat dalam format string
+  String get koordinatString {
+    if (latitude == null || longitude == null) return '-';
+    return '${latitude!.toStringAsFixed(6)}, ${longitude!.toStringAsFixed(6)}';
+  }
+
+  /// Check apakah user punya koordinat
+  bool get hasLocation => latitude != null && longitude != null;
+
+  
 }
