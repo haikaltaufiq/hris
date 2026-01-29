@@ -150,13 +150,13 @@ class TugasProvider extends ChangeNotifier {
         judul: judul,
         tanggalPenugasan: tanggalPenugasan,
         batasPenugasan: batasPenugasan,
+        tugaslok: tugaslok,
         // tugasLat: tugasLat,
         // tugasLng: tugasLng,
         person: person,
         lampiranLat: lampiranLat,
         lampiranLng: lampiranLng,
         note: note,
-        tugaslok: tugaslok,
         // radius: radius.toString(),
       );
       if (result['success'] == true) await fetchTugas(forceRefresh: true);

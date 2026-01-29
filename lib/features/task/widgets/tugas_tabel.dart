@@ -3,11 +3,13 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/main_tabel.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page_modal.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
+import 'package:hr/features/task/tugas_form/form_user_edit.dart';
 import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/widgets/lampiran.dart';
 import 'package:latlong2/latlong.dart';
@@ -144,22 +146,100 @@ class _TugasTabelState extends State<TugasTabel> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date).toLocal();
-      return DateFormat('HH:mm \'-\' dd/MM/yyyy').format(parsed);
+      return DateFormat('dd/MM/yyyy \'-\' HH:mm').format(parsed);
     } catch (_) {
       return date;
     }
   }
 
-  Future<void> _editTugas(BuildContext context, int row) async {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => TugasEditForm(
-          tugas: widget.tugasList[row],
+  void _handleEditAction(BuildContext context, int row) {
+    final tugas = widget.tugasList[row];
+
+    final canUpload = FeatureAccess.has("tambah_lampiran_tugas");
+    final canEdit = FeatureAccess.has("edit_tugas");
+    final hasLampiran =
+        tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty;
+
+    // ❌ tidak punya akses apa-apa
+    if (!canUpload && !canEdit) {
+      if (hasLampiran) {
+        _showLampiranDialog(context, tugas);
+      }
+      return;
+    }
+
+    // ✅ cuma upload
+    if (canUpload && !canEdit) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => FormUserEdit(tugas: tugas),
         ),
+      );
+      return;
+    }
+
+    // ✅ cuma edit
+    if (!canUpload && canEdit) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TugasEditForm(tugas: tugas),
+        ),
+      );
+      return;
+    }
+
+    // 🔥 DUA AKSES → BARU MUNCUL BOTTOM SHEET
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.bg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasLampiran)
+            ListTile(
+              leading: const Icon(Icons.attach_file),
+              title: Text("Lihat Lampiran",
+                  style: TextStyle(color: AppColors.putih)),
+              onTap: () {
+                Navigator.pop(context);
+                _showLampiranDialog(context, tugas);
+              },
+            ),
+          ListTile(
+            leading: const Icon(Icons.upload_file),
+            title: Text("Upload / Ganti Lampiran",
+                style: TextStyle(color: AppColors.putih)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => FormUserEdit(tugas: tugas),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: Text("Edit Tugas", style: TextStyle(color: AppColors.putih)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TugasEditForm(tugas: tugas),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
-    widget.onActionDone?.call();
   }
 
   Future<void> _deleteTugas(BuildContext context, TugasModel tugas) async {
@@ -383,29 +463,6 @@ class _TugasTabelState extends State<TugasTabel> {
     );
   }
 
-  String _hitungSisaWaktu(String? batas) {
-    if (batas == null) return "-";
-    try {
-      final deadline = DateTime.parse(batas);
-      final now = DateTime.now();
-      final diff = deadline.difference(now);
-
-      if (diff.isNegative) {
-        return context.isIndonesian
-            ? "Lewat ${diff.inMinutes.abs()} menit"
-            : "Overdue by ${diff.inMinutes.abs()} minutes";
-      } else {
-        final jam = diff.inHours;
-        final menit = diff.inMinutes.remainder(60);
-        return context.isIndonesian
-            ? "$jam jam $menit menit lagi"
-            : "$jam hours $menit minutes left";
-      }
-    } catch (_) {
-      return "-";
-    }
-  }
-
 //
   @override
   Widget build(BuildContext context) {
@@ -413,78 +470,66 @@ class _TugasTabelState extends State<TugasTabel> {
         ? [
             "Kepada",
             "Judul",
-            "Nama Lokasi",
             "Mulai",
             "Batas Submit",
-            // "Radius Lokasi",
-            // "Lokasi Tugas",
-            "Lokasi Upload",
-            "Status",
-            "Catatan",
+            "Nama Lokasi",
             "Lampiran",
-            "Waktu Upload",
-            "Keterlambatan",
-            "Sisa Waktu",
-            "Ketepatan"
+            "Lokasi Upload",
+            "Catatan",
+            "Status",
           ]
         : [
             "To",
             "Title",
-            "Location Name",
             "Start",
             "Deadline",
-            // "Location Radius",
-            // "Task Location",
-            "Upload Location",
-            "Status",
-            "Note",
+            "Location Name",
             "Attachment",
-            "Upload Time",
-            "Delay",
-            "Remaining Time",
-            "Punctuality"
+            "Upload Location",
+            "Note",
+            "Status",
           ];
 
     final rows = widget.tugasList.map((tugas) {
+      final lampiranLabel =
+          (tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty)
+              ? tugas.displayLampiran
+              : context.isIndonesian
+                  ? "Upload Lampiran"
+                  : "Upload Attachment";
+      final uploadLampiran = FeatureAccess.has("tambah_lampiran_tugas");
+
       return [
         tugas.displayUser,
         tugas.shortTugas,
-        tugas.namaLok,
         parseDate(tugas.tanggalPenugasan),
         parseDate(tugas.batasPenugasan),
+        tugas.namaLok,
         // "${tugas.radius} M",
         // tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
         //     ? context.isIndonesian
         //         ? "Lihat Lokasi"
         //         : "See Location"
         //     : '-',
+        uploadLampiran ? lampiranLabel : tugas.displayLampiran,
         tugas.displayLokasiLampiran != null &&
                 tugas.displayLokasiLampiran != "-"
             ? context.isIndonesian
                 ? "Lihat Lokasi"
                 : "See Location"
             : '-',
-        tugas.status,
         tugas.displayNote,
-        tugas.displayLampiran,
-        tugas.displayWaktuUpload,
-        tugas.menitTerlambat != null
-            ? context.isIndonesian
-                ? "${tugas.menitTerlambat} menit"
-                : "${tugas.menitTerlambat} minute"
-            : (tugas.waktuUpload != null ? "Tepat waktu" : "-"),
-        tugas.waktuUpload == null
-            ? _hitungSisaWaktu(tugas.batasPenugasan)
-            : "-", // kalau sudah upload, gak perlu tampilkan countdown lagi
-        tugas.lampiran != null ? tugas.displayTerlambat : '-',
+        tugas.status,
       ];
     }).toList();
-
+    final ubahStatus = FeatureAccess.has("ubah_status_tugas");
+    final hapusTugas = FeatureAccess.has("hapus_tugas");
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,
-      dropdownStatusColumnIndexes: [6],
-      statusOptions: ['Selesai', 'Proses'],
+      dropdownStatusColumnIndexes: ubahStatus ? [8] : null,
+      statusColumnIndexes: ubahStatus ? null : [8],
+      statusOptions: ubahStatus ? ['Selesai', 'Proses'] : null,
       onStatusChanged: (rowIndex, newStatus) async {
         final tugas = widget.tugasList[rowIndex];
         final message = await context
@@ -500,16 +545,41 @@ class _TugasTabelState extends State<TugasTabel> {
         );
       },
       onView: (row) => _showDetailDialog(context, widget.tugasList[row]),
-      onEdit: (row) => _editTugas(context, row),
-      onDelete: (row) => _deleteTugas(context, widget.tugasList[row]),
-      onTapLampiran: (row) =>
-          _showLampiranDialog(context, widget.tugasList[row]),
+      onEdit: (row) => _handleEditAction(context, row),
+      onDelete: hapusTugas
+          ? (row) => _deleteTugas(context, widget.tugasList[row])
+          : null,
+      onTapLampiran: (row) {
+        final tugas = widget.tugasList[row];
+
+        final canUpload = FeatureAccess.has("tambah_lampiran_tugas");
+        final hasLampiran =
+            tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty;
+
+        // ada lampiran → siapapun boleh lihat
+        if (hasLampiran) {
+          _showLampiranDialog(context, tugas);
+          return;
+        }
+
+        // tidak ada lampiran + punya akses upload
+        if (canUpload) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => FormUserEdit(tugas: tugas),
+            ),
+          );
+        }
+
+        // tidak ada lampiran + tidak punya akses → DO NOTHING
+      },
       onCellTap: (row, col) {
         final tugas = widget.tugasList[row];
         // if (col == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
         //   _openMap("${tugas.tugasLat},${tugas.tugasLng}");
         // }
-        if (col == 5 &&
+        if (col == 6 &&
             tugas.lampiranLat != null &&
             tugas.lampiranLng != null) {
           _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");

@@ -51,7 +51,6 @@ class _AbsenWebPageState extends State<AbsenWebPage> {
     final absen = searchController.text.isEmpty
         ? absenProvider.absensi
         : absenProvider.filteredAbsensi;
-
     return Scaffold(
       backgroundColor: AppColors.bg,
       body: Stack(

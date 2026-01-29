@@ -29,28 +29,20 @@ class KaryawanTabelWeb extends StatelessWidget {
         ? [
             "Nama",
             "Email",
+            "Jenis Kelamin",
             "Peran",
             "Jabatan",
             "Departemen",
             "Gaji Per Hari",
-            "Jenis Kelamin",
-            "Status Nikah",
-            "NPWP",
-            "BPJS TK",
-            "BPJS KES",
           ]
         : [
             "Name",
             "Email",
+            "Gender",
             "Role",
             "Position",
             "Department",
             "Daily Salary",
-            "Gender",
-            "Marriage Status",
-            "NPWP",
-            "BPJS TK",
-            "BPJS KES",
           ];
 
     // Rows diubah jadi List<List<String>> biar compatible
@@ -58,6 +50,7 @@ class KaryawanTabelWeb extends StatelessWidget {
       return [
         user.nama,
         user.email,
+        user.jenisKelamin,
         (user.peran?.namaPeran.isNotEmpty ?? false)
             ? user.peran!.namaPeran
             : '-',
@@ -68,11 +61,6 @@ class KaryawanTabelWeb extends StatelessWidget {
             ? user.departemen!.namaDepartemen
             : '-',
         user.gajiPokok ?? '-',
-        user.jenisKelamin,
-        user.statusPernikahan,
-        user.npwp ?? '-',
-        user.bpjsKetenagakerjaan ?? '-',
-        user.bpjsKesehatan ?? '-',
       ];
     }).toList();
 

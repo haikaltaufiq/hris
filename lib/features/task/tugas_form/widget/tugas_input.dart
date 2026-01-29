@@ -9,6 +9,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/core/utils/device_size.dart';
 import 'package:hr/data/models/user_model.dart';
+import 'package:hr/data/services/tugas_service.dart';
 import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:provider/provider.dart';
@@ -613,11 +614,16 @@ class _TugasInputState extends State<TugasInput> {
                         //   );
                         //   return;
                         // }
+
+                        final tanggalFormatted = TugasService.formatDateForApi(
+                            _tanggalPenugasanController.text.trim());
+                        final batasFormatted = TugasService.formatDateForApi(
+                            _batasPenugasanController.text.trim());
+
                         final result = await tugasProvider.createTugas(
                           judul: _judulTugasController.text.trim(),
-                          tanggalPenugasan:
-                              _tanggalPenugasanController.text.trim(),
-                          batasPenugasan: _batasPenugasanController.text.trim(),
+                          tanggalPenugasan: tanggalFormatted,
+                          batasPenugasan: batasFormatted,
                           // tugasLat: ,
                           // tugasLng: ,
                           person: _selectedUser?.id,

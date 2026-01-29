@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
-import 'package:hr/features/dashboard/widget/attendance_chart.dart';
-import 'package:hr/features/dashboard/widget/status_task_chart.dart';
-import 'package:hr/features/dashboard/widget/web_card.dart';
+import 'package:hr/features/dashboard/web/Dashboarddata.dart';
+import 'package:hr/features/dashboard/web/chart.dart';
+import 'package:hr/features/dashboard/web/stats_card.dart';
 
 class DashboardWeb extends StatefulWidget {
   const DashboardWeb({super.key});
@@ -27,21 +27,42 @@ class _DashboardWebState extends State<DashboardWeb> {
           ),
           children: [
             // DashboardCard(),
+            SizedBox(
+              height: 14,
+            ),
             WebCard(),
-            // DashboardCardUser(),
+
             Padding(
               padding: const EdgeInsets.only(
                 right: 20.0,
                 left: 20.0,
               ),
-              child: Row(
-                children: [
-                  Expanded(child: AttendanceChart()),
-                  const SizedBox(width: 10),
-                  Expanded(child: StatusTaskChart()),
-                ],
-              ),
+              child: AttendanceOverviewChart(),
             ),
+
+            const SizedBox(height: 14),
+            Padding(
+              padding: const EdgeInsets.only(
+                right: 20.0,
+                left: 20.0,
+              ),
+              child: const DashboardData(),
+            ), // langsung pake sini, udah responsive
+            const SizedBox(height: 14),
+            // DashboardCardUser(),
+            // Padding(
+            //   padding: const EdgeInsets.only(
+            //     right: 20.0,
+            //     left: 20.0,
+            //   ),
+            //   child: Row(
+            //     children: [
+            //       Expanded(child: AttendanceChart()),
+            //       const SizedBox(width: 10),
+            //       Expanded(child: StatusTaskChart()),
+            //     ],
+            //   ),
+            // ),
           ],
         ),
       ),

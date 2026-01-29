@@ -10,7 +10,6 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
 import 'package:hr/features/task/widgets/tugas_tabel.dart';
-import 'package:hr/features/task/widgets/tugas_user_tabel.dart';
 // Add missing import if TugasUserTabel exists in different file
 // import 'package:hr/features/task/widgets/tugas_user_tabel.dart';
 
@@ -239,15 +238,10 @@ class _TugasMobileState extends State<TugasMobile> {
                       ),
                     )
                   else
-                    FeatureAccess.has("tambah_lampiran_tugas")
-                        ? TugasUserTabel(
-                            tugasList: displayedTugas,
-                            onActionDone: () => searchController.clear(),
-                          )
-                        : TugasTabel(
-                            tugasList: displayedTugas,
-                            onActionDone: () => searchController.clear(),
-                          )
+                    TugasTabel(
+                      tugasList: displayedTugas,
+                      onActionDone: () => searchController.clear(),
+                    )
                 ],
               ),
             ),

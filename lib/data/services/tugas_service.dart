@@ -102,7 +102,7 @@ class TugasService {
 
     final requestBody = {
       'nama_tugas': judul,
-      // 'nama_lokasi_penugasan': tugaslok,
+      'nama_lokasi_penugasan': tugaslok,
       'tanggal_penugasan': formatDateForApi(tanggalPenugasan),
       'batas_penugasan': formatDateForApi(batasPenugasan),
       // 'tugas_lat': tugasLat,

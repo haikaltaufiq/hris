@@ -10,7 +10,6 @@ import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
 // import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
 import 'package:hr/features/dashboard/widget/dashboard_header.dart';
 import 'package:hr/features/dashboard/widget/dashboard_menu.dart';
-import 'package:hr/features/dashboard/widget/status_task_chart.dart';
 import 'package:hr/routes/app_routes.dart';
 
 class DashboardMobile extends StatefulWidget {
@@ -201,11 +200,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
               ),
               const AttendanceChart(),
               SizedBox(
-                height: 12,
-              ),
-              const StatusTaskChart(),
-              SizedBox(
-                height: 12,
+                height: 14,
               ),
             ],
           ),

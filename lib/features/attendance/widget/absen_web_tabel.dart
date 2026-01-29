@@ -26,14 +26,13 @@ class AbsenTabelWeb extends StatefulWidget {
 class _AbsenTabelWebState extends State<AbsenTabelWeb> {
   final List<String> headers = const [
     "Nama",
-    "Tanggal Masuk",
-    "Tanggal Keluar",
+    "Tanggal",
     "Absen Masuk",
     "Absen Keluar",
     "Lokasi Masuk",
     "Lokasi Keluar",
     "Video",
-    "Tipe",
+    "Status",
   ];
 
   bool loading = true;
@@ -43,7 +42,6 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
       return [
         item.user?.nama ?? "-",
         item.checkinDate ?? "-",
-        item.checkoutDate ?? "-",
         item.checkinTime ?? "-",
         item.checkoutTime ?? "-",
         (item.checkinLat != null && item.checkinLng != null)
@@ -197,7 +195,7 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
             DetailItem(
                 label: context.isIndonesian ? "Absen Keluar" : "Check-out Time",
                 value: absen.checkoutTime ?? "-"),
-            DetailItem(label: "Tipe", value: absen.status ?? "-"),
+            DetailItem(label: "Status", value: absen.status ?? "-"),
           ],
         ),
         actions: [
@@ -222,15 +220,15 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
         final absen = widget.absensi[actualRowIndex];
 
-        if (colIndex == 5 &&
+        if (colIndex == 4 &&
             absen.checkinLat != null &&
             absen.checkinLng != null) {
           _openMap("${absen.checkinLat}, ${absen.checkinLng}");
-        } else if (colIndex == 6 &&
+        } else if (colIndex == 5 &&
             absen.checkoutLat != null &&
             absen.checkoutLng != null) {
           _openMap("${absen.checkoutLat}, ${absen.checkoutLng}");
-        } else if (colIndex == 7 &&
+        } else if (colIndex == 6 &&
             absen.videoUser != null &&
             absen.videoUser!.isNotEmpty) {
           _openVideo(absen.videoUser);

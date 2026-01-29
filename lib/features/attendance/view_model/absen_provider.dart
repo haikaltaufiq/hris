@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/data/services/absen_service.dart';
 
@@ -79,6 +80,7 @@ class AbsenProvider extends ChangeNotifier {
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
     final userBox = await Hive.openBox('user');
     final currentUserId = userBox.get('id');
+    final lihatSemua = FeatureAccess.has('lihat_semua_absensi');
     if (kDebugMode) {
       // print(' fetchAbsen called - forceRefresh: $forceRefresh');
     }
@@ -101,7 +103,11 @@ class AbsenProvider extends ChangeNotifier {
       }
 
       _allAbsensi = apiData; // TAMBAHAN: simpan semua data mentah
-      sortAbsensi('terbaru'); // UBAH: sort default ke hari ini
+      if (lihatSemua) {
+        sortAbsensi('hari'); // UBAH: sort default ke hari ini
+      } else {
+        sortAbsensi('terbaru'); // UBAH: sort default ke hari ini
+      }
       _filteredAbsensi.clear();
       _errorMessage = null;
 

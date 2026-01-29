@@ -53,6 +53,42 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
     return (currentPage * rowsPerPage) + paginatedRowIndex;
   }
 
+  String? _getActionTooltip(String value) {
+    final v = value.toLowerCase().trim();
+
+    if (v.contains('lampiran') || v.contains('attachment')) {
+      return 'Klik untuk melihat lampiran';
+    }
+
+    if (v.contains('photo') || v.contains('video')) {
+      return 'Klik untuk melihat media';
+    }
+
+    if (v.contains('lokasi') || v.contains('location')) {
+      return 'Klik untuk melihat lokasi';
+    }
+
+    if (v.contains('detail')) {
+      return 'Klik untuk melihat detail';
+    }
+
+    return null;
+  }
+
+  bool _isLinkLikeCell(String value) {
+    final v = value.toLowerCase().trim();
+
+    return v == 'lihat lampiran' ||
+        v == 'see photo' ||
+        v == 'see video' ||
+        v == 'see location' ||
+        v == 'lihat lokasi' ||
+        v == 'view attachment' ||
+        v == 'detail' ||
+        v == 'lihat detail' ||
+        v == 'view detail';
+  }
+
   Color _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'selesai':
@@ -254,7 +290,6 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
         ),
       );
     }
-
     if (widget.statusColumnIndexes != null &&
         widget.statusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
@@ -331,17 +366,25 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
         );
       }
     }
-
+    final bool isLinkCell = _isLinkLikeCell(value);
+    final String? tooltipMessage = _getActionTooltip(value);
     return Tooltip(
-      message: value,
+      message: tooltipMessage ?? value,
       waitDuration: const Duration(milliseconds: 300),
       child: GestureDetector(
-        onTap: () =>
-            widget.onCellTap?.call(paginatedRowIndex, colIndex, actualRowIndex),
+        onTap: isLinkCell
+            ? () => widget.onCellTap?.call(
+                  paginatedRowIndex,
+                  colIndex,
+                  actualRowIndex,
+                )
+            : null,
         child: Text(
           value,
           style: TextStyle(
-            color: AppColors.putih,
+            color: isLinkCell ? Colors.blue : AppColors.putih,
+            decoration:
+                isLinkCell ? TextDecoration.underline : TextDecoration.none,
             fontSize: fontSize,
             fontWeight: FontWeight.w500,
             fontFamily: GoogleFonts.poppins().fontFamily,

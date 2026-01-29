@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 
@@ -24,7 +25,7 @@ class SearchingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     const double buttonSize = 48;
     const double buttonWidth = 120;
-
+    final lihatSemua = FeatureAccess.has("lihat_semua_absensi");
     return Padding(
       padding: EdgeInsets.symmetric(
         horizontal: MediaQuery.of(context).size.width * 0.02,
@@ -100,7 +101,7 @@ class SearchingBar extends StatelessWidget {
               ),
             ),
           ],
-          if (onTap2 != null) ...[
+          if (onTap2 != null && lihatSemua) ...[
             const SizedBox(width: 8),
             SizedBox(
               width: buttonWidth,

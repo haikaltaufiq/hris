@@ -31,8 +31,8 @@ class WebTabelLembur extends StatelessWidget {
     return CustomDataTableWeb(
       headers: context.isIndonesian
           ? [
+              'Tanggal',
               'Nama',
-              'Tanggal Lembur',
               'Jam Mulai',
               'Jam Selesai',
               'Alasan',
@@ -40,8 +40,8 @@ class WebTabelLembur extends StatelessWidget {
               'Keterangan',
             ]
           : [
-              'Name',
               'Date',
+              'Name',
               'Start Time',
               'End Time',
               'Reason',
@@ -52,8 +52,8 @@ class WebTabelLembur extends StatelessWidget {
         final keterangan =
             c.isDitolak ? c.catatan_penolakan : c.keteranganStatus;
         return [
-          c.user['nama']?.toString() ?? '',
           DateHelper.format(c.tanggal).toString(),
+          c.user['nama']?.toString() ?? '',
           FormatTime().formatTime(c.jamMulai).toString(),
           FormatTime().formatTime(c.jamSelesai).toString(),
           c.shortDeskripsi.toString(),

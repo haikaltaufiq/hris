@@ -80,6 +80,7 @@ class _TugasInputEditState extends State<TugasInputEdit> {
     //   _longitudeController.text = widget.tugas.tugasLng!.toString();
     // }
     _noteController.text = widget.tugas.note ?? '';
+    _noteLokController.text = widget.tugas.namaLok;
 
     // user yang sudah ada
     _selectedUser = widget.tugas.user;

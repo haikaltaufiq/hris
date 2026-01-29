@@ -56,7 +56,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date).toLocal();
-      return DateFormat('HH:mm \'-\' dd/MM/yyyy').format(parsed);
+      return DateFormat('dd/MM/yyyy \'-\' HH:mm').format(parsed);
     } catch (_) {
       return date;
     }
@@ -333,108 +333,67 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     }
   }
 
-  String _hitungSisaWaktu(String? batas) {
-    if (batas == null) return "-";
-    try {
-      final deadline = DateTime.parse(batas);
-      final now = DateTime.now();
-      final diff = deadline.difference(now);
-
-      if (diff.isNegative) {
-        return context.isIndonesian
-            ? "Lewat ${diff.inMinutes.abs()} menit"
-            : "Over ${diff.inMinutes.abs()} minutes";
-      } else {
-        final jam = diff.inHours;
-        final menit = diff.inMinutes.remainder(60);
-        return context.isIndonesian
-            ? "$jam jam $menit menit lagi"
-            : "$jam hours $menit minutes left";
-      }
-    } catch (_) {
-      return "-";
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final List<String> headers = context.isIndonesian
         ? [
+            "Mulai",
+            "Batas Submit",
             "Kepada",
             "Judul",
             "Nama Lokasi",
-            "Mulai",
-            "Batas Submit",
             // "Radius Lokasi",
             // "Lokasi Tugas",
-            "Lokasi Upload",
-            "Status",
-            "Catatan",
             "Lampiran",
-            "Waktu Upload",
-            "Keterlambatan",
-            "Sisa Waktu",
-            "Ketepatan"
+            "Lokasi Upload",
+            "Catatan",
+            "Status",
           ]
         : [
+            "Start",
+            "Deadline",
             "To",
             "Title",
             "Location Name",
-            "Start",
-            "Deadline",
             // "Location Radius",
             // "Task Location",
-            "Upload Location",
-            "Status",
-            "Note",
             "Attachment",
-            "Upload Time",
-            "Delay",
-            "Remaining Time",
-            "Punctuality"
+            "Upload Location",
+            "Note",
+            "Status",
           ];
     final rows = widget.tugasList.map((tugas) {
       return [
+        parseDate(tugas.tanggalPenugasan),
+        parseDate(tugas.batasPenugasan),
         tugas.displayUser,
         tugas.shortTugas,
         tugas.namaLok,
-        parseDate(tugas.tanggalPenugasan),
-        parseDate(tugas.batasPenugasan),
         // "${tugas.radius} M",
         // tugas.displayLokasiTugas != null && tugas.displayLokasiTugas != "-"
         //     ? context.isIndonesian
         //         ? "Lihat Lokasi"
         //         : "See Location"
         //     : '-',
+        tugas.displayLampiran,
         tugas.displayLokasiLampiran != null &&
                 tugas.displayLokasiLampiran != "-"
             ? context.isIndonesian
                 ? "Lihat Lokasi"
                 : "See Location"
             : '-',
-        tugas.status,
         tugas.displayNote,
-        tugas.displayLampiran,
-        tugas.displayWaktuUpload,
-        tugas.menitTerlambat != null
-            ? context.isIndonesian
-                ? "${tugas.menitTerlambat} menit"
-                : "${tugas.menitTerlambat} minute"
-            : (tugas.waktuUpload != null ? "Tepat waktu" : "-"),
-        tugas.waktuUpload == null
-            ? _hitungSisaWaktu(tugas.batasPenugasan)
-            : "-", // kalau sudah upload, gak perlu tampilkan countdown lagi
-        tugas.lampiran != null ? tugas.displayTerlambat : '-',
+        tugas.status,
       ];
     }).toList();
 
-    final bool hasAccess = FeatureAccess.has("tambah_tugas");
+    final bool hasAccess = FeatureAccess.has("ubah_status_tugas");
 
     return CustomDataTableWeb(
       headers: headers,
       rows: rows,
-      dropdownStatusColumnIndexes: hasAccess ? [6] : null,
-      statusColumnIndexes: hasAccess ? null : [6],
+      dropdownStatusColumnIndexes: hasAccess ? [8] : null,
+      statusColumnIndexes: hasAccess ? null : [8],
       statusOptions: hasAccess ? ['Selesai', 'Proses'] : null,
       onStatusChanged: hasAccess
           ? (rowIndex, newStatus) async {
@@ -466,7 +425,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         // if (colIndex == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {
         //   _openMap("${tugas.tugasLat},${tugas.tugasLng}");
         // }
-        if (colIndex == 5 &&
+        if (colIndex == 6 &&
             tugas.lampiranLat != null &&
             tugas.lampiranLng != null) {
           _openMap("${tugas.lampiranLat},${tugas.lampiranLng}");
