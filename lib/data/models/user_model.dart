@@ -19,8 +19,8 @@ class UserModel {
   final double? longitude;
   final String? status;
   final DateTime? lastUpdate;
-  final int? lastUpdateMinutes; // 🆕
-  final String? lastUpdateHuman; // 🆕
+  final int? lastUpdateMinutes; 
+  final String? lastUpdateHuman; 
   
   UserModel({
     required this.id,
@@ -78,7 +78,7 @@ class UserModel {
           : null,
       status: json['status'],
       
-      // ✅ Ambil data dari backend
+      // Ambil data dari backend
       lastUpdateMinutes: json['last_update_minutes'] != null
           ? (json['last_update_minutes'] as num).toInt()
           : null,
@@ -115,7 +115,7 @@ class UserModel {
   }
 
   // ========================================
-  // 🆕 HELPER METHODS UNTUK TRACKING
+  // HELPER METHODS UNTUK TRACKING
   // ========================================
 
   /// Check apakah GPS user aktif (berdasarkan status dari backend)
