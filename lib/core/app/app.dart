@@ -41,7 +41,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       return token != null && token.isNotEmpty
           ? AppRoutes.dashboard
-          : AppRoutes.landingPage;
+          : AppRoutes.login;
     }
   }
 

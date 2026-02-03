@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
+import 'package:hr/features/dashboard/web/provider/attendance_chart.dart';
+import 'package:provider/provider.dart';
 
 class AttendanceOverviewChart extends StatefulWidget {
   const AttendanceOverviewChart({super.key});
@@ -15,31 +18,28 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
   // ================= FILTER =================
   int selectedYear = DateTime.now().year;
   int selectedMonth = 0;
+  int totalUserCount = 0;
 
   final List<int> availableYears = [
     DateTime.now().year - 1,
     DateTime.now().year,
   ];
 
-  // ================= DUMMY DATA =================
-  final List<double> hadirTepat = [
-    70,
-    75,
-    80,
-    85,
-    78,
-    82,
-    88,
-    90,
-    87,
-    83,
-    79,
-    85
-  ];
-  final List<double> hadirTelat = [15, 12, 10, 8, 12, 10, 7, 6, 8, 10, 12, 9];
-  final List<double> tidakHadir = [15, 13, 10, 7, 10, 8, 5, 4, 5, 7, 9, 6];
-
+  // ================= DATA =================
   static const double _sectionHeight = 420;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final totalUser = context.read<UserProvider>().totalUsers;
+
+      context.read<AttendanceChartProvider>().load(
+            totalUser: totalUser.toInt(),
+          );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,35 +62,60 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.isIndonesian ? "Kehadiran Bulanan" : "Monthly Attendance",
-              style: TextStyle(
-                color: AppColors.putih,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                context.isIndonesian
+                    ? "Kehadiran Bulanan"
+                    : "Monthly Attendance",
+                style: TextStyle(
+                  color: AppColors.putih,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              context.isIndonesian
-                  ? "Statistik kehadiran karyawan"
-                  : "Employee attendance statistics",
-              style: TextStyle(
-                color: AppColors.putih.withOpacity(0.6),
-                fontSize: 12,
+              const SizedBox(height: 4),
+              Text(
+                context.isIndonesian
+                    ? "Statistik kehadiran karyawan"
+                    : "Employee attendance statistics",
+                style: TextStyle(
+                  color: AppColors.putih.withOpacity(0.6),
+                  fontSize: 12,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        Row(
-          children: [
-            _dropdownMonth(),
-            const SizedBox(width: 8),
-            _dropdownYear(),
-          ],
+        _dropdownYear(),
+      ],
+    );
+  }
+
+  // ================= PIE HEADER =================
+  Widget _pieHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.isIndonesian ? "Status Kehadiran" : "Monthly Attendance",
+          style: TextStyle(
+            color: AppColors.putih,
+            fontSize: 16,
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          context.isIndonesian
+              ? "Distribusi kehadiran bulanan karyawan"
+              : "Monthly Employee attendance distribution",
+          style: TextStyle(
+            color: AppColors.putih.withOpacity(0.6),
+            fontSize: 12,
+          ),
         ),
       ],
     );
@@ -124,26 +149,7 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    context.isIndonesian
-                        ? "Status Kehadiran Bulanan"
-                        : "Monthly Attendance Status",
-                    style: TextStyle(
-                      color: AppColors.putih,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    context.isIndonesian
-                        ? "Distribusi kehadiran bulanan karyawan"
-                        : "Monthlu Employee attendance distribution",
-                    style: TextStyle(
-                      color: AppColors.putih.withOpacity(0.6),
-                      fontSize: 12,
-                    ),
-                  ),
+                  _pieHeader(context),
                   const SizedBox(height: 16),
                   Expanded(child: _pieChartSection(context)),
                 ],
@@ -177,47 +183,112 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
   Widget _mobileLayout(BuildContext context) {
     return Column(
       children: [
-        SizedBox(height: _sectionHeight, child: _lineChartContainer()),
+        _primaryCard(
+          child: SizedBox(
+            height: _sectionHeight,
+            child: Column(
+              children: [
+                _header(context),
+                const SizedBox(height: 16),
+                Expanded(
+                  child: _lineChartSection(),
+                ),
+              ],
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
-        SizedBox(height: _sectionHeight, child: _pieChartContainer(context)),
+        _primaryCard(
+          child: SizedBox(
+            height: _sectionHeight,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _pieHeader(context),
+                const SizedBox(height: 16),
+                Expanded(child: _pieChartSection(context)),
+              ],
+            ),
+          ),
+        ),
       ],
-    );
-  }
-
-  // ================= LINE CONTAINER =================
-  Widget _lineChartContainer() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: _lineChartSection(),
-    );
-  }
-
-  // ================= PIE CONTAINER =================
-  Widget _pieChartContainer(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.secondary,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: _pieChartSection(context),
     );
   }
 
   // ================= LINE CHART =================
   Widget _lineChartSection() {
+    final chartProvider = context.watch<AttendanceChartProvider>();
+
+    final hadirTepat = chartProvider.tepatWaktuBulanan;
+    final hadirTelat = chartProvider.terlambatBulanan;
+    final tidakHadir = chartProvider.tidakHadirBulanan;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
           child: LineChart(
             LineChartData(
+              minX: 0,
+              maxX: 11,
               minY: 0,
               maxY: 100,
+              lineTouchData: LineTouchData(
+                enabled: true,
+                handleBuiltInTouches: true,
+                touchTooltipData: LineTouchTooltipData(
+                  tooltipRoundedRadius: 8,
+                  fitInsideHorizontally: true,
+                  fitInsideVertically: true,
+                  //  BACKGROUND
+                  getTooltipColor: (LineBarSpot spot) {
+                    switch (spot.barIndex) {
+                      case 0:
+                        return AppColors.primary;
+                      default:
+                        return AppColors.primary;
+                    }
+                  },
+                  getTooltipItems: (touchedSpots) {
+                    return touchedSpots.map((spot) {
+                      final value = spot.y;
+
+                      //  FORMAT ANGKA
+                      final formatted = value.toStringAsFixed(1);
+
+                      // ===== STATUS BASED ON LINE =====
+                      final String status;
+                      final Color statusColor;
+                      switch (spot.barIndex) {
+                        case 0:
+                          status = "On Time";
+                          statusColor = AppColors.green;
+                          break;
+                        case 1:
+                          status = "Late";
+                          statusColor = AppColors.yellow;
+                          break;
+                        case 2:
+                          status = "Absent";
+                          statusColor = AppColors.red;
+                          break;
+                        default:
+                          status = "";
+                          statusColor = AppColors.putih;
+                      }
+
+                      return LineTooltipItem(
+                        "$status\n$formatted%",
+                        TextStyle(
+                          color: statusColor,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }).toList();
+                  },
+                ),
+              ),
               gridData: FlGridData(
                 drawVerticalLine: false,
                 horizontalInterval: 20,
@@ -252,9 +323,20 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
       barWidth: 3,
       color: color,
       dotData: FlDotData(show: false),
+
+      // ===== ENTERPRISE AREA STYLE =====
       belowBarData: BarAreaData(
         show: true,
-        color: color.withOpacity(0.12),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            color.withOpacity(0.25), // dekat garis
+            color.withOpacity(0.08), // tengah
+            color.withOpacity(0.0), // fade sebelum bawah
+          ],
+          stops: const [0.0, 0.5, 1.0],
+        ),
       ),
     );
   }
@@ -277,9 +359,13 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
       bottomTitles: AxisTitles(
         sideTitles: SideTitles(
           showTitles: true,
+          interval: 1,
           getTitlesWidget: (value, _) {
+            if (value % 1 != 0) return const SizedBox();
+
             final i = value.toInt();
             if (i < 0 || i > 11) return const SizedBox();
+
             return Text(
               _monthShort(i + 1),
               style: TextStyle(
@@ -297,9 +383,31 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
 
   // ================= PIE CHART =================
   Widget _pieChartSection(BuildContext context) {
-    final total = hadirTepat.reduce((a, b) => a + b) +
-        hadirTelat.reduce((a, b) => a + b) +
-        tidakHadir.reduce((a, b) => a + b);
+    final chartProvider = context.watch<AttendanceChartProvider>();
+
+    final tepatList = chartProvider.tepatWaktuBulanan;
+    final telatList = chartProvider.terlambatBulanan;
+    final absenList = chartProvider.tidakHadirBulanan;
+
+    final double hadirTepat =
+        tepatList.isEmpty ? 0.0 : tepatList.fold(0.0, (a, b) => a + b);
+
+    final double hadirTelat =
+        telatList.isEmpty ? 0.0 : telatList.fold(0.0, (a, b) => a + b);
+
+    final double tidakHadir =
+        absenList.isEmpty ? 0.0 : absenList.fold(0.0, (a, b) => a + b);
+
+    final double total = hadirTepat + hadirTelat + tidakHadir;
+
+    if (total == 0) {
+      return Center(
+        child: Text(
+          context.isIndonesian ? "Tidak ada data" : "No data available",
+          style: TextStyle(color: AppColors.putih.withOpacity(0.6)),
+        ),
+      );
+    }
 
     return Column(
       children: [
@@ -309,15 +417,21 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
               centerSpaceRadius: 48,
               sectionsSpace: 4,
               sections: [
-                _pieSection(hadirTepat.last, AppColors.green),
-                _pieSection(hadirTelat.last, AppColors.yellow),
-                _pieSection(tidakHadir.last, AppColors.red),
+                _pieSection(hadirTepat, Colors.green),
+                _pieSection(hadirTelat, AppColors.yellow),
+                _pieSection(tidakHadir, Colors.red),
               ],
             ),
           ),
         ),
         const SizedBox(height: 12),
-        _pieLegend(context, total.toInt()),
+        _pieLegendData(
+          context,
+          hadirTepat,
+          hadirTelat,
+          tidakHadir,
+          total,
+        ),
       ],
     );
   }
@@ -364,17 +478,23 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
     );
   }
 
-  Widget _pieLegend(BuildContext context, int total) {
+  Widget _pieLegendData(
+    BuildContext context,
+    double tepat,
+    double telat,
+    double absen,
+    double total,
+  ) {
     return Column(
       children: [
         _pieLegendItem(
-            context, AppColors.green, "Tepat Waktu", hadirTepat.last, total),
+            context, AppColors.green, "Tepat Waktu", tepat, total.toInt()),
         const SizedBox(height: 8),
         _pieLegendItem(
-            context, AppColors.yellow, "Terlambat", hadirTelat.last, total),
+            context, AppColors.yellow, "Terlambat", telat, total.toInt()),
         const SizedBox(height: 8),
         _pieLegendItem(
-            context, AppColors.red, "Tidak Hadir", tidakHadir.last, total),
+            context, AppColors.red, "Tidak Hadir", absen, total.toInt()),
       ],
     );
   }
@@ -418,29 +538,6 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
   }
 
   // ================= DROPDOWNS =================
-  Widget _dropdownMonth() {
-    return _dropdownContainer(
-      DropdownButton<int>(
-        value: selectedMonth,
-        underline: const SizedBox(),
-        dropdownColor: AppColors.secondary,
-        iconEnabledColor: AppColors.putih,
-        items: List.generate(13, (i) {
-          return DropdownMenuItem(
-            value: i,
-            child: Text(
-              i == 0
-                  ? (context.isIndonesian ? "Semua Bulan" : "All Months")
-                  : _monthLabel(i),
-              style: TextStyle(fontSize: 12, color: AppColors.putih),
-            ),
-          );
-        }),
-        onChanged: (v) => setState(() => selectedMonth = v ?? 0),
-      ),
-    );
-  }
-
   Widget _dropdownYear() {
     return _dropdownContainer(
       DropdownButton<int>(
@@ -456,7 +553,11 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
                   style: TextStyle(fontSize: 12, color: AppColors.putih),
                 )))
             .toList(),
-        onChanged: (v) => setState(() => selectedYear = v ?? selectedYear),
+        onChanged: (v) {
+          final value = v ?? selectedYear;
+          setState(() => selectedYear = value);
+          context.read<AttendanceChartProvider>().setYear(value);
+        },
       ),
     );
   }
@@ -489,24 +590,5 @@ class _AttendanceOverviewChartState extends State<AttendanceOverviewChart> {
       "Des"
     ];
     return months[m - 1];
-  }
-
-  String _monthLabel(int m) {
-    const months = [
-      "",
-      "Januari",
-      "Februari",
-      "Maret",
-      "April",
-      "Mei",
-      "Juni",
-      "Juli",
-      "Agustus",
-      "September",
-      "Oktober",
-      "November",
-      "Desember"
-    ];
-    return months[m];
   }
 }

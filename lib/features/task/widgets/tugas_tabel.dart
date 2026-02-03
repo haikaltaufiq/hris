@@ -146,7 +146,7 @@ class _TugasTabelState extends State<TugasTabel> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date).toLocal();
-      return DateFormat('dd/MM/yyyy \'-\' HH:mm').format(parsed);
+      return DateFormat('dd MMM yyyy \'-\' HH:mm').format(parsed);
     } catch (_) {
       return date;
     }
@@ -396,7 +396,7 @@ class _TugasTabelState extends State<TugasTabel> {
           borderRadius: BorderRadius.circular(12),
         ),
         title: Text(
-          'Detail Tugas',
+          context.isIndonesian ? 'Detail Tugas' : 'Task Detail',
           style: GoogleFonts.poppins(
             color: AppColors.putih,
             fontWeight: FontWeight.w600,

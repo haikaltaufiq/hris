@@ -4,152 +4,155 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/data/services/absen_service.dart';
 
+/// AbsenProvider
+/// ---------------------------------------------------------------------------
+/// Responsibilities:
+/// - Fetch attendance data from API
+/// - Cache attendance data locally using Hive
+/// - Provide sorting, searching, and filtering utilities
+/// - Expose attendance analytics (daily, monthly, rate)
+/// - Handle check-in and check-out actions
+/// ---------------------------------------------------------------------------
 class AbsenProvider extends ChangeNotifier {
-  // ================= STATE ================= //
-  List<AbsenModel> _absensi = [];
-  List<AbsenModel> _allAbsensi = []; // TAMBAHAN: simpan semua data mentah
-  List<AbsenModel> _filteredAbsensi = [];
-  String _currentSearch = '';
+  // ===========================================================================
+  // STATE
+  // ===========================================================================
 
+  /// Master raw data from API / cache
+  List<AbsenModel> _allAbsensi = [];
+
+  /// Active data after sort/filter (main list)
+  List<AbsenModel> _absensi = [];
+
+  /// Search or month-filtered result
+  List<AbsenModel> _filteredAbsensi = [];
+
+  /// UI state
   bool _isLoading = false;
   String? _errorMessage;
 
+  /// Search & sort state
+  String _currentSearch = '';
+  String _currentSortField = 'hari';
+
+  /// Attendance state
+  bool _hasCheckedInToday = false;
+
+  /// API result tracking
   Map<String, dynamic>? _lastCheckinResult;
   Map<String, dynamic>? _lastCheckoutResult;
 
-  // ================= GETTER ================= //
+  /// Cache
+  final Box _absenBox = Hive.box('absen');
+  bool _hasCache = false;
+
+  // ===========================================================================
+  // GETTERS (PUBLIC API)
+  // ===========================================================================
+
   List<AbsenModel> get absensi => _absensi;
-  List<AbsenModel> get allAbsensi =>
-      _allAbsensi; // TAMBAHAN: getter untuk semua data
+  List<AbsenModel> get allAbsensi => _allAbsensi;
   List<AbsenModel> get filteredAbsensi => _filteredAbsensi;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
+  bool get hasCache => _hasCache;
+  bool get hasCheckedInToday => _hasCheckedInToday;
+
+  String get currentSortField => _currentSortField;
+
   Map<String, dynamic>? get lastCheckinResult => _lastCheckinResult;
   Map<String, dynamic>? get lastCheckoutResult => _lastCheckoutResult;
 
-  final _absenBox = Hive.box('absen');
-  bool _hasCache = false;
-  bool get hasCache => _hasCache;
-
-  bool _hasCheckedInToday = false;
-
-  bool get hasCheckedInToday => _hasCheckedInToday;
-
+  /// Unique users present in current dataset
   int get jumlahHadir => _absensi.map((a) => a.userId).toSet().length;
-  String _currentSortField = 'hari'; // UBAH: default ke 'hari'
-  String get currentSortField => _currentSortField;
 
+  /// Attendance rate in percentage
   double attendanceRate(int totalUsers) {
     if (totalUsers == 0) return 0;
     return (jumlahHadir / totalUsers) * 100;
   }
 
-  // ================= SERVICE WRAPPER ================= //
-  /// Load cache immediately (synchronous)
+  // ===========================================================================
+  // CACHE
+  // ===========================================================================
+
+  /// Load cached attendance data synchronously
   void loadCacheFirst() {
     try {
-      final hasCache = _absenBox.containsKey('absen_list');
-      if (hasCache) {
-        final cached = _absenBox.get('absen_list') as List;
-        if (cached.isNotEmpty) {
-          _allAbsensi = cached // TAMBAHAN: load ke _allAbsensi
-              .map((json) =>
-                  AbsenModel.fromJson(Map<String, dynamic>.from(json)))
-              .toList();
-          _absensi = cached
-              .map((json) =>
-                  AbsenModel.fromJson(Map<String, dynamic>.from(json)))
-              .toList();
-          _hasCache = true;
-          notifyListeners();
-          if (kDebugMode) {
-            // print('✅ Cache loaded: ${_absensi.length} items');
-          }
-        }
-      }
-    } catch (e) {
-      if (kDebugMode) {
-        // print(' Error loading cache: $e');
-      }
+      if (!_absenBox.containsKey('absen_list')) return;
+
+      final cached = _absenBox.get('absen_list') as List;
+      if (cached.isEmpty) return;
+
+      _allAbsensi = cached
+          .map(
+            (json) => AbsenModel.fromJson(Map<String, dynamic>.from(json)),
+          )
+          .toList();
+
+      _absensi = List.from(_allAbsensi);
+      _hasCache = true;
+
+      notifyListeners();
+    } catch (_) {
+      // Silent fail: cache is optional
     }
   }
 
-  /// Fetch daftar absensi
+  // ===========================================================================
+  // FETCH
+  // ===========================================================================
+
+  /// Fetch attendance data from API
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
     final userBox = await Hive.openBox('user');
     final currentUserId = userBox.get('id');
-    final lihatSemua = FeatureAccess.has('lihat_semua_absensi');
-    if (kDebugMode) {
-      // print(' fetchAbsen called - forceRefresh: $forceRefresh');
-    }
+    final canViewAll = FeatureAccess.has('lihat_semua_absensi');
 
-    // Load cache first if not force refresh
     if (!forceRefresh && _absensi.isEmpty) {
       loadCacheFirst();
     }
 
-    _isLoading = true;
-    notifyListeners();
+    _setLoading(true);
 
     try {
-      if (kDebugMode) {
-        // print(' Calling API...');
-      }
       final apiData = await AbsenService.fetchAbsensi();
-      if (kDebugMode) {
-        // print(' API success: ${apiData.length} items');
-      }
 
-      _allAbsensi = apiData; // TAMBAHAN: simpan semua data mentah
-      if (lihatSemua) {
-        sortAbsensi('hari'); // UBAH: sort default ke hari ini
-      } else {
-        sortAbsensi('terbaru'); // UBAH: sort default ke hari ini
-      }
+      _allAbsensi = apiData;
+
+      /// Default sort behavior based on permission
+      sortAbsensi(canViewAll ? 'hari' : 'terbaru');
+
       _filteredAbsensi.clear();
       _errorMessage = null;
 
-      //   cek absen hari ini
-      final today = DateTime.now();
-      final todayStr = "${today.year.toString().padLeft(4, '0')}-"
-          "${today.month.toString().padLeft(2, '0')}-"
-          "${today.day.toString().padLeft(2, '0')}";
-
-      // tambahkan pengecekan userId
       _hasCheckedInToday = _allAbsensi.any(
-        (a) => a.userId == currentUserId && a.checkinDate == todayStr,
+        (a) => a.userId == currentUserId && a.checkinDate == _todayString,
       );
 
-      // Save to cache
       await _absenBox.put(
         'absen_list',
-        _allAbsensi
-            .map((c) => c.toJson())
-            .toList(), // UBAH: save dari _allAbsensi
+        _allAbsensi.map((e) => e.toJson()).toList(),
       );
-      if (kDebugMode) {
-        // print(' Cache saved');
-      }
 
       _hasCache = true;
     } catch (e) {
-      // print(' API Error: $e');
       _errorMessage = e.toString();
 
-      // If no data and cache exists, load cache
       if (_absensi.isEmpty) {
         loadCacheFirst();
       }
     }
 
-    _isLoading = false;
-    notifyListeners();
-    // print(' fetchAbsensi completed - items: ${_absensi.length}');
+    _setLoading(false);
   }
 
-  /// Check-in
+  // ===========================================================================
+  // CHECK-IN / CHECK-OUT
+  // ===========================================================================
+
   Future<void> checkin({
     required double lat,
     required double lng,
@@ -160,8 +163,9 @@ class AbsenProvider extends ChangeNotifier {
   }) async {
     _setLoading(true);
     _clearError();
+
     try {
-      final result = await AbsenService.checkin(
+      _lastCheckinResult = await AbsenService.checkin(
         lat: lat,
         lng: lng,
         checkinDate: checkinDate,
@@ -169,14 +173,13 @@ class AbsenProvider extends ChangeNotifier {
         videoPath: videoPath,
         videoBytes: videoBytes,
       );
-      _lastCheckinResult = result;
     } catch (e) {
-      _setError('Gagal check-in: $e');
+      _setError('Check-in failed: $e');
     }
+
     _setLoading(false);
   }
 
-  /// Check-out
   Future<void> checkout({
     required double lat,
     required double lng,
@@ -185,69 +188,159 @@ class AbsenProvider extends ChangeNotifier {
   }) async {
     _setLoading(true);
     _clearError();
+
     try {
-      final result = await AbsenService.checkout(
+      _lastCheckoutResult = await AbsenService.checkout(
         lat: lat,
         lng: lng,
         checkoutDate: checkoutDate,
         checkoutTime: checkoutTime,
       );
-      _lastCheckoutResult = result;
     } catch (e) {
-      _setError('Gagal check-out: $e');
+      _setError('Check-out failed: $e');
     }
+
     _setLoading(false);
   }
 
-  // ================= SEARCH ================= //
+  // ===========================================================================
+  // SEARCH & FILTER
+  // ===========================================================================
+
   void searchAbsensi(String query) {
     _currentSearch = query.trim().toLowerCase();
 
     if (_currentSearch.isEmpty) {
-      _filteredAbsensi = [];
-    } else {
-      _filteredAbsensi = _absensi.where((absen) {
-        final fields = [
-          absen.id?.toString(),
-          absen.userId?.toString(),
-          absen.tugasId?.toString(),
-          absen.checkinLat?.toString(),
-          absen.checkinLng?.toString(),
-          absen.checkinTime,
-          absen.checkinDate,
-          absen.checkoutLat?.toString(),
-          absen.checkoutLng?.toString(),
-          absen.checkoutTime,
-          absen.checkoutDate,
-          absen.videoUser,
-          absen.status,
-          absen.createdAt,
-          absen.updatedAt,
-          // nested user
-          absen.user?.nama,
-          absen.user?.email,
-          absen.user?.jenisKelamin,
-          absen.user?.statusPernikahan,
-          absen.user?.jabatan?.namaJabatan,
-          absen.user?.peran?.namaPeran,
-          absen.user?.departemen?.namaDepartemen,
-          absen.user?.gajiPokok,
-          absen.user?.npwp,
-          absen.user?.bpjsKesehatan,
-          absen.user?.bpjsKetenagakerjaan,
-        ];
-
-        return fields
-            .whereType<String>() // buang null
-            .map((f) => f.toLowerCase())
-            .any((f) => f.contains(_currentSearch));
-      }).toList();
+      _filteredAbsensi.clear();
+      notifyListeners();
+      return;
     }
+
+    _filteredAbsensi = _absensi.where((absen) {
+      final fields = <String?>[
+        absen.id?.toString(),
+        absen.userId?.toString(),
+        absen.tugasId?.toString(),
+        absen.checkinDate,
+        absen.checkinTime,
+        absen.checkoutDate,
+        absen.checkoutTime,
+        absen.status,
+        absen.user?.nama,
+        absen.user?.email,
+        absen.user?.jabatan?.namaJabatan,
+        absen.user?.peran?.namaPeran,
+        absen.user?.departemen?.namaDepartemen,
+      ];
+
+      return fields
+          .whereType<String>()
+          .any((f) => f.toLowerCase().contains(_currentSearch));
+    }).toList();
 
     notifyListeners();
   }
 
-  // ================= PRIVATE HELPER ================= //
+  void filterByMonth(int month, int year) {
+    _filteredAbsensi = _allAbsensi.where((absen) {
+      if (absen.checkinDate == null) return false;
+      try {
+        final date = DateTime.parse(absen.checkinDate!);
+        return date.month == month && date.year == year;
+      } catch (_) {
+        return false;
+      }
+    }).toList();
+
+    notifyListeners();
+  }
+
+  // ===========================================================================
+  // SORT
+  // ===========================================================================
+
+  void sortAbsensi(String field) {
+    _currentSortField = field;
+
+    final List<AbsenModel> source = List.from(_allAbsensi);
+
+    switch (field) {
+      case 'hari':
+        _absensi = source.where((a) => a.checkinDate == _todayString).toList();
+        break;
+
+      case 'semua':
+        _absensi = source;
+        break;
+
+      case 'terbaru':
+        source.sort(_compareDateDesc);
+        _absensi = source;
+        break;
+
+      case 'terlama':
+        source.sort(_compareDateAsc);
+        _absensi = source;
+        break;
+
+      case 'nama':
+        source.sort(
+          (a, b) => (a.user?.nama ?? '').compareTo(b.user?.nama ?? ''),
+        );
+        _absensi = source;
+        break;
+
+      default:
+        _absensi = source;
+    }
+
+    if (_currentSearch.isNotEmpty) {
+      searchAbsensi(_currentSearch);
+    } else {
+      notifyListeners();
+    }
+  }
+
+  // ===========================================================================
+  // ANALYTICS
+  // ===========================================================================
+
+  List<AbsenModel> get todayAbsensi =>
+      _allAbsensi.where((a) => a.checkinDate == _todayString).toList();
+
+  int get todayJumlahHadir => todayAbsensi.length;
+
+  double get todayAttendancePoints {
+    double total = 0;
+    for (final absen in todayAbsensi) {
+      if (absen.status == 'Hadir') total += 1;
+      if (absen.status == 'Terlambat') total += 0.5;
+    }
+    return total;
+  }
+
+  /// Monthly attendance count (index 0 = January)
+  List<double> get monthlyAttendance {
+    final List<double> result = List.filled(12, 0);
+
+    for (final absen in _allAbsensi) {
+      if (absen.checkinDate == null) continue;
+
+      try {
+        final date = DateTime.parse(absen.checkinDate!);
+        result[date.month - 1] += absen.isHadir ? 1 : 0;
+      } catch (_) {}
+    }
+
+    return result;
+  }
+
+  int get countAbsensiHariIni => todayAbsensi.length;
+
+  // ===========================================================================
+  // PRIVATE HELPERS
+  // ===========================================================================
+
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
@@ -262,129 +355,29 @@ class AbsenProvider extends ChangeNotifier {
     _errorMessage = null;
   }
 
-  List<AbsenModel> get todayAbsensi {
-    final today = DateTime.now();
-    final todayStr = "${today.year.toString().padLeft(4, '0')}-"
-        "${today.month.toString().padLeft(2, '0')}-"
-        "${today.day.toString().padLeft(2, '0')}";
-
-    return _allAbsensi
-        .where((a) => a.checkinDate == todayStr)
-        .toList(); // UBAH: dari _allAbsensi
+  String get _todayString {
+    final now = DateTime.now();
+    return '${now.year.toString().padLeft(4, '0')}-'
+        '${now.month.toString().padLeft(2, '0')}-'
+        '${now.day.toString().padLeft(2, '0')}';
   }
 
-  /// Jumlah karyawan yang absen hari ini
-  int get todayJumlahHadir => todayAbsensi.length;
-
-  /// Jumlah poin kehadiran hari ini (misal "Hadir" = 1, "Terlambat" = 0.5)
-  double get todayAttendancePoints {
-    double total = 0;
-    for (var absen in todayAbsensi) {
-      if (absen.status == 'Hadir') total += 1;
-      if (absen.status == 'Terlambat') total += 0.5;
-    }
-    return total;
+  int _compareDateDesc(AbsenModel a, AbsenModel b) {
+    final da = DateTime.tryParse(a.checkinDate ?? '');
+    final db = DateTime.tryParse(b.checkinDate ?? '');
+    if (da == null || db == null) return 0;
+    return db.compareTo(da);
   }
 
-  /// Getter untuk data bulanan (Jan=0, Feb=1, …, Dec=11)
-  List<double> get monthlyAttendance {
-    // List 12 elemen, masing-masing index = bulan
-    final List<double> monthly = List.filled(12, 0);
-
-    for (final absen in _allAbsensi) {
-      // UBAH: dari _allAbsensi
-      try {
-        if (absen.checkinDate != null && absen.checkinDate!.isNotEmpty) {
-          final date = DateTime.parse(absen.checkinDate!);
-          final monthIndex = date.month - 1;
-
-          // Hitung attendance rate: 1 jika hadir, 0 jika tidak hadir
-          monthly[monthIndex] += absen.isHadir ? 1 : 0;
-        }
-      } catch (e) {
-        if (kDebugMode) {
-          // print(' Error parsing absen date: $e');
-        }
-      }
-    }
-
-    return monthly;
-  }
-
-  void filterByMonth(int month, int year) {
-    _filteredAbsensi = _allAbsensi.where((absen) {
-      // UBAH: dari _allAbsensi
-      if (absen.checkinDate == null || absen.checkinDate!.isEmpty) return false;
-      try {
-        final date = DateTime.parse(absen.checkinDate!);
-        return date.month == month && date.year == year;
-      } catch (_) {
-        return false;
-      }
-    }).toList();
-    notifyListeners();
-  }
-
-  // PERBAIKAN UTAMA: Sort dari _allAbsensi, bukan _absensi
-  void sortAbsensi(String field) {
-    _currentSortField = field;
-
-    // Gunakan _allAbsensi sebagai sumber data
-    List<AbsenModel> dataToSort = List.from(_allAbsensi);
-
-    switch (field) {
-      case 'hari': // Filter data hari ini saja
-        final today = DateTime.now();
-        final todayStr = "${today.year.toString().padLeft(4, '0')}-"
-            "${today.month.toString().padLeft(2, '0')}-"
-            "${today.day.toString().padLeft(2, '0')}";
-        _absensi = dataToSort.where((a) => a.checkinDate == todayStr).toList();
-        break;
-
-      case 'semua': // Tampilkan semua data
-        _absensi = dataToSort;
-        break;
-
-      case 'terbaru':
-        dataToSort.sort((a, b) {
-          final dateA = DateTime.tryParse(a.checkinDate ?? '');
-          final dateB = DateTime.tryParse(b.checkinDate ?? '');
-          if (dateA == null || dateB == null) return 0;
-          return dateB.compareTo(dateA);
-        });
-        _absensi = dataToSort;
-        break;
-
-      case 'terlama':
-        dataToSort.sort((a, b) {
-          final dateA = DateTime.tryParse(a.checkinDate ?? '');
-          final dateB = DateTime.tryParse(b.checkinDate ?? '');
-          if (dateA == null || dateB == null) return 0;
-          return dateA.compareTo(dateB);
-        });
-        _absensi = dataToSort;
-        break;
-
-      case 'nama':
-        dataToSort
-            .sort((a, b) => (a.user?.nama ?? '').compareTo(b.user?.nama ?? ''));
-        _absensi = dataToSort;
-        break;
-
-      default:
-        _absensi = dataToSort;
-    }
-
-    if (_currentSearch.isNotEmpty) {
-      searchAbsensi(_currentSearch);
-    } else {
-      notifyListeners();
-    }
+  int _compareDateAsc(AbsenModel a, AbsenModel b) {
+    final da = DateTime.tryParse(a.checkinDate ?? '');
+    final db = DateTime.tryParse(b.checkinDate ?? '');
+    if (da == null || db == null) return 0;
+    return da.compareTo(db);
   }
 }
 
+/// AbsenModel extension
 extension AbsenModelExt on AbsenModel {
-  bool get isHadir {
-    return status != null && status!.toLowerCase() == 'hadir';
-  }
+  bool get isHadir => status != null && status!.toLowerCase() == 'hadir';
 }

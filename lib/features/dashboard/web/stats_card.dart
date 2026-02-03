@@ -119,7 +119,10 @@ class _WebCardState extends State<WebCard> with TickerProviderStateMixin {
                 title: context.isIndonesian
                     ? "Kehadiran Hari ini"
                     : "Today Attendance",
-                value: totalDepartment,
+                value: context
+                    .watch<AbsenProvider>()
+                    .countAbsensiHariIni
+                    .toString(),
                 subtitle: context.isIndonesian
                     ? "Jumlah Pegawai Hadir Hari ini"
                     : "Today Employee Attendance",

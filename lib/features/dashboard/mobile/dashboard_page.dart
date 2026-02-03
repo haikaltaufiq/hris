@@ -4,13 +4,15 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/dashboard_item.dart';
-import 'package:hr/features/dashboard/widget/attendance_chart.dart';
+import 'package:hr/features/dashboard/web/chart.dart';
+import 'package:hr/features/dashboard/web/provider/attendance_chart.dart';
 import 'package:hr/features/dashboard/widget/dashboard_card.dart';
 import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
 // import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
 import 'package:hr/features/dashboard/widget/dashboard_header.dart';
 import 'package:hr/features/dashboard/widget/dashboard_menu.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 
 class DashboardMobile extends StatefulWidget {
   const DashboardMobile({
@@ -195,13 +197,17 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 12,
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: 20.0,
+                  left: 20.0,
+                ),
+                child: ChangeNotifierProvider(
+                  create: (_) => AttendanceChartProvider(),
+                  child: const AttendanceOverviewChart(),
+                ),
               ),
-              const AttendanceChart(),
-              SizedBox(
-                height: 14,
-              ),
+              const SizedBox(height: 14),
             ],
           ),
         ),

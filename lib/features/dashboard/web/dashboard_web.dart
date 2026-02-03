@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:hr/core/theme/app_colors.dart';
+import 'package:hr/data/services/user_service.dart';
 import 'package:hr/features/dashboard/web/Dashboarddata.dart';
 import 'package:hr/features/dashboard/web/chart.dart';
+import 'package:hr/features/dashboard/web/provider/attendance_chart.dart';
 import 'package:hr/features/dashboard/web/stats_card.dart';
+import 'package:provider/provider.dart';
 
 class DashboardWeb extends StatefulWidget {
   const DashboardWeb({super.key});
@@ -12,6 +15,24 @@ class DashboardWeb extends StatefulWidget {
 }
 
 class _DashboardWebState extends State<DashboardWeb> {
+  int totalUserCount = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _initDashboard();
+  }
+
+  Future<void> _initDashboard() async {
+    final users = await UserService.fetchUsers();
+
+    totalUserCount = users.length;
+
+    context.read<AttendanceChartProvider>().load(
+          totalUser: totalUserCount,
+        );
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -37,7 +58,10 @@ class _DashboardWebState extends State<DashboardWeb> {
                 right: 20.0,
                 left: 20.0,
               ),
-              child: AttendanceOverviewChart(),
+              child: ChangeNotifierProvider(
+                create: (_) => AttendanceChartProvider(),
+                child: const AttendanceOverviewChart(),
+              ),
             ),
 
             const SizedBox(height: 14),

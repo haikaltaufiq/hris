@@ -10,6 +10,7 @@ import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/lembur_model.dart';
+import 'package:intl/intl.dart';
 
 class WebTabelLembur extends StatelessWidget {
   // final void Function(LemburModel lembur) onDelete;
@@ -24,6 +25,16 @@ class WebTabelLembur extends StatelessWidget {
     required this.onApprove,
     required this.onDecline,
   });
+
+  String parseDate(String? date) {
+    if (date == null || date.isEmpty) return '';
+    try {
+      final parsed = DateTime.parse(date).toLocal();
+      return DateFormat('dd MMM yyyy').format(parsed);
+    } catch (_) {
+      return date;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +63,7 @@ class WebTabelLembur extends StatelessWidget {
         final keterangan =
             c.isDitolak ? c.catatan_penolakan : c.keteranganStatus;
         return [
-          DateHelper.format(c.tanggal).toString(),
+          parseDate(c.tanggal),
           c.user['nama']?.toString() ?? '',
           FormatTime().formatTime(c.jamMulai).toString(),
           FormatTime().formatTime(c.jamSelesai).toString(),

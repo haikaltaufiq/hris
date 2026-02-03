@@ -8,6 +8,7 @@ import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/tugas_model.dart';
 import 'package:hr/features/task/task_viewmodel/tugas_provider.dart';
 import 'package:hr/features/task/tugas_form/form_user_edit.dart';
+import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/widgets/lampiran.dart';
 import 'package:hr/routes/app_routes.dart';
 import 'package:latlong2/latlong.dart';
@@ -56,7 +57,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     if (date == null || date.isEmpty) return '';
     try {
       final parsed = DateTime.parse(date).toLocal();
-      return DateFormat('dd/MM/yyyy \'-\' HH:mm').format(parsed);
+      return DateFormat('dd MMM yyyy \'-\' HH:mm').format(parsed);
     } catch (_) {
       return date;
     }
@@ -64,24 +65,92 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
 
   Future<void> _editTugas(BuildContext context, int row) async {
     final tugas = widget.tugasList[row];
-    final canAccess = await FeatureAccess.has("tambah_tugas");
 
-    if (canAccess) {
-      await Navigator.pushNamed(
-        context,
-        AppRoutes.taskEdit,
-        arguments: tugas,
-      );
-    } else {
-      await Navigator.push(
+    final canUpload = FeatureAccess.has("tambah_lampiran_tugas");
+    final canEdit = FeatureAccess.has("edit_tugas");
+    final hasLampiran =
+        tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty;
+
+    // ❌ tidak punya akses apa-apa
+    if (!canUpload && !canEdit) {
+      if (hasLampiran) {
+        _showLampiranDialog(context, tugas);
+      }
+      return;
+    }
+
+    // ✅ cuma upload
+    if (canUpload && !canEdit) {
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => FormUserEdit(tugas: tugas),
         ),
       );
+      return;
     }
 
-    widget.onActionDone?.call();
+    // ✅ cuma edit
+    if (!canUpload && canEdit) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => TugasEditForm(tugas: tugas),
+        ),
+      );
+      return;
+    }
+
+    // 🔥 DUA AKSES → BARU MUNCUL BOTTOM SHEET
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.bg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (hasLampiran)
+            ListTile(
+              leading: const Icon(Icons.attach_file),
+              title: Text("Lihat Lampiran",
+                  style: TextStyle(color: AppColors.putih)),
+              onTap: () {
+                Navigator.pop(context);
+                _showLampiranDialog(context, tugas);
+              },
+            ),
+          ListTile(
+            leading: const Icon(Icons.upload_file),
+            title: Text("Upload / Ganti Lampiran",
+                style: TextStyle(color: AppColors.putih)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => FormUserEdit(tugas: tugas),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.edit),
+            title: Text("Edit Tugas", style: TextStyle(color: AppColors.putih)),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => TugasEditForm(tugas: tugas),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _deleteTugas(BuildContext context, TugasModel tugas) async {
@@ -243,7 +312,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
           borderRadius: BorderRadius.circular(12),
         ),
         title: Text(
-          'Detail Tugas',
+          context.isIndonesian ? 'Detail Tugas' : 'Task Detail',
           style: GoogleFonts.poppins(
             color: AppColors.putih,
             fontWeight: FontWeight.w600,
@@ -363,6 +432,14 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             "Status",
           ];
     final rows = widget.tugasList.map((tugas) {
+      final lampiranLabel =
+          (tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty)
+              ? tugas.displayLampiran
+              : context.isIndonesian
+                  ? "Upload Lampiran"
+                  : "Upload Attachment";
+      final uploadLampiran = FeatureAccess.has("tambah_lampiran_tugas");
+
       return [
         parseDate(tugas.tanggalPenugasan),
         parseDate(tugas.batasPenugasan),
@@ -375,7 +452,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
         //         ? "Lihat Lokasi"
         //         : "See Location"
         //     : '-',
-        tugas.displayLampiran,
+        uploadLampiran ? lampiranLabel : tugas.displayLampiran,
         tugas.displayLokasiLampiran != null &&
                 tugas.displayLokasiLampiran != "-"
             ? context.isIndonesian
@@ -388,7 +465,7 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
     }).toList();
 
     final bool hasAccess = FeatureAccess.has("ubah_status_tugas");
-
+    final hapusTugas = FeatureAccess.has("hapus_tugas");
     return CustomDataTableWeb(
       headers: headers,
       rows: rows,
@@ -414,12 +491,34 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
       onView: (actualRowIndex) =>
           _showDetailDialog(context, widget.tugasList[actualRowIndex]),
       onEdit: (actualRowIndex) => _editTugas(context, actualRowIndex),
-      onDelete: hasAccess
-          ? (actualRowIndex) =>
-              _deleteTugas(context, widget.tugasList[actualRowIndex])
+      onDelete: hapusTugas
+          ? (row) => _deleteTugas(context, widget.tugasList[row])
           : null,
-      onTapLampiran: (actualRowIndex) =>
-          _showLampiranDialog(context, widget.tugasList[actualRowIndex]),
+      onTapLampiran: (actualRowIndex) {
+        final tugas = widget.tugasList[actualRowIndex];
+
+        final canUpload = FeatureAccess.has("tambah_lampiran_tugas");
+        final hasLampiran =
+            tugas.lampiran != null && tugas.lampiran!.trim().isNotEmpty;
+
+        // ada lampiran → siapapun boleh lihat
+        if (hasLampiran) {
+          _showLampiranDialog(context, tugas);
+          return;
+        }
+
+        // tidak ada lampiran + punya akses upload
+        if (canUpload) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => FormUserEdit(tugas: tugas),
+            ),
+          );
+        }
+
+        // tidak ada lampiran + tidak punya akses → DO NOTHING
+      },
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
         final tugas = widget.tugasList[actualRowIndex];
         // if (colIndex == 5 && tugas.tugasLat != null && tugas.tugasLng != null) {

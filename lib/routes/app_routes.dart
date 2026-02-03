@@ -13,6 +13,7 @@ import 'package:hr/features/attendance/mobile/absen_form/absen_keluar_page.dart'
 import 'package:hr/features/attendance/mobile/absen_form/absen_masuk_page.dart';
 import 'package:hr/features/attendance/mobile/absen_form/map/map_page.dart';
 import 'package:hr/features/attendance/mobile/components/detail_absen.dart';
+import 'package:hr/features/auth/web/login.dart';
 import 'package:hr/features/buka_akun/buka_akun.dart';
 import 'package:hr/features/cuti/cuti_form/cuti_form.dart';
 import 'package:hr/features/cuti/cuti_page.dart';
@@ -30,9 +31,7 @@ import 'package:hr/features/info_kantor/info_page_form.dart';
 import 'package:hr/features/jabatan/jabatan_page.dart';
 import 'package:hr/features/karyawan/karyawan_form/karyawan_form.dart';
 import 'package:hr/features/karyawan/karyawan_page.dart';
-import 'package:hr/features/landing/landing_page.dart';
 import 'package:hr/features/landing/mobile/landing_page.dart';
-import 'package:hr/features/auth/login_page.dart';
 import 'package:hr/features/lembur/lembur_page.dart';
 import 'package:hr/features/log_activity/log_view.dart';
 import 'package:hr/features/pengaturan/pengaturan_page.dart';
@@ -54,9 +53,8 @@ import 'package:provider/provider.dart';
 
 class AppRoutes {
   static const String onboarding = '/onboarding';
-  static const String landingPage = '/';
   static const String landingPageMobile = '/landing_mobile';
-  static const String login = '/login';
+  static const String login = '/';
   static const String dashboard = '/dashboard';
   static const String dashboardMobile = '/dashboard_mobile';
   static const String attendance = '/attendance';
@@ -97,7 +95,6 @@ class AppRoutes {
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
-    landingPage,
     landingPageMobile,
     login,
     onboarding,
@@ -164,20 +161,17 @@ class AppRoutes {
 
     // Jika URL dilindungi tapi belum login
     if (protectedRoutes.contains(routeName) && !isAuthenticated) {
-      return _route(const LoginPage(), settings);
+      return _route(const Login(), settings);
     }
     switch (routeName) {
       // case onboarding:
       //   return _route(const OnBoarding(), settings);
 
-      case landingPage:
-        return _route(const LandingPage(), settings);
-
       case landingPageMobile:
         return _route(const LandingPageMobile(), settings);
 
       case login:
-        return _route(const LoginPage(), settings);
+        return _route(const Login(), settings);
 
       case dashboard:
         return _route(const Dashboard().withMainLayout(dashboard), settings);

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hr/core/app/app_initializer.dart' show AppInitializer;
+import 'package:hr/features/dashboard/web/provider/attendance_chart.dart';
 import 'package:provider/provider.dart';
 import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -62,7 +63,7 @@ class _MyAppState extends State<MyApp> {
     } else {
       return token != null && token.isNotEmpty
           ? AppRoutes.dashboard
-          : AppRoutes.landingPage;
+          : AppRoutes.login;
     }
   }
 
@@ -84,6 +85,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => PengingatViewModel()),
         ChangeNotifierProvider(create: (_) => PeranViewModel()),
         ChangeNotifierProvider(create: (_) => TechTaskStatusProvider()),
+        ChangeNotifierProvider(create: (_) => AttendanceChartProvider()),
       ],
       child: FutureBuilder<String>(
         future: _initialRoute,
