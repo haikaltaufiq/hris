@@ -243,7 +243,7 @@ class _KaryawanInputState extends State<KaryawanInput> {
   @override
   Widget build(BuildContext context) {
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),
@@ -275,14 +275,20 @@ class _KaryawanInputState extends State<KaryawanInput> {
           CustomInputField(
             controller: _namaController,
             label: context.isIndonesian ? "Nama" : 'Name',
-            hint: "",
+            hint: context.isIndonesian
+                ? "Masukkan nama lengkap"
+                : "Input full name",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
           ),
           CustomDropDownField(
             label: context.isIndonesian ? 'Jabatan' : 'Position',
-            hint: _isLoadingJabatan ? 'Memuat...' : '',
+            hint: _isLoadingJabatan
+                ? 'Memuat...'
+                : context.isIndonesian
+                    ? 'Pilih jabatan'
+                    : 'Select position',
             items: _jabatanList
                 .where((e) => e["nama_jabatan"] != null)
                 .map((e) => e["nama_jabatan"] as String)
@@ -303,7 +309,11 @@ class _KaryawanInputState extends State<KaryawanInput> {
           ),
           CustomDropDownField(
             label: context.isIndonesian ? 'Peran' : 'Role',
-            hint: _isLoadingPeran ? 'Memuat...' : '',
+            hint: _isLoadingPeran
+                ? 'Memuat...'
+                : context.isIndonesian
+                    ? 'Pilih peran'
+                    : 'Select role',
             items: _peranList
                 .where((e) => e.namaPeran.isNotEmpty)
                 .map((e) => e.namaPeran)
@@ -324,7 +334,11 @@ class _KaryawanInputState extends State<KaryawanInput> {
           ),
           CustomDropDownField(
             label: 'Departemen',
-            hint: _isLoadingDepartemen ? 'Memuat...' : '',
+            hint: _isLoadingDepartemen
+                ? 'Memuat...'
+                : context.isIndonesian
+                    ? 'Pilih departemen'
+                    : 'Select department',
             items: _departemenList
                 .where((e) => e["nama_departemen"] != null)
                 .map((e) => e["nama_departemen"] as String)
@@ -346,7 +360,9 @@ class _KaryawanInputState extends State<KaryawanInput> {
           CustomInputField(
             controller: _gajiController,
             label: context.isIndonesian ? "Gaji Per Hari" : 'Daily Salary',
-            hint: "",
+            hint: context.isIndonesian
+                ? "Masukkan gaji per hari"
+                : "Input daily salary",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -354,7 +370,9 @@ class _KaryawanInputState extends State<KaryawanInput> {
           CustomInputField(
             controller: _npwpController,
             label: "NPWP",
-            hint: "",
+            hint: context.isIndonesian
+                ? "Masukkan nomor NPWP"
+                : "Input NPWP number",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -362,7 +380,9 @@ class _KaryawanInputState extends State<KaryawanInput> {
           CustomInputField(
             controller: _bpjsKetController,
             label: "No. BPJS Ketenagakerjaan",
-            hint: "",
+            hint: context.isIndonesian
+                ? "Masukkan nomor BPJS Ketenagakerjaan"
+                : "Input BPJS Employment number",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -370,7 +390,9 @@ class _KaryawanInputState extends State<KaryawanInput> {
           CustomInputField(
             controller: _bpjsKesController,
             label: "No. BPJS Kesehatan",
-            hint: "",
+            hint: context.isIndonesian
+                ? "Masukkan nomor BPJS Kesehatan"
+                : "Input BPJS Health number",
             labelStyle: labelStyle,
             textStyle: textStyle,
             inputStyle: inputStyle,
@@ -385,7 +407,8 @@ class _KaryawanInputState extends State<KaryawanInput> {
           ),
           CustomDropDownField(
             label: context.isIndonesian ? 'Jenis Kelamin' : 'Gender',
-            hint: '',
+            hint:
+                context.isIndonesian ? 'Pilih jenis kelamin' : 'Select gender',
             items: _jenisKelaminList,
             onChanged: (val) => _jenisKelamin = val,
             labelStyle: labelStyle,
@@ -398,7 +421,9 @@ class _KaryawanInputState extends State<KaryawanInput> {
           CustomDropDownField(
             label:
                 context.isIndonesian ? 'Status Pernikahan' : 'Marriage Status',
-            hint: '',
+            hint: context.isIndonesian
+                ? 'Pilih status pernikahan'
+                : 'Select marriage status',
             items: _statusList,
             onChanged: (val) => _statusPernikahan = val,
             labelStyle: labelStyle,

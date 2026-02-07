@@ -159,7 +159,7 @@ class _LemburInputState extends State<LemburInput> {
   Widget build(BuildContext context) {
     final lemburProvider = context.read<LemburProvider>();
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),

@@ -113,7 +113,7 @@ class _ReminderInputState extends State<ReminderInput> {
   @override
   Widget build(BuildContext context) {
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),
@@ -232,7 +232,8 @@ class _ReminderInputState extends State<ReminderInput> {
                           picId: _selectedPeran!.id, // ambil id dari model
                         );
 
-                        final result = await PengingatService.createPengingat(reminder);
+                        final result =
+                            await PengingatService.createPengingat(reminder);
 
                         if (mounted) {
                           NotificationHelper.showTopNotification(
@@ -248,7 +249,6 @@ class _ReminderInputState extends State<ReminderInput> {
                             setState(() => _selectedPeran = null);
                           }
                         }
-
                       } catch (e) {
                         if (mounted) {
                           final message = context.isIndonesian

@@ -81,22 +81,20 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
 
     // ✅ cuma upload
     if (canUpload && !canEdit) {
-      Navigator.push(
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(
-          builder: (_) => FormUserEdit(tugas: tugas),
-        ),
+        AppRoutes.uploadLampiran,
+        arguments: tugas,
       );
       return;
     }
 
     // ✅ cuma edit
     if (!canUpload && canEdit) {
-      Navigator.push(
+      Navigator.pushNamed(
         context,
-        MaterialPageRoute(
-          builder: (_) => TugasEditForm(tugas: tugas),
-        ),
+        AppRoutes.taskEdit,
+        arguments: tugas,
       );
       return;
     }
@@ -509,12 +507,8 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
 
         // tidak ada lampiran + punya akses upload
         if (canUpload) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => FormUserEdit(tugas: tugas),
-            ),
-          );
+          _editTugas(context, actualRowIndex);
+          return;
         }
 
         // tidak ada lampiran + tidak punya akses → DO NOTHING

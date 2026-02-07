@@ -13,38 +13,59 @@ import 'package:hr/data/services/absen_service.dart';
 /// - Expose attendance analytics (daily, monthly, rate)
 /// - Handle check-in and check-out actions
 /// ---------------------------------------------------------------------------
+
+enum AbsenSortType {
+  day,
+  week,
+  month,
+  year,
+  name,
+  terbaru,
+  terlama,
+}
+
+class AbsenAdvancedFilter {
+  final String search;
+  final DateTime? day;
+  final int? week;
+  final int? month;
+  final int? year;
+  final AbsenSortType sort;
+
+  const AbsenAdvancedFilter({
+    this.search = '',
+    this.day,
+    this.week,
+    this.month,
+    this.year,
+    this.sort = AbsenSortType.day,
+  });
+}
+
 class AbsenProvider extends ChangeNotifier {
   // ===========================================================================
   // STATE
   // ===========================================================================
 
-  /// Master raw data from API / cache
   List<AbsenModel> _allAbsensi = [];
-
-  /// Active data after sort/filter (main list)
   List<AbsenModel> _absensi = [];
-
-  /// Search or month-filtered result
   List<AbsenModel> _filteredAbsensi = [];
 
-  /// UI state
   bool _isLoading = false;
   String? _errorMessage;
 
-  /// Search & sort state
   String _currentSearch = '';
   String _currentSortField = 'hari';
 
-  /// Attendance state
   bool _hasCheckedInToday = false;
 
-  /// API result tracking
   Map<String, dynamic>? _lastCheckinResult;
   Map<String, dynamic>? _lastCheckoutResult;
 
-  /// Cache
   final Box _absenBox = Hive.box('absen');
   bool _hasCache = false;
+
+  List<AbsenModel> _advancedAbsensi = [];
 
   // ===========================================================================
   // GETTERS (PUBLIC API)
@@ -53,6 +74,7 @@ class AbsenProvider extends ChangeNotifier {
   List<AbsenModel> get absensi => _absensi;
   List<AbsenModel> get allAbsensi => _allAbsensi;
   List<AbsenModel> get filteredAbsensi => _filteredAbsensi;
+  List<AbsenModel> get advancedAbsensi => _advancedAbsensi;
 
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
@@ -65,10 +87,8 @@ class AbsenProvider extends ChangeNotifier {
   Map<String, dynamic>? get lastCheckinResult => _lastCheckinResult;
   Map<String, dynamic>? get lastCheckoutResult => _lastCheckoutResult;
 
-  /// Unique users present in current dataset
   int get jumlahHadir => _absensi.map((a) => a.userId).toSet().length;
 
-  /// Attendance rate in percentage
   double attendanceRate(int totalUsers) {
     if (totalUsers == 0) return 0;
     return (jumlahHadir / totalUsers) * 100;
@@ -78,7 +98,6 @@ class AbsenProvider extends ChangeNotifier {
   // CACHE
   // ===========================================================================
 
-  /// Load cached attendance data synchronously
   void loadCacheFirst() {
     try {
       if (!_absenBox.containsKey('absen_list')) return;
@@ -105,7 +124,6 @@ class AbsenProvider extends ChangeNotifier {
   // FETCH
   // ===========================================================================
 
-  /// Fetch attendance data from API
   Future<void> fetchAbsensi({bool forceRefresh = false}) async {
     final userBox = await Hive.openBox('user');
     final currentUserId = userBox.get('id');
@@ -122,7 +140,6 @@ class AbsenProvider extends ChangeNotifier {
 
       _allAbsensi = apiData;
 
-      /// Default sort behavior based on permission
       sortAbsensi(canViewAll ? 'hari' : 'terbaru');
 
       _filteredAbsensi.clear();
@@ -204,7 +221,7 @@ class AbsenProvider extends ChangeNotifier {
   }
 
   // ===========================================================================
-  // SEARCH & FILTER
+  // SEARCH & FILTER (LEGACY)
   // ===========================================================================
 
   void searchAbsensi(String query) {
@@ -256,7 +273,7 @@ class AbsenProvider extends ChangeNotifier {
   }
 
   // ===========================================================================
-  // SORT
+  // SORT (LEGACY)
   // ===========================================================================
 
   void sortAbsensi(String field) {
@@ -319,7 +336,6 @@ class AbsenProvider extends ChangeNotifier {
     return total;
   }
 
-  /// Monthly attendance count (index 0 = January)
   List<double> get monthlyAttendance {
     final List<double> result = List.filled(12, 0);
 
@@ -338,8 +354,134 @@ class AbsenProvider extends ChangeNotifier {
   int get countAbsensiHariIni => todayAbsensi.length;
 
   // ===========================================================================
+  // ADVANCED FILTER & SORT (FOR AbsenWeb)
+  // ===========================================================================
+
+  void applyAdvancedFilter(AbsenAdvancedFilter filter) {
+    Iterable<AbsenModel> result = _allAbsensi;
+
+    // Apply month and year filter first (primary filter)
+    if (filter.month != null && filter.year != null) {
+      result = result.where((a) {
+        final d = DateTime.tryParse(a.checkinDate ?? '');
+        return d != null && d.month == filter.month && d.year == filter.year;
+      });
+    } else if (filter.year != null) {
+      // Year only filter
+      result = result.where((a) {
+        final d = DateTime.tryParse(a.checkinDate ?? '');
+        return d != null && d.year == filter.year;
+      });
+    }
+
+    // Apply day filter (override month/year if specified)
+    if (filter.day != null) {
+      final target = _dateOnly(filter.day!);
+      result = result.where((a) {
+        final d = DateTime.tryParse(a.checkinDate ?? '');
+        return d != null && _dateOnly(d) == target;
+      });
+    }
+
+    // Apply week filter (within year)
+    if (filter.week != null && filter.year != null) {
+      result = result.where((a) {
+        final d = DateTime.tryParse(a.checkinDate ?? '');
+        if (d == null) return false;
+        return _weekOfYear(d) == filter.week && d.year == filter.year;
+      });
+    }
+
+    // Apply search filter
+    if (filter.search.isNotEmpty) {
+      final q = filter.search.toLowerCase();
+      result = result.where((a) {
+        final fields = <String?>[
+          a.user?.nama,
+          a.user?.email,
+          a.status,
+          a.checkinDate,
+          a.checkoutDate,
+          a.checkinTime,
+          a.checkoutTime,
+          a.user?.jabatan?.namaJabatan,
+          a.user?.departemen?.namaDepartemen,
+        ];
+        return fields
+            .whereType<String>()
+            .any((f) => f.toLowerCase().contains(q));
+      });
+    }
+
+    final list = result.toList();
+
+    // Apply sorting
+    switch (filter.sort) {
+      case AbsenSortType.name:
+        list.sort(
+          (a, b) => (a.user?.nama ?? '').compareTo(b.user?.nama ?? ''),
+        );
+        break;
+
+      case AbsenSortType.terbaru:
+        list.sort(_compareDateDesc);
+        break;
+
+      case AbsenSortType.terlama:
+        list.sort(_compareDateAsc);
+        break;
+
+      case AbsenSortType.week:
+        list.sort((a, b) {
+          final da = DateTime.tryParse(a.checkinDate ?? '');
+          final db = DateTime.tryParse(b.checkinDate ?? '');
+          if (da == null || db == null) return 0;
+          final weekCompare = _weekOfYear(db).compareTo(_weekOfYear(da));
+          if (weekCompare != 0) return weekCompare;
+          return db.compareTo(da);
+        });
+        break;
+
+      case AbsenSortType.day:
+        list.sort(_compareDateDesc);
+        break;
+
+      case AbsenSortType.month:
+        list.sort((a, b) {
+          final da = DateTime.tryParse(a.checkinDate ?? '');
+          final db = DateTime.tryParse(b.checkinDate ?? '');
+          if (da == null || db == null) return 0;
+          final monthCompare = db.month.compareTo(da.month);
+          if (monthCompare != 0) return monthCompare;
+          return db.compareTo(da);
+        });
+        break;
+
+      case AbsenSortType.year:
+        list.sort((a, b) {
+          final da = DateTime.tryParse(a.checkinDate ?? '');
+          final db = DateTime.tryParse(b.checkinDate ?? '');
+          if (da == null || db == null) return 0;
+          return db.year.compareTo(da.year);
+        });
+        break;
+    }
+
+    _advancedAbsensi = list;
+    notifyListeners();
+  }
+
+  // ===========================================================================
   // PRIVATE HELPERS
   // ===========================================================================
+
+  DateTime _dateOnly(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  int _weekOfYear(DateTime date) {
+    final firstDay = DateTime(date.year, 1, 1);
+    final diff = date.difference(firstDay).inDays;
+    return ((diff + firstDay.weekday) / 7).ceil();
+  }
 
   void _setLoading(bool value) {
     _isLoading = value;

@@ -60,6 +60,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
               FeatureGuard(
                 requiredFeature: [
                   'karyawan',
+                  'lihat_semua_absensi',
                   'gaji',
                   'departemen',
                   'jabatan',
@@ -197,16 +198,13 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   ),
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.only(
-                  right: 20.0,
-                  left: 20.0,
-                ),
-                child: ChangeNotifierProvider(
-                  create: (_) => AttendanceChartProvider(),
-                  child: const AttendanceOverviewChart(),
-                ),
+              const SizedBox(height: 14),
+              ChangeNotifierProvider(
+                create: (_) => AttendanceChartProvider(),
+                child: const AttendanceOverviewChart(),
               ),
+              // const SizedBox(height: 14),
+              // SizedBox(child: DashboardData()),
               const SizedBox(height: 14),
             ],
           ),

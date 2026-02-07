@@ -63,7 +63,6 @@ class _DashboardWebState extends State<DashboardWeb> {
                 child: const AttendanceOverviewChart(),
               ),
             ),
-
             const SizedBox(height: 14),
             Padding(
               padding: const EdgeInsets.only(
@@ -71,7 +70,7 @@ class _DashboardWebState extends State<DashboardWeb> {
                 left: 20.0,
               ),
               child: const DashboardData(),
-            ), // langsung pake sini, udah responsive
+            ),
             const SizedBox(height: 14),
             // DashboardCardUser(),
             // Padding(

@@ -1,10 +1,12 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:hr/core/theme/app_colors.dart';
+
 class CustomDropDownField extends StatefulWidget {
   final String label;
   final String hint;
   final List<String> items;
-  final String? value; 
+  final String? value;
   final Function(String?)? onChanged;
   final String? Function(String?)? validator;
   final TextStyle labelStyle;
@@ -20,7 +22,7 @@ class CustomDropDownField extends StatefulWidget {
     required this.label,
     required this.hint,
     required this.items,
-    this.value, 
+    this.value,
     this.onChanged,
     this.validator,
     required this.labelStyle,
@@ -43,7 +45,7 @@ class _CustomDropDownFieldState extends State<CustomDropDownField> {
       label: widget.label,
       hint: widget.hint,
       items: widget.items,
-      value: widget.value, 
+      value: widget.value,
       onChanged: widget.onChanged,
       validator: widget.validator,
       labelStyle: widget.labelStyle,
@@ -61,7 +63,7 @@ class _DropDownFieldBody extends StatefulWidget {
   final String label;
   final String hint;
   final List<String> items;
-  final String? value; 
+  final String? value;
   final Function(String?)? onChanged;
   final String? Function(String?)? validator;
   final TextStyle labelStyle;
@@ -94,19 +96,25 @@ class _DropDownFieldBody extends StatefulWidget {
 
 class _DropDownFieldBodyState extends State<_DropDownFieldBody> {
   String? selectedValue;
-
+  final TextEditingController _searchController = TextEditingController();
   @override
   void initState() {
     super.initState();
-    selectedValue = widget.value; 
+    selectedValue = widget.value;
   }
 
   @override
   void didUpdateWidget(covariant _DropDownFieldBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.value != widget.value) {
-      selectedValue = widget.value; 
+      selectedValue = widget.value;
     }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -121,6 +129,40 @@ class _DropDownFieldBodyState extends State<_DropDownFieldBody> {
             isExpanded: true,
             decoration: widget.inputStyle.copyWith(
               hintText: widget.hint,
+              hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
+            ),
+            dropdownSearchData: DropdownSearchData(
+              searchController: _searchController,
+              searchInnerWidgetHeight: 50,
+              searchInnerWidget: Padding(
+                padding: const EdgeInsets.all(8),
+                child: TextFormField(
+                  controller: _searchController,
+                  style: widget.textStyle.copyWith(
+                    color: widget.dropdownTextColor,
+                  ),
+                  decoration: InputDecoration(
+                    isDense: true,
+                    hintText: 'Cari...',
+                    hintStyle: widget.textStyle.copyWith(
+                      color: AppColors.putih.withOpacity(0.5),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 10,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+              searchMatchFn: (item, searchValue) {
+                return item.value
+                    .toString()
+                    .toLowerCase()
+                    .contains(searchValue.toLowerCase());
+              },
             ),
             hint: Text(
               widget.hint,
@@ -143,13 +185,18 @@ class _DropDownFieldBodyState extends State<_DropDownFieldBody> {
                   ),
                 )
                 .toList(),
-            value: selectedValue, 
+            value: selectedValue,
             onChanged: (value) {
               setState(() {
                 selectedValue = value;
               });
               if (widget.onChanged != null) {
                 widget.onChanged!(value);
+              }
+            },
+            onMenuStateChange: (value) {
+              if (!value) {
+                _searchController.clear();
               }
             },
             validator: widget.validator,

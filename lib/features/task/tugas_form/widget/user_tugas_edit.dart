@@ -8,6 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
@@ -56,8 +57,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
   void initState() {
     super.initState();
     _judulTugasController.text = widget.tugas.namaTugas;
-    // _lokasiController.text = widget.tugas.displayLokasiTugas;
-    _noteController.text = widget.tugas.note ?? '';
 
     // Format tanggal
     if (widget.tugas.tanggalPenugasan.isNotEmpty) {
@@ -183,7 +182,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
     // ambil lokasi pertama kali
     _updateCurrentLocation();
     // kemudian setiap 15 detik
-    _locationTimer = Timer.periodic(const Duration(seconds: 15), (_) {
+    _locationTimer = Timer.periodic(const Duration(seconds: 3), (_) {
       _updateCurrentLocation();
     });
   }
@@ -374,7 +373,7 @@ class _UserEditTugasState extends State<UserEditTugas> {
         final isLoading = tugasProvider.isLoading || _isSubmitting;
 
         final inputStyle = InputDecoration(
-          hintStyle: TextStyle(color: AppColors.putih),
+          hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
           enabledBorder: const UnderlineInputBorder(
               borderSide: BorderSide(color: AppColors.grey)),
           focusedBorder: UnderlineInputBorder(
@@ -394,131 +393,159 @@ class _UserEditTugasState extends State<UserEditTugas> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // CustomInputField(
-              //   label: context.isIndonesian ? "Judul Tugas" : "Title",
-              //   controller: _judulTugasController,
-              //   onTapIcon: () {
-              //     NotificationHelper.showTopNotification(
-              //         context,
-              //         context.isIndonesian
-              //             ? "Anda tidak dapat mengubah judul"
-              //             : "You can't change the title",
-              //         isSuccess: false);
-              //   },
-              //   labelStyle: labelStyle,
-              //   textStyle: textStyle,
-              //   inputStyle: inputStyle,
-              //   hint: '',
-              // ),
-              // CustomInputField(
-              //   label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
-              //   hint: "dd / mm / yyyy",
-              //   controller: _tanggalPenugasanController,
-              //   suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-              //   onTapIcon: () {
-              //     NotificationHelper.showTopNotification(
-              //         context,
-              //         context.isIndonesian
-              //             ? "Anda tidak dapat mengubah tanggal"
-              //             : "You can't change the date",
-              //         isSuccess: false);
-              //   },
-              //   labelStyle: labelStyle,
-              //   textStyle: textStyle,
-              //   inputStyle: inputStyle,
-              // ),
-              // CustomInputField(
-              //   label: context.isIndonesian
-              //       ? "Batas Tanggal Penyelesaian"
-              //       : "Deadline Task",
-              //   hint: "dd / mm / yyyy",
-              //   controller: _batasPenugasanController,
-              //   suffixIcon: Icon(Icons.calendar_today, color: AppColors.putih),
-              //   onTapIcon: () {
-              //     NotificationHelper.showTopNotification(
-              //         context,
-              //         context.isIndonesian
-              //             ? "Anda tidak dapat mengubah tanggal"
-              //             : "You can't change the date",
-              //         isSuccess: false);
-              //   },
-              //   labelStyle: labelStyle,
-              //   textStyle: textStyle,
-              //   inputStyle: inputStyle,
-              // ),
-              const SizedBox(height: 30),
-
-              CustomInputField(
-                label: context.isIndonesian ? "Lampiran" : "Attachment",
-                suffixIcon: Container(
-                  margin: const EdgeInsets.all(10),
-                  width: 100,
-                  decoration: BoxDecoration(
-                      color: AppColors.secondary,
-                      borderRadius: const BorderRadius.all(Radius.circular(8)),
-                      border: Border.all(width: 1, color: AppColors.putih)),
-                  child: Center(
-                    child: Text(
-                      context.isIndonesian ? "Pilih File" : "Choose File",
-                      style: TextStyle(color: AppColors.putih),
-                    ),
-                  ),
+              const SizedBox(height: 20),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.yellow.withOpacity(0.5),
+                  border: Border.all(color: AppColors.yellow, width: 1),
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                onTapIcon: () async {
-                  try {
-                    FilePickerResult? result =
-                        await FilePicker.platform.pickFiles(type: FileType.any);
-                    if (result != null && result.files.isNotEmpty) {
-                      if (kIsWeb) {
-                        final bytes = result.files.first.bytes;
-                        if (bytes != null) {
-                          setState(() {
-                            _selectedBytes = bytes;
-                            _selectedFileName = result.files.first.name;
-                            _lampiranTugasController.text =
-                                result.files.first.name;
-                          });
-                        }
-                      } else {
-                        final filePath = result.files.single.path;
-                        if (filePath != null) {
-                          setState(() {
-                            _selectedFile = File(filePath);
-                            _lampiranTugasController.text =
-                                filePath.split('/').last;
-                          });
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      color: AppColors.putih,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.isIndonesian
+                                ? 'Aktifkan Layanan Lokasi'
+                                : 'Enable Location Services',
+                            style: TextStyle(
+                              color: AppColors.putih,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            context.isIndonesian
+                                ? 'Aktivasi layanan lokasi untuk mendukung pelacakan posisi secara otomatis.'
+                                : 'Location services are required to support automatic location tracking.',
+                            style: TextStyle(
+                              color: AppColors.putih.withOpacity(0.9),
+                              fontSize: 14,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 18),
+              Container(
+                width: double.infinity,
+                height: 200,
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.5),
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  border: Border.all(width: 1, color: AppColors.grey),
+                ),
+                child: InkWell(
+                  onTap: () async {
+                    try {
+                      FilePickerResult? result = await FilePicker.platform
+                          .pickFiles(type: FileType.any);
+                      if (result != null && result.files.isNotEmpty) {
+                        if (kIsWeb) {
+                          final bytes = result.files.first.bytes;
+                          if (bytes != null) {
+                            setState(() {
+                              _selectedBytes = bytes;
+                              _selectedFileName = result.files.first.name;
+                              _lampiranTugasController.text =
+                                  result.files.first.name;
+                            });
+                          }
+                        } else {
+                          final filePath = result.files.single.path;
+                          if (filePath != null) {
+                            setState(() {
+                              _selectedFile = File(filePath);
+                              _lampiranTugasController.text =
+                                  filePath.split('/').last;
+                            });
+                          }
                         }
                       }
+                    } catch (e) {
+                      if (mounted) {
+                        NotificationHelper.showTopNotification(
+                          context,
+                          context.isIndonesian
+                              ? 'Gagal pilih file: $e'
+                              : "Failed to choose file: $e",
+                          isSuccess: false,
+                        );
+                      }
                     }
-                  } catch (e) {
-                    if (mounted) {
-                      NotificationHelper.showTopNotification(
-                        context,
+                  },
+                  borderRadius: const BorderRadius.all(Radius.circular(12)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary.withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        child: FaIcon(
+                          FontAwesomeIcons.paperclip,
+                          size: 30,
+                          color: AppColors.putih,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        _lampiranTugasController.text.isEmpty
+                            ? context.isIndonesian
+                                ? 'Klik untuk Upload File'
+                                : 'Click to Upload File'
+                            : _lampiranTugasController.text,
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih.withOpacity(0.7),
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
                         context.isIndonesian
-                            ? 'Gagal pilih file: $e'
-                            : "Failed to choose file: $e",
-                        isSuccess: false,
-                      );
-                    }
-                  }
-                },
-                controller: _lampiranTugasController,
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
-                hint: context.isIndonesian
-                    ? 'Upload File Lampiran'
-                    : "Upload Attachment File",
+                            ? 'JPG, PNG, MP4, PDF, DLL'
+                            : 'JPG, PNG, MP4, PDF, etc.',
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih.withOpacity(0.7),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
+              const SizedBox(height: 20),
               CustomInputField(
                 label: "Note",
                 controller: _noteController,
                 labelStyle: labelStyle,
                 textStyle: textStyle,
                 inputStyle: inputStyle,
-                hint: '',
+                hint: context.isIndonesian
+                    ? "Masukkan catatan tambahan..."
+                    : "Enter additional notes...",
               ),
-              // Latitude & Longitude fields
               Row(
                 children: [
                   Expanded(
@@ -552,7 +579,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
                   ),
                 ],
               ),
-              // Lihat Map Button
               SizedBox(
                 width: double.infinity,
                 height: 50,
@@ -577,7 +603,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 ),
               ),
               const SizedBox(height: 30),
-              // Submit button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

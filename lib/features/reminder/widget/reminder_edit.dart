@@ -134,7 +134,7 @@ class _ReminderEditInputState extends State<ReminderEditInput> {
   @override
   Widget build(BuildContext context) {
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),

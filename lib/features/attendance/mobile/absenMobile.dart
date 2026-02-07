@@ -90,7 +90,6 @@ class _AbsenMobileState extends State<AbsenMobile> {
                               ),
                             );
                           }
-
                           if (provider.errorMessage != null) {
                             return Center(
                               child: Text(
@@ -99,14 +98,46 @@ class _AbsenMobileState extends State<AbsenMobile> {
                               ),
                             );
                           }
-
                           final List<AbsenModel> data = provider.absensi;
-
                           if (data.isEmpty) {
-                            return Center(
-                              child: Text(
-                                'Belum ada data absensi',
-                                style: TextStyle(color: AppColors.putih),
+                            return SizedBox(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.list_alt,
+                                      size: 64,
+                                      color: AppColors.putih.withOpacity(0.5),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      context.isIndonesian
+                                          ? 'Belum ada data absensi'
+                                          : 'No attendance data yet',
+                                      style: TextStyle(
+                                        color: AppColors.putih,
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      context.isIndonesian
+                                          ? 'Klik tombol masuk untuk melakukan absensi'
+                                          : 'Tap the checkin button to do attendance',
+                                      style: TextStyle(
+                                        color: AppColors.putih.withOpacity(0.7),
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily,
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }
@@ -389,36 +420,58 @@ class _AbsensiItem extends StatelessWidget {
                   ),
                 ),
               ),
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getDisplayName(absen.user!.nama),
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      dateText,
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (!isManagerView) ...[
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.isIndonesian ? "Tanggal :" : "Date :",
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      dateText,
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
 
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isManagerView
-                        ? getDisplayName(absen.user!.nama)
-                        : context.isIndonesian
-                            ? "Tanggal :"
-                            : "Date :",
-                    style: TextStyle(
-                      color: AppColors.putih,
-                      fontSize: 12,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    dateText,
-                    style: TextStyle(
-                      color: AppColors.putih,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
             Expanded(
               flex: 2,
               child: Column(

@@ -67,7 +67,7 @@ class _WebPageJabatanState extends State<WebPageJabatan> {
                   hintText:
                       context.isIndonesian ? 'Nama Jabatan' : 'Add Position',
                   hintStyle: TextStyle(
-                    color: AppColors.putih,
+                    color: AppColors.putih.withOpacity(0.5),
                     fontSize: 14,
                   ),
                   filled: true,

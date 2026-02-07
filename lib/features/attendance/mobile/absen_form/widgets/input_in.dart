@@ -193,7 +193,7 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),
@@ -223,26 +223,87 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CustomInputField(
-                label: context.isIndonesian ? "Tanggal" : "Date",
-                hint: "dd / mm / yyyy",
-                readOnly: true,
-                onTapIcon: () {},
-                controller: _tanggalController,
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.yellow.withOpacity(0.5),
+                  border: Border.all(color: AppColors.yellow, width: 1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.info_outline_rounded,
+                      color: AppColors.putih,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            context.isIndonesian
+                                ? 'Aktifkan Layanan Lokasi'
+                                : 'Enable Location Services',
+                            style: TextStyle(
+                              color: AppColors.putih,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            context.isIndonesian
+                                ? 'Aktivasi layanan lokasi untuk pelacakan posisi secara otomatis.'
+                                : 'Location services are required to support automatic location tracking.',
+                            style: TextStyle(
+                              color: AppColors.putih.withOpacity(0.9),
+                              fontSize: 14,
+                              height: 1.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              CustomInputField(
-                label: context.isIndonesian ? "Jam Masuk" : "Check-in Time",
-                hint: "--:--",
-                readOnly: true,
-                onTapIcon: () {},
-                controller: _jamMulaiController,
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: CustomInputField(
+                      label: context.isIndonesian ? "Tanggal" : "Date",
+                      hint: "dd / mm / yyyy",
+                      readOnly: true,
+                      onTapIcon: () {},
+                      controller: _tanggalController,
+                      labelStyle: labelStyle,
+                      textStyle: textStyle,
+                      inputStyle: inputStyle,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: CustomInputField(
+                      label:
+                          context.isIndonesian ? "Jam Masuk" : "Check-in Time",
+                      hint: "--:--",
+                      readOnly: true,
+                      onTapIcon: () {},
+                      controller: _jamMulaiController,
+                      labelStyle: labelStyle,
+                      textStyle: textStyle,
+                      inputStyle: inputStyle,
+                    ),
+                  ),
+                ],
               ),
+
               // Lokasi
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

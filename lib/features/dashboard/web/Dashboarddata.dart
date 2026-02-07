@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/features/attendance/view_model/absen_provider.dart';
 import 'package:hr/features/auth/login_viewmodels.dart/login_provider.dart';
@@ -108,7 +109,9 @@ class _DashboardDataState extends State<DashboardData> {
         'name': user['name'],
         'department': user['department'],
         'present': totalHadir,
-        'ontime': totalTepatWaktu,
+        'ontime': totalHadir == 0
+            ? 0
+            : ((totalTepatWaktu / totalHadir) * 100).round(),
       };
     }).toList();
   }
@@ -208,18 +211,25 @@ class _DashboardDataState extends State<DashboardData> {
     List<Map<String, dynamic>> topAttendance,
     List<Map<String, dynamic>> requestApproval,
   ) {
+    final hasApproveLembur = FeatureAccess.has('approve_lembur');
+    final hasApproveCuti = FeatureAccess.has('approve_cuti');
+    final lihatSemuaAbsensi = FeatureAccess.has('lihat_semua_absensi');
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          flex: 3,
-          child: _buildTopAttendanceCard(topAttendance),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          flex: 1,
-          child: _buildRequestApprovalCard(requestApproval),
-        ),
+        if (lihatSemuaAbsensi) ...[
+          Expanded(
+            flex: 3,
+            child: _buildTopAttendanceCard(topAttendance),
+          ),
+        ],
+        if (hasApproveCuti || hasApproveLembur) ...[
+          const SizedBox(width: 16),
+          Expanded(
+            flex: 1,
+            child: _buildRequestApprovalCard(requestApproval),
+          ),
+        ],
       ],
     );
   }
@@ -233,11 +243,11 @@ class _DashboardDataState extends State<DashboardData> {
       children: [
         Container(
           margin: const EdgeInsets.only(bottom: 16),
-          height: _sectionHeight / 2,
+          height: _sectionHeight,
           child: _buildTopAttendanceCard(topAttendance, isMobile: true),
         ),
         Container(
-          height: _sectionHeight / 2,
+          height: _sectionHeight,
           child: _buildRequestApprovalCard(requestApproval),
         ),
       ],
@@ -339,7 +349,7 @@ class _DashboardDataState extends State<DashboardData> {
                 ),
                 DataColumn(
                   label: Text(
-                    context.isIndonesian ? 'Tepat Waktu' : 'On Time',
+                    context.isIndonesian ? 'Tepat Waktu  (%)' : 'On Time  (%)',
                     style: TextStyle(
                       color: AppColors.putih,
                       fontWeight: FontWeight.w700,
@@ -370,7 +380,7 @@ class _DashboardDataState extends State<DashboardData> {
                     ),
                     DataCell(
                       Text(
-                        '${e['ontime']}',
+                        '${e['ontime']}%',
                         style: TextStyle(color: AppColors.putih, fontSize: 12),
                       ),
                     ),
@@ -426,7 +436,7 @@ class _DashboardDataState extends State<DashboardData> {
           ),
           DataColumn(
             label: Text(
-              context.isIndonesian ? 'Tepat Waktu' : 'On Time',
+              context.isIndonesian ? 'Tepat Waktu (%)' : 'On Time  (%)',
               style: TextStyle(
                 color: AppColors.putih,
                 fontWeight: FontWeight.w700,
@@ -446,7 +456,7 @@ class _DashboardDataState extends State<DashboardData> {
                 style: TextStyle(fontSize: 10),
               )),
               DataCell(Text(
-                '${e['present']}%',
+                '${e['present']}',
                 style: TextStyle(fontSize: 10),
               )),
               DataCell(Text(

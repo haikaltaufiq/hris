@@ -28,7 +28,7 @@ class _PotonganInputState extends State<PotonganInput> {
   @override
   Widget build(BuildContext context) {
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),
@@ -131,7 +131,7 @@ class _PotonganInputState extends State<PotonganInput> {
                         if (result["success"] == true) {
                           controller.clear();
                           jumlahController.clear();
-                          Navigator.pop(context); 
+                          Navigator.pop(context);
                         }
                       } catch (e) {
                         final message = context.isIndonesian

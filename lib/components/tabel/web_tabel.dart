@@ -79,6 +79,7 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
     final v = value.toLowerCase().trim();
 
     return v == 'lihat lampiran' ||
+        v == "upload lampiran" ||
         v == 'see photo' ||
         v == 'see video' ||
         v == 'see location' ||

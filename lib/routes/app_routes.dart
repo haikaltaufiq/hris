@@ -47,6 +47,7 @@ import 'package:hr/features/reminder/reminder_page.dart';
 import 'package:hr/features/task/task_page.dart';
 import 'package:hr/features/task/tugas_form/tugas_edit_form.dart';
 import 'package:hr/features/task/tugas_form/tugas_form.dart';
+import 'package:hr/features/task/tugas_form/widget/user_tugas_edit.dart';
 import 'package:hr/layout/main_layout.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -92,6 +93,7 @@ class AppRoutes {
   static const String karyawanEditForm = '/karyawan_edit_form';
   static const String locationTrack = '/locationTrack';
   static const String detailAbsen = '/detailAbsen';
+  static const String uploadLampiran = '/uploadLampiran';
 
   // Routes yang tidak memerlukan MainLayout
   static const List<String> _routesWithoutLayout = [
@@ -157,6 +159,7 @@ class AppRoutes {
       karyawanEditForm,
       locationTrack,
       detailAbsen,
+      uploadLampiran,
     ];
 
     // Jika URL dilindungi tapi belum login
@@ -203,6 +206,14 @@ class AppRoutes {
 
       case leave:
         return _route(const CutiPage().withMainLayout(leave), settings);
+
+      case uploadLampiran:
+        final tugas = settings.arguments as TugasModel;
+        return _route(
+            UserEditTugas(
+              tugas: tugas,
+            ).withMainLayout(uploadLampiran),
+            settings);
 
       case employee:
         return _route(const KaryawanPage().withMainLayout(employee), settings);

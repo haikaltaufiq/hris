@@ -4,7 +4,7 @@ import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/features/task/widgets/video.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ProfessionalLampiranWidget extends StatelessWidget {
+class ProfessionalLampiranWidget extends StatefulWidget {
   final String url;
 
   const ProfessionalLampiranWidget({
@@ -12,10 +12,17 @@ class ProfessionalLampiranWidget extends StatelessWidget {
     required this.url,
   }) : super(key: key);
 
-  String get fileExtension => url.split('.').last.toLowerCase();
+  @override
+  State<ProfessionalLampiranWidget> createState() =>
+      _ProfessionalLampiranWidgetState();
+}
+
+class _ProfessionalLampiranWidgetState
+    extends State<ProfessionalLampiranWidget> {
+  String get fileExtension => widget.url.split('.').last.toLowerCase();
 
   String get fileName {
-    final uri = Uri.tryParse(url);
+    final uri = Uri.tryParse(widget.url);
     if (uri != null) {
       return uri.pathSegments.isNotEmpty
           ? uri.pathSegments.last
@@ -46,7 +53,7 @@ class ProfessionalLampiranWidget extends StatelessWidget {
 
   Future<void> _downloadFile(BuildContext context) async {
     try {
-      final uri = Uri.parse(url);
+      final uri = Uri.parse(widget.url);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
@@ -73,10 +80,10 @@ class ProfessionalLampiranWidget extends StatelessWidget {
     final isSmallScreen = screenWidth < 600;
 
     if (['mp4', 'mov', 'avi', '3gp', 'mkv', 'flv'].contains(fileExtension)) {
-      return _buildVideoPlayer();
+      return _buildVideoPlayer(context);
     } else if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp']
         .contains(fileExtension)) {
-      return _buildImageViewer(isSmallScreen);
+      return _buildImageViewer(context, isSmallScreen);
     } else if (fileExtension == 'pdf') {
       return _buildPdfPlaceholder(context, isSmallScreen);
     } else if (['mp3', 'wav', 'm4a', 'aac', 'flac'].contains(fileExtension)) {
@@ -86,7 +93,96 @@ class ProfessionalLampiranWidget extends StatelessWidget {
     }
   }
 
-  Widget _buildVideoPlayer() {
+  Widget _buildFullscreenButton(
+    BuildContext context, {
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(30),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.6),
+            shape: BoxShape.circle,
+          ),
+          child: const Icon(
+            Icons.fullscreen,
+            color: Colors.white,
+            size: 22,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openImageFullscreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => Scaffold(
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: InteractiveViewer(
+                    minScale: 0.5,
+                    maxScale: 5,
+                    child: Image.network(widget.url, fit: BoxFit.contain),
+                  ),
+                ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openVideoFullscreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Scaffold(
+          backgroundColor: Colors.black,
+          body: SafeArea(
+            child: Stack(
+              children: [
+                Center(
+                  child: VideoPlayerWidget(
+                    videoUrl: widget.url,
+                    isFullscreen: true, // kalau ada
+                  ),
+                ),
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: IconButton(
+                    icon: const Icon(Icons.close, color: Colors.white),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoPlayer(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.black,
@@ -94,12 +190,24 @@ class ProfessionalLampiranWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: VideoPlayerWidget(videoUrl: url),
+        child: Stack(
+          children: [
+            VideoPlayerWidget(videoUrl: widget.url),
+            Positioned(
+              right: 8,
+              bottom: 8,
+              child: _buildFullscreenButton(
+                context,
+                onTap: () => _openVideoFullscreen(context),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildImageViewer(bool isSmallScreen) {
+  Widget _buildImageViewer(BuildContext context, bool isSmallScreen) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.black12,
@@ -107,52 +215,66 @@ class ProfessionalLampiranWidget extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: InteractiveViewer(
-          minScale: 0.5,
-          maxScale: 4.0,
-          child: Image.network(
-            url, // atau getFullUrl(tugas.lampiran!) kalau dari TugasModel
-            fit: BoxFit.contain,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return Center(
-                child: CircularProgressIndicator(
-                  valueColor:
-                      AlwaysStoppedAnimation<Color>(AppColors.secondary),
-                  value: loadingProgress.expectedTotalBytes != null
-                      ? loadingProgress.cumulativeBytesLoaded /
-                          loadingProgress.expectedTotalBytes!
-                      : null,
-                ),
-              );
-            },
-            // <-- testing error builder
-            errorBuilder: (context, error, stackTrace) {
-              // debugPrint("❌ Error load image: $error"); // <-- ini akan tampil di console
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.broken_image_rounded,
-                        size: isSmallScreen ? 48 : 64,
-                        color: AppColors.putih.withOpacity(0.5)),
-                    SizedBox(height: 12),
-                    Text(
-                      'Gagal memuat gambar',
-                      style: GoogleFonts.poppins(
-                        color: AppColors.putih.withOpacity(0.7),
-                        fontSize: isSmallScreen ? 12 : 14,
-                      ),
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              minScale: 0.5,
+              maxScale: 4.0,
+              child: Image.network(
+                widget
+                    .url, // atau getFullUrl(tugas.lampiran!) kalau dari TugasModel
+                fit: BoxFit.contain,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return Center(
+                    child: CircularProgressIndicator(
+                      valueColor:
+                          AlwaysStoppedAnimation<Color>(AppColors.secondary),
+                      value: loadingProgress.expectedTotalBytes != null
+                          ? loadingProgress.cumulativeBytesLoaded /
+                              loadingProgress.expectedTotalBytes!
+                          : null,
                     ),
-                    Text(
-                      error.toString(), // <-- tampilkan error di UI juga supaya jelas
-                      style: TextStyle(color: Colors.red, fontSize: 10),
+                  );
+                },
+                // <-- testing error builder
+                errorBuilder: (context, error, stackTrace) {
+                  // debugPrint("❌ Error load image: $error"); // <-- ini akan tampil di console
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.broken_image_rounded,
+                            size: isSmallScreen ? 48 : 64,
+                            color: AppColors.putih.withOpacity(0.5)),
+                        SizedBox(height: 12),
+                        Text(
+                          'Gagal memuat gambar',
+                          style: GoogleFonts.poppins(
+                            color: AppColors.putih.withOpacity(0.7),
+                            fontSize: isSmallScreen ? 12 : 14,
+                          ),
+                        ),
+                        Text(
+                          error
+                              .toString(), // <-- tampilkan error di UI juga supaya jelas
+                          style: TextStyle(color: Colors.red, fontSize: 10),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
+            ),
+            Positioned(
+              right: 8,
+              bottom: 8,
+              child: _buildFullscreenButton(
+                context,
+                onTap: () => _openImageFullscreen(context),
+              ),
+            ),
+          ],
         ),
       ),
     );

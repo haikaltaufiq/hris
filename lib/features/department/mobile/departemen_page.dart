@@ -244,7 +244,7 @@ class _DepartemenPageMobileState extends State<DepartemenPageMobile> {
                     ? 'Nama Department'
                     : 'Department Name',
                 hintStyle: TextStyle(
-                  color: AppColors.putih,
+                  color: AppColors.putih.withOpacity(0.5),
                   fontFamily: GoogleFonts.poppins().fontFamily,
                   fontSize: 14,
                   fontWeight: FontWeight.w100,
