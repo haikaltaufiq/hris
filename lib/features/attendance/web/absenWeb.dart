@@ -47,9 +47,13 @@ class _AbsenWebState extends State<AbsenWeb> {
   @override
   void initState() {
     super.initState();
+
+    context.read<AbsenProvider>();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
+
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -63,36 +67,51 @@ class _AbsenWebState extends State<AbsenWeb> {
   // ===========================================================================
   // INITIALIZATION
   // ===========================================================================
-
   Future<void> _initializeData() async {
     final provider = context.read<AbsenProvider>();
-    await provider.fetchAbsensi();
+
+    provider.loadCacheFirst();
+
+    provider.applyAdvancedFilter(
+      AbsenAdvancedFilter(
+        search: _searchController.text,
+        month: _selectedMonth,
+        year: _selectedYear,
+        sort: _selectedSort,
+        day: _selectedSort == AbsenSortType.day ? DateTime.now() : null,
+      ),
+    );
+
     _applyFiltersAndPagination();
+
+    provider.fetchAbsensi().then((_) {
+      if (!mounted) return;
+      _applyFiltersAndPagination();
+    });
   }
 
   void _onSearchChanged() {
     _currentPage = 1;
-    _applyFiltersAndPagination();
+    context.read<AbsenProvider>().applyAdvancedFilter(
+          AbsenAdvancedFilter(
+            search: _searchController.text,
+            month: _selectedMonth,
+            year: _selectedYear,
+            sort: _selectedSort,
+            day: _selectedSort == AbsenSortType.day ? DateTime.now() : null,
+          ),
+        );
+    _applyFiltersAndPagination(localOnly: true);
   }
 
   // ===========================================================================
   // FILTER & PAGINATION LOGIC
   // ===========================================================================
-
-  void _applyFiltersAndPagination() {
+  void _applyFiltersAndPagination({bool localOnly = false}) {
     final provider = context.read<AbsenProvider>();
 
-    final filter = AbsenAdvancedFilter(
-      search: _searchController.text,
-      month: _selectedMonth,
-      year: _selectedYear,
-      sort: _selectedSort,
-      day: _selectedSort == AbsenSortType.day ? DateTime.now() : null,
-    );
-
-    provider.applyAdvancedFilter(filter);
-
     final filteredList = provider.advancedAbsensi;
+
     _totalPages = (filteredList.length / _rowsPerPage).ceil();
     if (_totalPages == 0) _totalPages = 1;
 
@@ -100,10 +119,7 @@ class _AbsenWebState extends State<AbsenWeb> {
     final endIndex = (startIndex + _rowsPerPage).clamp(0, filteredList.length);
 
     setState(() {
-      _paginatedData = filteredList.sublist(
-        startIndex,
-        endIndex,
-      );
+      _paginatedData = filteredList.sublist(startIndex, endIndex);
     });
   }
 

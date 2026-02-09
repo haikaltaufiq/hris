@@ -21,13 +21,20 @@ class AbsenMobile extends StatefulWidget {
 class _AbsenMobileState extends State<AbsenMobile> {
   final ScrollController _scrollController = ScrollController();
   int _displayedItemCount = 20;
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<AbsenProvider>().fetchAbsensi();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<AbsenProvider>();
+
+      // 1. tampilkan cache dulu
+      provider.loadCacheFirst();
+
+      // 2. fetch API background
+      provider.fetchAbsensi();
     });
+
     _scrollController.addListener(_onScroll);
   }
 
@@ -83,7 +90,8 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     Expanded(
                       child: Consumer<AbsenProvider>(
                         builder: (context, provider, _) {
-                          if (provider.isLoading) {
+                          _displayedItemCount = 20;
+                          if (provider.isLoading && provider.absensi.isEmpty) {
                             return Center(
                               child: CircularProgressIndicator(
                                 color: AppColors.putih,
