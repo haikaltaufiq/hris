@@ -62,7 +62,7 @@ class _JabatanPageMobileState extends State<JabatanPageMobile> {
                 hintText:
                     context.isIndonesian ? 'Nama Jabatan' : 'Position Name',
                 hintStyle: TextStyle(
-                  color: AppColors.putih,
+                  color: AppColors.putih.withOpacity(0.5),
                   fontFamily: GoogleFonts.poppins().fontFamily,
                   fontSize: 14,
                 ),

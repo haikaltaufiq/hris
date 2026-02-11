@@ -1,78 +1,83 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/user_model.dart';
 import 'package:hr/data/services/tracking_service.dart';
 
-class Locationtrackpage extends StatefulWidget {
-  const Locationtrackpage({super.key});
-
-  @override
-  State<Locationtrackpage> createState() => _LocationtrackpageState();
+/// Extension for responsive check
+extension ResponsiveContext on BuildContext {
+  bool get isMobile => MediaQuery.of(this).size.width < 600;
+  bool get isTablet =>
+      MediaQuery.of(this).size.width >= 600 &&
+      MediaQuery.of(this).size.width < 1024;
+  bool get isDesktop => MediaQuery.of(this).size.width >= 1024;
 }
 
-class _LocationtrackpageState extends State<Locationtrackpage> {
+/// Main location tracking page for monitoring all users
+class LocationTrackPage extends StatefulWidget {
+  const LocationTrackPage({super.key});
+
+  @override
+  State<LocationTrackPage> createState() => _LocationTrackPageState();
+}
+
+class _LocationTrackPageState extends State<LocationTrackPage> {
   List<UserModel> users = [];
   List<UserModel> filteredUsers = [];
   Timer? _timer;
   bool loading = true;
-  String filterStatus = 'all'; // all, active, inactive
+  String filterStatus = 'all';
   final MapController mapController = MapController();
+  bool isListExpanded = false;
 
   @override
   void initState() {
     super.initState();
     _loadData();
+    _startAutoRefresh();
+  }
 
-    // 🔁 auto refresh tiap 1 menit
+  /// Start automatic data refresh every minute
+  void _startAutoRefresh() {
     _timer = Timer.periodic(
       const Duration(minutes: 1),
       (_) => _loadData(),
     );
   }
 
-  // Di _LocationtrackpageState
+  /// Load tracking data from service
   Future<void> _loadData() async {
     try {
       setState(() => loading = true);
-      
+
       final result = await TrackingService.getTrackingUsers();
-      
+
       if (mounted) {
         setState(() {
           users = result;
           _applyFilter();
           loading = false;
         });
-        
-        debugPrint('✅ Data loaded: ${users.length} users');
-        debugPrint('📍 Aktif: ${users.where((u) => u.isGpsActive).length}');
-        debugPrint('📍 Tidak Aktif: ${users.where((u) => !u.isGpsActive).length}');
+
+        debugPrint('Data loaded: ${users.length} users');
+        debugPrint('Active: ${users.where((u) => u.isGpsActive).length}');
+        debugPrint('Inactive: ${users.where((u) => !u.isGpsActive).length}');
       }
     } catch (e) {
-      debugPrint('❌ Error loading data: $e');
-      
+      debugPrint('Error loading data: $e');
+
       if (mounted) {
         setState(() => loading = false);
-        
-        // Tampilkan error ke user
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Gagal memuat data: $e'),
-            backgroundColor: Colors.red,
-            action: SnackBarAction(
-              label: 'Coba Lagi',
-              textColor: Colors.white,
-              onPressed: _loadData,
-            ),
-          ),
-        );
+        _showErrorSnackbar(e.toString());
       }
     }
   }
 
+  /// Apply filter based on selected status
   void _applyFilter() {
     setState(() {
       if (filterStatus == 'all') {
@@ -85,6 +90,21 @@ class _LocationtrackpageState extends State<Locationtrackpage> {
     });
   }
 
+  /// Show error message to user
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Gagal memuat data: $message'),
+        backgroundColor: Colors.red,
+        action: SnackBarAction(
+          label: 'Coba Lagi',
+          textColor: AppColors.putih,
+          onPressed: _loadData,
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -93,244 +113,242 @@ class _LocationtrackpageState extends State<Locationtrackpage> {
 
   @override
   Widget build(BuildContext context) {
-    final LatLng center = filteredUsers.isNotEmpty
+    final LatLng center = filteredUsers.isNotEmpty &&
+            filteredUsers.first.latitude != null &&
+            filteredUsers.first.longitude != null
         ? LatLng(filteredUsers.first.latitude!, filteredUsers.first.longitude!)
         : const LatLng(-6.200000, 106.816666);
 
     return Scaffold(
       backgroundColor: AppColors.bg,
+      appBar: context.isMobile ? _buildMobileAppBar() : null,
       body: loading
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
-              children: [
-                // 🗺️ Map
-                FlutterMap(
-                  mapController: mapController,
-                  options: MapOptions(
-                    initialCenter: center,
-                    initialZoom: 14,
-                    minZoom: 5,
-                    maxZoom: 18,
-                  ),
-                  children: [
-                    TileLayer(
-                      urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                      userAgentPackageName: 'com.example.hr',
-                    ),
-                    MarkerLayer(
-                      markers: filteredUsers
-                          .where((u) =>
-                              u.latitude != null && u.longitude != null)
-                          .map(
-                            (user) => Marker(
-                              width: 80,
-                              height: 80,
-                              point: LatLng(user.latitude!, user.longitude!),
-                              child: GestureDetector(
-                                onTap: () => _showInfo(user),
-                                child: _buildCustomMarker(user),
-                              ),
-                            ),
-                          )
-                          .toList(),
-                    ),
-                  ],
-                ),
-
-                // 📊 Top Info Card
-                Positioned(
-                  top: 50,
-                  left: 16,
-                  right: 16,
-                  child: _buildTopInfoCard(),
-                ),
-
-                // 🔽 Bottom Filter Chips
-                Positioned(
-                  bottom: 16,
-                  left: 16,
-                  right: 16,
-                  child: _buildFilterChips(),
-                ),
-
-                // 📋 User List Button (Floating)
-                Positioned(
-                  top: 140,
-                  right: 16,
-                  child: FloatingActionButton(
-                    heroTag: 'userlist',
-                    mini: true,
-                    backgroundColor: Colors.white,
-                    onPressed: _showUserList,
-                    child: Icon(Icons.people, color: AppColors.primary),
-                  ),
-                ),
-
-                // 🔄 Refresh Button
-                Positioned(
-                  top: 200,
-                  right: 16,
-                  child: FloatingActionButton(
-                    heroTag: 'refresh',
-                    mini: true,
-                    backgroundColor: Colors.white,
-                    onPressed: _loadData,
-                    child: Icon(Icons.refresh, color: AppColors.primary),
-                  ),
-                ),
-              ],
-            ),
+          ? _buildLoadingState()
+          : context.isMobile
+              ? _buildMobileLayout(center)
+              : _buildWebLayout(center),
     );
   }
 
-  // 🎨 Custom Marker dengan Avatar & Status
-  Widget _buildCustomMarker(UserModel user) {
+  /// Build mobile app bar with actions
+  PreferredSizeWidget _buildMobileAppBar() {
+    return AppBar(
+      backgroundColor: AppColors.primary,
+      elevation: 0,
+      title: Text(
+        'Tracking Lokasi',
+        style: TextStyle(
+          color: AppColors.putih,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.refresh, color: AppColors.putih),
+          onPressed: _loadData,
+          tooltip: 'Refresh Data',
+        ),
+        IconButton(
+          icon: Icon(
+            isListExpanded ? Icons.map : Icons.list,
+            color: AppColors.putih,
+          ),
+          onPressed: () {
+            setState(() {
+              isListExpanded = !isListExpanded;
+            });
+          },
+          tooltip: isListExpanded ? 'Tampilkan Map' : 'Tampilkan List',
+        ),
+      ],
+    );
+  }
+
+  /// Build mobile layout
+  Widget _buildMobileLayout(LatLng center) {
     return Column(
       children: [
-        // Avatar dengan border status
-        Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: user.isGpsActive ? Colors.green : Colors.grey,
-              width: 3,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.3),
-                blurRadius: 6,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: CircleAvatar(
-            backgroundColor: user.isGpsActive ? Colors.green : Colors.grey,
-            child: Text(
-              user.nama.substring(0, 1).toUpperCase(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-          ),
+        _buildStatsCard(),
+        const SizedBox(height: 18),
+        _buildFilterChips(),
+        const SizedBox(height: 4),
+        Expanded(
+          child: isListExpanded ? _buildUserListView() : _buildMapView(center),
         ),
-        // Name Tag
+      ],
+    );
+  }
+
+  /// Build web layout with side panel
+  Widget _buildWebLayout(LatLng center) {
+    return Row(
+      children: [
+        /// Left panel - Map
+        Expanded(
+          child: _buildMapView(center),
+        ),
+
+        /// Right panel - Stats and user list
         Container(
-          margin: const EdgeInsets.only(top: 4),
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          width: 400,
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            color: AppColors.latar3,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 4,
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(2, 0),
               ),
             ],
           ),
-          child: Text(
-            user.nama.split(' ').first,
-            style: const TextStyle(
-              fontSize: 10,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          child: Column(
+            children: [
+              const SizedBox(height: 8),
+              _buildStatsCard(),
+              const SizedBox(height: 18),
+              _buildFilterChips(),
+              const SizedBox(height: 8),
+              Expanded(child: _buildUserListView()),
+            ],
           ),
         ),
       ],
     );
   }
 
-  // 📊 Top Info Card
-  Widget _buildTopInfoCard() {
-    final activeCount = users.where((u) => u.isGpsActive).length;
-    final inactiveCount = users.length - activeCount;
-
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _buildInfoItem(
-              icon: Icons.people,
-              label: 'Total User',
-              value: '${users.length}',
-              color: Colors.blue,
+  /// Build loading state
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppColors.putih),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Memuat data tracking...',
+            style: TextStyle(
+              color: AppColors.putih,
+              fontSize: 14,
             ),
-            _buildInfoItem(
-              icon: Icons.check_circle,
-              label: 'Aktif',
-              value: '$activeCount',
-              color: Colors.green,
-            ),
-            _buildInfoItem(
-              icon: Icons.warning_amber_rounded,
-              label: 'Tidak Aktif',
-              value: '$inactiveCount',
-              color: Colors.orange,
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildInfoItem({
+  /// Build statistics card
+  Widget _buildStatsCard() {
+    final activeCount = users.where((u) => u.isGpsActive).length;
+    final inactiveCount = users.length - activeCount;
+    final isMobile = context.isMobile;
+
+    return Container(
+      margin: EdgeInsets.fromLTRB(
+        isMobile ? 16 : 12,
+        isMobile ? 16 : 12,
+        isMobile ? 16 : 12,
+        0,
+      ),
+      padding: EdgeInsets.all(isMobile ? 16 : 20),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildStatItem(
+            icon: Icons.people,
+            label: 'Total',
+            value: '${users.length}',
+          ),
+          _buildStatDivider(),
+          _buildStatItem(
+            icon: Icons.check_circle,
+            label: 'Aktif',
+            value: '$activeCount',
+          ),
+          _buildStatDivider(),
+          _buildStatItem(
+            icon: Icons.cancel,
+            label: 'Tidak Aktif',
+            value: '$inactiveCount',
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build individual stat item
+  Widget _buildStatItem({
     required IconData icon,
     required String label,
     required String value,
-    required Color color,
   }) {
     return Column(
       children: [
-        Icon(icon, color: color, size: 28),
-        const SizedBox(height: 4),
+        Icon(icon, color: AppColors.putih, size: 28),
+        const SizedBox(height: 8),
         Text(
           value,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 24,
             fontWeight: FontWeight.bold,
-            color: color,
+            color: AppColors.putih,
           ),
         ),
+        const SizedBox(height: 4),
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
-            color: Colors.grey[600],
+            fontSize: 12,
+            color: AppColors.putih.withOpacity(0.8),
           ),
         ),
       ],
     );
   }
 
-  // 🔽 Filter Chips
+  /// Build divider between stat items
+  Widget _buildStatDivider() {
+    return Container(
+      height: 50,
+      width: 1,
+      color: AppColors.putih.withOpacity(0.3),
+    );
+  }
+
+  /// Build filter chips
   Widget _buildFilterChips() {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildFilterChip('Semua', 'all'),
-            _buildFilterChip('Aktif', 'active'),
-            _buildFilterChip('Tidak Aktif', 'inactive'),
-          ],
-        ),
+    final isMobile = context.isMobile;
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 12),
+      padding: const EdgeInsets.all(4),
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Row(
+        children: [
+          Expanded(child: _buildFilterChip('Semua', 'all')),
+          Expanded(child: _buildFilterChip('Aktif', 'active')),
+          Expanded(child: _buildFilterChip('Tidak Aktif', 'inactive')),
+        ],
       ),
     );
   }
 
+  /// Build individual filter chip
   Widget _buildFilterChip(String label, String value) {
     final isSelected = filterStatus == value;
     return GestureDetector(
@@ -341,82 +359,196 @@ class _LocationtrackpageState extends State<Locationtrackpage> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: const EdgeInsets.all(4),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
+          color: isSelected ? AppColors.putih : Colors.transparent,
+          borderRadius: BorderRadius.circular(25),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: isSelected ? Colors.white : Colors.black87,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            fontSize: 13,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              color: isSelected ? AppColors.primary : AppColors.putih,
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+            ),
           ),
         ),
       ),
     );
   }
 
-  // 📋 Show User List
-  void _showUserList() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  /// Build map view with markers
+  Widget _buildMapView(LatLng center) {
+    final isMobile = context.isMobile;
+
+    return Container(
+      margin: isMobile ? const EdgeInsets.all(16) : EdgeInsets.zero,
+      decoration: BoxDecoration(
+        borderRadius: isMobile ? BorderRadius.circular(12) : BorderRadius.zero,
+        boxShadow: isMobile
+            ? [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : [],
       ),
-      builder: (_) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (_, controller) => Column(
+      clipBehavior: Clip.hardEdge,
+      child: Stack(
+        children: [
+          FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+              initialCenter: center,
+              initialZoom: 14,
+              minZoom: 5,
+              maxZoom: 18,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.example.hr',
+              ),
+              MarkerLayer(
+                markers: filteredUsers
+                    .where((u) => u.latitude != null && u.longitude != null)
+                    .map(
+                      (user) => Marker(
+                        width: 80,
+                        height: 80,
+                        point: LatLng(user.latitude!, user.longitude!),
+                        child: GestureDetector(
+                          onTap: () => _showUserInfo(user),
+                          child: _buildMarker(user),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
+          ),
+          if (!isMobile) ...[
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.all(Radius.circular(14))),
+                child: IconButton(
+                  icon: Icon(Icons.refresh, color: AppColors.putih),
+                  onPressed: _loadData,
+                  tooltip: 'Refresh Data',
+                ),
+              ),
+            ),
+          ],
+          if (filteredUsers.isEmpty) _buildEmptyMapOverlay(),
+        ],
+      ),
+    );
+  }
+
+  /// Build custom marker for user
+  Widget _buildMarker(UserModel user) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: user.isGpsActive ? Colors.green : AppColors.bg,
+            border: Border.all(
+              color: AppColors.putih,
+              width: 3,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.3),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Center(
+            child: Text(
+              user.nama.substring(0, 1).toUpperCase(),
+              style: TextStyle(
+                color: AppColors.putih,
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: AppColors.bg,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 4,
+              ),
+            ],
+          ),
+          child: Text(
+            user.nama.split(' ').first,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: AppColors.putih,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Build empty map overlay
+  Widget _buildEmptyMapOverlay() {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            // Handle
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 12),
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
+            Icon(
+              Icons.location_off,
+              size: 48,
+              color: AppColors.putih,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Tidak ada data lokasi',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.putih,
               ),
             ),
-            // Title
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Daftar Karyawan',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    '${filteredUsers.length} orang',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const Divider(),
-            // List
-            Expanded(
-              child: ListView.builder(
-                controller: controller,
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: filteredUsers.length,
-                itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
-                  return _buildUserListItem(user);
-                },
+            const SizedBox(height: 4),
+            Text(
+              'Pilih filter lain atau refresh data',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.putih,
               ),
             ),
           ],
@@ -425,228 +557,424 @@ class _LocationtrackpageState extends State<Locationtrackpage> {
     );
   }
 
-  Widget _buildUserListItem(UserModel user) {
-    return Card(
+  /// Build user list view
+  Widget _buildUserListView() {
+    if (filteredUsers.isEmpty) {
+      return _buildEmptyListState();
+    }
+
+    final isMobile = context.isMobile;
+
+    return ListView.builder(
+      padding: EdgeInsets.all(isMobile ? 16 : 12),
+      itemCount: filteredUsers.length,
+      itemBuilder: (context, index) {
+        final user = filteredUsers[index];
+        return _buildUserCard(user);
+      },
+    );
+  }
+
+  /// Build empty list state
+  Widget _buildEmptyListState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.people_outline,
+            size: 64,
+            color: AppColors.putih,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Tidak ada data user',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.putih,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pilih filter lain atau refresh data',
+            style: TextStyle(
+              fontSize: 14,
+              color: AppColors.putih,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build user card for list view
+  Widget _buildUserCard(UserModel user) {
+    return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(12),
-        leading: Stack(
-          children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundColor: user.isGpsActive ? Colors.green : Colors.grey,
-              child: Text(
-                user.nama.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-            ),
-            Positioned(
-              right: 0,
-              bottom: 0,
-              child: Container(
-                width: 14,
-                height: 14,
-                decoration: BoxDecoration(
-                  color: user.isGpsActive ? Colors.green : Colors.grey,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 2),
-                ),
-              ),
-            ),
-          ],
-        ),
-        title: Text(
-          user.nama,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Row(
+      decoration: BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _showUserInfo(user),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Icon(
-                  user.isGpsActive ? Icons.gps_fixed : Icons.gps_off,
-                  size: 14,
-                  color: user.isGpsActive ? Colors.green : Colors.grey,
+                _buildUserAvatar(user),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildUserDetails(user),
                 ),
-                const SizedBox(width: 4),
-                Text(
-                  user.isGpsActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: user.isGpsActive ? Colors.green : Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                _buildUserActions(user),
               ],
             ),
-            const SizedBox(height: 2),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build user avatar with status indicator
+  Widget _buildUserAvatar(UserModel user) {
+    return Stack(
+      children: [
+        Container(
+          width: 50,
+          height: 50,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: user.isGpsActive ? Colors.green : AppColors.bg,
+          ),
+          child: Center(
+            child: Text(
+              user.nama.substring(0, 1).toUpperCase(),
+              style: TextStyle(
+                color: AppColors.putih,
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+          ),
+        ),
+        Positioned(
+          right: 0,
+          bottom: 0,
+          child: Container(
+            width: 16,
+            height: 16,
+            decoration: BoxDecoration(
+              color: user.isGpsActive ? Colors.green : AppColors.bg,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.putih, width: 2),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Build user details section
+  Widget _buildUserDetails(UserModel user) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          user.nama,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.putih,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            Icon(
+              user.isGpsActive ? Icons.gps_fixed : Icons.gps_off,
+              size: 14,
+              color: AppColors.putih.withOpacity(0.8),
+            ),
+            const SizedBox(width: 4),
             Text(
-              'Update: ${user.lastUpdate}',
-              style: TextStyle(fontSize: 11, color: Colors.grey[600]),
+              user.isGpsActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.putih.withOpacity(0.8),
+              ),
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.location_searching, color: Colors.blue),
-          onPressed: () {
-            Navigator.pop(context);
+        const SizedBox(height: 2),
+        Text(
+          'Update: ${user.lastUpdate}',
+          style: TextStyle(
+            fontSize: 11,
+            color: AppColors.putih.withOpacity(0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Build user action button
+  Widget _buildUserActions(UserModel user) {
+    if (user.latitude == null || user.longitude == null) {
+      return Icon(
+        Icons.info_outline,
+        color: AppColors.putih.withOpacity(0.5),
+      );
+    }
+
+    final isMobile = context.isMobile;
+
+    return IconButton(
+      icon: Icon(
+        Icons.location_searching,
+        color: AppColors.putih,
+      ),
+      onPressed: () {
+        if (isMobile) {
+          setState(() {
+            isListExpanded = false;
+          });
+          Future.delayed(const Duration(milliseconds: 100), () {
             mapController.move(
               LatLng(user.latitude!, user.longitude!),
               16,
             );
             Future.delayed(const Duration(milliseconds: 300), () {
-              _showInfo(user);
+              _showUserInfo(user);
             });
-          },
-        ),
-      ),
+          });
+        } else {
+          mapController.move(
+            LatLng(user.latitude!, user.longitude!),
+            16,
+          );
+          Future.delayed(const Duration(milliseconds: 300), () {
+            _showUserInfo(user);
+          });
+        }
+      },
+      tooltip: 'Lihat di Map',
     );
   }
 
-  // ℹ️ Show User Info (Bottom Sheet)
-  void _showInfo(UserModel user) {
+  /// Show user information bottom sheet
+  void _showUserInfo(UserModel user) {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (_) => Container(
-        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Avatar Besar
-            CircleAvatar(
-              radius: 40,
-              backgroundColor: user.isGpsActive ? Colors.green : Colors.grey,
-              child: Text(
-                user.nama.substring(0, 1).toUpperCase(),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 32,
-                ),
-              ),
-            ),
+            _buildSheetHandle(),
             const SizedBox(height: 16),
-
-            // Nama
-            Text(
-              user.nama,
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            // Status Badge
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              decoration: BoxDecoration(
-                color: user.isGpsActive
-                    ? Colors.green.withOpacity(0.1)
-                    : Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: user.isGpsActive ? Colors.green : Colors.grey,
-                  width: 1.5,
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    user.isGpsActive ? Icons.gps_fixed : Icons.gps_off,
-                    size: 16,
-                    color: user.isGpsActive ? Colors.green : Colors.grey,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    user.isGpsActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
-                    style: TextStyle(
-                      color: user.isGpsActive ? Colors.green : Colors.grey,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Info Details
-            _buildDetailRow(Icons.access_time, 'Terakhir Update',
-                (user.lastUpdate as String?) ?? '-'),
-            const SizedBox(height: 10),
-            _buildDetailRow(Icons.location_on, 'Koordinat',
-                '${user.latitude?.toStringAsFixed(6)}, ${user.longitude?.toStringAsFixed(6)}'),
-
-            const SizedBox(height: 20),
-
-            // Action Button
-            if (!user.isGpsActive)
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.warning_amber, color: Colors.orange),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'User belum mengupdate lokasi. GPS mungkin mati atau aplikasi tidak terbuka.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[700],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _buildUserInfoAvatar(user),
+            const SizedBox(height: 16),
+            _buildUserInfoName(user),
+            const SizedBox(height: 12),
+            _buildUserInfoStatus(user),
+            const SizedBox(height: 24),
+            _buildUserInfoDetails(user),
+            if (!user.isGpsActive) ...[
+              const SizedBox(height: 16),
+              _buildUserInfoWarning(),
+            ],
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
-  Widget _buildDetailRow(IconData icon, String label, String value) {
-    return Row(
+
+  /// Build bottom sheet handle
+  Widget _buildSheetHandle() {
+    return Container(
+      width: 40,
+      height: 4,
+      decoration: BoxDecoration(
+        color: AppColors.putih.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  /// Build user info avatar
+  Widget _buildUserInfoAvatar(UserModel user) {
+    return Container(
+      width: 80,
+      height: 80,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: user.isGpsActive ? Colors.green : AppColors.bg,
+      ),
+      child: Center(
+        child: Text(
+          user.nama.substring(0, 1).toUpperCase(),
+          style: TextStyle(
+            color: AppColors.putih,
+            fontWeight: FontWeight.bold,
+            fontSize: 36,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build user info name
+  Widget _buildUserInfoName(UserModel user) {
+    return Text(
+      user.nama,
+      style: TextStyle(
+        fontSize: 20,
+        fontWeight: FontWeight.bold,
+        color: AppColors.putih,
+      ),
+      textAlign: TextAlign.center,
+    );
+  }
+
+  /// Build user info status badge
+  Widget _buildUserInfoStatus(UserModel user) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: AppColors.putih.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: AppColors.putih,
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            user.isGpsActive ? Icons.gps_fixed : Icons.gps_off,
+            size: 16,
+            color: AppColors.putih,
+          ),
+          const SizedBox(width: 6),
+          Text(
+            user.isGpsActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
+            style: TextStyle(
+              color: AppColors.putih,
+              fontWeight: FontWeight.bold,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build user info details section
+  Widget _buildUserInfoDetails(UserModel user) {
+    return Column(
       children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
-        const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 2),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
+        _buildInfoRow(
+          Icons.access_time,
+          'Terakhir Update',
+          user.lastUpdate != null
+              ? DateFormat('dd MMM yyyy, HH:mm').format(user.lastUpdate!)
+              : '-',
+        ),
+        const SizedBox(height: 12),
+        _buildInfoRow(
+          Icons.location_on,
+          'Koordinat',
+          user.latitude != null && user.longitude != null
+              ? '${user.latitude!.toStringAsFixed(6)}, ${user.longitude!.toStringAsFixed(6)}'
+              : 'Tidak tersedia',
         ),
       ],
+    );
+  }
+
+  /// Build info row for details
+  Widget _buildInfoRow(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: AppColors.putih.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: AppColors.putih),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.putih.withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.putih,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Build warning message for inactive GPS
+  Widget _buildUserInfoWarning() {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.orange.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.orange, width: 1),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'User belum mengupdate lokasi. GPS mungkin mati atau aplikasi tidak terbuka.',
+              style: TextStyle(
+                fontSize: 12,
+                color: AppColors.putih.withOpacity(0.9),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

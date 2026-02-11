@@ -136,7 +136,7 @@ class _ForgetPageState extends State<ForgetPage> {
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: const BorderSide(
-                            color: Color(0xFF13214B),
+                            color: Color(0xFF1F1F1F),
                             width: 2,
                           ),
                         ),
@@ -158,14 +158,14 @@ class _ForgetPageState extends State<ForgetPage> {
                       height: 54,
                       child: ElevatedButton(
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF13214B),
+                          backgroundColor: Color(0xFF1F1F1F),
                           foregroundColor: Colors.white,
                           elevation: 0,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
                           disabledBackgroundColor:
-                              const Color(0xFF1A3A52).withOpacity(0.6),
+                              Color(0xFF1F1F1F).withOpacity(0.6),
                         ),
                         onPressed: _isLoading ? null : _submit,
                         child: _isLoading
@@ -193,7 +193,7 @@ class _ForgetPageState extends State<ForgetPage> {
                     TextButton(
                       onPressed: () => Navigator.pop(context),
                       style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF1A3A52),
+                        foregroundColor: const Color(0xFF1F1F1F),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                       ),
                       child: Row(

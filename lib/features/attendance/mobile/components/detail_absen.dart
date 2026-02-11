@@ -21,12 +21,28 @@ class DetailAbsen extends StatefulWidget {
 }
 
 class _DetailAbsenState extends State<DetailAbsen> {
+  late final List<Marker> _markers;
+
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<AbsenProvider>().fetchAbsensi();
-    });
+    // marker final cuma sekali
+    _markers = (widget.selectedAbsen.checkinLat != null &&
+            widget.selectedAbsen.checkinLng != null)
+        ? [
+            Marker(
+              width: 40,
+              height: 40,
+              point: LatLng(widget.selectedAbsen.checkinLat!,
+                  widget.selectedAbsen.checkinLng!),
+              child: const Icon(
+                Icons.location_pin,
+                size: 40,
+                color: Colors.red,
+              ),
+            ),
+          ]
+        : [];
   }
 
   // ================= VIDEO =================
@@ -126,26 +142,8 @@ class _DetailAbsenState extends State<DetailAbsen> {
   // ================= UI =================
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AbsenProvider>();
-
-    final markers = provider.todayAbsensi
-        .where((a) => a.checkinLat != null && a.checkinLng != null)
-        .map(
-          (absen) => Marker(
-            width: 40,
-            height: 40,
-            point: LatLng(absen.checkinLat!, absen.checkinLng!),
-            child: const Icon(
-              Icons.location_pin,
-              size: 40,
-              color: Colors.red,
-            ),
-          ),
-        )
-        .toList();
-
-    final center = markers.isNotEmpty
-        ? markers.first.point
+    final center = _markers.isNotEmpty
+        ? _markers.first.point
         : const LatLng(-6.200000, 106.816666);
 
     return Scaffold(
@@ -156,7 +154,7 @@ class _DetailAbsenState extends State<DetailAbsen> {
           SizedBox(
             height: 320,
             child: MapPersonal(
-              markers: markers,
+              markers: _markers,
               center: center,
             ),
           ),

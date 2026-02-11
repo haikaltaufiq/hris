@@ -63,16 +63,10 @@ class _PeranFormPageState extends State<PeranFormPage> {
       parent: 'lihat_tugas',
       siblings: ['lihat_tugas_sendiri'],
     ),
-    'edit_tugas': FeatureRule(
-      parent: 'lihat_tugas',
-      siblings: ['tambah_lampiran_tugas'],
-    ),
-    'tambah_lampiran_tugas': FeatureRule(
-      parent: 'lihat_tugas',
-      siblings: ['edit_tugas'],
-    ),
 
     'tambah_tugas': FeatureRule(parent: 'lihat_tugas'),
+    'edit_tugas': FeatureRule(parent: 'lihat_tugas'),
+    'tambah_lampiran_tugas': FeatureRule(parent: 'lihat_tugas'),
     'hapus_tugas': FeatureRule(parent: 'lihat_tugas'),
 
     // ABSENSI RULES

@@ -8,6 +8,7 @@ import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/api/api_config.dart';
 import 'package:hr/data/models/absen_model.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:intl/intl.dart';
 
 import 'package:latlong2/latlong.dart';
 import 'package:video_player/video_player.dart';
@@ -23,17 +24,26 @@ class AbsenTabelWeb extends StatefulWidget {
   State<AbsenTabelWeb> createState() => _AbsenTabelWebState();
 }
 
+String parseDate(String? date) {
+  if (date == null || date.isEmpty) return '';
+  try {
+    final parsed = DateTime.parse(date).toLocal();
+    return DateFormat('dd MMM yyyy').format(parsed);
+  } catch (_) {
+    return date;
+  }
+}
+
 class _AbsenTabelWebState extends State<AbsenTabelWeb> {
   final List<String> headers = const [
+    "Tanggal",
     "Nama",
-    "Tanggal Masuk",
-    "Tanggal Keluar",
     "Absen Masuk",
     "Absen Keluar",
     "Lokasi Masuk",
     "Lokasi Keluar",
     "Video",
-    "Tipe",
+    "Status",
   ];
 
   bool loading = true;
@@ -41,9 +51,8 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
   List<List<String>> get rows {
     return widget.absensi.map((item) {
       return [
+        parseDate(item.checkinDate),
         item.user?.nama ?? "-",
-        item.checkinDate ?? "-",
-        item.checkoutDate ?? "-",
         item.checkinTime ?? "-",
         item.checkoutTime ?? "-",
         (item.checkinLat != null && item.checkinLng != null)
@@ -186,18 +195,18 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
                 value: absen.user?.nama ?? "-"),
             DetailItem(
                 label: context.isIndonesian ? "Tanggal Masuk" : "Check-in Date",
-                value: absen.checkinDate ?? "-"),
+                value: parseDate(absen.checkinDate)),
             DetailItem(
                 label:
                     context.isIndonesian ? "Tanggal Keluar" : "Check-out Date",
-                value: absen.checkoutDate ?? "-"),
+                value: parseDate(absen.checkoutDate)),
             DetailItem(
                 label: context.isIndonesian ? "Absen Masuk" : "Check-in Time",
                 value: absen.checkinTime ?? "-"),
             DetailItem(
                 label: context.isIndonesian ? "Absen Keluar" : "Check-out Time",
                 value: absen.checkoutTime ?? "-"),
-            DetailItem(label: "Tipe", value: absen.status ?? "-"),
+            DetailItem(label: "Status", value: absen.status ?? "-"),
           ],
         ),
         actions: [
@@ -218,19 +227,18 @@ class _AbsenTabelWebState extends State<AbsenTabelWeb> {
     return CustomDataTableWeb(
       headers: headers,
       rows: rows,
-      statusColumnIndexes: null,
       onCellTap: (paginatedRowIndex, colIndex, actualRowIndex) {
         final absen = widget.absensi[actualRowIndex];
 
-        if (colIndex == 5 &&
+        if (colIndex == 4 &&
             absen.checkinLat != null &&
             absen.checkinLng != null) {
           _openMap("${absen.checkinLat}, ${absen.checkinLng}");
-        } else if (colIndex == 6 &&
+        } else if (colIndex == 5 &&
             absen.checkoutLat != null &&
             absen.checkoutLng != null) {
           _openMap("${absen.checkoutLat}, ${absen.checkoutLng}");
-        } else if (colIndex == 7 &&
+        } else if (colIndex == 6 &&
             absen.videoUser != null &&
             absen.videoUser!.isNotEmpty) {
           _openVideo(absen.videoUser);

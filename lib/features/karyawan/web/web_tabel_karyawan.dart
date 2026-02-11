@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/dialog/detail_item.dart';
 import 'package:hr/components/dialog/show_confirmation.dart';
 import 'package:hr/components/tabel/web_tabel.dart';
@@ -29,28 +30,20 @@ class KaryawanTabelWeb extends StatelessWidget {
         ? [
             "Nama",
             "Email",
+            "Jenis Kelamin",
             "Peran",
             "Jabatan",
             "Departemen",
             "Gaji Per Hari",
-            "Jenis Kelamin",
-            "Status Nikah",
-            "NPWP",
-            "BPJS TK",
-            "BPJS KES",
           ]
         : [
             "Name",
             "Email",
+            "Gender",
             "Role",
             "Position",
             "Department",
             "Daily Salary",
-            "Gender",
-            "Marriage Status",
-            "NPWP",
-            "BPJS TK",
-            "BPJS KES",
           ];
 
     // Rows diubah jadi List<List<String>> biar compatible
@@ -58,6 +51,7 @@ class KaryawanTabelWeb extends StatelessWidget {
       return [
         user.nama,
         user.email,
+        user.jenisKelamin,
         (user.peran?.namaPeran.isNotEmpty ?? false)
             ? user.peran!.namaPeran
             : '-',
@@ -68,11 +62,6 @@ class KaryawanTabelWeb extends StatelessWidget {
             ? user.departemen!.namaDepartemen
             : '-',
         user.gajiPokok ?? '-',
-        user.jenisKelamin,
-        user.statusPernikahan,
-        user.npwp ?? '-',
-        user.bpjsKetenagakerjaan ?? '-',
-        user.bpjsKesehatan ?? '-',
       ];
     }).toList();
 
@@ -80,32 +69,68 @@ class KaryawanTabelWeb extends StatelessWidget {
       headers: headers,
       rows: rows,
       onView: (actualRowIndex) {
-        final values = rows[actualRowIndex];
-
+        final user = users[actualRowIndex];
         showDialog(
           context: context,
           builder: (_) => AlertDialog(
             backgroundColor: AppColors.primary,
-            title: Text(
-              'Details',
-              style: TextStyle(
-                  color: AppColors.putih, fontWeight: FontWeight.bold),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: List.generate(headers.length, (index) {
-                  return DetailItem(
-                    label: headers[index],
-                    value: values[index],
-                  );
-                }),
+            title: Text(
+              'Detail Karyawan',
+              style: GoogleFonts.poppins(
+                color: AppColors.putih,
+                fontWeight: FontWeight.w600,
               ),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DetailItem(
+                  label: context.isIndonesian ? 'Nama' : 'Name',
+                  value: user.nama,
+                ),
+                DetailItem(
+                    label: context.isIndonesian ? 'Email' : 'Email',
+                    value: user.email),
+                DetailItem(
+                  label: context.isIndonesian ? 'Jenis Kelamin' : 'Gender',
+                  value: user.jenisKelamin,
+                ),
+                DetailItem(
+                    label: context.isIndonesian ? 'Peran' : 'Role',
+                    value: user.peran!.namaPeran),
+                DetailItem(
+                    label: context.isIndonesian ? 'Jabatan' : 'Position',
+                    value: user.jabatan!.namaJabatan),
+                DetailItem(
+                  label: context.isIndonesian ? 'Departemen' : 'Department',
+                  value: user.departemen!.namaDepartemen,
+                ),
+                DetailItem(
+                    label: context.isIndonesian ? 'Gaji Pokok' : 'Salary',
+                    value: user.gajiPokok ?? '-'),
+                DetailItem(
+                    label: context.isIndonesian ? 'NPWP' : 'NPWP',
+                    value: user.npwp ?? '-'),
+                DetailItem(
+                    label: context.isIndonesian ? 'BPJS TK' : 'BPJS TK',
+                    value: user.bpjsKetenagakerjaan ?? '-'),
+                DetailItem(
+                    label: context.isIndonesian ? 'BPJS Kes' : 'BPJS Kes',
+                    value: user.bpjsKesehatan ?? '-'),
+              ],
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Tutup', style: TextStyle(color: AppColors.putih)),
+                child: Text(context.isIndonesian ? 'Tutup' : 'Close',
+                    style: GoogleFonts.poppins(
+                      color: AppColors.putih,
+                      fontSize: 16,
+                    )),
               ),
             ],
           ),

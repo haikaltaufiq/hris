@@ -4,14 +4,15 @@ import 'package:hr/core/helpers/feature_guard.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
 import 'package:hr/data/models/dashboard_item.dart';
-import 'package:hr/features/dashboard/widget/attendance_chart.dart';
+import 'package:hr/features/dashboard/web/chart.dart';
+import 'package:hr/features/dashboard/web/provider/attendance_chart.dart';
 import 'package:hr/features/dashboard/widget/dashboard_card.dart';
 import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
 // import 'package:hr/features/dashboard/widget/dashboard_card_user.dart';
 import 'package:hr/features/dashboard/widget/dashboard_header.dart';
 import 'package:hr/features/dashboard/widget/dashboard_menu.dart';
-import 'package:hr/features/dashboard/widget/status_task_chart.dart';
 import 'package:hr/routes/app_routes.dart';
+import 'package:provider/provider.dart';
 
 class DashboardMobile extends StatefulWidget {
   const DashboardMobile({
@@ -59,6 +60,7 @@ class _DashboardMobileState extends State<DashboardMobile> {
               FeatureGuard(
                 requiredFeature: [
                   'karyawan',
+                  'lihat_semua_absensi',
                   'gaji',
                   'departemen',
                   'jabatan',
@@ -79,6 +81,14 @@ class _DashboardMobileState extends State<DashboardMobile> {
                         icon: FontAwesomeIcons.userGroup,
                         onTap: () {
                           Navigator.pushNamed(context, AppRoutes.employee);
+                        },
+                      ),
+                      DashboardMenuItem(
+                        label: context.isIndonesian ? "Pantau " : "Track",
+                        requiredFeature: 'lihat_semua_absensi',
+                        icon: Icons.location_history_rounded,
+                        onTap: () {
+                          Navigator.pushNamed(context, AppRoutes.locationTrack);
                         },
                       ),
                       DashboardMenuItem(
@@ -188,17 +198,14 @@ class _DashboardMobileState extends State<DashboardMobile> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 12,
+              const SizedBox(height: 14),
+              ChangeNotifierProvider(
+                create: (_) => AttendanceChartProvider(),
+                child: const AttendanceOverviewChart(),
               ),
-              const AttendanceChart(),
-              SizedBox(
-                height: 12,
-              ),
-              const StatusTaskChart(),
-              SizedBox(
-                height: 12,
-              ),
+              // const SizedBox(height: 14),
+              // SizedBox(child: DashboardData()),
+              const SizedBox(height: 14),
             ],
           ),
         ),

@@ -54,6 +54,20 @@ class CustomDataTableWidget extends StatelessWidget {
     }
   }
 
+  bool _isLinkLikeCell(String value) {
+    final v = value.toLowerCase().trim();
+
+    return v == 'lihat lampiran' ||
+        v == 'see photo' ||
+        v == 'see video' ||
+        v == 'see location' ||
+        v == 'lihat lokasi' ||
+        v == 'view attachment' ||
+        v == 'detail' ||
+        v == 'lihat detail' ||
+        v == 'view detail';
+  }
+
   void _showStatusDropdown(
       BuildContext context, String currentStatus, int rowIndex, int colIndex) {
     final RenderBox renderBox = context.findRenderObject() as RenderBox;
@@ -201,6 +215,8 @@ class CustomDataTableWidget extends StatelessWidget {
       );
     }
 
+    final bool isLinkCell = _isLinkLikeCell(value);
+
     if (statusColumnIndexes != null &&
         statusColumnIndexes!.contains(colIndex)) {
       final color = _getStatusColor(value);
@@ -259,11 +275,13 @@ class CustomDataTableWidget extends StatelessWidget {
     }
 
     return GestureDetector(
-      onTap: () => onCellTap?.call(rowIndex, colIndex),
+      onTap: isLinkCell ? () => onCellTap?.call(rowIndex, colIndex) : null,
       child: Text(
         value,
         style: TextStyle(
-          color: AppColors.putih,
+          color: isLinkCell ? Colors.blue : AppColors.putih,
+          decoration:
+              isLinkCell ? TextDecoration.underline : TextDecoration.none,
           fontFamily: GoogleFonts.poppins().fontFamily,
         ),
       ),

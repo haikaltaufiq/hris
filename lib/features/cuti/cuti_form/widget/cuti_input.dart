@@ -5,6 +5,7 @@ import 'package:hr/components/custom/custom_input.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
+import 'package:hr/features/attendance/locationTrack/locationTrackPage.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,7 +45,7 @@ class _CutiInputState extends State<CutiInput> {
     final cutiProvider = context.read<CutiProvider>();
 
     final inputStyle = InputDecoration(
-      hintStyle: TextStyle(color: AppColors.putih),
+      hintStyle: TextStyle(color: AppColors.putih.withOpacity(0.5)),
       enabledBorder: const UnderlineInputBorder(
         borderSide: BorderSide(color: AppColors.grey),
       ),
@@ -71,6 +72,7 @@ class _CutiInputState extends State<CutiInput> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(height: context.isMobile ? 10 : 40),
           CustomInputField(
             label: context.isIndonesian ? "Nama" : "Name",
             hint: "",
@@ -82,7 +84,8 @@ class _CutiInputState extends State<CutiInput> {
           ),
           CustomDropDownField(
             label: context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
-            hint: '',
+            hint:
+                context.isIndonesian ? 'Pilih Tipe Cuti' : 'Select Leave Type',
             items: ['Sakit', 'Izin'],
             labelStyle: labelStyle,
             textStyle: textStyle,
@@ -194,7 +197,9 @@ class _CutiInputState extends State<CutiInput> {
           ),
           CustomInputField(
             label: context.isIndonesian ? "Alasan" : "Reason",
-            hint: "",
+            hint: context.isIndonesian
+                ? "Masukkan alasan cuti Anda"
+                : "Enter your reason for leave",
             controller: _alasanController,
             labelStyle: labelStyle,
             textStyle: textStyle,

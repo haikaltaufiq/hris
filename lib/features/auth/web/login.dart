@@ -232,7 +232,7 @@ class _LoginState extends State<Login> {
       children: [
         Expanded(
           child: Container(
-            color: AppColors.blue,
+            color: Color(0xFF1F1F1F),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -386,7 +386,8 @@ class _LoginState extends State<Login> {
                 },
                 decoration: InputDecoration(
                   hintText: 'Enter your email',
-                  prefixIcon: Icon(Icons.email_outlined, color: AppColors.blue),
+                  prefixIcon:
+                      Icon(Icons.email_outlined, color: Color(0xFF1F1F1F)),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -397,7 +398,7 @@ class _LoginState extends State<Login> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: AppColors.blue, width: 2),
+                    borderSide: BorderSide(color: Color(0xFF1F1F1F), width: 2),
                   ),
                   contentPadding: const EdgeInsets.all(16),
                 ),
@@ -473,11 +474,11 @@ class _LoginState extends State<Login> {
             onFieldSubmitted: (value) => _handleLogin(),
             decoration: InputDecoration(
               hintText: 'Enter your password',
-              prefixIcon: Icon(Icons.lock_outline, color: AppColors.blue),
+              prefixIcon: Icon(Icons.lock_outline, color: Color(0xFF1F1F1F)),
               suffixIcon: IconButton(
                 icon: Icon(
                   _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  color: AppColors.blue,
+                  color: Color(0xFF1F1F1F),
                 ),
                 onPressed: () {
                   setState(() => _isPasswordVisible = !_isPasswordVisible);
@@ -493,7 +494,7 @@ class _LoginState extends State<Login> {
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: AppColors.blue, width: 2),
+                borderSide: BorderSide(color: Color(0xFF1F1F1F), width: 2),
               ),
               contentPadding: const EdgeInsets.all(16),
             ),
@@ -524,7 +525,7 @@ class _LoginState extends State<Login> {
             'Forgot Password?',
             style: TextStyle(
               fontSize: 14,
-              color: AppColors.blue,
+              color: Color(0xFF1F1F1F),
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -539,8 +540,8 @@ class _LoginState extends State<Login> {
       child: ElevatedButton(
         onPressed: _isLoading ? () {} : _handleLogin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.blue,
-          foregroundColor: AppColors.blue,
+          backgroundColor: Color(0xFF1F1F1F),
+          foregroundColor: Color(0xFF1F1F1F),
           padding: const EdgeInsets.symmetric(vertical: 22),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -610,7 +611,7 @@ class _LoginState extends State<Login> {
                   'Contact Us',
                   style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.blue,
+                    color: Color(0xFF1F1F1F),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -655,13 +656,13 @@ class _LoginState extends State<Login> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.email, size: 16, color: AppColors.blue),
+                    Icon(Icons.email, size: 16, color: Color(0xFF1F1F1F)),
                     SizedBox(width: 10),
                     Text(
                       'hris.ksi@kreatifsystem.com',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.blue,
+                        color: Color(0xFF1F1F1F),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -695,13 +696,13 @@ class _LoginState extends State<Login> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.phone, size: 16, color: AppColors.blue),
+                    Icon(Icons.phone, size: 16, color: Color(0xFF1F1F1F)),
                     SizedBox(width: 10),
                     Text(
                       '0778 214 0088',
                       style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.blue,
+                        color: Color(0xFF1F1F1F),
                         fontWeight: FontWeight.w600,
                       ),
                     ),

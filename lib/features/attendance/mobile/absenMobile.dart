@@ -21,13 +21,20 @@ class AbsenMobile extends StatefulWidget {
 class _AbsenMobileState extends State<AbsenMobile> {
   final ScrollController _scrollController = ScrollController();
   int _displayedItemCount = 20;
-
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
-      context.read<AbsenProvider>().fetchAbsensi();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = context.read<AbsenProvider>();
+
+      // 1. tampilkan cache dulu
+      provider.loadCacheFirst();
+
+      // 2. fetch API background
+      provider.fetchAbsensi();
     });
+
     _scrollController.addListener(_onScroll);
   }
 
@@ -83,14 +90,14 @@ class _AbsenMobileState extends State<AbsenMobile> {
                     Expanded(
                       child: Consumer<AbsenProvider>(
                         builder: (context, provider, _) {
-                          if (provider.isLoading) {
+                          _displayedItemCount = 20;
+                          if (provider.isLoading && provider.absensi.isEmpty) {
                             return Center(
                               child: CircularProgressIndicator(
                                 color: AppColors.putih,
                               ),
                             );
                           }
-
                           if (provider.errorMessage != null) {
                             return Center(
                               child: Text(
@@ -99,14 +106,46 @@ class _AbsenMobileState extends State<AbsenMobile> {
                               ),
                             );
                           }
-
                           final List<AbsenModel> data = provider.absensi;
-
                           if (data.isEmpty) {
-                            return Center(
-                              child: Text(
-                                'Belum ada data absensi',
-                                style: TextStyle(color: AppColors.putih),
+                            return SizedBox(
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.list_alt,
+                                      size: 64,
+                                      color: AppColors.putih.withOpacity(0.5),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      context.isIndonesian
+                                          ? 'Belum ada data absensi'
+                                          : 'No attendance data yet',
+                                      style: TextStyle(
+                                        color: AppColors.putih,
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      context.isIndonesian
+                                          ? 'Klik tombol masuk untuk melakukan absensi'
+                                          : 'Tap the checkin button to do attendance',
+                                      style: TextStyle(
+                                        color: AppColors.putih.withOpacity(0.7),
+                                        fontFamily:
+                                            GoogleFonts.poppins().fontFamily,
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
+                                ),
                               ),
                             );
                           }
@@ -352,74 +391,102 @@ class _AbsensiItem extends StatelessWidget {
         child: Row(
           children: [
             // Circle Avatar
-            Container(
-              width: 60,
-              height: 60,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary.withOpacity(0.8),
-                    AppColors.primary,
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                border: Border.all(
-                    color: AppColors.putih.withOpacity(0.4), width: 2),
-              ),
-              child: ClipOval(
-                child: Center(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      getDisplayName(absen.user?.nama ?? ''),
-                      style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.putih,
+            if (isManagerView) ...[
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary.withOpacity(0.8),
+                        AppColors.primary,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    border: Border.all(
+                        color: AppColors.putih.withOpacity(0.4), width: 2),
+                  ),
+                  child: ClipOval(
+                    child: Center(
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          getInitials(absen.user!.nama),
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.putih,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              flex: 3,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    isManagerView
-                        ? getDisplayName(absen.user!.nama)
-                        : context.isIndonesian
-                            ? "Tanggal :"
-                            : "Date :",
-                    style: TextStyle(
-                      color: AppColors.putih,
-                      fontSize: 12,
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      getDisplayName(absen.user!.nama),
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    dateText,
-                    style: TextStyle(
-                      color: AppColors.putih,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
+                    const SizedBox(height: 10),
+                    Text(
+                      dateText,
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 14,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
+            ],
+            if (!isManagerView) ...[
+              Expanded(
+                flex: 3,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      context.isIndonesian ? "Tanggal :" : "Date :",
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 12,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      dateText,
+                      style: TextStyle(
+                        color: AppColors.putih,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             Expanded(
               flex: 2,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.isIndonesian ? "Jam Masuk :" : "Check in :",
+                    context.isIndonesian ? "Masuk :" : "Checkin :",
                     style: TextStyle(
                       color: AppColors.putih,
                       fontSize: 12,
@@ -445,7 +512,7 @@ class _AbsensiItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    context.isIndonesian ? "Jam Keluar" : "Check out :",
+                    context.isIndonesian ? "Keluar" : "Checkout :",
                     style: TextStyle(
                       color: AppColors.putih,
                       fontSize: 12,
