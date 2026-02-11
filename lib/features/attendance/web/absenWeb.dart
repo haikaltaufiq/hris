@@ -23,6 +23,8 @@ class AbsenWeb extends StatefulWidget {
 }
 
 class _AbsenWebState extends State<AbsenWeb> {
+  String? _baseUrl;
+
   // ===========================================================================
   // CONTROLLERS & STATE
   // ===========================================================================
@@ -47,6 +49,7 @@ class _AbsenWebState extends State<AbsenWeb> {
   @override
   void initState() {
     super.initState();
+    _initBaseUrl();
 
     context.read<AbsenProvider>();
 
@@ -55,6 +58,22 @@ class _AbsenWebState extends State<AbsenWeb> {
     });
 
     _searchController.addListener(_onSearchChanged);
+  }
+
+  Future<void> _initBaseUrl() async {
+    final url = await ApiConfig.baseUrl();
+    setState(() {
+      _baseUrl = url;
+    });
+  }
+
+  String getFullUrl(String path) {
+    if (_baseUrl == null) return '';
+
+    final cleaned = path.replaceAll('\\', '');
+    return cleaned.startsWith('http')
+        ? cleaned
+        : '$_baseUrl${cleaned.startsWith('/') ? '' : '/'}$cleaned';
   }
 
   @override
@@ -783,10 +802,16 @@ class _AbsenWebState extends State<AbsenWeb> {
       return;
     }
 
-    final fullUrl = videoPath.startsWith('http')
-        ? videoPath
-        : "${ApiConfig.baseUrl}$videoPath";
+    if (_baseUrl == null) {
+      NotificationHelper.showTopNotification(
+        context,
+        "Server belum siap",
+        isSuccess: false,
+      );
+      return;
+    }
 
+    final fullUrl = getFullUrl(videoPath);
     final controller = VideoPlayerController.network(fullUrl);
 
     showGeneralDialog(

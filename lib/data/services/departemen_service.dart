@@ -17,8 +17,9 @@ class DepartemenService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/departemen'),
+      Uri.parse('$baseUrl/api/departemen'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -44,8 +45,9 @@ class DepartemenService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/departemen'),
+      Uri.parse('$baseUrl/api/departemen'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -73,8 +75,9 @@ class DepartemenService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/departemen/$id'),
+      Uri.parse('$baseUrl/api/departemen/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -99,8 +102,9 @@ class DepartemenService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/departemen/$id'),
+      Uri.parse('$baseUrl/api/departemen/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

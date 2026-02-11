@@ -17,7 +17,8 @@ class JamKantor {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor/jam');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/kantor/jam');
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
     });

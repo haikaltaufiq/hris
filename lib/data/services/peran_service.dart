@@ -15,8 +15,9 @@ class PeranService {
   static Future<List<PeranModel>> fetchPeran() async {
     final token = await getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/peran'),
+      Uri.parse('$baseUrl/api/peran'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -37,8 +38,9 @@ class PeranService {
       String namaPeran, List<int> fiturIds) async {
     final token = await getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/peran'),
+      Uri.parse('$baseUrl/api/peran'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -63,8 +65,9 @@ class PeranService {
       int id, String namaPeran, List<int> fiturIds) async {
     final token = await getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/peran/$id'),
+      Uri.parse('$baseUrl/api/peran/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -89,8 +92,9 @@ class PeranService {
   static Future<void> deletePeran(int id) async {
     final token = await getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/peran/$id'),
+      Uri.parse('$baseUrl/api/peran/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

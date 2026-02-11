@@ -18,8 +18,9 @@ class PotonganGajiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji'),
+      Uri.parse('$baseUrl/api/potongan_gaji'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -39,8 +40,9 @@ class PotonganGajiService {
   static Future<Map<String, dynamic>> createPotonganGaji(PotonganGajiModel potongan) async {
     final token = await _getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji'),
+      Uri.parse('$baseUrl/api/potongan_gaji'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -83,8 +85,9 @@ class PotonganGajiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji/${potongan.id}'),
+      Uri.parse('$baseUrl/api/potongan_gaji/${potongan.id}'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -119,8 +122,9 @@ class PotonganGajiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/potongan_gaji/$id'),
+      Uri.parse('$baseUrl/api/potongan_gaji/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

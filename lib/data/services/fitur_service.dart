@@ -15,8 +15,9 @@ class FiturService {
   static Future<List<Fitur>> fetchFitur() async {
     final token = await getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/fitur'),
+      Uri.parse('$baseUrl/api/fitur'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

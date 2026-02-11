@@ -13,8 +13,9 @@ class ActivityLogService {
   static Future<List<Map<String, dynamic>>> fetchActivityLogs() async {
     final token = await getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/log'),
+      Uri.parse('$baseUrl/api/log'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

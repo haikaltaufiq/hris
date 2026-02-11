@@ -59,10 +59,12 @@ class AuthService {
     // ✅ Ambil token FCM dari FcmService
     final fcmToken = await FcmService.getToken();
 
+    final baseUrl = await ApiConfig.baseUrl();
+
     try {
       final response = await http
           .post(
-            Uri.parse('${ApiConfig.baseUrl}/api/login'),
+            Uri.parse('$baseUrl/api/login'),
             headers: {
               'Content-Type': 'application/json',
             },
@@ -141,9 +143,10 @@ class AuthService {
       String newEmail, String oldPassword) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    final baseUrl = await ApiConfig.baseUrl();
 
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/email'),
+      Uri.parse('$baseUrl/api/email'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -187,6 +190,7 @@ class AuthService {
   Future<Map<String, dynamic>> me() async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    final baseUrl = await ApiConfig.baseUrl();
 
     if (token == null) {
       return {'success': false, 'message': 'Token tidak ditemukan'};
@@ -194,7 +198,7 @@ class AuthService {
 
     try {
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/me'),
+        Uri.parse('$baseUrl/api/me'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -237,9 +241,10 @@ class AuthService {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
+    final baseUrl = await ApiConfig.baseUrl();
 
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/change-password'),
+      Uri.parse('$baseUrl/api/change-password'),
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token',
@@ -289,6 +294,7 @@ class AuthService {
 
     // Ambil FCM token sebelum dihapus
     final fcmToken = await FcmService.getToken();
+    final baseUrl = await ApiConfig.baseUrl();
 
     // debugPrint("🔐 Token auth sebelum logout: $token");
     // debugPrint("📱 FCM Token sebelum logout: $fcmToken");
@@ -297,7 +303,7 @@ class AuthService {
       // Kirim request logout ke backend jika token tersedia
       if (token != null) {
         await http.post(
-          Uri.parse('${ApiConfig.baseUrl}/api/logout'),
+          Uri.parse('$baseUrl/api/logout'),
           headers: {
             'Content-Type': 'application/json',
             'Accept': 'application/json',
