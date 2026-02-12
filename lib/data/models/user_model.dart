@@ -19,9 +19,9 @@ class UserModel {
   final double? longitude;
   final String? status;
   final DateTime? lastUpdate;
-  final int? lastUpdateMinutes; 
-  final String? lastUpdateHuman; 
-  
+  final int? lastUpdateMinutes;
+  final String? lastUpdateHuman;
+
   UserModel({
     required this.id,
     required this.nama,
@@ -60,16 +60,11 @@ class UserModel {
               : null,
       peran: (json['peran'] != null && json['peran'] is Map<String, dynamic>)
           ? PeranModel.fromJson(json['peran'])
-          : PeranModel(
-              id: json['peran_id'] ?? 0,
-              namaPeran: '',
-              fitur: []),
+          : PeranModel(id: json['peran_id'] ?? 0, namaPeran: '', fitur: []),
       departemen: (json['departemen'] != null &&
               json['departemen'] is Map<String, dynamic>)
           ? DepartemenModel.fromJson(json['departemen'])
-          : DepartemenModel(
-              id: json['departemen_id'] ?? 0,
-              namaDepartemen: ''),
+          : DepartemenModel(id: json['departemen_id'] ?? 0, namaDepartemen: ''),
       latitude: json['latitude'] != null
           ? double.tryParse(json['latitude'].toString())
           : null,
@@ -77,14 +72,10 @@ class UserModel {
           ? double.tryParse(json['longitude'].toString())
           : null,
       status: json['status'],
-      
-      // Ambil data dari backend
       lastUpdateMinutes: json['last_update_minutes'] != null
           ? (json['last_update_minutes'] as num).toInt()
           : null,
-          
       lastUpdateHuman: json['last_update_human'],
-      
       lastUpdate: json['last_update'] != null
           ? DateTime.tryParse(json['last_update'])
           : (json['updated_at'] != null
@@ -118,19 +109,30 @@ class UserModel {
   // HELPER METHODS UNTUK TRACKING
   // ========================================
 
-  /// Check apakah GPS user aktif (berdasarkan status dari backend)
-  bool get isGpsActive {
-    // Jika ada status dari backend, gunakan itu
-    if (status != null) {
-      return status == 'aktif';
-    }
-    
-    // Fallback: cek berdasarkan lastUpdate (jika backend tidak kirim status)
-    if (latitude == null || longitude == null || lastUpdate == null) {
+  /// ✅ FIXED: Check apakah GPS user aktif dengan logic yang benar
+  bool isGpsActive(bool isServiceRunningLocally) {
+    // 1. Kalau tidak ada data lokasi sama sekali, pasti tidak aktif
+    if (latitude == null || longitude == null) {
       return false;
     }
 
-    return DateTime.now().difference(lastUpdate!).inMinutes <= 5;
+    // 2. Kalau tidak ada last update, tidak aktif
+    if (lastUpdate == null) {
+      return false;
+    }
+
+    // 3. Hitung berapa lama sejak last update
+    final minutesSinceUpdate = DateTime.now().difference(lastUpdate!).inMinutes;
+
+    // 4. LOGIC UTAMA: Update dalam 5 menit terakhir = AKTIF
+    // Ini yang paling akurat karena based on data real
+    if (minutesSinceUpdate <= 5) {
+      return true;
+    }
+
+    // 5. Jika sudah lebih dari 5 menit, pasti TIDAK AKTIF
+    // Bahkan jika status dari backend 'aktif', kita percaya data waktu
+    return false;
   }
 
   /// Get initial nama untuk avatar (huruf pertama)
@@ -140,36 +142,52 @@ class UserModel {
   String get firstName => nama.split(' ').first;
 
   /// Format waktu update yang lebih readable
-  String get formattedLastUpdate {
-    // Prioritaskan data dari backend
-    if (lastUpdateHuman != null && lastUpdateHuman!.isNotEmpty) {
-      return lastUpdateHuman!;
-    }
-    
-    // Fallback ke perhitungan lokal
-    if (lastUpdate == null) return 'Tidak ada data';
-    
-    try {
-      final DateTime now = DateTime.now();
-      final Duration diff = now.difference(lastUpdate!);
+  /// Sanitize dan format string last_update_human dari backend.
+  /// Backend mengirim float string seperti "5.2938186 menit yang lalu".
+  static String _sanitizeHumanTime(String raw) {
+    // Match pola: angka (int atau float) + satuan waktu
+    final pattern = RegExp(
+      r'^([\d.]+)\s*(detik|menit|jam|hari|minggu|bulan|tahun)\s*(.*)$',
+      caseSensitive: false,
+    );
 
-      if (diff.inMinutes < 1) {
-        return 'Baru saja';
-      } else if (diff.inMinutes < 60) {
-        return '${diff.inMinutes} menit yang lalu';
-      } else if (diff.inHours < 24) {
-        return '${diff.inHours} jam yang lalu';
-      } else {
-        return '${diff.inDays} hari yang lalu';
-      }
-    } catch (e) {
+    final match = pattern.firstMatch(raw.trim());
+    if (match == null) return raw;
+
+    final value = double.tryParse(match.group(1) ?? '');
+    final unit = match.group(2) ?? '';
+    final suffix = match.group(3) ?? '';
+
+    if (value == null) return raw;
+
+    final rounded = value.round();
+    return '$rounded $unit${suffix.isNotEmpty ? ' $suffix' : ''}'.trim();
+  }
+
+  String get formattedLastUpdate {
+    if (lastUpdateHuman != null && lastUpdateHuman!.isNotEmpty) {
+      return _sanitizeHumanTime(lastUpdateHuman!);
+    }
+
+    if (lastUpdate == null) return 'Tidak ada data';
+
+    try {
+      final Duration diff = DateTime.now().difference(lastUpdate!);
+
+      if (diff.inSeconds < 60) return 'Baru saja';
+      if (diff.inMinutes < 60) return '${diff.inMinutes} menit yang lalu';
+      if (diff.inHours < 24) return '${diff.inHours} jam yang lalu';
+      return '${diff.inDays} hari yang lalu';
+    } catch (_) {
       return 'Tidak ada data';
     }
   }
 
   /// Status text yang readable
-  String get statusText {
-    if (isGpsActive) return 'GPS Aktif';
+  String statusText(bool isTrackingRunning) {
+    if (isGpsActive(isTrackingRunning)) {
+      return 'GPS Aktif';
+    }
     return 'GPS Tidak Aktif';
   }
 
@@ -181,6 +199,4 @@ class UserModel {
 
   /// Check apakah user punya koordinat
   bool get hasLocation => latitude != null && longitude != null;
-
-  
 }

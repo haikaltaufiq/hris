@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:intl/intl.dart';
+import 'package:hr/core/background_location/track.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/data/models/user_model.dart';
@@ -33,28 +33,50 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
   String filterStatus = 'all';
   final MapController mapController = MapController();
   bool isListExpanded = false;
+  bool _isServiceRunning = false;
 
   @override
   void initState() {
     super.initState();
+    _checkServiceStatus();
     _loadData();
     _startAutoRefresh();
   }
 
-  /// Start automatic data refresh every minute
+  /// Check local tracking service status
+  Future<void> _checkServiceStatus() async {
+    if (!kIsWeb) {
+      final serviceStatus = await Track.isRunning();
+      if (mounted) {
+        setState(() => _isServiceRunning = serviceStatus);
+      }
+    }
+  }
+
+  /// Start automatic data refresh every 30 seconds
   void _startAutoRefresh() {
     _timer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => _loadData(),
+      const Duration(seconds: 30),
+      (_) {
+        _loadData();
+        _checkServiceStatus();
+      },
     );
   }
 
-  /// Load tracking data from service
+  /// Load tracking data from backend API
   Future<void> _loadData() async {
     try {
-      setState(() => loading = true);
+      if (mounted) setState(() => loading = true);
 
-      final result = await TrackingService.getTrackingUsers();
+      // Check service status
+      if (!kIsWeb) {
+        final serviceStatus = await Track.isRunning();
+        setState(() => _isServiceRunning = serviceStatus);
+      }
+
+      // Fetch data from backend
+      final List<UserModel> result = await TrackingService.getTrackingUsers();
 
       if (mounted) {
         setState(() {
@@ -63,13 +85,10 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           loading = false;
         });
 
-        debugPrint('Data loaded: ${users.length} users');
-        debugPrint('Active: ${users.where((u) => u.isGpsActive).length}');
-        debugPrint('Inactive: ${users.where((u) => !u.isGpsActive).length}');
+        debugPrint('✅ Loaded ${result.length} users from backend');
       }
     } catch (e) {
-      debugPrint('Error loading data: $e');
-
+      debugPrint('❌ Error loading data: $e');
       if (mounted) {
         setState(() => loading = false);
         _showErrorSnackbar(e.toString());
@@ -83,11 +102,16 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
       if (filterStatus == 'all') {
         filteredUsers = users;
       } else if (filterStatus == 'active') {
-        filteredUsers = users.where((u) => u.isGpsActive).toList();
+        filteredUsers =
+            users.where((u) => u.isGpsActive(_isServiceRunning)).toList();
       } else {
-        filteredUsers = users.where((u) => !u.isGpsActive).toList();
+        filteredUsers =
+            users.where((u) => !u.isGpsActive(_isServiceRunning)).toList();
       }
     });
+
+    debugPrint(
+        '📊 Filter: $filterStatus | Showing: ${filteredUsers.length}/${users.length} users');
   }
 
   /// Show error message to user
@@ -135,17 +159,33 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     return AppBar(
       backgroundColor: AppColors.primary,
       elevation: 0,
-      title: Text(
-        'Tracking Lokasi',
-        style: TextStyle(
-          color: AppColors.putih,
-          fontWeight: FontWeight.bold,
-        ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Tracking Lokasi',
+            style: TextStyle(
+              color: AppColors.putih,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
+          Text(
+            _isServiceRunning ? '🟢 Service Active' : '⚪ Service Inactive',
+            style: TextStyle(
+              color: AppColors.putih.withOpacity(0.8),
+              fontSize: 12,
+            ),
+          ),
+        ],
       ),
       actions: [
         IconButton(
           icon: Icon(Icons.refresh, color: AppColors.putih),
-          onPressed: _loadData,
+          onPressed: () {
+            _loadData();
+            _checkServiceStatus();
+          },
           tooltip: 'Refresh Data',
         ),
         IconButton(
@@ -240,7 +280,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build statistics card
   Widget _buildStatsCard() {
-    final activeCount = users.where((u) => u.isGpsActive).length;
+    final activeCount =
+        users.where((u) => u.isGpsActive(_isServiceRunning)).length;
     final inactiveCount = users.length - activeCount;
     final isMobile = context.isMobile;
 
@@ -276,12 +317,14 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             icon: Icons.check_circle,
             label: 'Aktif',
             value: '$activeCount',
+            color: Colors.green,
           ),
           _buildStatDivider(),
           _buildStatItem(
             icon: Icons.cancel,
             label: 'Tidak Aktif',
             value: '$inactiveCount',
+            color: Colors.red,
           ),
         ],
       ),
@@ -293,10 +336,11 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     required IconData icon,
     required String label,
     required String value,
+    Color? color,
   }) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.putih, size: 28),
+        Icon(icon, color: color ?? AppColors.putih, size: 28),
         const SizedBox(height: 8),
         Text(
           value,
@@ -443,7 +487,10 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
                     borderRadius: BorderRadius.all(Radius.circular(14))),
                 child: IconButton(
                   icon: Icon(Icons.refresh, color: AppColors.putih),
-                  onPressed: _loadData,
+                  onPressed: () {
+                    _loadData();
+                    _checkServiceStatus();
+                  },
                   tooltip: 'Refresh Data',
                 ),
               ),
@@ -457,6 +504,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build custom marker for user
   Widget _buildMarker(UserModel user) {
+    final isActive = user.isGpsActive(_isServiceRunning);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -465,7 +514,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           height: 45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: user.isGpsActive ? Colors.green : AppColors.bg,
+            color: isActive ? Colors.green : Colors.grey,
             border: Border.all(
               color: AppColors.putih,
               width: 3,
@@ -480,7 +529,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           ),
           child: Center(
             child: Text(
-              user.nama.substring(0, 1).toUpperCase(),
+              user.initial,
               style: TextStyle(
                 color: AppColors.putih,
                 fontWeight: FontWeight.bold,
@@ -493,7 +542,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
-            color: AppColors.bg,
+            color: isActive ? Colors.green : Colors.grey,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
@@ -503,7 +552,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             ],
           ),
           child: Text(
-            user.nama.split(' ').first,
+            user.firstName,
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -610,6 +659,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build user card for list view
   Widget _buildUserCard(UserModel user) {
+    user.isGpsActive(_isServiceRunning);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -648,6 +699,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build user avatar with status indicator
   Widget _buildUserAvatar(UserModel user) {
+    final isActive = user.isGpsActive(_isServiceRunning);
+
     return Stack(
       children: [
         Container(
@@ -655,11 +708,11 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           height: 50,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: user.isGpsActive ? Colors.green : AppColors.bg,
+            color: isActive ? Colors.green : Colors.grey,
           ),
           child: Center(
             child: Text(
-              user.nama.substring(0, 1).toUpperCase(),
+              user.initial,
               style: TextStyle(
                 color: AppColors.putih,
                 fontWeight: FontWeight.bold,
@@ -675,7 +728,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             width: 16,
             height: 16,
             decoration: BoxDecoration(
-              color: user.isGpsActive ? Colors.green : AppColors.bg,
+              color: isActive ? Colors.green : Colors.grey,
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.putih, width: 2),
             ),
@@ -687,6 +740,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build user details section
   Widget _buildUserDetails(UserModel user) {
+    final isActive = user.isGpsActive(_isServiceRunning);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -702,23 +757,23 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
         Row(
           children: [
             Icon(
-              user.isGpsActive ? Icons.gps_fixed : Icons.gps_off,
+              isActive ? Icons.gps_fixed : Icons.gps_off,
               size: 14,
-              color: AppColors.putih.withOpacity(0.8),
+              color: isActive ? Colors.green : Colors.grey,
             ),
             const SizedBox(width: 4),
             Text(
-              user.isGpsActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
+              isActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
               style: TextStyle(
                 fontSize: 12,
-                color: AppColors.putih.withOpacity(0.8),
+                color: isActive ? Colors.green : Colors.grey,
               ),
             ),
           ],
         ),
         const SizedBox(height: 2),
         Text(
-          'Update: ${user.lastUpdate}',
+          'Update: ${user.formattedLastUpdate}',
           style: TextStyle(
             fontSize: 11,
             color: AppColors.putih.withOpacity(0.6),
@@ -774,6 +829,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Show user information bottom sheet
   void _showUserInfo(UserModel user) {
+    final isActive = user.isGpsActive(_isServiceRunning);
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -796,7 +853,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             _buildUserInfoStatus(user),
             const SizedBox(height: 24),
             _buildUserInfoDetails(user),
-            if (!user.isGpsActive) ...[
+            if (!isActive) ...[
               const SizedBox(height: 16),
               _buildUserInfoWarning(),
             ],
@@ -821,16 +878,18 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build user info avatar
   Widget _buildUserInfoAvatar(UserModel user) {
+    final isActive = user.isGpsActive(_isServiceRunning);
+
     return Container(
       width: 80,
       height: 80,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: user.isGpsActive ? Colors.green : AppColors.bg,
+        color: isActive ? Colors.green : Colors.grey,
       ),
       child: Center(
         child: Text(
-          user.nama.substring(0, 1).toUpperCase(),
+          user.initial,
           style: TextStyle(
             color: AppColors.putih,
             fontWeight: FontWeight.bold,
@@ -856,13 +915,17 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
 
   /// Build user info status badge
   Widget _buildUserInfoStatus(UserModel user) {
+    final isActive = user.isGpsActive(_isServiceRunning);
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.putih.withOpacity(0.2),
+        color: isActive
+            ? Colors.green.withOpacity(0.2)
+            : Colors.grey.withOpacity(0.2),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppColors.putih,
+          color: isActive ? Colors.green : Colors.grey,
           width: 1.5,
         ),
       ),
@@ -870,13 +933,13 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            user.isGpsActive ? Icons.gps_fixed : Icons.gps_off,
+            isActive ? Icons.gps_fixed : Icons.gps_off,
             size: 16,
-            color: AppColors.putih,
+            color: isActive ? Colors.green : Colors.grey,
           ),
           const SizedBox(width: 6),
           Text(
-            user.isGpsActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
+            isActive ? 'GPS Aktif' : 'GPS Tidak Aktif',
             style: TextStyle(
               color: AppColors.putih,
               fontWeight: FontWeight.bold,
@@ -895,17 +958,13 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
         _buildInfoRow(
           Icons.access_time,
           'Terakhir Update',
-          user.lastUpdate != null
-              ? DateFormat('dd MMM yyyy, HH:mm').format(user.lastUpdate!)
-              : '-',
+          user.formattedLastUpdate,
         ),
         const SizedBox(height: 12),
         _buildInfoRow(
           Icons.location_on,
           'Koordinat',
-          user.latitude != null && user.longitude != null
-              ? '${user.latitude!.toStringAsFixed(6)}, ${user.longitude!.toStringAsFixed(6)}'
-              : 'Tidak tersedia',
+          user.koordinatString,
         ),
       ],
     );

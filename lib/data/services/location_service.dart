@@ -19,7 +19,7 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.bestForNavigation);
   }
 
-  // untuk traking
+  // untuk tracking
   static double distance(LatLng p1, LatLng p2) {
     return Geolocator.distanceBetween(
         p1.latitude, p1.longitude, p2.latitude, p2.longitude);

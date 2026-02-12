@@ -10,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/camera/camera.dart';
 import 'package:hr/components/camera/video_priview.dart';
 import 'package:hr/components/custom/custom_input.dart';
+import 'package:hr/core/background_location/track.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/helpers/video_file_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
@@ -988,6 +989,14 @@ class _InputInState extends State<InputIn> with SingleTickerProviderStateMixin {
       Navigator.pop(context); // tutup loading
 
       if (absenProvider.lastCheckinResult?['success'] == true) {
+        if (!kIsWeb) {
+          // Initialize location tracking service
+          await Track.initialize();
+
+          // LocationTrackingController.start();
+          await Track.start();
+        }
+
         final message =
             context.isIndonesian ? "Check-in berhasil" : "Check-in success";
         NotificationHelper.showTopNotification(

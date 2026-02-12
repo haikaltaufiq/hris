@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hr/components/custom/custom_input.dart';
+import 'package:hr/core/background_location/track.dart';
 import 'package:hr/core/helpers/notification_helper.dart';
 import 'package:hr/core/theme/app_colors.dart';
 import 'package:hr/core/theme/language_provider.dart';
@@ -453,6 +455,10 @@ class _InputOutState extends State<InputOut> {
       if (!mounted) return;
 
       if (absenProvider.lastCheckoutResult?['success'] == true) {
+        if (!kIsWeb) {
+          // Stop location tracking service
+          await Track.stop();
+        }
         final message =
             context.isIndonesian ? "Checkout berhasil" : "Checkout success";
         NotificationHelper.showTopNotification(
