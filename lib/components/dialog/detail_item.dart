@@ -32,80 +32,96 @@ class DetailItem extends StatelessWidget {
     final double horizontalPadding = isMobile ? 12 : (isTablet ? 16 : 20);
     final double iconSize = isMobile ? 18 : 20;
 
-    return Container(
-      margin: EdgeInsets.only(bottom: isMobile ? 8 : 10),
-      decoration: BoxDecoration(
-        color: AppColors.putih.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(isMobile ? 8 : 10),
-        border: Border.all(
-          color: AppColors.putih.withOpacity(0.1),
-          width: 1,
+    return SelectionArea(
+      child: Container(
+        margin: EdgeInsets.only(bottom: isMobile ? 8 : 10),
+        decoration: BoxDecoration(
+          color: AppColors.putih.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(isMobile ? 8 : 10),
+          border: Border.all(
+            color: AppColors.putih.withOpacity(0.1),
+            width: 1,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: EdgeInsets.symmetric(
-          vertical: verticalPadding,
-          horizontal: horizontalPadding,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Icon (optional)
-            if (icon != null) ...[
-              Icon(
-                icon,
-                size: iconSize,
-                color: AppColors.putih.withOpacity(0.7),
-              ),
-              SizedBox(width: isMobile ? 8 : 10),
-            ],
-
-            // Label
-            SizedBox(
-              width: labelWidth,
-              child: Text(
-                label,
-                style: GoogleFonts.poppins(
-                  fontSize: labelFontSize,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.putih.withOpacity(0.8),
-                  letterSpacing: 0.3,
-                ),
-              ),
+        // Allow container height to grow with content
+        child: SingleChildScrollView(
+          physics: const NeverScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              vertical: verticalPadding,
+              horizontal: horizontalPadding,
             ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Icon (optional)
+                if (icon != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(
+                      icon,
+                      size: iconSize,
+                      color: AppColors.putih.withOpacity(0.7),
+                    ),
+                  ),
+                  SizedBox(width: isMobile ? 8 : 10),
+                ],
 
-            // Separator
-            Container(
-              width: 2,
-              height: 20,
-              margin: EdgeInsets.symmetric(horizontal: isMobile ? 10 : 14),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.putih.withOpacity(0.3),
-                    AppColors.putih.withOpacity(0.05),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
+                // Label — fixed width, wraps if needed
+                SizedBox(
+                  width: labelWidth,
+                  child: Text(
+                    label,
+                    style: GoogleFonts.poppins(
+                      fontSize: labelFontSize,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.putih.withOpacity(0.8),
+                      letterSpacing: 0.3,
+                      height: 1.4,
+                    ),
+                  ),
                 ),
-                borderRadius: BorderRadius.circular(1),
-              ),
-            ),
 
-            // Value
-            Expanded(
-              child: Text(
-                value,
-                style: GoogleFonts.poppins(
-                  fontSize: valueFontSize,
-                  fontWeight: FontWeight.w500,
-                  color: color ?? AppColors.putih,
-                  height: 1.4,
-                  letterSpacing: 0.2,
+                // Separator
+                Container(
+                  width: 2,
+                  height: 20,
+                  margin: EdgeInsets.only(
+                    top: 2,
+                    left: isMobile ? 10 : 14,
+                    right: isMobile ? 10 : 14,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.putih.withOpacity(0.3),
+                        AppColors.putih.withOpacity(0.05),
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: BorderRadius.circular(1),
+                  ),
                 ),
-              ),
+
+                // Value — expands and wraps naturally
+                Expanded(
+                  child: Text(
+                    value,
+                    style: GoogleFonts.poppins(
+                      fontSize: valueFontSize,
+                      fontWeight: FontWeight.w500,
+                      color: color ?? AppColors.putih,
+                      height: 1.4,
+                      letterSpacing: 0.2,
+                    ),
+                    softWrap: true,
+                    overflow: TextOverflow.visible,
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

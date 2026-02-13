@@ -116,19 +116,24 @@ class PotonganTabelWeb extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DetailItem(
-                    label: context.isIndonesian
-                        ? 'Nama Potongan'
-                        : 'Deduction Name',
-                    value: c.namaPotongan),
-                DetailItem(
-                    label: context.isIndonesian ? 'Nominal' : 'Amount',
-                    value: c.nominal.toString()),
-              ],
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DetailItem(
+                        label: context.isIndonesian
+                            ? 'Nama Potongan'
+                            : 'Deduction Name',
+                        value: c.namaPotongan),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Nominal' : 'Amount',
+                        value: c.nominal.toString()),
+                  ],
+                ),
+              ),
             ),
             actions: [
               TextButton(

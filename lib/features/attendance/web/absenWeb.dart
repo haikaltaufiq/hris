@@ -86,22 +86,12 @@ class _AbsenWebState extends State<AbsenWeb> {
   // ===========================================================================
   // INITIALIZATION
   // ===========================================================================
+
   Future<void> _initializeData() async {
     final provider = context.read<AbsenProvider>();
 
     provider.loadCacheFirst();
-
-    provider.applyAdvancedFilter(
-      AbsenAdvancedFilter(
-        search: _searchController.text,
-        month: _selectedMonth,
-        year: _selectedYear,
-        sort: _selectedSort,
-        day: _selectedSort == AbsenSortType.day ? DateTime.now() : null,
-      ),
-    );
-
-    _applyFiltersAndPagination();
+    _applyFilter();
 
     provider.fetchAbsensi().then((_) {
       if (!mounted) return;
@@ -111,6 +101,16 @@ class _AbsenWebState extends State<AbsenWeb> {
 
   void _onSearchChanged() {
     _currentPage = 1;
+    _applyFilter();
+  }
+
+  // ===========================================================================
+  // FILTER & PAGINATION LOGIC
+  // ===========================================================================
+
+  /// Pushes the current filter state to the provider, then repaginates.
+  /// Must be called on every filter parameter change.
+  void _applyFilter() {
     context.read<AbsenProvider>().applyAdvancedFilter(
           AbsenAdvancedFilter(
             search: _searchController.text,
@@ -120,15 +120,11 @@ class _AbsenWebState extends State<AbsenWeb> {
             day: _selectedSort == AbsenSortType.day ? DateTime.now() : null,
           ),
         );
-    _applyFiltersAndPagination(localOnly: true);
+    _applyFiltersAndPagination();
   }
 
-  // ===========================================================================
-  // FILTER & PAGINATION LOGIC
-  // ===========================================================================
-  void _applyFiltersAndPagination({bool localOnly = false}) {
+  void _applyFiltersAndPagination() {
     final provider = context.read<AbsenProvider>();
-
     final filteredList = provider.advancedAbsensi;
 
     _totalPages = (filteredList.length / _rowsPerPage).ceil();
@@ -261,13 +257,15 @@ class _AbsenWebState extends State<AbsenWeb> {
         const SizedBox(width: 8),
         _buildDropdown<AbsenSortType>(
           value: _selectedSort,
-          items: const [
+          items: [
             DropdownMenuItem(
                 value: AbsenSortType.day, child: Text("Sort by Day")),
             DropdownMenuItem(
                 value: AbsenSortType.week, child: Text("Sort by Week")),
-            DropdownMenuItem(
-                value: AbsenSortType.name, child: Text("Sort by Name")),
+            if (lihatSemuaAbsensi) ...[
+              DropdownMenuItem(
+                  value: AbsenSortType.name, child: Text("Sort by Name")),
+            ],
             DropdownMenuItem(
                 value: AbsenSortType.terbaru, child: Text("Newest First")),
             DropdownMenuItem(
@@ -276,7 +274,7 @@ class _AbsenWebState extends State<AbsenWeb> {
           onChanged: (v) {
             setState(() => _selectedSort = v!);
             _currentPage = 1;
-            _applyFiltersAndPagination();
+            _applyFilter(); // Fixed: was _applyFiltersAndPagination()
           },
         ),
         const SizedBox(width: 8),
@@ -292,7 +290,7 @@ class _AbsenWebState extends State<AbsenWeb> {
           onChanged: (v) {
             setState(() => _selectedMonth = v!);
             _currentPage = 1;
-            _applyFiltersAndPagination();
+            _applyFilter(); // Fixed: was _applyFiltersAndPagination()
           },
         ),
         const SizedBox(width: 8),
@@ -311,7 +309,7 @@ class _AbsenWebState extends State<AbsenWeb> {
           onChanged: (v) {
             setState(() => _selectedYear = v!);
             _currentPage = 1;
-            _applyFiltersAndPagination();
+            _applyFilter(); // Fixed: was _applyFiltersAndPagination()
           },
         ),
         if (lihatSemuaAbsensi) ...[
@@ -402,185 +400,189 @@ class _AbsenWebState extends State<AbsenWeb> {
 
   Widget _buildTableCard() {
     final hasAbsensi = FeatureAccess.has("absensi");
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Attendance ",
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.putih,
+    return SelectionArea(
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.primary,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Attendance ",
+                      style: GoogleFonts.poppins(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.putih,
+                      ),
+                    ),
+                    Text(
+                      "$_monthTitle",
+                      style: GoogleFonts.poppins(
+                        fontSize: 16,
+                        color: AppColors.putih,
+                      ),
+                    ),
+                  ],
+                ),
+                if (hasAbsensi) ...[
+                  const SizedBox(width: 900),
+                  Expanded(
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.secondary,
+                            AppColors.secondary.withOpacity(0.8),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            final absenProvider = context.read<AbsenProvider>();
+                            if (!absenProvider.hasCheckedInToday) {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.checkin,
+                              );
+                            } else {
+                              final message = context.isIndonesian
+                                  ? "Anda Sudah Check-in hari ini"
+                                  : "You have already checked in today";
+                              NotificationHelper.showTopNotification(
+                                  context, message,
+                                  isSuccess: false);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.rightToBracket,
+                                color: AppColors.putih,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                context.isIndonesian
+                                    ? "Masuk Kerja"
+                                    : "Clock In",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.putih,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                  Text(
-                    "$_monthTitle",
-                    style: GoogleFonts.poppins(
-                      fontSize: 16,
-                      color: AppColors.putih,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppColors.putih.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () {
+                            final absenProvider = context.read<AbsenProvider>();
+                            if (absenProvider.hasCheckedInToday) {
+                              Navigator.pushNamed(
+                                context,
+                                AppRoutes.checkout,
+                              );
+                            } else {
+                              final message = context.isIndonesian
+                                  ? "Anda Belum Check-in hari ini"
+                                  : "You haven't checked in today";
+                              NotificationHelper.showTopNotification(
+                                  context, message,
+                                  isSuccess: false);
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                FontAwesomeIcons.rightFromBracket,
+                                color: AppColors.putih.withOpacity(0.8),
+                                size: 16,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                context.isIndonesian
+                                    ? "Keluar Kerja"
+                                    : "Clock Out",
+                                style: GoogleFonts.poppins(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.putih.withOpacity(0.8),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],
-              ),
-              if (hasAbsensi) ...[
-                const SizedBox(width: 900),
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.secondary,
-                          AppColors.secondary.withOpacity(0.8),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05), // tipis banget
-                          blurRadius: 4, // kecil, biar soft
-                          spreadRadius: 0,
-                          offset: Offset(0, 1), // cuma bawah dikit
-                        ),
-                      ],
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final absenProvider = context.read<AbsenProvider>();
-                          if (!absenProvider.hasCheckedInToday) {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.checkin,
-                            );
-                          } else {
-                            final message = context.isIndonesian
-                                ? "Anda Sudah Check-in hari ini"
-                                : "You have already checked in today";
-                            NotificationHelper.showTopNotification(
-                                context, message,
-                                isSuccess: false);
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              FontAwesomeIcons.rightToBracket,
-                              color: AppColors.putih,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              context.isIndonesian ? "Masuk Kerja" : "Clock In",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.putih,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Container(
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppColors.secondary.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.putih.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          final absenProvider = context.read<AbsenProvider>();
-                          if (absenProvider.hasCheckedInToday) {
-                            Navigator.pushNamed(
-                              context,
-                              AppRoutes.checkout,
-                            );
-                          } else {
-                            final message = context.isIndonesian
-                                ? "Anda Belum Check-in hari ini"
-                                : "You haven't checked in today";
-                            NotificationHelper.showTopNotification(
-                                context, message,
-                                isSuccess: false);
-                          }
-                        },
-                        borderRadius: BorderRadius.circular(12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              FontAwesomeIcons.rightFromBracket,
-                              color: AppColors.putih.withOpacity(0.8),
-                              size: 16,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              context.isIndonesian
-                                  ? "Keluar Kerja"
-                                  : "Clock Out",
-                              style: GoogleFonts.poppins(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.putih.withOpacity(0.8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
               ],
-            ],
-          ),
-          const SizedBox(height: 16),
-          _buildTableHeader(),
-          Divider(color: AppColors.putih.withOpacity(0.2)),
-          _paginatedData.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Center(
-                    child: Text(
-                      "No data available",
-                      style: GoogleFonts.poppins(
-                        color: AppColors.putih.withOpacity(0.5),
-                        fontSize: 14,
+            ),
+            const SizedBox(height: 16),
+            _buildTableHeader(),
+            Divider(color: AppColors.putih.withOpacity(0.2)),
+            _paginatedData.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Center(
+                      child: Text(
+                        "No data available",
+                        style: GoogleFonts.poppins(
+                          color: AppColors.putih.withOpacity(0.5),
+                          fontSize: 14,
+                        ),
                       ),
                     ),
+                  )
+                : Column(
+                    children: _paginatedData
+                        .map((absen) => _buildTableRow(absen))
+                        .toList(),
                   ),
-                )
-              : Column(
-                  children: _paginatedData
-                      .map((absen) => _buildTableRow(absen))
-                      .toList(),
-                ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -685,7 +687,7 @@ class _AbsenWebState extends State<AbsenWeb> {
             );
           }
 
-          // Status column (index 4) - Color based on status
+          // Status column (index 6) - Color based on status
           if (!isHeader && index == 6) {
             Color statusColor = AppColors.putih;
             final status = cells[index].toLowerCase();
@@ -784,7 +786,7 @@ class _AbsenWebState extends State<AbsenWeb> {
       Navigator.pushNamed(context, AppRoutes.mapPage,
           arguments: LatLng(lat, lng));
     } catch (_) {
-      // debugPrint("Format latlong salah: $latlongStr");
+      // Invalid latlong format — silently ignored.
     }
   }
 

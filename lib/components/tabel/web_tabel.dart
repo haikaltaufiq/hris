@@ -404,240 +404,245 @@ class _CustomDataTableWebState extends State<CustomDataTableWeb> {
     final isMobile = screenWidth < 600;
     final headerFontSize = _getResponsiveFontSize(context, 13);
 
-    return Column(
-      children: [
-        Container(
-          margin: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.primary,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 4,
-                spreadRadius: 0,
-                offset: const Offset(0, 1),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      color: AppColors.secondary,
-                      width: 2,
+    return SelectionArea(
+      child: Column(
+        children: [
+          Container(
+            margin: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 4,
+                  spreadRadius: 0,
+                  offset: const Offset(0, 1),
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: AppColors.secondary,
+                        width: 2,
+                      ),
                     ),
                   ),
-                ),
-                padding: const EdgeInsets.only(bottom: 15, top: 10),
-                child: Row(
-                  children: [
-                    ...widget.headers.asMap().entries.map((entry) {
-                      int flexValue = 1;
-                      if (widget.columnFlexValues != null &&
-                          entry.key < widget.columnFlexValues!.length) {
-                        flexValue = widget.columnFlexValues![entry.key];
-                      }
-                      return Expanded(
-                        flex: flexValue,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Tooltip(
-                            message: entry.value,
-                            waitDuration: const Duration(milliseconds: 500),
+                  padding: const EdgeInsets.only(bottom: 15, top: 10),
+                  child: Row(
+                    children: [
+                      ...widget.headers.asMap().entries.map((entry) {
+                        int flexValue = 1;
+                        if (widget.columnFlexValues != null &&
+                            entry.key < widget.columnFlexValues!.length) {
+                          flexValue = widget.columnFlexValues![entry.key];
+                        }
+                        return Expanded(
+                          flex: flexValue,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Tooltip(
+                              message: entry.value,
+                              waitDuration: const Duration(milliseconds: 500),
+                              child: Text(
+                                entry.value,
+                                style: TextStyle(
+                                  color: AppColors.putih,
+                                  fontSize: headerFontSize,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: GoogleFonts.poppins().fontFamily,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                      if (widget.onView != null ||
+                          widget.onEdit != null ||
+                          widget.onDelete != null)
+                        SizedBox(
+                          width: isMobile ? 100 : 120,
+                          child: Padding(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 8.0),
                             child: Text(
-                              entry.value,
+                              "Action",
                               style: TextStyle(
                                 color: AppColors.putih,
                                 fontSize: headerFontSize,
                                 fontWeight: FontWeight.bold,
                                 fontFamily: GoogleFonts.poppins().fontFamily,
                               ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ),
-                      );
-                    }),
-                    if (widget.onView != null ||
-                        widget.onEdit != null ||
-                        widget.onDelete != null)
-                      SizedBox(
-                        width: isMobile ? 100 : 120,
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text(
-                            "Action",
-                            style: TextStyle(
-                              color: AppColors.putih,
-                              fontSize: headerFontSize,
-                              fontWeight: FontWeight.bold,
-                              fontFamily: GoogleFonts.poppins().fontFamily,
+                    ],
+                  ),
+                ),
+                ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: paginatedRows.length,
+                  separatorBuilder: (_, __) => Divider(
+                    color: AppColors.secondary,
+                    thickness: 0.5,
+                    height: 1,
+                  ),
+                  itemBuilder: (context, paginatedRowIndex) {
+                    final row = paginatedRows[paginatedRowIndex];
+                    final actualRowIndex =
+                        _getActualRowIndex(paginatedRowIndex);
+
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          ...row.asMap().entries.map((entry) {
+                            int flexValue = 1;
+                            if (widget.columnFlexValues != null &&
+                                entry.key < widget.columnFlexValues!.length) {
+                              flexValue = widget.columnFlexValues![entry.key];
+                            }
+                            return Expanded(
+                              flex: flexValue,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: _buildValueCell(
+                                  context,
+                                  entry.value,
+                                  paginatedRowIndex,
+                                  entry.key,
+                                ),
+                              ),
+                            );
+                          }),
+                          if (widget.onView != null ||
+                              widget.onEdit != null ||
+                              widget.onDelete != null)
+                            SizedBox(
+                              width: isMobile ? 100 : 120,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (widget.onView != null)
+                                      Tooltip(
+                                        message: 'View',
+                                        child: IconButton(
+                                          icon: FaIcon(
+                                            FontAwesomeIcons.eye,
+                                            color: AppColors.putih,
+                                            size: isMobile ? 12 : 14,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          constraints: BoxConstraints(
+                                            minWidth: isMobile ? 28 : 32,
+                                            minHeight: isMobile ? 28 : 32,
+                                          ),
+                                          onPressed: () =>
+                                              widget.onView!(actualRowIndex),
+                                        ),
+                                      ),
+                                    if (widget.onEdit != null)
+                                      Tooltip(
+                                        message: 'Edit',
+                                        child: IconButton(
+                                          icon: FaIcon(
+                                            FontAwesomeIcons.pen,
+                                            color: AppColors.putih,
+                                            size: isMobile ? 12 : 14,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          constraints: BoxConstraints(
+                                            minWidth: isMobile ? 28 : 32,
+                                            minHeight: isMobile ? 28 : 32,
+                                          ),
+                                          onPressed: () =>
+                                              widget.onEdit!(actualRowIndex),
+                                        ),
+                                      ),
+                                    if (widget.onDelete != null)
+                                      Tooltip(
+                                        message: 'Delete',
+                                        child: IconButton(
+                                          icon: FaIcon(
+                                            FontAwesomeIcons.trash,
+                                            color: AppColors.putih,
+                                            size: isMobile ? 12 : 14,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          constraints: BoxConstraints(
+                                            minWidth: isMobile ? 28 : 32,
+                                            minHeight: isMobile ? 28 : 32,
+                                          ),
+                                          onPressed: () =>
+                                              widget.onDelete!(actualRowIndex),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
+                        ],
                       ),
-                  ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              IconButton(
+                icon: Icon(
+                  Icons.chevron_left,
+                  color: AppColors.putih,
+                ),
+                onPressed: currentPage > 0
+                    ? () {
+                        setState(() {
+                          currentPage--;
+                        });
+                      }
+                    : null,
+              ),
+              Text(
+                "${currentPage + 1} / $totalPages",
+                style: TextStyle(
+                  color: AppColors.putih,
                 ),
               ),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: paginatedRows.length,
-                separatorBuilder: (_, __) => Divider(
-                  color: AppColors.secondary,
-                  thickness: 0.5,
-                  height: 1,
+              IconButton(
+                icon: Icon(
+                  Icons.chevron_right,
+                  color: AppColors.putih,
                 ),
-                itemBuilder: (context, paginatedRowIndex) {
-                  final row = paginatedRows[paginatedRowIndex];
-                  final actualRowIndex = _getActualRowIndex(paginatedRowIndex);
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        ...row.asMap().entries.map((entry) {
-                          int flexValue = 1;
-                          if (widget.columnFlexValues != null &&
-                              entry.key < widget.columnFlexValues!.length) {
-                            flexValue = widget.columnFlexValues![entry.key];
-                          }
-                          return Expanded(
-                            flex: flexValue,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: _buildValueCell(
-                                context,
-                                entry.value,
-                                paginatedRowIndex,
-                                entry.key,
-                              ),
-                            ),
-                          );
-                        }),
-                        if (widget.onView != null ||
-                            widget.onEdit != null ||
-                            widget.onDelete != null)
-                          SizedBox(
-                            width: isMobile ? 100 : 120,
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 8.0),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (widget.onView != null)
-                                    Tooltip(
-                                      message: 'View',
-                                      child: IconButton(
-                                        icon: FaIcon(
-                                          FontAwesomeIcons.eye,
-                                          color: AppColors.putih,
-                                          size: isMobile ? 12 : 14,
-                                        ),
-                                        padding: const EdgeInsets.all(8),
-                                        constraints: BoxConstraints(
-                                          minWidth: isMobile ? 28 : 32,
-                                          minHeight: isMobile ? 28 : 32,
-                                        ),
-                                        onPressed: () =>
-                                            widget.onView!(actualRowIndex),
-                                      ),
-                                    ),
-                                  if (widget.onEdit != null)
-                                    Tooltip(
-                                      message: 'Edit',
-                                      child: IconButton(
-                                        icon: FaIcon(
-                                          FontAwesomeIcons.pen,
-                                          color: AppColors.putih,
-                                          size: isMobile ? 12 : 14,
-                                        ),
-                                        padding: const EdgeInsets.all(8),
-                                        constraints: BoxConstraints(
-                                          minWidth: isMobile ? 28 : 32,
-                                          minHeight: isMobile ? 28 : 32,
-                                        ),
-                                        onPressed: () =>
-                                            widget.onEdit!(actualRowIndex),
-                                      ),
-                                    ),
-                                  if (widget.onDelete != null)
-                                    Tooltip(
-                                      message: 'Delete',
-                                      child: IconButton(
-                                        icon: FaIcon(
-                                          FontAwesomeIcons.trash,
-                                          color: AppColors.putih,
-                                          size: isMobile ? 12 : 14,
-                                        ),
-                                        padding: const EdgeInsets.all(8),
-                                        constraints: BoxConstraints(
-                                          minWidth: isMobile ? 28 : 32,
-                                          minHeight: isMobile ? 28 : 32,
-                                        ),
-                                        onPressed: () =>
-                                            widget.onDelete!(actualRowIndex),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                },
+                onPressed: currentPage < totalPages - 1
+                    ? () {
+                        setState(() {
+                          currentPage++;
+                        });
+                      }
+                    : null,
               ),
             ],
           ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.chevron_left,
-                color: AppColors.putih,
-              ),
-              onPressed: currentPage > 0
-                  ? () {
-                      setState(() {
-                        currentPage--;
-                      });
-                    }
-                  : null,
-            ),
-            Text(
-              "${currentPage + 1} / $totalPages",
-              style: TextStyle(
-                color: AppColors.putih,
-              ),
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.chevron_right,
-                color: AppColors.putih,
-              ),
-              onPressed: currentPage < totalPages - 1
-                  ? () {
-                      setState(() {
-                        currentPage++;
-                      });
-                    }
-                  : null,
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

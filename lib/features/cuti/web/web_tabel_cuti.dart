@@ -110,35 +110,44 @@ class WebTabelCuti extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DetailItem(
-                    label: context.isIndonesian ? 'Nama' : 'Name',
-                    value: c.user['nama']),
-                DetailItem(
-                    label: context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
-                    value: c.tipe_cuti),
-                DetailItem(
-                    label:
-                        context.isIndonesian ? 'Tanggal Mulai' : "Start Date",
-                    value: DateHelper.format(c.tanggal_mulai)),
-                DetailItem(
-                    label:
-                        context.isIndonesian ? 'Tanggal Selesai' : 'End Date',
-                    value: DateHelper.format(c.tanggal_selesai)),
-                DetailItem(
-                    label: context.isIndonesian ? 'Alasan' : 'Reason',
-                    value: c.alasan),
-                DetailItem(
-                    label: 'Status', value: c.status, color: c.statusColor),
-                DetailItem(
-                    label: context.isIndonesian ? 'Deskripsi' : 'Description',
-                    value: c.isDitolak
-                        ? c.catatan_penolakan
-                        : c.keterangan_status),
-              ],
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DetailItem(
+                        label: context.isIndonesian ? 'Nama' : 'Name',
+                        value: c.user['nama']),
+                    DetailItem(
+                        label:
+                            context.isIndonesian ? 'Tipe Cuti' : 'Leave Type',
+                        value: c.tipe_cuti),
+                    DetailItem(
+                        label: context.isIndonesian
+                            ? 'Tanggal Mulai'
+                            : "Start Date",
+                        value: DateHelper.format(c.tanggal_mulai)),
+                    DetailItem(
+                        label: context.isIndonesian
+                            ? 'Tanggal Selesai'
+                            : 'End Date',
+                        value: DateHelper.format(c.tanggal_selesai)),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Alasan' : 'Reason',
+                        value: c.alasan),
+                    DetailItem(
+                        label: 'Status', value: c.status, color: c.statusColor),
+                    DetailItem(
+                        label:
+                            context.isIndonesian ? 'Deskripsi' : 'Description',
+                        value: c.isDitolak
+                            ? c.catatan_penolakan
+                            : c.keterangan_status),
+                  ],
+                ),
+              ),
             ),
             actions: [
               TextButton(

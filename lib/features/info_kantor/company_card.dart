@@ -90,7 +90,7 @@ class _CompanyCardState extends State<CompanyCard> {
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.15),
+                        color: AppColors.secondary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Icon(
@@ -134,8 +134,8 @@ class _CompanyCardState extends State<CompanyCard> {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.putih.withOpacity(0.08),
-                        borderRadius: BorderRadius.circular(8),
+                        color: AppColors.secondary,
+                        borderRadius: BorderRadius.circular(100),
                       ),
                       child: IconButton(
                         onPressed: () async {
@@ -149,7 +149,7 @@ class _CompanyCardState extends State<CompanyCard> {
                           }
                         },
                         icon: Icon(
-                          Icons.more_vert,
+                          Icons.edit,
                           color: AppColors.putih.withOpacity(0.8),
                           size: 18,
                         ),

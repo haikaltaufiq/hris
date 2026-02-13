@@ -329,50 +329,55 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
             fontWeight: FontWeight.w600,
           ),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DetailItem(
-              label: context.isIndonesian ? "Kepada" : "To",
-              value: tugas.user?.nama ?? '-',
+        content: SizedBox(
+          width: double.maxFinite,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DetailItem(
+                  label: context.isIndonesian ? "Kepada" : "To",
+                  value: tugas.user?.nama ?? '-',
+                ),
+                SizedBox(height: 5),
+                DetailItem(
+                  label: context.isIndonesian ? "Judul" : "Title",
+                  value: tugas.namaTugas,
+                ),
+                DetailItem(
+                  label: context.isIndonesian ? "Nama Lokasi" : "Location Name",
+                  value: tugas.namaLok,
+                ),
+                SizedBox(height: 5),
+                DetailItem(
+                  label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
+                  value: parseDate(tugas.tanggalPenugasan),
+                ),
+                SizedBox(height: 5),
+                DetailItem(
+                  label: context.isIndonesian ? "Batas Submit" : "Deadline",
+                  value: parseDate(tugas.batasPenugasan),
+                ),
+                SizedBox(height: 5),
+                DetailItem(
+                  label: context.isIndonesian ? "Catatan" : "Note",
+                  value: tugas.note ?? '-',
+                ),
+                SizedBox(height: 5),
+                DetailItem(
+                  label: context.isIndonesian ? "Status" : "Status",
+                  value: tugas.status,
+                  color: statusColor,
+                ),
+                SizedBox(height: 5),
+                DetailItem(
+                  label: context.isIndonesian ? "Ketepatan" : "Punctuality",
+                  value: tugas.displayTerlambat,
+                ),
+              ],
             ),
-            SizedBox(height: 5),
-            DetailItem(
-              label: context.isIndonesian ? "Judul" : "Title",
-              value: tugas.namaTugas,
-            ),
-            DetailItem(
-              label: context.isIndonesian ? "Nama Lokasi" : "Location Name",
-              value: tugas.namaLok,
-            ),
-            SizedBox(height: 5),
-            DetailItem(
-              label: context.isIndonesian ? "Tanggal Mulai" : "Start Date",
-              value: parseDate(tugas.tanggalPenugasan),
-            ),
-            SizedBox(height: 5),
-            DetailItem(
-              label: context.isIndonesian ? "Batas Submit" : "Deadline",
-              value: parseDate(tugas.batasPenugasan),
-            ),
-            SizedBox(height: 5),
-            DetailItem(
-              label: context.isIndonesian ? "Catatan" : "Note",
-              value: tugas.note ?? '-',
-            ),
-            SizedBox(height: 5),
-            DetailItem(
-              label: context.isIndonesian ? "Status" : "Status",
-              value: tugas.status,
-              color: statusColor,
-            ),
-            SizedBox(height: 5),
-            DetailItem(
-              label: context.isIndonesian ? "Ketepatan" : "Punctuality",
-              value: tugas.displayTerlambat,
-            ),
-          ],
+          ),
         ),
         actions: [
           TextButton(
@@ -415,7 +420,6 @@ class _TugasTabelWebState extends State<TugasTabelWeb> {
 
   @override
   Widget build(BuildContext context) {
-
     if (_baseUrl == null) {
       return const Center(child: CircularProgressIndicator());
     }

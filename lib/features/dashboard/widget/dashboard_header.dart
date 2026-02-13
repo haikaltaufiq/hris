@@ -123,7 +123,7 @@ class _DashboardHeaderState extends State<DashboardHeader>
     if (renderBox == null) return;
 
     final Offset offset = renderBox.localToGlobal(Offset.zero);
-
+    final hasAccess = FeatureAccess.has('kantor');
     _dropdownOverlay = OverlayEntry(
       builder: (context) => Stack(
         children: [
@@ -190,6 +190,24 @@ class _DashboardHeaderState extends State<DashboardHeader>
                             margin: const EdgeInsets.symmetric(horizontal: 12),
                             color: Colors.grey.withOpacity(0.1),
                           ),
+                          if (hasAccess) ...[
+                            _buildDropdownItem(
+                                context.isIndonesian
+                                    ? "Info Kantor"
+                                    : "Office Info",
+                                Icons.info_outline, () {
+                              _hideDropdownImmediate();
+                              Navigator.pushNamed(
+                                  context, AppRoutes.infoKantor);
+                            }),
+                            Container(
+                              height: 1,
+                              margin:
+                                  const EdgeInsets.symmetric(horizontal: 12),
+                              color: Colors.grey.withOpacity(0.1),
+                            ),
+                          ],
+
                           _buildDropdownItem(
                               context.isIndonesian ? "Pengaturan" : "Settings",
                               Icons.settings_outlined, () {

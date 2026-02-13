@@ -84,44 +84,49 @@ class KaryawanTabelWeb extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DetailItem(
-                  label: context.isIndonesian ? 'Nama' : 'Name',
-                  value: user.nama,
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DetailItem(
+                      label: context.isIndonesian ? 'Nama' : 'Name',
+                      value: user.nama,
+                    ),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Email' : 'Email',
+                        value: user.email),
+                    DetailItem(
+                      label: context.isIndonesian ? 'Jenis Kelamin' : 'Gender',
+                      value: user.jenisKelamin,
+                    ),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Peran' : 'Role',
+                        value: user.peran!.namaPeran),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Jabatan' : 'Position',
+                        value: user.jabatan!.namaJabatan),
+                    DetailItem(
+                      label: context.isIndonesian ? 'Departemen' : 'Department',
+                      value: user.departemen!.namaDepartemen,
+                    ),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Gaji Pokok' : 'Salary',
+                        value: user.gajiPokok ?? '-'),
+                    DetailItem(
+                        label: context.isIndonesian ? 'NPWP' : 'NPWP',
+                        value: user.npwp ?? '-'),
+                    DetailItem(
+                        label: context.isIndonesian ? 'BPJS TK' : 'BPJS TK',
+                        value: user.bpjsKetenagakerjaan ?? '-'),
+                    DetailItem(
+                        label: context.isIndonesian ? 'BPJS Kes' : 'BPJS Kes',
+                        value: user.bpjsKesehatan ?? '-'),
+                  ],
                 ),
-                DetailItem(
-                    label: context.isIndonesian ? 'Email' : 'Email',
-                    value: user.email),
-                DetailItem(
-                  label: context.isIndonesian ? 'Jenis Kelamin' : 'Gender',
-                  value: user.jenisKelamin,
-                ),
-                DetailItem(
-                    label: context.isIndonesian ? 'Peran' : 'Role',
-                    value: user.peran!.namaPeran),
-                DetailItem(
-                    label: context.isIndonesian ? 'Jabatan' : 'Position',
-                    value: user.jabatan!.namaJabatan),
-                DetailItem(
-                  label: context.isIndonesian ? 'Departemen' : 'Department',
-                  value: user.departemen!.namaDepartemen,
-                ),
-                DetailItem(
-                    label: context.isIndonesian ? 'Gaji Pokok' : 'Salary',
-                    value: user.gajiPokok ?? '-'),
-                DetailItem(
-                    label: context.isIndonesian ? 'NPWP' : 'NPWP',
-                    value: user.npwp ?? '-'),
-                DetailItem(
-                    label: context.isIndonesian ? 'BPJS TK' : 'BPJS TK',
-                    value: user.bpjsKetenagakerjaan ?? '-'),
-                DetailItem(
-                    label: context.isIndonesian ? 'BPJS Kes' : 'BPJS Kes',
-                    value: user.bpjsKesehatan ?? '-'),
-              ],
+              ),
             ),
             actions: [
               TextButton(

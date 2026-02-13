@@ -21,23 +21,25 @@ class DetailAbsen extends StatefulWidget {
 }
 
 class _DetailAbsenState extends State<DetailAbsen> {
-  String? _baseUrl; 
+  String? _baseUrl;
   late final List<Marker> _markers;
+  bool _isMapFullscreen = false;
 
   @override
   void initState() {
     super.initState();
     _initBaseUrl();
-    
-    // marker final cuma sekali
+
     _markers = (widget.selectedAbsen.checkinLat != null &&
             widget.selectedAbsen.checkinLng != null)
         ? [
             Marker(
               width: 40,
               height: 40,
-              point: LatLng(widget.selectedAbsen.checkinLat!,
-                  widget.selectedAbsen.checkinLng!),
+              point: LatLng(
+                widget.selectedAbsen.checkinLat!,
+                widget.selectedAbsen.checkinLng!,
+              ),
               child: const Icon(
                 Icons.location_pin,
                 size: 40,
@@ -56,11 +58,20 @@ class _DetailAbsenState extends State<DetailAbsen> {
     });
   }
 
+  // ================= FULLSCREEN MAP =================
+
+  /// Toggle fullscreen map overlay.
+  void _toggleFullscreenMap() {
+    setState(() {
+      _isMapFullscreen = !_isMapFullscreen;
+    });
+  }
+
   // ================= VIDEO =================
+
   void _openVideo(String? videoPath) {
-    final noVideoMessage = context.isIndonesian
-        ? "Tidak ada video"
-        : "No video available";
+    final noVideoMessage =
+        context.isIndonesian ? "Tidak ada video" : "No video available";
 
     if (videoPath == null || videoPath.isEmpty) {
       NotificationHelper.showTopNotification(
@@ -74,9 +85,7 @@ class _DetailAbsenState extends State<DetailAbsen> {
     if (_baseUrl == null) {
       NotificationHelper.showTopNotification(
         context,
-        context.isIndonesian
-            ? "Server belum siap"
-            : "Server not ready",
+        context.isIndonesian ? "Server belum siap" : "Server not ready",
         isSuccess: false,
       );
       return;
@@ -87,7 +96,6 @@ class _DetailAbsenState extends State<DetailAbsen> {
         : '$_baseUrl${videoPath.startsWith('/') ? '' : '/'}$videoPath';
 
     final controller = VideoPlayerController.network(fullUrl);
-
 
     showGeneralDialog(
       context: context,
@@ -165,11 +173,41 @@ class _DetailAbsenState extends State<DetailAbsen> {
   }
 
   // ================= UI =================
+
   @override
   Widget build(BuildContext context) {
     final center = _markers.isNotEmpty
         ? _markers.first.point
         : const LatLng(-6.200000, 106.816666);
+
+    // Render fullscreen map occupying entire scaffold body.
+    if (_isMapFullscreen) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            // Full-screen map.
+            Positioned.fill(
+              child: MapPersonal(
+                markers: _markers,
+                center: center,
+              ),
+            ),
+
+            // Collapse button — bottom-right.
+            Positioned(
+              bottom: 24,
+              right: 16,
+              child: _MapActionButton(
+                icon: Icons.fullscreen_exit,
+                tooltip: 'Exit fullscreen',
+                onTap: _toggleFullscreenMap,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.bg,
@@ -178,9 +216,26 @@ class _DetailAbsenState extends State<DetailAbsen> {
           // ================= MAP =================
           SizedBox(
             height: 320,
-            child: MapPersonal(
-              markers: _markers,
-              center: center,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: MapPersonal(
+                    markers: _markers,
+                    center: center,
+                  ),
+                ),
+
+                // Zoom-in / fullscreen button — bottom-right of map.
+                Positioned(
+                  bottom: 12,
+                  right: 12,
+                  child: _MapActionButton(
+                    icon: Icons.fullscreen,
+                    tooltip: 'Fullscreen map',
+                    onTap: _toggleFullscreenMap,
+                  ),
+                ),
+              ],
             ),
           ),
 
@@ -190,9 +245,10 @@ class _DetailAbsenState extends State<DetailAbsen> {
               builder: (context, absen, _) {
                 if (absen.isLoading) {
                   return Center(
-                      child: CircularProgressIndicator(
-                    color: AppColors.putih,
-                  ));
+                    child: CircularProgressIndicator(
+                      color: AppColors.putih,
+                    ),
+                  );
                 }
 
                 if (absen.errorMessage != null) {
@@ -219,17 +275,23 @@ class _DetailAbsenState extends State<DetailAbsen> {
                 return ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
-                    _infoTileText(context.isIndonesian ? "Nama" : "Name",
-                        data.user?.nama ?? "-"),
-                    _infoTileText(context.isIndonesian ? "Tanggal" : "Date",
-                        data.checkinDate ?? "-"),
+                    _infoTileText(
+                      context.isIndonesian ? "Nama" : "Name",
+                      data.user?.nama ?? "-",
+                    ),
+                    _infoTileText(
+                      context.isIndonesian ? "Tanggal" : "Date",
+                      data.checkinDate ?? "-",
+                    ),
                     _infoTileText("Status", data.status ?? "-"),
                     _infoTileText(
-                        context.isIndonesian ? "Jam Masuk" : "Check-in",
-                        data.checkinTime ?? "-"),
+                      context.isIndonesian ? "Jam Masuk" : "Check-in",
+                      data.checkinTime ?? "-",
+                    ),
                     _infoTileText(
-                        context.isIndonesian ? "Jam Keluar" : "Check-out",
-                        data.checkoutTime ?? "-"),
+                      context.isIndonesian ? "Jam Keluar" : "Check-out",
+                      data.checkoutTime ?? "-",
+                    ),
                     _infoTileText(
                       context.isIndonesian ? "Lokasi" : "Location",
                       "${data.checkinLat}, ${data.checkinLng}",
@@ -274,6 +336,7 @@ class _DetailAbsenState extends State<DetailAbsen> {
   }
 
   // ================= TILE =================
+
   Widget _infoTileText(String label, String value) {
     return _baseTile(
       label,
@@ -316,6 +379,45 @@ class _DetailAbsenState extends State<DetailAbsen> {
             child: content,
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ================= MAP ACTION BUTTON =================
+
+/// Floating action button styled for map overlay use.
+class _MapActionButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _MapActionButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        elevation: 4,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(
+              icon,
+              size: 22,
+              color: Colors.black87,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -121,36 +121,45 @@ class WebTabelLembur extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                DetailItem(
-                    label: context.isIndonesian ? 'Nama' : 'Name',
-                    value: c.user['nama']),
-                DetailItem(
-                    label: context.isIndonesian
-                        ? 'Tanggal Lembur'
-                        : 'Overtime Date',
-                    value: DateHelper.format(c.tanggal)),
-                DetailItem(
-                    label: context.isIndonesian ? 'Jam Mulai' : 'Start Time',
-                    value: FormatTime().formatTime(c.jamMulai)),
-                DetailItem(
-                    label: context.isIndonesian ? 'Jam Selesai' : 'End Time',
-                    value: FormatTime().formatTime(c.jamSelesai)),
-                DetailItem(
-                    label: context.isIndonesian ? 'Alasan' : 'Reason',
-                    value: c.deskripsi),
-                DetailItem(
-                    label: context.isIndonesian ? 'Status' : 'Status',
-                    value: c.status,
-                    color: c.statusColor),
-                DetailItem(
-                    label: context.isIndonesian ? 'Deskripsi' : 'Description',
-                    value:
-                        c.isDitolak ? c.catatan_penolakan : c.keteranganStatus),
-              ],
+            content: SizedBox(
+              width: double.maxFinite,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DetailItem(
+                        label: context.isIndonesian ? 'Nama' : 'Name',
+                        value: c.user['nama']),
+                    DetailItem(
+                        label: context.isIndonesian
+                            ? 'Tanggal Lembur'
+                            : 'Overtime Date',
+                        value: DateHelper.format(c.tanggal)),
+                    DetailItem(
+                        label:
+                            context.isIndonesian ? 'Jam Mulai' : 'Start Time',
+                        value: FormatTime().formatTime(c.jamMulai)),
+                    DetailItem(
+                        label:
+                            context.isIndonesian ? 'Jam Selesai' : 'End Time',
+                        value: FormatTime().formatTime(c.jamSelesai)),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Alasan' : 'Reason',
+                        value: c.deskripsi),
+                    DetailItem(
+                        label: context.isIndonesian ? 'Status' : 'Status',
+                        value: c.status,
+                        color: c.statusColor),
+                    DetailItem(
+                        label:
+                            context.isIndonesian ? 'Deskripsi' : 'Description',
+                        value: c.isDitolak
+                            ? c.catatan_penolakan
+                            : c.keteranganStatus),
+                  ],
+                ),
+              ),
             ),
             actions: [
               TextButton(

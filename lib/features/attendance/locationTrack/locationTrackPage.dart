@@ -35,6 +35,9 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
   bool isListExpanded = false;
   bool _isServiceRunning = false;
 
+  /// Controls whether the map occupies the full screen.
+  bool _isMapFullscreen = false;
+
   @override
   void initState() {
     super.initState();
@@ -69,13 +72,11 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     try {
       if (mounted) setState(() => loading = true);
 
-      // Check service status
       if (!kIsWeb) {
         final serviceStatus = await Track.isRunning();
         setState(() => _isServiceRunning = serviceStatus);
       }
 
-      // Fetch data from backend
       final List<UserModel> result = await TrackingService.getTrackingUsers();
 
       if (mounted) {
@@ -85,10 +86,10 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           loading = false;
         });
 
-        debugPrint('✅ Loaded ${result.length} users from backend');
+        debugPrint('Loaded ${result.length} users from backend');
       }
     } catch (e) {
-      debugPrint('❌ Error loading data: $e');
+      debugPrint('Error loading data: $e');
       if (mounted) {
         setState(() => loading = false);
         _showErrorSnackbar(e.toString());
@@ -109,9 +110,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             users.where((u) => !u.isGpsActive(_isServiceRunning)).toList();
       }
     });
-
-    debugPrint(
-        '📊 Filter: $filterStatus | Showing: ${filteredUsers.length}/${users.length} users');
   }
 
   /// Show error message to user
@@ -129,6 +127,13 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
+  /// Toggle fullscreen map mode.
+  void _toggleMapFullscreen() {
+    setState(() {
+      _isMapFullscreen = !_isMapFullscreen;
+    });
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -143,6 +148,30 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
         ? LatLng(filteredUsers.first.latitude!, filteredUsers.first.longitude!)
         : const LatLng(-6.200000, 106.816666);
 
+    // Fullscreen map replaces the entire scaffold body.
+    if (_isMapFullscreen) {
+      return Scaffold(
+        backgroundColor: Colors.black,
+        body: Stack(
+          children: [
+            Positioned.fill(
+              child: _buildMapContent(center),
+            ),
+            // Exit fullscreen button — bottom-right.
+            Positioned(
+              bottom: 24,
+              right: 16,
+              child: _MapActionButton(
+                icon: Icons.fullscreen_exit,
+                tooltip: 'Keluar fullscreen',
+                onTap: _toggleMapFullscreen,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.bg,
       appBar: context.isMobile ? _buildMobileAppBar() : null,
@@ -154,7 +183,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build mobile app bar with actions
+  // ================= APP BAR =================
+
   PreferredSizeWidget _buildMobileAppBar() {
     return AppBar(
       backgroundColor: AppColors.primary,
@@ -171,7 +201,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             ),
           ),
           Text(
-            _isServiceRunning ? '🟢 Service Active' : '⚪ Service Inactive',
+            _isServiceRunning ? 'Service Active' : 'Service Inactive',
             style: TextStyle(
               color: AppColors.putih.withOpacity(0.8),
               fontSize: 12,
@@ -204,7 +234,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build mobile layout
+  // ================= LAYOUTS =================
+
   Widget _buildMobileLayout(LatLng center) {
     return Column(
       children: [
@@ -219,16 +250,12 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build web layout with side panel
   Widget _buildWebLayout(LatLng center) {
     return Row(
       children: [
-        /// Left panel - Map
         Expanded(
           child: _buildMapView(center),
         ),
-
-        /// Right panel - Stats and user list
         Container(
           width: 400,
           decoration: BoxDecoration(
@@ -256,7 +283,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build loading state
+  // ================= LOADING =================
+
   Widget _buildLoadingState() {
     return Center(
       child: Column(
@@ -268,17 +296,15 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           const SizedBox(height: 16),
           Text(
             'Memuat data tracking...',
-            style: TextStyle(
-              color: AppColors.putih,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: AppColors.putih, fontSize: 14),
           ),
         ],
       ),
     );
   }
 
-  /// Build statistics card
+  // ================= STATS =================
+
   Widget _buildStatsCard() {
     final activeCount =
         users.where((u) => u.isGpsActive(_isServiceRunning)).length;
@@ -331,7 +357,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build individual stat item
   Widget _buildStatItem({
     required IconData icon,
     required String label,
@@ -362,7 +387,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build divider between stat items
   Widget _buildStatDivider() {
     return Container(
       height: 50,
@@ -371,7 +395,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build filter chips
+  // ================= FILTER =================
+
   Widget _buildFilterChips() {
     final isMobile = context.isMobile;
 
@@ -392,9 +417,9 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build individual filter chip
   Widget _buildFilterChip(String label, String value) {
     final isSelected = filterStatus == value;
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -423,7 +448,9 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build map view with markers
+  // ================= MAP =================
+
+  /// Wraps [_buildMapContent] inside a styled container with a fullscreen button.
   Widget _buildMapView(LatLng center) {
     final isMobile = context.isMobile;
 
@@ -444,38 +471,13 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
       clipBehavior: Clip.hardEdge,
       child: Stack(
         children: [
-          FlutterMap(
-            mapController: mapController,
-            options: MapOptions(
-              initialCenter: center,
-              initialZoom: 14,
-              minZoom: 5,
-              maxZoom: 18,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.example.hr',
-              ),
-              MarkerLayer(
-                markers: filteredUsers
-                    .where((u) => u.latitude != null && u.longitude != null)
-                    .map(
-                      (user) => Marker(
-                        width: 80,
-                        height: 80,
-                        point: LatLng(user.latitude!, user.longitude!),
-                        child: GestureDetector(
-                          onTap: () => _showUserInfo(user),
-                          child: _buildMarker(user),
-                        ),
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
+          // Map tiles and markers.
+          Positioned.fill(
+            child: _buildMapContent(center),
           ),
-          if (!isMobile) ...[
+
+          // Refresh button — top-right (web only).
+          if (!isMobile)
             Positioned(
               top: 16,
               right: 16,
@@ -483,8 +485,9 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.all(Radius.circular(14))),
+                  color: AppColors.primary,
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                ),
                 child: IconButton(
                   icon: Icon(Icons.refresh, color: AppColors.putih),
                   onPressed: () {
@@ -495,14 +498,59 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
                 ),
               ),
             ),
-          ],
+
+          // Fullscreen button — bottom-right.
+          Positioned(
+            bottom: 12,
+            right: 12,
+            child: _MapActionButton(
+              icon: Icons.fullscreen,
+              tooltip: 'Fullscreen map',
+              onTap: _toggleMapFullscreen,
+            ),
+          ),
+
           if (filteredUsers.isEmpty) _buildEmptyMapOverlay(),
         ],
       ),
     );
   }
 
-  /// Build custom marker for user
+  /// Pure map widget — reused in both normal and fullscreen modes.
+  Widget _buildMapContent(LatLng center) {
+    return FlutterMap(
+      mapController: mapController,
+      options: MapOptions(
+        initialCenter: center,
+        initialZoom: 14,
+        minZoom: 5,
+        maxZoom: 18,
+      ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.example.hr',
+        ),
+        MarkerLayer(
+          markers: filteredUsers
+              .where((u) => u.latitude != null && u.longitude != null)
+              .map(
+                (user) => Marker(
+                  width: 80,
+                  height: 80,
+                  point: LatLng(user.latitude!, user.longitude!),
+                  child: GestureDetector(
+                    onTap: () => _showUserInfo(user),
+                    child: _buildMarker(user),
+                  ),
+                ),
+              )
+              .toList(),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMarker(UserModel user) {
     final isActive = user.isGpsActive(_isServiceRunning);
 
@@ -515,10 +563,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isActive ? Colors.green : Colors.grey,
-            border: Border.all(
-              color: AppColors.putih,
-              width: 3,
-            ),
+            border: Border.all(color: AppColors.putih, width: 3),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.3),
@@ -566,7 +611,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build empty map overlay
   Widget _buildEmptyMapOverlay() {
     return Center(
       child: Container(
@@ -578,11 +622,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.location_off,
-              size: 48,
-              color: AppColors.putih,
-            ),
+            Icon(Icons.location_off, size: 48, color: AppColors.putih),
             const SizedBox(height: 12),
             Text(
               'Tidak ada data lokasi',
@@ -595,10 +635,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             const SizedBox(height: 4),
             Text(
               'Pilih filter lain atau refresh data',
-              style: TextStyle(
-                fontSize: 12,
-                color: AppColors.putih,
-              ),
+              style: TextStyle(fontSize: 12, color: AppColors.putih),
             ),
           ],
         ),
@@ -606,35 +643,26 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user list view
+  // ================= USER LIST =================
+
   Widget _buildUserListView() {
-    if (filteredUsers.isEmpty) {
-      return _buildEmptyListState();
-    }
+    if (filteredUsers.isEmpty) return _buildEmptyListState();
 
     final isMobile = context.isMobile;
 
     return ListView.builder(
       padding: EdgeInsets.all(isMobile ? 16 : 12),
       itemCount: filteredUsers.length,
-      itemBuilder: (context, index) {
-        final user = filteredUsers[index];
-        return _buildUserCard(user);
-      },
+      itemBuilder: (context, index) => _buildUserCard(filteredUsers[index]),
     );
   }
 
-  /// Build empty list state
   Widget _buildEmptyListState() {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.people_outline,
-            size: 64,
-            color: AppColors.putih,
-          ),
+          Icon(Icons.people_outline, size: 64, color: AppColors.putih),
           const SizedBox(height: 16),
           Text(
             'Tidak ada data user',
@@ -647,17 +675,13 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
           const SizedBox(height: 8),
           Text(
             'Pilih filter lain atau refresh data',
-            style: TextStyle(
-              fontSize: 14,
-              color: AppColors.putih,
-            ),
+            style: TextStyle(fontSize: 14, color: AppColors.putih),
           ),
         ],
       ),
     );
   }
 
-  /// Build user card for list view
   Widget _buildUserCard(UserModel user) {
     user.isGpsActive(_isServiceRunning);
 
@@ -685,9 +709,7 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
               children: [
                 _buildUserAvatar(user),
                 const SizedBox(width: 16),
-                Expanded(
-                  child: _buildUserDetails(user),
-                ),
+                Expanded(child: _buildUserDetails(user)),
                 _buildUserActions(user),
               ],
             ),
@@ -697,7 +719,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user avatar with status indicator
   Widget _buildUserAvatar(UserModel user) {
     final isActive = user.isGpsActive(_isServiceRunning);
 
@@ -738,7 +759,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user details section
   Widget _buildUserDetails(UserModel user) {
     final isActive = user.isGpsActive(_isServiceRunning);
 
@@ -783,41 +803,26 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user action button
   Widget _buildUserActions(UserModel user) {
     if (user.latitude == null || user.longitude == null) {
-      return Icon(
-        Icons.info_outline,
-        color: AppColors.putih.withOpacity(0.5),
-      );
+      return Icon(Icons.info_outline, color: AppColors.putih.withOpacity(0.5));
     }
 
     final isMobile = context.isMobile;
 
     return IconButton(
-      icon: Icon(
-        Icons.location_searching,
-        color: AppColors.putih,
-      ),
+      icon: Icon(Icons.location_searching, color: AppColors.putih),
       onPressed: () {
         if (isMobile) {
-          setState(() {
-            isListExpanded = false;
-          });
+          setState(() => isListExpanded = false);
           Future.delayed(const Duration(milliseconds: 100), () {
-            mapController.move(
-              LatLng(user.latitude!, user.longitude!),
-              16,
-            );
+            mapController.move(LatLng(user.latitude!, user.longitude!), 16);
             Future.delayed(const Duration(milliseconds: 300), () {
               _showUserInfo(user);
             });
           });
         } else {
-          mapController.move(
-            LatLng(user.latitude!, user.longitude!),
-            16,
-          );
+          mapController.move(LatLng(user.latitude!, user.longitude!), 16);
           Future.delayed(const Duration(milliseconds: 300), () {
             _showUserInfo(user);
           });
@@ -827,7 +832,8 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Show user information bottom sheet
+  // ================= BOTTOM SHEET =================
+
   void _showUserInfo(UserModel user) {
     final isActive = user.isGpsActive(_isServiceRunning);
 
@@ -864,7 +870,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build bottom sheet handle
   Widget _buildSheetHandle() {
     return Container(
       width: 40,
@@ -876,7 +881,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user info avatar
   Widget _buildUserInfoAvatar(UserModel user) {
     final isActive = user.isGpsActive(_isServiceRunning);
 
@@ -900,7 +904,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user info name
   Widget _buildUserInfoName(UserModel user) {
     return Text(
       user.nama,
@@ -913,7 +916,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user info status badge
   Widget _buildUserInfoStatus(UserModel user) {
     final isActive = user.isGpsActive(_isServiceRunning);
 
@@ -951,7 +953,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build user info details section
   Widget _buildUserInfoDetails(UserModel user) {
     return Column(
       children: [
@@ -970,7 +971,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build info row for details
   Widget _buildInfoRow(IconData icon, String label, String value) {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1010,7 +1010,6 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     );
   }
 
-  /// Build warning message for inactive GPS
   Widget _buildUserInfoWarning() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -1033,6 +1032,45 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+// ================= MAP ACTION BUTTON =================
+
+/// Reusable floating button for map overlay actions.
+class _MapActionButton extends StatelessWidget {
+  final IconData icon;
+  final String tooltip;
+  final VoidCallback onTap;
+
+  const _MapActionButton({
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        elevation: 4,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Icon(
+              icon,
+              size: 22,
+              color: Colors.black87,
+            ),
+          ),
+        ),
       ),
     );
   }

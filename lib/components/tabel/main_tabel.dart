@@ -299,168 +299,170 @@ class CustomDataTableWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: rows.length,
-      itemBuilder: (context, rowIndex) {
-        final row = rows[rowIndex];
-
-        return Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: screenWidth * 0.02,
-            vertical: MediaQuery.of(context).size.height * 0.01,
-          ),
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.primary,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 4,
-                  spreadRadius: 0,
-                  offset: const Offset(0, 1),
-                ),
-              ],
+    return SelectionArea(
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: rows.length,
+        itemBuilder: (context, rowIndex) {
+          final row = rows[rowIndex];
+      
+          return Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: screenWidth * 0.02,
+              vertical: MediaQuery.of(context).size.height * 0.01,
             ),
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (row.isNotEmpty)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Row(
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.primary,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 1),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (row.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const SizedBox(width: 8),
+                              FaIcon(
+                                FontAwesomeIcons.solidBookmark,
+                                color: AppColors.putih,
+                                size: 16,
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Text(
+                                  firstTwoWords(row[0]),
+                                  style: TextStyle(
+                                    color: AppColors.putih,
+                                    fontFamily: GoogleFonts.poppins().fontFamily,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            const SizedBox(width: 8),
-                            FaIcon(
-                              FontAwesomeIcons.solidBookmark,
-                              color: AppColors.putih,
-                              size: 16,
-                            ),
-                            const SizedBox(width: 14),
+                            if (onView != null)
+                              IconButton(
+                                icon: FaIcon(
+                                  FontAwesomeIcons.eye,
+                                  color: AppColors.putih,
+                                  size: 16,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 32,
+                                  minHeight: 32,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                onPressed: () => onView!(rowIndex),
+                              ),
+                            if (onEdit != null)
+                              IconButton(
+                                icon: FaIcon(
+                                  FontAwesomeIcons.pen,
+                                  color: AppColors.putih,
+                                  size: 16,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 32,
+                                  minHeight: 32,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                onPressed: () => onEdit!(rowIndex),
+                              ),
+                            if (onDelete != null)
+                              IconButton(
+                                icon: FaIcon(
+                                  FontAwesomeIcons.trash,
+                                  color: AppColors.putih,
+                                  size: 16,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 32,
+                                  minHeight: 32,
+                                ),
+                                padding: const EdgeInsets.all(8),
+                                onPressed: () => onDelete!(rowIndex),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  Align(
+                    alignment: Alignment.center,
+                    child: FractionallySizedBox(
+                      widthFactor: 1.09,
+                      child: Divider(
+                        color: AppColors.secondary,
+                        thickness: 1,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: headers.length,
+                    separatorBuilder: (_, __) => Divider(
+                      color: AppColors.secondary,
+                      thickness: 1,
+                    ),
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Expanded(
+                              flex: 2,
                               child: Text(
-                                firstTwoWords(row[0]),
+                                headers[index],
                                 style: TextStyle(
                                   color: AppColors.putih,
+                                  fontWeight: FontWeight.bold,
                                   fontFamily: GoogleFonts.poppins().fontFamily,
-                                  fontWeight: FontWeight.w600,
                                 ),
-                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 3,
+                              child: _buildValueCell(
+                                context,
+                                row[index],
+                                rowIndex,
+                                index,
                               ),
                             ),
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (onView != null)
-                            IconButton(
-                              icon: FaIcon(
-                                FontAwesomeIcons.eye,
-                                color: AppColors.putih,
-                                size: 16,
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              onPressed: () => onView!(rowIndex),
-                            ),
-                          if (onEdit != null)
-                            IconButton(
-                              icon: FaIcon(
-                                FontAwesomeIcons.pen,
-                                color: AppColors.putih,
-                                size: 16,
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              onPressed: () => onEdit!(rowIndex),
-                            ),
-                          if (onDelete != null)
-                            IconButton(
-                              icon: FaIcon(
-                                FontAwesomeIcons.trash,
-                                color: AppColors.putih,
-                                size: 16,
-                              ),
-                              constraints: const BoxConstraints(
-                                minWidth: 32,
-                                minHeight: 32,
-                              ),
-                              padding: const EdgeInsets.all(8),
-                              onPressed: () => onDelete!(rowIndex),
-                            ),
-                        ],
-                      ),
-                    ],
+                      );
+                    },
                   ),
-                Align(
-                  alignment: Alignment.center,
-                  child: FractionallySizedBox(
-                    widthFactor: 1.09,
-                    child: Divider(
-                      color: AppColors.secondary,
-                      thickness: 1,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: headers.length,
-                  separatorBuilder: (_, __) => Divider(
-                    color: AppColors.secondary,
-                    thickness: 1,
-                  ),
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 2,
-                            child: Text(
-                              headers[index],
-                              style: TextStyle(
-                                color: AppColors.putih,
-                                fontWeight: FontWeight.bold,
-                                fontFamily: GoogleFonts.poppins().fontFamily,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 3,
-                            child: _buildValueCell(
-                              context,
-                              row[index],
-                              rowIndex,
-                              index,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
