@@ -18,7 +18,8 @@ class KantorService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/kantor');
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
     });
@@ -47,7 +48,8 @@ class KantorService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/kantor');
 
     // Debug payload yang dikirim
     final payload = jsonEncode(kantor.toJson());
@@ -80,7 +82,8 @@ class KantorService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/kantor/$id');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/kantor/$id');
     final response = await http.post(
       url,
       headers: {

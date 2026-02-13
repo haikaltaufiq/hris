@@ -7,8 +7,9 @@ class PengaturanService {
   /// Ambil pengaturan user dari backend
   Future<Map<String, dynamic>> getPengaturan(String token) async {
     try {
+      final baseUrl = await ApiConfig.baseUrl();
       final response = await http.get(
-        Uri.parse('${ApiConfig.baseUrl}/api/pengaturan'),
+        Uri.parse('$baseUrl/api/pengaturan'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
@@ -53,9 +54,10 @@ class PengaturanService {
   /// Create default pengaturan jika belum ada
   Future<Map<String, dynamic>> _createDefaultPengaturan(String token) async {
     try {
+      final baseUrl = await ApiConfig.baseUrl();
       final response = await http
           .post(
-            Uri.parse('${ApiConfig.baseUrl}/api/pengaturan'),
+            Uri.parse('$baseUrl/api/pengaturan'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',
@@ -92,9 +94,10 @@ class PengaturanService {
     try {
       // print('Update Pengaturan: tema=$tema, bahasa=$bahasa');
 
+      final baseUrl = await ApiConfig.baseUrl();
       final response = await http
           .post(
-            Uri.parse('${ApiConfig.baseUrl}/api/pengaturan'),
+            Uri.parse('$baseUrl/api/pengaturan'),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Bearer $token',

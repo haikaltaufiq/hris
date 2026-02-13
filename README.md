@@ -45,12 +45,6 @@
 
 - [MySQL](https://www.mysql.com/) - Primary database
 
-## 🔧 Configuration
-
-### Environment Variables
-
-Buat file `.env` di root directory:
-
 ## 📦 Build & Deploy
 
 ### Android

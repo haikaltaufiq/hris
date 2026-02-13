@@ -19,7 +19,8 @@ class TrackingService {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/tracking/update');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/tracking/update');
 
     debugPrint('🚀 Kirim lokasi ke backend');
     debugPrint('LAT: $latitude, LNG: $longitude');
@@ -51,7 +52,8 @@ class TrackingService {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/tracking');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/tracking');
     
     debugPrint('🔍 Fetching tracking data...');
     
@@ -87,7 +89,8 @@ class TrackingService {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/tracking/filtered?status=$status');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/tracking/filtered?status=$status');
     
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
@@ -113,7 +116,8 @@ class TrackingService {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/tracking');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/tracking');
     
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",

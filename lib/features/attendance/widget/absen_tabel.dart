@@ -25,6 +25,8 @@ class AbsenTabel extends StatefulWidget {
 }
 
 class _AbsenTabelState extends State<AbsenTabel> {
+  String? _baseUrl;
+
   final List<String> headers = const [
     "Nama",
     "Tipe",
@@ -36,6 +38,19 @@ class _AbsenTabelState extends State<AbsenTabel> {
     "Lokasi Keluar",
     "Video",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _initBaseUrl();
+  }
+
+  Future<void> _initBaseUrl() async {
+    final url = await ApiConfig.baseUrl();
+    setState(() {
+      _baseUrl = url;
+    });
+  }
 
   List<AbsenModel> get absensi => [widget.absensi]; // ambil dari main
 
@@ -61,6 +76,15 @@ class _AbsenTabelState extends State<AbsenTabel> {
             : "-",
       ];
     }).toList();
+  }
+
+  String getFullUrl(String path) {
+    if (_baseUrl == null) return '';
+
+    final cleaned = path.replaceAll('\\', '');
+    return cleaned.startsWith('http')
+        ? cleaned
+        : '$_baseUrl${cleaned.startsWith('/') ? '' : '/'}$cleaned';
   }
 
   /// --- Lokasi tampil di BottomSheet dengan mini Map
@@ -156,19 +180,24 @@ class _AbsenTabelState extends State<AbsenTabel> {
   /// --- Video tampil di Fullscreen Dialog Stylish
   void _openVideo(String? videoPath) {
     if (videoPath == null || videoPath.isEmpty) {
-      final message =
-          context.isIndonesian ? "Tidak ada video" : "No video available";
-      NotificationHelper.showTopNotification(context, message,
-          isSuccess: false);
+      NotificationHelper.showTopNotification(
+        context,
+        context.isIndonesian ? "Tidak ada video" : "No video available",
+        isSuccess: false,
+      );
       return;
     }
 
-    final fullUrl = videoPath.startsWith('http')
-        ? videoPath
-        : "${ApiConfig.baseUrl}$videoPath";
+    if (_baseUrl == null) {
+      NotificationHelper.showTopNotification(
+        context,
+        "Server belum siap",
+        isSuccess: false,
+      );
+      return;
+    }
 
-    debugPrint("VIDEO PATH RAW: $videoPath");
-    debugPrint("VIDEO FULL URL: $fullUrl");
+    final fullUrl = getFullUrl(videoPath);
     final controller = VideoPlayerController.network(fullUrl);
 
     showGeneralDialog(
@@ -296,6 +325,11 @@ class _AbsenTabelState extends State<AbsenTabel> {
 
   @override
   Widget build(BuildContext context) {
+
+    if (_baseUrl == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return CustomDataTableWidget(
       headers: headers,
       rows: rows,

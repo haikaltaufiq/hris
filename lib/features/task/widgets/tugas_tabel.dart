@@ -32,17 +32,31 @@ class TugasTabel extends StatefulWidget {
   State<TugasTabel> createState() => _TugasTabelState();
 }
 
-String getFullUrl(String lampiranPath) {
-  final cleaned = lampiranPath.replaceAll('\\', '');
-  final fullUrl = cleaned.startsWith('http')
-      ? cleaned
-      : "${ApiConfig.baseUrl}${cleaned.startsWith('/') ? '' : '/'}$cleaned";
-
-  // debugPrint("🧾 Full URL dipakai Flutter: $fullUrl"); // <--- tambahin ini
-  return fullUrl;
-}
-
 class _TugasTabelState extends State<TugasTabel> {
+  String? _baseUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _initBaseUrl();
+  }
+
+  Future<void> _initBaseUrl() async {
+    final url = await ApiConfig.baseUrl();
+    setState(() {
+      _baseUrl = url;
+    });
+  }
+
+  String getFullUrl(String lampiranPath) {
+    if (_baseUrl == null) return '';
+
+    final cleaned = lampiranPath.replaceAll('\\', '');
+    return cleaned.startsWith('http')
+        ? cleaned
+        : '$_baseUrl${cleaned.startsWith('/') ? '' : '/'}$cleaned';
+  }
+
   String parseTime(String? time) {
     if (time == null || time.isEmpty) return '';
     try {
@@ -466,6 +480,11 @@ class _TugasTabelState extends State<TugasTabel> {
 //
   @override
   Widget build(BuildContext context) {
+
+    if (_baseUrl == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final List<String> headers = context.isIndonesian
         ? [
             "Kepada",

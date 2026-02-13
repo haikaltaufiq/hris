@@ -37,9 +37,10 @@ class AbsenService {
   /// Fetch daftar absensi
   static Future<List<AbsenModel>> fetchAbsensi() async {
     final headers = await _getHeaders();
+    final baseUrl = await ApiConfig.baseUrl();
 
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/absensi'),
+      Uri.parse('$baseUrl/api/absensi'),
       headers: headers,
     );
 
@@ -61,8 +62,9 @@ class AbsenService {
     required String videoPath,
     Uint8List? videoBytes,
   }) async {
+    final baseUrl = await ApiConfig.baseUrl();
     final headers = await _getHeaders();
-    final uri = Uri.parse('${ApiConfig.baseUrl}/api/absensi/checkin');
+    final uri = Uri.parse('$baseUrl/api/absensi/checkin');
     final request = http.MultipartRequest('POST', uri)..headers.addAll(headers);
 
     request.fields['lat'] = lat.toString();
@@ -140,9 +142,10 @@ class AbsenService {
   }) async {
     final headers = await _getHeaders(jsonType: true);
     final videoBase64 = base64Encode(videoBytes);
+    final baseUrl = await ApiConfig.baseUrl();
 
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/absensi/checkin'),
+      Uri.parse('$baseUrl/api/absensi/checkin'),
       headers: headers,
       body: json.encode({
         'lat': lat,
@@ -170,9 +173,9 @@ class AbsenService {
     required String checkoutTime,
   }) async {
     final headers = await _getHeaders(jsonType: true);
-
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/absensi/checkout'),
+      Uri.parse('$baseUrl/api/absensi/checkout'),
       headers: headers,
       body: json.encode({
         'lat': lat,

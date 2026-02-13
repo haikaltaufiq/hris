@@ -13,9 +13,10 @@ class AkunService {
   static Future<List<dynamic>> fetchLockedUsers() async {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
-
+    
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/akun/terkunci'),
+      Uri.parse('$baseUrl/api/akun/terkunci'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -34,9 +35,10 @@ class AkunService {
   static Future<bool> unlockUser(int userId) async {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
-
+    
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/akun/$userId/terkunci'),
+      Uri.parse('$baseUrl/api/akun/$userId/terkunci'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

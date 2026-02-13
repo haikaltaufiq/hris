@@ -17,8 +17,9 @@ class UserService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/user'),
+      Uri.parse('$baseUrl/api/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -42,8 +43,9 @@ class UserService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/user'),
+      Uri.parse('$baseUrl/api/user'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -82,8 +84,9 @@ class UserService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/user/$id'),
+      Uri.parse('$baseUrl/api/user/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -123,8 +126,9 @@ class UserService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/user/$id'),
+      Uri.parse('$baseUrl/api/user/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -148,8 +152,9 @@ class UserService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/user/tugas'),
+      Uri.parse('$baseUrl/api/user/tugas'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

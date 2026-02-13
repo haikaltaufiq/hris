@@ -15,8 +15,9 @@ class DeviceService {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/device'),
+      Uri.parse('$baseUrl/api/device'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -36,8 +37,9 @@ class DeviceService {
     final token = await _getToken();
     if (token == null) throw Exception('Token tidak ditemukan. Harap login ulang.');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/device/$userId/reset'),
+      Uri.parse('$baseUrl/api/device/$userId/reset'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

@@ -57,8 +57,9 @@ class TugasService {
     if (token == null)
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/tugas'),
+      Uri.parse('$baseUrl/api/tugas'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -118,8 +119,9 @@ class TugasService {
     // print("CREATE DATA KIRIM: $requestBody");
 
     try {
+      final baseUrl = await ApiConfig.baseUrl();
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/api/tugas'),
+        Uri.parse('$baseUrl/api/tugas'),
         headers: {
           'Authorization': 'Bearer $token',
           'Accept': 'application/json',
@@ -180,8 +182,9 @@ class TugasService {
 
     // print("UPDATE DATA KIRIM: $requestBody");
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
+      Uri.parse('$baseUrl/api/tugas/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -207,8 +210,9 @@ class TugasService {
     if (token == null)
       throw Exception('Token tidak ditemukan. Harap login ulang.');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id'),
+      Uri.parse('$baseUrl/api/tugas/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -237,13 +241,14 @@ class TugasService {
     double? lampiranLat,
     double? lampiranLng,
   }) async {
+    final baseUrl = await ApiConfig.baseUrl();
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id/upload-file'),
+        Uri.parse('$baseUrl/api/tugas/$id/upload-file'),
       );
 
       request.headers.addAll({
@@ -306,8 +311,9 @@ class TugasService {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/tugas/$id/status'),
+      Uri.parse('$baseUrl/api/tugas/$id/status'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

@@ -25,8 +25,9 @@ class GajiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/gaji'),
+      Uri.parse('$baseUrl/api/gaji'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -50,8 +51,9 @@ class GajiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/gaji/$id/status'),
+      Uri.parse('$baseUrl/api/gaji/$id/status'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -74,7 +76,8 @@ class GajiService {
     final token = await getToken();
     if (token == null) throw Exception("Token tidak ditemukan");
 
-    final uri = Uri.parse("${ApiConfig.baseUrl}/api/gaji/periods");
+    final baseUrl = await ApiConfig.baseUrl();
+    final uri = Uri.parse("$baseUrl/api/gaji/periods");
     final response = await http.get(uri, headers: {
       "Authorization": "Bearer $token",
     });
@@ -98,8 +101,9 @@ class GajiService {
       throw Exception('Token tidak ditemukan. Harap login ulang.');
     }
 
+    final baseUrl = await ApiConfig.baseUrl();
     final uri = Uri.parse(
-      '${ApiConfig.baseUrl}/api/gaji/export?bulan=$bulan&tahun=$tahun',
+      '$baseUrl/api/gaji/export?bulan=$bulan&tahun=$tahun',
     );
 
     final response = await http.get(

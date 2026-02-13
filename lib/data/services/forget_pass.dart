@@ -5,7 +5,8 @@ import 'package:hr/data/models/forget_password_model.dart';
 
 class ForgetPasswordService {
   static Future<ForgetPasswordResponse> sendResetLink(ForgetPasswordRequest request) async {
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/forgot-password');
+    final baseUrl = await ApiConfig.baseUrl();
+    final url = Uri.parse('$baseUrl/api/forgot-password');
 
     final response = await http.post(
       url,

@@ -15,8 +15,9 @@ class DangerService {
     required String jenis, // 'tugas', 'lembur', 'cuti', 'log'
   }) async {
     final token = await getToken();
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/danger/$jenis/months'),
+      Uri.parse('$baseUrl/api/danger/$jenis/months'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -38,8 +39,9 @@ class DangerService {
     required String jenis, // 'tugas', 'lembur', 'cuti'
   }) async {
     final token = await getToken();
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/danger/$jenis/reset'),
+      Uri.parse('$baseUrl/api/danger/$jenis/reset'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',

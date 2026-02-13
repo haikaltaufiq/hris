@@ -21,11 +21,14 @@ class DetailAbsen extends StatefulWidget {
 }
 
 class _DetailAbsenState extends State<DetailAbsen> {
+  String? _baseUrl; 
   late final List<Marker> _markers;
 
   @override
   void initState() {
     super.initState();
+    _initBaseUrl();
+    
     // marker final cuma sekali
     _markers = (widget.selectedAbsen.checkinLat != null &&
             widget.selectedAbsen.checkinLng != null)
@@ -45,14 +48,35 @@ class _DetailAbsenState extends State<DetailAbsen> {
         : [];
   }
 
+  Future<void> _initBaseUrl() async {
+    final url = await ApiConfig.baseUrl();
+    if (!mounted) return;
+    setState(() {
+      _baseUrl = url;
+    });
+  }
+
   // ================= VIDEO =================
   void _openVideo(String? videoPath) {
+    final noVideoMessage = context.isIndonesian
+        ? "Tidak ada video"
+        : "No video available";
+
     if (videoPath == null || videoPath.isEmpty) {
-      final message =
-          context.isIndonesian ? "Tidak ada video" : "No video available";
       NotificationHelper.showTopNotification(
         context,
-        message,
+        noVideoMessage,
+        isSuccess: false,
+      );
+      return;
+    }
+
+    if (_baseUrl == null) {
+      NotificationHelper.showTopNotification(
+        context,
+        context.isIndonesian
+            ? "Server belum siap"
+            : "Server not ready",
         isSuccess: false,
       );
       return;
@@ -60,9 +84,10 @@ class _DetailAbsenState extends State<DetailAbsen> {
 
     final fullUrl = videoPath.startsWith('http')
         ? videoPath
-        : "${ApiConfig.baseUrl}$videoPath";
+        : '$_baseUrl${videoPath.startsWith('/') ? '' : '/'}$videoPath';
 
     final controller = VideoPlayerController.network(fullUrl);
+
 
     showGeneralDialog(
       context: context,

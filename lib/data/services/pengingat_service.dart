@@ -16,8 +16,9 @@ class PengingatService {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.get(
-      Uri.parse('${ApiConfig.baseUrl}/api/pengingat'),
+      Uri.parse('$baseUrl/api/pengingat'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -39,8 +40,9 @@ class PengingatService {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.post(
-      Uri.parse('${ApiConfig.baseUrl}/api/pengingat'),
+      Uri.parse('$baseUrl/api/pengingat'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -70,8 +72,9 @@ class PengingatService {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse('${ApiConfig.baseUrl}/api/pengingat/$id'),
+      Uri.parse('$baseUrl/api/pengingat/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -89,8 +92,9 @@ class PengingatService {
     final token = await getToken();
     if (token == null) throw Exception("Token tidak ditemukan");
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.put(
-      Uri.parse("${ApiConfig.baseUrl}/api/pengingat/$id"),
+      Uri.parse("$baseUrl/api/pengingat/$id"),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
@@ -121,8 +125,9 @@ class PengingatService {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan');
 
+    final baseUrl = await ApiConfig.baseUrl();
     final response = await http.delete(
-      Uri.parse('${ApiConfig.baseUrl}/api/pengingat/$id'),
+      Uri.parse('$baseUrl/api/pengingat/$id'),
       headers: {
         'Authorization': 'Bearer $token',
         'Accept': 'application/json',
