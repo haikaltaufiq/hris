@@ -23,7 +23,7 @@ class NotificationService {
     await androidPlugin?.createNotificationChannel(androidChannel);
 
     // 🔹 Initialize plugin
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidInit = AndroidInitializationSettings('ic_launcher_foreground');
     const initSettings = InitializationSettings(android: androidInit);
     await _localNotifications.initialize(initSettings);
 

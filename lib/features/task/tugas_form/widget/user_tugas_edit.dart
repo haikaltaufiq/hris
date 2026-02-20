@@ -38,7 +38,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
   final TextEditingController _batasPenugasanController =
       TextEditingController();
   final TextEditingController _lokasiController = TextEditingController();
-  final TextEditingController _noteController = TextEditingController();
   final TextEditingController _judulTugasController = TextEditingController();
   final TextEditingController _lampiranTugasController =
       TextEditingController();
@@ -357,7 +356,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
     _judulTugasController.dispose();
     _tanggalPenugasanController.dispose();
     _batasPenugasanController.dispose();
-    _noteController.dispose();
     _lokasiController.dispose();
     _lampiranTugasController.dispose();
     _latitudeUploadController.dispose();
@@ -536,16 +534,6 @@ class _UserEditTugasState extends State<UserEditTugas> {
                 ),
               ),
               const SizedBox(height: 20),
-              CustomInputField(
-                label: "Note",
-                controller: _noteController,
-                labelStyle: labelStyle,
-                textStyle: textStyle,
-                inputStyle: inputStyle,
-                hint: context.isIndonesian
-                    ? "Masukkan catatan tambahan..."
-                    : "Enter additional notes...",
-              ),
               Row(
                 children: [
                   Expanded(

@@ -24,7 +24,7 @@ class TrackingService {
 
     debugPrint('🚀 Kirim lokasi ke backend');
     debugPrint('LAT: $latitude, LNG: $longitude');
-    
+
     final response = await http.post(
       url,
       headers: {
@@ -42,7 +42,7 @@ class TrackingService {
       debugPrint('❌ Error: ${response.body}');
       throw Exception('Gagal update lokasi');
     }
-    
+
     debugPrint('✅ Lokasi berhasil diupdate');
     debugPrint('📨 Response: ${response.body}');
   }
@@ -54,9 +54,9 @@ class TrackingService {
 
     final baseUrl = await ApiConfig.baseUrl();
     final url = Uri.parse('$baseUrl/api/tracking');
-    
+
     debugPrint('🔍 Fetching tracking data...');
-    
+
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
       "Accept": "application/json",
@@ -64,16 +64,17 @@ class TrackingService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      
+
       debugPrint('📦 Response structure: ${jsonResponse.keys}');
-      
+
       // ✅ Backend mengirim { "status": "success", "data": [...], "summary": {...} }
       if (jsonResponse['status'] == 'success' && jsonResponse['data'] != null) {
         final List usersData = jsonResponse['data'];
         final summary = jsonResponse['summary'];
-        
-        debugPrint('📊 Summary - Total: ${summary['total']}, Aktif: ${summary['aktif']}, Tidak Aktif: ${summary['tidak_aktif']}');
-        
+
+        debugPrint(
+            '📊 Summary - Total: ${summary['total']}, Aktif: ${summary['aktif']}, Tidak Aktif: ${summary['tidak_aktif']}');
+
         return usersData.map((e) => UserModel.fromJson(e)).toList();
       } else {
         throw Exception('Format response tidak sesuai');
@@ -91,7 +92,7 @@ class TrackingService {
 
     final baseUrl = await ApiConfig.baseUrl();
     final url = Uri.parse('$baseUrl/api/tracking/filtered?status=$status');
-    
+
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
       "Accept": "application/json",
@@ -99,7 +100,7 @@ class TrackingService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      
+
       if (jsonResponse['status'] == 'success' && jsonResponse['data'] != null) {
         final List usersData = jsonResponse['data'];
         return usersData.map((e) => UserModel.fromJson(e)).toList();
@@ -118,7 +119,7 @@ class TrackingService {
 
     final baseUrl = await ApiConfig.baseUrl();
     final url = Uri.parse('$baseUrl/api/tracking');
-    
+
     final response = await http.get(url, headers: {
       "Authorization": "Bearer $token",
       "Accept": "application/json",
@@ -126,8 +127,9 @@ class TrackingService {
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      
-      if (jsonResponse['status'] == 'success' && jsonResponse['summary'] != null) {
+
+      if (jsonResponse['status'] == 'success' &&
+          jsonResponse['summary'] != null) {
         final summary = jsonResponse['summary'];
         return {
           'total': summary['total'] ?? 0,
@@ -136,7 +138,7 @@ class TrackingService {
         };
       }
     }
-    
+
     return {'total': 0, 'aktif': 0, 'tidak_aktif': 0};
   }
 }

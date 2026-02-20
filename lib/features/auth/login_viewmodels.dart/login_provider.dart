@@ -193,9 +193,9 @@ class UserProvider extends ChangeNotifier {
     try {
       final response = await UserService.createUser(data);
       if (response['success'] == true) {
-        await fetchUsers(forceRefresh: true); // refresh list
+        await fetchUsers(forceRefresh: true);
       }
-      return response; // kembalikan response supaya bisa dicek di UI
+      return response; 
     } catch (e) {
       _errorMessage = e.toString();
       return {'success': false, 'message': _errorMessage};
@@ -214,7 +214,7 @@ class UserProvider extends ChangeNotifier {
     try {
       final response = await UserService.updateUser(id, data);
       if (response['success'] == true) {
-        await fetchUsers(forceRefresh: true); // refresh list
+        await fetchUsers(forceRefresh: true); 
       }
       return response;
     } catch (e) {
@@ -233,7 +233,7 @@ class UserProvider extends ChangeNotifier {
 
     try {
       await UserService.deleteUser(id);
-      await fetchUsers(forceRefresh: true); // refresh list
+      await fetchUsers(forceRefresh: true); 
     } catch (e) {
       _errorMessage = e.toString();
     } finally {

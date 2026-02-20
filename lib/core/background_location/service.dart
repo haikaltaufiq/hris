@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hr/core/background_location/entry.dart';
+import 'package:hr/data/api/api_config.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service class for managing location tracking
 class LocationTrackingService {
@@ -41,7 +43,7 @@ class LocationTrackingService {
       await flutterLocalNotificationsPlugin.initialize(
         const InitializationSettings(
           iOS: DarwinInitializationSettings(),
-          android: AndroidInitializationSettings('ic_notif_tracking'),
+          android: AndroidInitializationSettings('ic_launcher_foreground'),
         ),
       );
     }
@@ -137,7 +139,9 @@ class LocationTrackingService {
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     debugPrint('🚀 STARTING LOCATION TRACKING');
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
+    final prefs = await SharedPreferences.getInstance();
+    final baseUrl = await ApiConfig.baseUrl();
+    await prefs.setString('base_url', baseUrl);
     if (!_isInitialized) {
       debugPrint('[TRACK] Service not initialized, initializing now...');
       await initialize();

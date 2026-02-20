@@ -56,14 +56,11 @@ class _LocationTrackPageState extends State<LocationTrackPage> {
     }
   }
 
-  /// Start automatic data refresh every 30 seconds
   void _startAutoRefresh() {
+    _timer?.cancel();
     _timer = Timer.periodic(
-      const Duration(seconds: 30),
-      (_) {
-        _loadData();
-        _checkServiceStatus();
-      },
+      const Duration(seconds: 10),
+      (_) => _loadData(),
     );
   }
 

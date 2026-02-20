@@ -13,8 +13,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:hr/data/api/api_config.dart';
-
 // ---------------------------------------------------------------------------
 // Constants
 // ---------------------------------------------------------------------------
@@ -22,7 +20,7 @@ import 'package:hr/data/api/api_config.dart';
 const String _kChannelId = 'location_service_channel';
 const String _kChannelName = 'Location Tracking Service';
 const String _kChannelDesc = 'Background location tracking for attendance';
-const String _kNotifIcon = 'ic_notif_tracking';
+const String _kNotifIcon = 'ic_launcher_foreground';
 const int _kNotifId = 888;
 const int _kLogLimit = 100;
 const int _kTrackingIntervalSeconds = 5;
@@ -262,15 +260,20 @@ Future<void> _sendLocationToBackend(
 ) async {
   try {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload(); // WAJIB: Biar dapet token terbaru dari main isolate
+
     final token = prefs.getString('token');
+    // Ambil base URL langsung dari prefs atau static string jika memungkinkan
+    // Karena di isolate berbeda, memanggil function async lain kadang flaky
+    final baseUrl = prefs.getString('base_url') ?? 'https://api.hr-lu.com';
 
     if (token == null || token.isEmpty) {
       debugPrint(
-          '[LocationService] Auth token missing — skipping backend sync.');
+          '[LocationService] AUTH ERROR: Token is missing in background isolate');
       return;
     }
 
-    final url = Uri.parse('${ApiConfig.baseUrl}/api/tracking/update');
+    final url = Uri.parse('$baseUrl/api/tracking/update');
 
     final response = await http
         .post(
@@ -280,20 +283,23 @@ Future<void> _sendLocationToBackend(
             'Content-Type': 'application/json',
             'Accept': 'application/json',
           },
-          body: jsonEncode({'latitude': latitude, 'longitude': longitude}),
+          body: jsonEncode({
+            'latitude': latitude,
+            'longitude': longitude,
+            'recorded_at': DateTime.now()
+                .toIso8601String(), // Kirim timestamp asli dari device
+          }),
         )
-        .timeout(const Duration(seconds: 10));
+        .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
-      debugPrint('[LocationService] Location synced successfully.');
+      debugPrint('[LocationService] ✅ SYNC SUCCESS');
     } else {
       debugPrint(
-          '[LocationService] Backend error ${response.statusCode}: ${response.body}');
+          '[LocationService] ❌ BACKEND FAIL: ${response.statusCode} - ${response.body}');
     }
-  } on TimeoutException {
-    debugPrint('[LocationService] Backend request timed out.');
   } catch (e) {
-    debugPrint('[LocationService] Backend sync failed: $e');
+    debugPrint('[LocationService] ❌ CRITICAL SYNC ERROR: $e');
   }
 }
 

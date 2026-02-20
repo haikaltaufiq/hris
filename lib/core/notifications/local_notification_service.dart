@@ -8,7 +8,7 @@ class LocalNotificationService {
 
   static Future<void> initialize() async {
     const androidSettings =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+        AndroidInitializationSettings('ic_launcher_foreground');
     const initSettings = InitializationSettings(android: androidSettings);
     await _plugin.initialize(initSettings);
   }

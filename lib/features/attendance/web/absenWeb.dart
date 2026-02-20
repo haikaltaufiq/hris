@@ -258,8 +258,7 @@ class _AbsenWebState extends State<AbsenWeb> {
         _buildDropdown<AbsenSortType>(
           value: _selectedSort,
           items: [
-            DropdownMenuItem(
-                value: AbsenSortType.day, child: Text("Sort by Day")),
+            DropdownMenuItem(value: AbsenSortType.day, child: Text("Today")),
             DropdownMenuItem(
                 value: AbsenSortType.week, child: Text("Sort by Week")),
             if (lihatSemuaAbsensi) ...[
@@ -267,9 +266,9 @@ class _AbsenWebState extends State<AbsenWeb> {
                   value: AbsenSortType.name, child: Text("Sort by Name")),
             ],
             DropdownMenuItem(
-                value: AbsenSortType.terbaru, child: Text("Newest First")),
+                value: AbsenSortType.terbaru, child: Text("Newest")),
             DropdownMenuItem(
-                value: AbsenSortType.terlama, child: Text("Oldest First")),
+                value: AbsenSortType.terlama, child: Text("Oldest")),
           ],
           onChanged: (v) {
             setState(() => _selectedSort = v!);

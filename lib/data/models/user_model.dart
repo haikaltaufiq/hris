@@ -109,30 +109,39 @@ class UserModel {
   // HELPER METHODS UNTUK TRACKING
   // ========================================
 
-  /// ✅ FIXED: Check apakah GPS user aktif dengan logic yang benar
+  // PATCH untuk UserModel.dart
+
   bool isGpsActive(bool isServiceRunningLocally) {
-    // 1. Kalau tidak ada data lokasi sama sekali, pasti tidak aktif
-    if (latitude == null || longitude == null) {
-      return false;
+    if (latitude == null || longitude == null) return false;
+
+    // Prioritas 1: Pake hitungan menit dari backend kalo ada
+    if (lastUpdateMinutes != null) {
+      return lastUpdateMinutes! <= 5;
     }
 
-    // 2. Kalau tidak ada last update, tidak aktif
-    if (lastUpdate == null) {
-      return false;
-    }
-
-    // 3. Hitung berapa lama sejak last update
+    // Prioritas 2: Itung manual (Raw fallback)
+    if (lastUpdate == null) return false;
     final minutesSinceUpdate = DateTime.now().difference(lastUpdate!).inMinutes;
 
-    // 4. LOGIC UTAMA: Update dalam 5 menit terakhir = AKTIF
-    // Ini yang paling akurat karena based on data real
-    if (minutesSinceUpdate <= 5) {
-      return true;
+    return minutesSinceUpdate <= 5;
+  }
+
+  String get formattedLastUpdate {
+    // Kalau backend udah ngasih string "5 menit yang lalu", pake itu aja tapi sanitize
+    if (lastUpdateHuman != null && lastUpdateHuman!.isNotEmpty) {
+      return _sanitizeHumanTime(lastUpdateHuman!);
     }
 
-    // 5. Jika sudah lebih dari 5 menit, pasti TIDAK AKTIF
-    // Bahkan jika status dari backend 'aktif', kita percaya data waktu
-    return false;
+    // Fallback itung manual
+    if (lastUpdate == null) return 'Tidak ada data';
+
+    final Duration diff = DateTime.now().difference(lastUpdate!);
+    if (diff.inSeconds < 60) return 'Baru saja';
+    // Gunakan abs() buat jaga-jaga kalo jam HP lebih lambat dari server
+    final mins = diff.inMinutes.abs();
+    if (mins < 60) return '$mins menit yang lalu';
+
+    return '${diff.inHours.abs()} jam yang lalu';
   }
 
   /// Get initial nama untuk avatar (huruf pertama)
@@ -162,25 +171,6 @@ class UserModel {
 
     final rounded = value.round();
     return '$rounded $unit${suffix.isNotEmpty ? ' $suffix' : ''}'.trim();
-  }
-
-  String get formattedLastUpdate {
-    if (lastUpdateHuman != null && lastUpdateHuman!.isNotEmpty) {
-      return _sanitizeHumanTime(lastUpdateHuman!);
-    }
-
-    if (lastUpdate == null) return 'Tidak ada data';
-
-    try {
-      final Duration diff = DateTime.now().difference(lastUpdate!);
-
-      if (diff.inSeconds < 60) return 'Baru saja';
-      if (diff.inMinutes < 60) return '${diff.inMinutes} menit yang lalu';
-      if (diff.inHours < 24) return '${diff.inHours} jam yang lalu';
-      return '${diff.inDays} hari yang lalu';
-    } catch (_) {
-      return 'Tidak ada data';
-    }
   }
 
   /// Status text yang readable

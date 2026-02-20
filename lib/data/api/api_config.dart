@@ -1,8 +1,8 @@
 import 'package:http/http.dart' as http;
 
 class ApiConfig {
-  static const String publicUrl  = "http://27.112.70.84";
-  static const String privateUrl = "http://192.168.20.52";
+  static const String publicUrl = "https://27.112.70.84";
+  static const String privateUrl = "https://192.168.20.52";
 
   static String? _cachedBaseUrl;
 
@@ -12,9 +12,8 @@ class ApiConfig {
     const timeout = Duration(seconds: 2);
 
     try {
-      final res = await http
-          .get(Uri.parse('$publicUrl/api/ping'))
-          .timeout(timeout);
+      final res =
+          await http.get(Uri.parse('$publicUrl/api/ping')).timeout(timeout);
 
       if (res.statusCode == 200) {
         _cachedBaseUrl = publicUrl;
@@ -28,7 +27,6 @@ class ApiConfig {
     return _cachedBaseUrl!;
   }
 }
-
 
 //HP -> http (error self-signed certificate)
 //Web -> https (ga error tapi warning saja self-signed certificate)
